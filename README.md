@@ -6,9 +6,9 @@ The game is a basically a Point & Click where each day you'll encounter a random
 Keep Wandering takes inspiration from games like 60 Seconds (basic concept), Rimworld (health system) and many old-school flash games. 
 
 # Screenshots
-<br/><img src="Screenshots/SC1.png" height="600" /><br/>
+<br/><img src="Screenshots/SC1.png" height="400" /><br/>
 
-<br/><img src="Screenshots/SC2.png" height="600" /><br/>
+<br/><img src="Screenshots/SC2.png" height="400" /><br/>
 
-<br/><img src="Screenshots/SC3.png" height="600" /><br/>
+<br/><img src="Screenshots/SC3.png" height="400" /><br/>
 
