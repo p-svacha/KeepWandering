@@ -10,5 +10,6 @@ public enum ItemType
     WaterBottle,
     Knife,
     Bandage,
-    Antibiotics
+    Antibiotics,
+    NutSnack
 }

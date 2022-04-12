@@ -6,13 +6,11 @@ using UnityEngine;
 public class EventOption
 {
     public string Text;
-    public Action Action;
-    public EventStep NextStep;
+    public Func<Game, EventStep> Action; // Action that gets executed when chosing this option. Must return the next EventStep in the Event.
 
-    public EventOption(string text, Action action, EventStep nextStep)
+    public EventOption(string text, Func<Game, EventStep> action)
     {
         Text = text;
         Action = action;
-        NextStep = nextStep;
     }
 }

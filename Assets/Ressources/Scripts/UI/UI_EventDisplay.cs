@@ -25,10 +25,16 @@ public class UI_EventDisplay : MonoBehaviour
         }
         else
         {
-            EventOption endDayOption = new EventOption("Continue journey", () => Game.EndEvent(), null);
+            EventOption endDayOption = new EventOption("Continue journey", EndEvent);
             UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(Game, endDayOption);
         }
+    }
+
+    private EventStep EndEvent(Game game)
+    {
+        game.EndEvent();
+        return null;
     }
 
     public void DisplayMorningReport(List<string> nightEvents)
@@ -44,9 +50,15 @@ public class UI_EventDisplay : MonoBehaviour
         }
         EventText.text = text;
 
-        EventOption endMorningReportOption = new EventOption("Start day", () => Game.EndMorningReport(), null);
+        EventOption endMorningReportOption = new EventOption("Start day", EndMorningReport);
         UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
         optionDisplay.Init(Game, endMorningReportOption);
+    }
+
+    private EventStep EndMorningReport(Game game)
+    {
+        game.EndMorningReport();
+        return null;
     }
 
     private void Clear()

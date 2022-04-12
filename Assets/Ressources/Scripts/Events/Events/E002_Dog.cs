@@ -24,29 +24,47 @@ public class E002_Dog : Event
         // Sprite
         ResourceManager.Singleton.E002_Dog.SetActive(true);
 
-        bool petSuccess = Random.value < PetSuccessChance;
-
+        // Event
         List<EventOption> options = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Option - Pet the dog
-        if (petSuccess) options.Add(new EventOption("Pet the dog", () => RecruitDog(game), new EventStep("The dog loves the pets and decides to follow you on your journey.", null, null)));
-        else options.Add(new EventOption("Pet the dog", null, new EventStep("The dog enjoys the pets and keeps watching into the distance.", null, null)));
+        options.Add(new EventOption("Pet the dog", PetDog));
 
         // Dialogue Option - Ignore dog
-        options.Add(new EventOption("Ignore the dog", null, new EventStep("The dog mirrors your reaction and ignores you too.", null, null)));
+        options.Add(new EventOption("Ignore the dog", IgnoreDog));
 
         // Item Option (bone) - Offer bone
-        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", RecruitDogWithBone, new EventStep("The dog happily takes the bone and decides to follow you on your journey.", null, null)));
+        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", (game, item) => OfferBone(game, item)));
 
         EventStep initialStep = new EventStep("You encounter a dog that looks friendly towards you.", options, itemOptions);
         return new E002_Dog(initialStep);
     }
 
-    private static void RecruitDogWithBone(Game game, Item bone)
+    private static EventStep PetDog(Game game)
+    {
+        bool petSuccess = Random.value < PetSuccessChance;
+
+        EventStep nextEventStep;
+        if (petSuccess)
+        {
+            RecruitDog(game);
+            nextEventStep = new EventStep("The dog loves the pets and decides to follow you on your journey.", null, null);
+        }
+        else nextEventStep = new EventStep("The dog enjoys the pets and keeps watching into the distance.", null, null);
+        return nextEventStep;
+    }
+
+    private static EventStep IgnoreDog(Game game)
+    {
+        return new EventStep("The dog mirrors your reaction and ignores you too.", null, null);
+    }
+
+    private static EventStep OfferBone(Game game, Item bone)
     {
         game.DestroyOwnedItem(bone);
         RecruitDog(game);
+        return new EventStep("The dog happily takes the bone and decides to follow you on your journey.", null, null);
     }
 
     private static void RecruitDog(Game game)

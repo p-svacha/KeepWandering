@@ -161,10 +161,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca42ad70df3fc9e48b8ee0c8a37ea0c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Game: {fileID: 0}
   Name: Can of beans
-  Description: A can of beans that will provide food for about 3 days.
+  Description: A can of beans that will a good amount of nutrition and a small amount
+    of hydration.
   Type: 1
   IsEdible: 1
   OnEatNutrition: 3
+  OnEatHydration: 1
+  IsDrinkable: 0
+  OnDrinkHydration: 0
+  CanTendWounds: 0
+  CanHealInfections: 0
+  Game: {fileID: 0}
   IsOwned: 0
+  ForceGlow: 0

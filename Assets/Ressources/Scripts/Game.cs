@@ -12,6 +12,7 @@ public class Game : MonoBehaviour
     public UI_EventDisplay EventStepDisplay;
     public GameObject StatusEffectsContainer;
     public UI_StatusEffect StatusEffectPrefab;
+    public Text StatusEffectTitlePrefab;
 
     [Header("Description Box")]
     public UI_DescriptionBox DescriptionBox;
@@ -45,7 +46,7 @@ public class Game : MonoBehaviour
 
     [Header("Characters")]
     public PlayerCharacter Player;
-    public Companion_Dog Dog;
+    public List<Companion> Companions = new List<Companion>();
 
     [Header("Location")]
     public SpriteRenderer BackgroundImage;
@@ -264,6 +265,8 @@ public class Game : MonoBehaviour
         List<string> nightEvents = new List<string>();
 
         nightEvents.AddRange(Player.OnEndDay(this));
+        foreach (Companion c in Companions) nightEvents.AddRange(c.OnEndDay(this));
+        UpdateStatusEffects();
 
         // Location switch
         SetLocation(NextDayLocation);
@@ -377,6 +380,7 @@ public class Game : MonoBehaviour
             case EventType.E001_Crate: return E001_Crate.GetProbability(this);
             case EventType.E002_Dog: return E002_Dog.GetProbability(this);
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetProbability(this);
+            case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetProbability(this);
 
             default: throw new System.Exception("Probability not handled for EventType " + type.ToString());
         }
@@ -389,6 +393,7 @@ public class Game : MonoBehaviour
             case EventType.E001_Crate: return E001_Crate.GetEventInstance(this);
             case EventType.E002_Dog: return E002_Dog.GetEventInstance(this);
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetEventInstance(this);
+            case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetEventInstance(this);
 
             default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
         }
@@ -441,56 +446,91 @@ public class Game : MonoBehaviour
         item.IsOwned = true;
         Inventory.Add(item);
     }
-
     public void DestroyOwnedItem(Item item)
     {
         Inventory.Remove(item);
-        GameObject.Destroy(item.gameObject);
+        Destroy(item.gameObject);
     }
 
     public void EatItem(Item item)
     {
         if (!item.IsEdible) Debug.LogWarning("Eating item that is not edible! " + item.Name);
         Player.AddNutrition(item.OnEatNutrition);
+        Player.AddHydration(item.OnEatHydration);
         DestroyOwnedItem(item);
+        UpdateStatusEffects();
     }
     public void DrinkItem(Item item)
     {
         if (!item.IsDrinkable) Debug.LogWarning("Drinking item that is not edible! " + item.Name);
         Player.AddHydration(item.OnDrinkHydration);
         DestroyOwnedItem(item);
+        UpdateStatusEffects();
     }
 
     public void AddBruiseWound()
     {
         Player.AddBruiseWound();
+        UpdateStatusEffects();
     }
     public void AddCutWound()
     {
         Player.AddCutWound();
+        UpdateStatusEffects();
     }
 
     public void TendWound(Wound wound, Item item)
     {
         if (!item.CanTendWounds) Debug.LogWarning("Tending wound with an item that can't tend wounds! " + item.Name);
         if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
-        wound.IsHighlighted = false;
+        wound.SetHightlight(false);
         Player.TendWound(wound);
         DestroyOwnedItem(item);
+        UpdateStatusEffects();
     }
     public void HealInfection(Wound wound, Item item)
     {
         if(!item.CanHealInfections) Debug.LogWarning("Healing infection with an item that can't heal infections! " + item.Name);
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
-        wound.IsHighlighted = false;
+        wound.SetHightlight(false);
         Player.HealInfection(wound);
         DestroyOwnedItem(item);
+        UpdateStatusEffects();
     }
 
     public void AddDog()
     {
         Player.AddDog();
-        Dog.gameObject.SetActive(true);
+        Companions.Add(ResourceManager.Singleton.Dog);
+        ResourceManager.Singleton.Dog.Init();
+        UpdateStatusEffects();
+    }
+    public void RemoveDog()
+    {
+        Player.RemoveDog();
+        Companions.Remove(ResourceManager.Singleton.Dog);
+        ResourceManager.Singleton.Dog.gameObject.SetActive(false);
+        UpdateStatusEffects();
+    }
+
+    public void AddParrot()
+    {
+        Player.AddParrot();
+        Companions.Add(ResourceManager.Singleton.Parrot);
+        ResourceManager.Singleton.Parrot.Init();
+        UpdateStatusEffects();
+    }
+    public void FeedParrot(float value)
+    {
+        ResourceManager.Singleton.Parrot.AddNutrition(value);
+        UpdateStatusEffects();
+    }
+    public void RemoveParrot()
+    {
+        Player.RemoveParrot();
+        Companions.Remove(ResourceManager.Singleton.Parrot);
+        ResourceManager.Singleton.Parrot.gameObject.SetActive(false);
+        UpdateStatusEffects();
     }
 
     public void SetNextDayLocation(Location location)
@@ -536,14 +576,35 @@ public class Game : MonoBehaviour
         DescriptionBox.gameObject.SetActive(false);
     }
 
-    public void UpdateStatusEffects(List<StatusEffect> statusEffects)
+
+    private void UpdateStatusEffects()
     {
+        // Update and Get
+        List<StatusEffect> statusEffects = new List<StatusEffect>();
+
+        Player.UpdateSpritesAndStatusEffects();
+        statusEffects.AddRange(Player.StatusEffects);
+
+        foreach (Companion c in Companions)
+        {
+            c.UpdateStatusEffects();
+            statusEffects.AddRange(c.StatusEffects);
+        }
+
+        Dictionary<string, List<StatusEffect>> groupedStatusEffects = statusEffects.GroupBy(x => x.Source).ToDictionary(x => x.Key, x => x.ToList());
+
+        // Display
         foreach (Transform t in StatusEffectsContainer.transform) Destroy(t.gameObject);
 
-        foreach(StatusEffect statusEffect in statusEffects)
+        foreach (KeyValuePair<string, List<StatusEffect>> kvp in groupedStatusEffects)
         {
-            UI_StatusEffect effectObject = Instantiate(StatusEffectPrefab, StatusEffectsContainer.transform);
-            effectObject.Init(statusEffect);
+            foreach (StatusEffect statusEffect in kvp.Value)
+            {
+                UI_StatusEffect effectObject = Instantiate(StatusEffectPrefab, StatusEffectsContainer.transform);
+                effectObject.Init(statusEffect);
+            }
+            Text title = Instantiate(StatusEffectTitlePrefab, StatusEffectsContainer.transform);
+            title.text = kvp.Key;
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(StatusEffectsContainer.GetComponent<RectTransform>());

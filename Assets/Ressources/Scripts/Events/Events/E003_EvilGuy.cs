@@ -29,8 +29,9 @@ public class E003_EvilGuy : Event
     {
         { ItemType.Beans, 10},
         { ItemType.WaterBottle, 10},
-        { ItemType.Bone, 5},
-        { ItemType.Knife, 2},
+        { ItemType.Bone, 2},
+        { ItemType.Bandage, 4},
+        { ItemType.Antibiotics, 4},
     };
 
     public E003_EvilGuy(EventStep initialStep, List<Item> rewardItems) : base(
@@ -68,62 +69,15 @@ public class E003_EvilGuy : Event
             eventItems.Add(item);
         }
 
-        // Event
         string eventText = "You encounter a very angry and dangerous looking guy. He tells you to give him your " + ransomItem.Name + " or he's gonna punch you.";
-
         EventStep initialStep = GetInitialStep(game, eventText, ransomItem, rewardItems);
+
         return new E003_EvilGuy(initialStep, eventItems);
     }
 
-    private static void PayRansom(Game game, Item ransomItem)
+    private static EventStep Fight(Game game, Item ransomItem, List<Item> rewardItems)
     {
-        if (ransomItem != null) game.DestroyOwnedItem(ransomItem);
-    }
-
-    private static void WinFight(Game game, List<Item> rewards)
-    {
-        ResourceManager.Singleton.E003_EvilGuy.SetActive(false);
-        ResourceManager.Singleton.E003_EvilGuy_KO.SetActive(true);
-        foreach (Item item in rewards) game.AddItemToInventory(item);
-    }
-
-    private static void WinFightWithInjury(Game game, List<Item> rewards)
-    {
-        GetInjured(game);
-        WinFight(game, rewards);
-    }
-
-    private static void GetInjured(Game game)
-    {
-        game.AddBruiseWound();
-    }
-
-    private static void LoseFight(Game game, Item ransomItem)
-    {
-        GetInjured(game);
-        PayRansom(game, ransomItem);
-    }
-
-    private static void ThrowItem(Game game, Item throwItem, Item ransomItem, List<Item> rewardItems)
-    {
-        bool throwSuccessful = Random.value < ItemThrowSuccessChance;
-        game.DestroyOwnedItem(throwItem);
-        if (throwSuccessful)
-        {
-            WinFight(game, rewardItems);
-            game.DisplayEventStep(new EventStep("Bullseye! The " + throwItem.Name + " knocked the guy straight to the floor. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + ") and leave.", null, null));
-        }
-        else
-        {
-            string text = "The " + throwItem.Name + " missed the guy and gets destroyed upon hitting the floor.";
-            EventStep startStep = GetInitialStep(game, text, ransomItem, rewardItems);
-            game.DisplayEventStep(startStep);
-        }
-    }
-
-    private static EventStep GetInitialStep(Game game, string text, Item ransomItem, List<Item> rewardItems)
-    {
-        // Successful fight calculations
+        // Success chance
         float fightSuccessChance = BaseFightSuccess;
         List<string> fightModifiers = new List<string>();
         if (game.Player.HasDog)
@@ -155,25 +109,77 @@ public class E003_EvilGuy : Event
         bool fightSuccess = Random.value < fightSuccessChance;
         bool gotInjured = !fightSuccess || Random.value < fightSuccessChance;
 
+        // Outcome handling
+        if(fightSuccess && !gotInjured)
+        {
+            WinFight(game, rewardItems);
+            return new EventStep("You jump on the guy and manage to knock him unconcious before he can hurt you. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + " and leave.", null, null);
+        }
+        else if(fightSuccess && gotInjured)
+        {
+            GetInjured(game);
+            WinFight(game, rewardItems);
+            return new EventStep("You jump on the guy and a dirty fight ensues. You manage to knock him about but take a punch in the process. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + " and leave.", null, null);
+        }
+        else
+        {
+            GetInjured(game);
+            if (ransomItem != null) game.DestroyOwnedItem(ransomItem);
+            return new EventStep("You jump on the guy but quickly realize that you underestimated his strength. He punches you and takes the " + ransomItem.Name + " by force. Defeated and injured you decide it's better to move on.", null, null);
+        }
+    }
+
+    private static EventStep PayRansom(Game game, Item ransomItem)
+    {
+        if (ransomItem != null) game.DestroyOwnedItem(ransomItem);
+        return new EventStep("You give the guy your " + ransomItem.Name + ". He thanks and wishes you a nice day.", null, null);
+    }
+
+    private static void WinFight(Game game, List<Item> rewards)
+    {
+        ResourceManager.Singleton.E003_EvilGuy.SetActive(false);
+        ResourceManager.Singleton.E003_EvilGuy_KO.SetActive(true);
+        foreach (Item item in rewards) game.AddItemToInventory(item);
+    }
+
+    private static void GetInjured(Game game)
+    {
+        game.AddBruiseWound();
+    }
+
+    private static EventStep ThrowItem(Game game, Item throwItem, Item ransomItem, List<Item> rewardItems)
+    {
+        bool throwSuccessful = Random.value < ItemThrowSuccessChance;
+
+        game.DestroyOwnedItem(throwItem);
+
+        if (throwSuccessful)
+        {
+            WinFight(game, rewardItems);
+            return new EventStep("Bullseye! The " + throwItem.Name + " knocked the guy straight to the floor. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + ") and leave.", null, null);
+        }
+        else
+        {
+            string text = "The " + throwItem.Name + " missed the guy and gets destroyed upon hitting the floor.";
+            EventStep startStep = GetInitialStep(game, text, ransomItem, rewardItems);
+            return GetInitialStep(game, text, ransomItem, rewardItems);
+        }
+    }
+
+    private static EventStep GetInitialStep(Game game, string text, Item ransomItem, List<Item> rewardItems)
+    {
         List<EventOption> dialogueOptions = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
-        // Dialogue Option - Fight him
-        string successText = fightSuccess ? "You manage to knock him unconcious and take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + ")." : "He is stronger than you thought and takes away the " + ransomItem.Name + " by force.";
-        string injuryText = gotInjured ? " You got injured during the fight." : "";
-        EventStep fightResultStep = new EventStep("You jump onto the guy and a dirty fight occurs. " + successText + injuryText + "You decide it's better to leave.", null, null);
-        System.Action fightAction;
-        if (fightSuccess && !gotInjured) fightAction = () => WinFight(game, rewardItems);
-        else if (fightSuccess && gotInjured) fightAction = () => WinFightWithInjury(game, rewardItems);
-        else fightAction = () => LoseFight(game, ransomItem);
-        dialogueOptions.Add(new EventOption("Fight him " + fightModifiersText, fightAction, fightResultStep));
+        // Dialogue Option - Fight
+        dialogueOptions.Add(new EventOption("Fight", (game) => Fight(game, ransomItem, rewardItems)));
 
         // Item Option - Pay him
-        itemOptions.Add(new EventItemOption(ransomItem.Type, "Give to the evil guy", PayRansom, new EventStep("You give the guy your " + ransomItem.Name + ". He thanks and wishes you a nice day.", null, null)));
+        itemOptions.Add(new EventItemOption(ransomItem.Type, "Give to the evil guy", (game, item) => PayRansom(game, item)));
 
         // Item Option - Throw item at him
         foreach (ItemType type in System.Enum.GetValues(typeof(ItemType)))
-            itemOptions.Add(new EventItemOption(type, "Throw", (game, item) => ThrowItem(game, item, ransomItem, rewardItems), null));
+            itemOptions.Add(new EventItemOption(type, "Throw", (game, item) => ThrowItem(game, item, ransomItem, rewardItems)));
 
         return new EventStep(text, dialogueOptions, itemOptions);
     }

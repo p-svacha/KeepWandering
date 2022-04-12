@@ -13,6 +13,7 @@ public class Item : MonoBehaviour
     [Header("Food")]
     public bool IsEdible;
     public float OnEatNutrition;
+    public float OnEatHydration;
 
     [Header("Drink")]
     public bool IsDrinkable;
@@ -32,6 +33,7 @@ public class Item : MonoBehaviour
     public void Init(Game game)
     {
         Game = game;
+        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
     }
 
     public bool CanInteract()
@@ -49,13 +51,15 @@ public class Item : MonoBehaviour
             if (IsEdible) allOptions.Add(new ItemInteractionOption("Eat", () => Game.EatItem(this)));
             if (IsDrinkable) allOptions.Add(new ItemInteractionOption("Drink", () => Game.DrinkItem(this)));
             if (CanTendWounds)
-                foreach (Wound wound in Game.Player.Wounds.Where(x => !x.IsTended))
+                foreach (Wound wound in Game.Player.ActiveWounds.Where(x => !x.IsTended))
                     allOptions.Add(new ItemInteractionOption("Tend " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             if (CanHealInfections)
-                foreach (Wound wound in Game.Player.Wounds.Where(x => x.InfectionStage != InfectionStage.None))
+                foreach (Wound wound in Game.Player.ActiveWounds.Where(x => x.InfectionStage != InfectionStage.None))
                     allOptions.Add(new ItemInteractionOption("Heal " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
         }
-        
+
+        // Item-specific options
+        if (Type == ItemType.NutSnack && Game.Player.HasParrot) allOptions.Add(new ItemInteractionOption("Feed to Parrot", () => Game.FeedParrot(OnEatNutrition)));
 
         // Options by event step
         if (Game.CurrentEventStep != null)
@@ -75,20 +79,21 @@ public class Item : MonoBehaviour
     private void HighlightWound(Wound wound)
     {
         wound.SetHightlight(true);
-        Game.Player.UpdateSpritesAndStatusEffects();
     }
     private void UnhightlightWound(Wound wound)
     {
         wound.SetHightlight(false);
-        Game.Player.UpdateSpritesAndStatusEffects();
     }
 
     private void ChoseEventItemOption(EventItemOption option)
     {
         if (Game.State == GameState.InGame)
         {
-            if (option.Action != null) option.Action(Game, this);
-            if (option.NextStep != null) Game.DisplayEventStep(option.NextStep); // in certain cases the next step can be null, then the next event step gets handled by the action of the itemoption itself
+            if (option.Action != null)
+            {
+                EventStep nextEventStep = option.Action(Game, this);
+                Game.DisplayEventStep(nextEventStep);
+            }
         }
     }
 }

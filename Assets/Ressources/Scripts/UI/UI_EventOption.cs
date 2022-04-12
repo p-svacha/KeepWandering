@@ -18,8 +18,11 @@ public class UI_EventOption : MonoBehaviour
     {
         if (game.State == GameState.InGame)
         {
-            if (option.Action != null) option.Action();
-            game.DisplayEventStep(option.NextStep);
+            if (option.Action != null)
+            {
+                EventStep nextEventStep = option.Action(game);
+                if(nextEventStep != null) game.DisplayEventStep(nextEventStep);
+            }
         }
     }
 }

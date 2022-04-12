@@ -17,6 +17,8 @@ public class UI_StatusEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     public void Init(StatusEffect statusEffect)
     {
+        statusEffect.UI = this;
+
         StatusEffectText.text = statusEffect.Name;
         StatusEffectText.color = statusEffect.TextColor;
         DescriptionText.text = statusEffect.Description;
