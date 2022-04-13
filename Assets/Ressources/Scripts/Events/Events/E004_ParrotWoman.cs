@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class E004_ParrotWoman : Event
 {
-    private static bool HasEncountered;
+    public const string WomanName = "Pam";
+
+    public static bool HasEncountered;
+    public static int EncounterDay;
+    public static Location EncounterLocation;
+    public static bool HasAcceptedParrot;
 
     public static float GetProbability(Game game)
     {
@@ -14,6 +19,11 @@ public class E004_ParrotWoman : Event
 
     public static E004_ParrotWoman GetEventInstance(Game game)
     {
+        // Attributes
+        HasEncountered = true;
+        EncounterDay = game.Day;
+        EncounterLocation = game.CurrentLocation;
+
         // Sprite
         ResourceManager.Singleton.E004_Woman.SetActive(true);
         ResourceManager.Singleton.E004_Parrot.SetActive(true);
@@ -29,16 +39,17 @@ public class E004_ParrotWoman : Event
         dialogueOptions.Add(new EventOption("Refuse to take the parrot", RefuseParrot));
 
         // Event
-        string eventText = "You encounter a woman with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + game.CurrentLocation.ToString() + ". She adds that the parrot is a very picky eater and will only accept nuts.";
+        string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
         EventStep initialStep = new EventStep(eventText, dialogueOptions, itemOptions);
         return new E004_ParrotWoman(initialStep);
     }
 
     private static EventStep AcceptParrot(Game game)
     {
+        HasAcceptedParrot = true;
         game.AddParrot();
         ResourceManager.Singleton.E004_Parrot.SetActive(false);
-        return new EventStep("You promise her to take care of the parrot. She asks you to take good care of him.", null, null);
+        return new EventStep("You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.", null, null);
     }
 
     private static EventStep RefuseParrot(Game game)

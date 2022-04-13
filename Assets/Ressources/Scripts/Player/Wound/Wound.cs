@@ -36,6 +36,8 @@ public class Wound : MonoBehaviour
     public void SetActive(int originDay)
     {
         IsActive = true;
+        IsTended = false;
+        InfectionStage = InfectionStage.None;
         OriginDay = originDay;
     }
 

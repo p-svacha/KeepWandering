@@ -6,7 +6,7 @@ public class LE004_CityStay : LocationEvent
 {
     public static float GetProbability(Game game)
     {
-        if (game.CurrentLocation == Location.City) return 15;
+        if (game.CurrentLocation.Type == LocationType.City) return 15;
         else return 0;
     }
 
@@ -16,7 +16,7 @@ public class LE004_CityStay : LocationEvent
         "You keep walking through the city.",
         new Dictionary<Location, string>()
         {
-            {Location.City, "Okay" },
+            {ResourceManager.Singleton.LOC_City, "Okay" },
         })
     { }
 }

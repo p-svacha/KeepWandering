@@ -7,16 +7,18 @@ public class E002_Dog : Event
 {
     private const float PetSuccessChance = 0.2f;
 
-    private static Dictionary<Location, float> LocationProbabilityTable = new Dictionary<Location, float>()
+    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {Location.Suburbs, 2f},
-        {Location.City, 0.5f},
+        {LocationType.Suburbs, 2f},
+        {LocationType.City, 0.3f},
+        {LocationType.Woods, 0.5f},
+        {LocationType.GroceryStore, 0f},
     };
 
     public static float GetProbability(Game game)
     {
         if (game.Player.HasDog) return 0;
-        else return 2f * LocationProbabilityTable[game.CurrentLocation];
+        else return 2f * LocationProbabilityTable[game.CurrentLocation.Type];
     }
 
     public static E002_Dog GetEventInstance(Game game)

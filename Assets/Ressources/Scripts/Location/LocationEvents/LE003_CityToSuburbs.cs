@@ -6,7 +6,7 @@ public class LE003_CityToSuburbs : LocationEvent
 {
     public static float GetProbability(Game game)
     {
-        if (game.CurrentLocation == Location.City) return 10;
+        if (game.CurrentLocation.Type == LocationType.City) return 10;
         else return 0;
     }
 
@@ -16,8 +16,8 @@ public class LE003_CityToSuburbs : LocationEvent
         "You've reached a junction to the suburbs.",
         new Dictionary<Location, string>()
         {
-            {Location.City, "Stay in the city." },
-            {Location.Suburbs, "Go to the suburbs." }
+            {ResourceManager.Singleton.LOC_City, "Stay in the city." },
+            {ResourceManager.Singleton.LOC_Suburbs, "Go to the suburbs." }
         })
     { }
 }

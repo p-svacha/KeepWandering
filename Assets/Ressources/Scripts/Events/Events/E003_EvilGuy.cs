@@ -14,10 +14,12 @@ public class E003_EvilGuy : Event
 
     private const float ItemThrowSuccessChance = 0.4f;
 
-    private static Dictionary<Location, float> LocationProbabilityTable = new Dictionary<Location, float>()
+    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {Location.Suburbs, 0.5f},
-        {Location.City, 2f},
+        {LocationType.Suburbs, 0.5f},
+        {LocationType.City, 2f},
+        {LocationType.Woods, 0.1f},
+        {LocationType.GroceryStore, 1.5f},
     };
     private static Dictionary<int, float> NumRewardsTable = new Dictionary<int, float>()
     {
@@ -45,7 +47,7 @@ public class E003_EvilGuy : Event
     public static float GetProbability(Game game)
     {
         if (game.Inventory.Count == 0) return 0;
-        else return BaseProbability * LocationProbabilityTable[game.CurrentLocation];
+        else return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
     }
 
     public static E003_EvilGuy GetEventInstance(Game game)

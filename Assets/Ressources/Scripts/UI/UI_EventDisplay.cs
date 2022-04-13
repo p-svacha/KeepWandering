@@ -42,10 +42,10 @@ public class UI_EventDisplay : MonoBehaviour
         Clear();
         string text = "";
         if (Game.Day == 1) text = "After you saw the news you knew that you weren't save anymore at home. You ran outside, grabbed your handcart and so starts your journey.";
-        else if (nightEvents.Count == 0) text = "You wake up in the " + HelperFunctions.GetEnumDescription(Game.CurrentLocation) + ". Nothing eventful happened during the night.";
+        else if (nightEvents.Count == 0) text = "You wake up in the " + Game.CurrentLocation.Name + ". Nothing eventful happened during the night.";
         else
         {
-            text = "You wake up in the " + HelperFunctions.GetEnumDescription(Game.CurrentLocation) + ". The following happened during the night:";
+            text = "You wake up in the " + Game.CurrentLocation.Name + ". The following happened during the night:";
             foreach (string e in nightEvents) text += "\n" + e;
         }
         EventText.text = text;

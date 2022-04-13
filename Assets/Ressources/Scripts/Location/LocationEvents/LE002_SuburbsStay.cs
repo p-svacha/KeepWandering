@@ -6,7 +6,7 @@ public class LE002_SuburbsStay : LocationEvent
 {
     public static float GetProbability(Game game)
     {
-        if (game.CurrentLocation == Location.Suburbs) return 15;
+        if (game.CurrentLocation.Type == LocationType.Suburbs) return 15;
         else return 0;
     }
 
@@ -16,7 +16,7 @@ public class LE002_SuburbsStay : LocationEvent
         "You keep walking through the suburbs.",
         new Dictionary<Location, string>()
         {
-            {Location.Suburbs, "Okay" },
+            {ResourceManager.Singleton.LOC_Suburbs, "Okay" },
         })
     { }
 }

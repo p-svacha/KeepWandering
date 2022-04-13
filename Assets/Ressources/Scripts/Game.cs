@@ -48,9 +48,6 @@ public class Game : MonoBehaviour
     public PlayerCharacter Player;
     public List<Companion> Companions = new List<Companion>();
 
-    [Header("Location")]
-    public SpriteRenderer BackgroundImage;
-
     // Rules
     private static Dictionary<ItemType, float> StartItemTable = new Dictionary<ItemType, float>()
     {
@@ -77,7 +74,7 @@ public class Game : MonoBehaviour
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
         AddItemToInventory(GetItemInstance(HelperFunctions.GetWeightedRandomElement(StartItemTable, debug: true)));
 
-        SetLocation(Location.Suburbs);
+        NextDayLocation = ResourceManager.Singleton.LOC_Suburbs;
 
         BlackTransitionText.text = "Day " + Day;
         SwitchState(GameState.InDayTransition);
@@ -189,7 +186,7 @@ public class Game : MonoBehaviour
     private void SwitchState(GameState newState)
     {
         GameState oldState = State;
-        Debug.Log("Switch State " + oldState.ToString() + " --> " + newState.ToString());
+        // Debug.Log("Switch State " + oldState.ToString() + " --> " + newState.ToString());
 
         switch (oldState)
         {
@@ -254,8 +251,9 @@ public class Game : MonoBehaviour
 
     private void SetLocation(Location location)
     {
+        if(CurrentLocation != null) CurrentLocation.gameObject.SetActive(false);
         CurrentLocation = location;
-        BackgroundImage.sprite = ResourceManager.Singleton.GetLocationSprite(location);
+        CurrentLocation.gameObject.SetActive(true);
     }
 
     private void StartNewDay()
@@ -265,7 +263,9 @@ public class Game : MonoBehaviour
         List<string> nightEvents = new List<string>();
 
         nightEvents.AddRange(Player.OnEndDay(this));
-        foreach (Companion c in Companions) nightEvents.AddRange(c.OnEndDay(this));
+        List<Companion> companionsCopy = new List<Companion>();
+        foreach (Companion c in Companions) companionsCopy.Add(c);
+        foreach (Companion c in companionsCopy) nightEvents.AddRange(c.OnEndDay(this));
         UpdateStatusEffects();
 
         // Location switch
@@ -381,6 +381,7 @@ public class Game : MonoBehaviour
             case EventType.E002_Dog: return E002_Dog.GetProbability(this);
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetProbability(this);
             case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetProbability(this);
+            case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetProbability(this);
 
             default: throw new System.Exception("Probability not handled for EventType " + type.ToString());
         }
@@ -394,6 +395,7 @@ public class Game : MonoBehaviour
             case EventType.E002_Dog: return E002_Dog.GetEventInstance(this);
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetEventInstance(this);
             case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetEventInstance(this);
+            case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetEventInstance(this);
 
             default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
         }
@@ -407,6 +409,9 @@ public class Game : MonoBehaviour
             case LocationEventType.LE002_SuburbsStay: return LE002_SuburbsStay.GetProbability(this);
             case LocationEventType.LE003_CityToSuburbs: return LE003_CityToSuburbs.GetProbability(this);
             case LocationEventType.LE004_CityStay: return LE004_CityStay.GetProbability(this);
+            case LocationEventType.LE005_SuburbsToWoodsForce: return LE005_SuburbsToWoodsForce.GetProbability(this);
+            case LocationEventType.LE006_WoodsStay: return LE006_WoodsStay.GetProbability(this);
+            case LocationEventType.LE007_WoodsToSuburbsForce: return LE007_WoodsToSuburbsForce.GetProbability(this);
 
             default: throw new System.Exception("Probability not handled for LocationEventType " + type.ToString());
         }
@@ -419,6 +424,9 @@ public class Game : MonoBehaviour
             case LocationEventType.LE002_SuburbsStay: return new LE002_SuburbsStay(this);
             case LocationEventType.LE003_CityToSuburbs: return new LE003_CityToSuburbs(this);
             case LocationEventType.LE004_CityStay: return new LE004_CityStay(this);
+            case LocationEventType.LE005_SuburbsToWoodsForce: return new LE005_SuburbsToWoodsForce(this);
+            case LocationEventType.LE006_WoodsStay: return new LE006_WoodsStay(this);
+            case LocationEventType.LE007_WoodsToSuburbsForce: return new LE007_WoodsToSuburbsForce(this);
 
             default: throw new System.Exception("Instancing not handled for LocationEventType " + type.ToString());
         }
@@ -608,6 +616,12 @@ public class Game : MonoBehaviour
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(StatusEffectsContainer.GetComponent<RectTransform>());
+
+        // Check Game Over
+        if(CheckGameOver() != null)
+        {
+            SwitchState(GameState.DayTransitionFadeIn);
+        }
     }
 
     #endregion

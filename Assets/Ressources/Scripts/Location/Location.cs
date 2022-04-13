@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Location
+public class Location : MonoBehaviour
 {
-    Suburbs,
-    City
+    public string Name;
+    public LocationType Type;
 }

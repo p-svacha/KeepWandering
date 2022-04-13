@@ -17,8 +17,8 @@ public class Parrot : Companion
         StatusEffectsInitialized = true;
 
         SE_Hungry = new StatusEffect(SourceName, "Hungry", "Needs nuts", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_VeryHungry = new StatusEffect(SourceName, "Hungry", "Needs nuts urgently", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_Starving = new StatusEffect(SourceName, "Hungry", "Needs nuts or it will die", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_VeryHungry = new StatusEffect(SourceName, "Very Hungry", "Needs nuts urgently", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_Starving = new StatusEffect(SourceName, "Starving", "Needs nuts or it will die", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
     }
 
     protected override void OnInit()

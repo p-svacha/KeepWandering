@@ -13,8 +13,10 @@ public class ResourceManager : MonoBehaviour
     public GameObject E004_Parrot;
 
     [Header("Backgrounds")]
-    public Sprite BG_Neighbourhood;
-    public Sprite BG_City;
+    public Location LOC_Suburbs;
+    public Location LOC_City;
+    public Location LOC_Woods;
+    public Location LOC_GroceryStore;
 
     [Header("Companions")]
     public Dog Dog;
@@ -27,17 +29,6 @@ public class ResourceManager : MonoBehaviour
     public Color SE_Bad;
     public Color SE_VeryBad;
     public Color SE_ExtremelyBad;
-
-    public Sprite GetLocationSprite(Location location)
-    {
-        switch (location)
-        {
-            case Location.Suburbs: return BG_Neighbourhood;
-            case Location.City: return BG_City;
-
-            default: throw new System.Exception("No background found for location " + location.ToString());
-        }
-    }
 
     public static ResourceManager Singleton { get { return GameObject.Find("ResourceManager").GetComponent<ResourceManager>(); } }
 }
