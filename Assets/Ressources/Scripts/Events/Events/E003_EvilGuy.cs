@@ -64,7 +64,7 @@ public class E003_EvilGuy : Event
         List<Item> rewardItems = new List<Item>();
         for(int i = 0; i < numRewards; i++)
         {
-            ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(FightRewardTable, debug: true);
+            ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(FightRewardTable);
             Item item = game.GetItemInstance(itemType);
             item.GetComponent<SpriteRenderer>().enabled = false;
             rewardItems.Add(item);
@@ -115,26 +115,32 @@ public class E003_EvilGuy : Event
         if(fightSuccess && !gotInjured)
         {
             WinFight(game, rewardItems);
-            return new EventStep("You jump on the guy and manage to knock him unconcious before he can hurt you. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + " and leave.", null, null);
+            return new EventStep("You jump on the guy and manage to knock him unconcious before he can hurt you. You take his stuff and leave.", rewardItems, null, null, null);
         }
         else if(fightSuccess && gotInjured)
         {
             GetInjured(game);
             WinFight(game, rewardItems);
-            return new EventStep("You jump on the guy and a dirty fight ensues. You manage to knock him about but take a punch in the process. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + " and leave.", null, null);
+            return new EventStep("You jump on the guy and a dirty fight ensues. You manage to knock him about but take a punch in the process. You take his stuff and leave.", rewardItems, null, null, null);
         }
         else
         {
+            string text = "You jump on the guy but quickly realize that you underestimated his strength.";
             GetInjured(game);
-            if (ransomItem != null) game.DestroyOwnedItem(ransomItem);
-            return new EventStep("You jump on the guy but quickly realize that you underestimated his strength. He punches you and takes the " + ransomItem.Name + " by force. Defeated and injured you decide it's better to move on.", null, null);
+            if (ransomItem != null)
+            {
+                game.DestroyOwnedItem(ransomItem);
+                text += " He punches you and takes away your " + ransomItem.Name + " by force";
+            }
+            text += " Defeated and injured you decide it's better to move on.";
+            return new EventStep(text, null, ransomItem == null ? null : new List<Item>() { ransomItem }, null, null);
         }
     }
 
     private static EventStep PayRansom(Game game, Item ransomItem)
     {
         if (ransomItem != null) game.DestroyOwnedItem(ransomItem);
-        return new EventStep("You give the guy your " + ransomItem.Name + ". He thanks and wishes you a nice day.", null, null);
+        return new EventStep("You give the guy your " + ransomItem.Name + ". He thanks and wishes you a nice day.", null, new List<Item>() { ransomItem }, null, null);
     }
 
     private static void WinFight(Game game, List<Item> rewards)
@@ -158,13 +164,14 @@ public class E003_EvilGuy : Event
         if (throwSuccessful)
         {
             WinFight(game, rewardItems);
-            return new EventStep("Bullseye! The " + throwItem.Name + " knocked the guy straight to the floor. You take his stuff (" + HelperFunctions.GetItemListAsString(rewardItems) + ") and leave.", null, null);
+            return new EventStep("Bullseye! The " + throwItem.Name + " knocked the guy straight to the floor. You take his stuff and leave.", rewardItems, new List<Item>() { throwItem }, null, null);
         }
         else
         {
             string text = "The " + throwItem.Name + " missed the guy and gets destroyed upon hitting the floor.";
             EventStep startStep = GetInitialStep(game, text, ransomItem, rewardItems);
-            return GetInitialStep(game, text, ransomItem, rewardItems);
+            startStep.RemovedItems = new List<Item>() { throwItem };
+            return startStep;
         }
     }
 
@@ -183,6 +190,6 @@ public class E003_EvilGuy : Event
         foreach (ItemType type in System.Enum.GetValues(typeof(ItemType)))
             itemOptions.Add(new EventItemOption(type, "Throw", (game, item) => ThrowItem(game, item, ransomItem, rewardItems)));
 
-        return new EventStep(text, dialogueOptions, itemOptions);
+        return new EventStep(text, null, null, dialogueOptions, itemOptions);
     }
 }

@@ -28,7 +28,7 @@ public class E004_ParrotWoman : Event
         ResourceManager.Singleton.E004_Woman.SetActive(true);
         ResourceManager.Singleton.E004_Parrot.SetActive(true);
 
-        // Options
+        // Init Event
         List<EventOption> dialogueOptions = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
@@ -40,7 +40,7 @@ public class E004_ParrotWoman : Event
 
         // Event
         string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
-        EventStep initialStep = new EventStep(eventText, dialogueOptions, itemOptions);
+        EventStep initialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
         return new E004_ParrotWoman(initialStep);
     }
 
@@ -50,12 +50,13 @@ public class E004_ParrotWoman : Event
         game.AddParrot();
         game.AddOrUpdateMission(MissionId.M001_CareParrot, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + ".");
         ResourceManager.Singleton.E004_Parrot.SetActive(false);
-        return new EventStep("You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.", null, null);
+        string text = "You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.";
+        return new EventStep(text, null, null, null, null);
     }
 
     private static EventStep RefuseParrot(Game game)
     {
-        return new EventStep("You refuse to take care of the parrot.", null, null);
+        return new EventStep("You refuse to take care of the parrot.", null, null, null, null);
     }
 
     public E004_ParrotWoman(EventStep initialStep) : base(

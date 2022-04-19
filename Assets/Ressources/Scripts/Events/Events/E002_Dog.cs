@@ -39,7 +39,7 @@ public class E002_Dog : Event
         // Item Option (bone) - Offer bone
         itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", (game, item) => OfferBone(game, item)));
 
-        EventStep initialStep = new EventStep("You encounter a dog that looks friendly towards you.", options, itemOptions);
+        EventStep initialStep = new EventStep("You encounter a dog that looks friendly towards you.", null, null, options, itemOptions);
         return new E002_Dog(initialStep);
     }
 
@@ -51,22 +51,22 @@ public class E002_Dog : Event
         if (petSuccess)
         {
             RecruitDog(game);
-            nextEventStep = new EventStep("The dog loves the pets and decides to follow you on your journey.", null, null);
+            nextEventStep = new EventStep("The dog loves the pets and decides to follow you on your journey.", null, null, null, null);
         }
-        else nextEventStep = new EventStep("The dog enjoys the pets and keeps watching into the distance.", null, null);
+        else nextEventStep = new EventStep("The dog enjoys the pets and keeps watching into the distance.", null, null, null, null);
         return nextEventStep;
     }
 
     private static EventStep IgnoreDog(Game game)
     {
-        return new EventStep("The dog mirrors your reaction and ignores you too.", null, null);
+        return new EventStep("The dog mirrors your reaction and ignores you too.", null, null, null, null);
     }
 
     private static EventStep OfferBone(Game game, Item bone)
     {
         game.DestroyOwnedItem(bone);
         RecruitDog(game);
-        return new EventStep("The dog happily takes the bone and decides to follow you on your journey.", null, null);
+        return new EventStep("The dog happily takes the bone and decides to follow you on your journey.", null, new List<Item>() { bone }, null, null);
     }
 
     private static void RecruitDog(Game game)

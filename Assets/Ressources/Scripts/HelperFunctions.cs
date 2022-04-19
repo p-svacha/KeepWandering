@@ -12,7 +12,7 @@ public static class HelperFunctions
         return (x % m + m) % m;
     }
 
-    public static T GetWeightedRandomElement<T>(Dictionary<T, float> weightDictionary, bool debug = false)
+    public static T GetWeightedRandomElement<T>(Dictionary<T, float> weightDictionary)
     {
         if (weightDictionary.Any(x => x.Value < 0)) throw new System.Exception("Negative probability found for " + weightDictionary.First(x => x.Value < 0).Key.ToString());
         float probabilitySum = weightDictionary.Sum(x => x.Value);
@@ -31,7 +31,7 @@ public static class HelperFunctions
             }
         }
 
-        if (debug)
+        if (Game.DEBUG_RANDOM_CHOICES)
         {
             Dictionary<T, float> normalizedProbabilites = weightDictionary.ToDictionary(x => x.Key, x => x.Value / probabilitySum * 100f);
             string probabilites = "Probabilites for " + typeof(T).FullName;

@@ -73,12 +73,10 @@ public class PlayerCharacter : MonoBehaviour
     }
 
     /// <summary>
-    /// Performs all events that happen during the night and returns a list of them for the morning report.
+    /// Performs all events that happen during the night and adds them to the morning report.
     /// </summary>
-    public List<string> OnEndDay(Game game)
+    public void OnEndDay(Game game, MorningReport morningReport)
     {
-        List<string> nightEvents = new List<string>();
-
         // Nutrition
         AddNutrition(-BaseNutritionDropPerDay);
 
@@ -99,9 +97,7 @@ public class PlayerCharacter : MonoBehaviour
         AddBlood(bloodChange);
 
         // Wounds
-        foreach(Wound wound in ActiveWounds) nightEvents.AddRange(wound.OnEndDay(game));
-
-        return nightEvents;
+        foreach(Wound wound in ActiveWounds) wound.OnEndDay(game, morningReport);
     }
 
     public void AddNutrition(float value)

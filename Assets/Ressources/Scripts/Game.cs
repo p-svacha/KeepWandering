@@ -50,6 +50,9 @@ public class Game : MonoBehaviour
     public PlayerCharacter Player;
     public List<Companion> Companions = new List<Companion>();
 
+    // Debug
+    public const bool DEBUG_RANDOM_CHOICES = true;
+
     // Rules
     private static Dictionary<ItemType, float> StartItemTable = new Dictionary<ItemType, float>()
     {
@@ -73,7 +76,7 @@ public class Game : MonoBehaviour
 
         AddItemToInventory(GetItemInstance(ItemType.Beans));
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
-        AddItemToInventory(GetItemInstance(HelperFunctions.GetWeightedRandomElement(StartItemTable, debug: true)));
+        AddItemToInventory(GetItemInstance(HelperFunctions.GetWeightedRandomElement(StartItemTable)));
 
         NextDayLocation = ResourceManager.Singleton.LOC_Suburbs;
 
@@ -259,21 +262,21 @@ public class Game : MonoBehaviour
 
     private void StartNewDay()
     {
+        MorningReport morningReport = new MorningReport(Day);
+
         Day++;
 
-        List<string> nightEvents = new List<string>();
-
-        nightEvents.AddRange(Player.OnEndDay(this));
+        Player.OnEndDay(this, morningReport);
         List<Companion> companionsCopy = new List<Companion>();
         foreach (Companion c in Companions) companionsCopy.Add(c);
-        foreach (Companion c in companionsCopy) nightEvents.AddRange(c.OnEndDay(this));
+        foreach (Companion c in companionsCopy) c.OnEndDay(this, morningReport);
         UpdateStatusEffects();
 
         // Location switch
         SetLocation(NextDayLocation);
 
         // Show morning reports
-        EventStepDisplay.DisplayMorningReport(nightEvents);
+        EventStepDisplay.DisplayMorningReport(morningReport);
     }
 
     public void EndMorningReport()
@@ -286,7 +289,7 @@ public class Game : MonoBehaviour
         // Chose an event for the day
         Dictionary<EventType, float> eventTable = new Dictionary<EventType, float>();
         foreach (EventType type in System.Enum.GetValues(typeof(EventType))) eventTable.Add(type, GetEventProbability(type));
-        EventType chosenEventType = HelperFunctions.GetWeightedRandomElement<EventType>(eventTable, debug: true);
+        EventType chosenEventType = HelperFunctions.GetWeightedRandomElement<EventType>(eventTable);
         CurrentEvent = GetEventInstance(chosenEventType);
 
         // Display the event
@@ -350,7 +353,7 @@ public class Game : MonoBehaviour
         // Get a location event
         Dictionary<LocationEventType, float> eventTable = new Dictionary<LocationEventType, float>();
         foreach (LocationEventType type in System.Enum.GetValues(typeof(LocationEventType))) eventTable.Add(type, GetLocationEventProbability(type));
-        LocationEventType chosenEventType = HelperFunctions.GetWeightedRandomElement<LocationEventType>(eventTable, debug: true);
+        LocationEventType chosenEventType = HelperFunctions.GetWeightedRandomElement<LocationEventType>(eventTable);
         LocationEvent locationEvent = GetLocationEventInstance(chosenEventType);
         DisplayEventStep(locationEvent.EventStep);
     }

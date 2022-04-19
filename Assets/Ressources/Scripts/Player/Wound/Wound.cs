@@ -44,10 +44,8 @@ public class Wound : MonoBehaviour
     /// <summary>
     /// Performs all events that happen during the night and returns a list of them for the morning report.
     /// </summary>
-    public List<string> OnEndDay(Game game)
+    public void OnEndDay(Game game, MorningReport morningReport)
     {
-        List<string> nightEvents = new List<string>();
-
         // Chance to get minor infection
         if(!IsTended && InfectionStage == InfectionStage.None)
         {
@@ -56,7 +54,7 @@ public class Wound : MonoBehaviour
             {
                 InfectionStage = InfectionStage.Minor;
                 MinorInfectionDay = game.Day;
-                nightEvents.Add("Your " + HelperFunctions.GetEnumDescription(Type) + " got infected.");
+                morningReport.NightEvents.Add("Your " + HelperFunctions.GetEnumDescription(Type) + " got infected.");
             }
         }
         // Chance to get major infection
@@ -66,7 +64,7 @@ public class Wound : MonoBehaviour
             if (Random.value < infectionChance)
             {
                 InfectionStage = InfectionStage.Major;
-                nightEvents.Add("The infection of your " + HelperFunctions.GetEnumDescription(Type) + " got worse and needs be dealt with immeadiately.");
+                morningReport.NightEvents.Add("The infection of your " + HelperFunctions.GetEnumDescription(Type) + " got worse and needs be dealt with immeadiately.");
             }
         }
         // Chance to get fatal infection
@@ -82,11 +80,9 @@ public class Wound : MonoBehaviour
             if (Random.value < infectionChance)
             {
                 Player.RemoveWound(this);
-                nightEvents.Add("Your " + HelperFunctions.GetEnumDescription(Type) + " has fully healed.");
+                morningReport.NightEvents.Add("Your " + HelperFunctions.GetEnumDescription(Type) + " has fully healed.");
             }
         }
-
-        return nightEvents;
     }
 
     public void Tend(Game game)

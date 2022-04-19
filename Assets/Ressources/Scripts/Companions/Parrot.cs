@@ -31,16 +31,14 @@ public class Parrot : Companion
         Nutrition += value;
     }
 
-    public override List<string> OnEndDay(Game game)
+    public override void OnEndDay(Game game, MorningReport morningReport)
     {
-        List<string> morningReport = new List<string>();
         Nutrition -= 1f;
         if (Nutrition <= 0)
         {
             Starve(game);
-            morningReport.Add("Your parrot died from malnutrition.");
+            morningReport.NightEvents.Add("Your parrot died from malnutrition.");
         }
-        return morningReport;
     }
 
     private void Starve(Game game)

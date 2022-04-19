@@ -48,21 +48,25 @@ public class E006_WoodsBunker : Event
 
     private static EventStep Continue(Game game)
     {
-        return new EventStep("You walk past the bunker.", null, null);
+        return new EventStep("You walk past the bunker.", null, null, null, null);
     }
 
     private static EventStep GiveFood(Game game, Item item)
     {
         RequiredFood--;
         UpdateBunkerMission(game);
-        return GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
+        EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
+        nextStep.RemovedItems = new List<Item>() { item };
+        return nextStep;
     }
 
     private static EventStep GiveWater(Game game, Item item)
     {
         RequiredWater--;
         UpdateBunkerMission(game);
-        return GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
+        EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
+        nextStep.RemovedItems = new List<Item>() { item };
+        return nextStep;
     }
 
     private static EventStep GetInitialStep(Game game, string eventText)
@@ -97,7 +101,7 @@ public class E006_WoodsBunker : Event
         }
 
         // Event
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
 
     public E006_WoodsBunker(EventStep initialStep) : base(

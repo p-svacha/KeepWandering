@@ -47,7 +47,7 @@ public class E005_ParrowWomanReunion : Event
         }
 
         // Event
-        EventStep initialStep = new EventStep(eventText, dialogueOptions, itemOptions);
+        EventStep initialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
         return new E005_ParrowWomanReunion(initialStep);
     }
 
@@ -58,12 +58,14 @@ public class E005_ParrowWomanReunion : Event
         E006_WoodsBunker.SetRandomRequirements();
         E006_WoodsBunker.UpdateBunkerMission(game);
         SuccessfulReturn = true;
-        return new EventStep(E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe bunker in the woods that will let you join them if you bring them food and water.", null, null);
+        string text = E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe bunker in the woods that will let you join them if you bring them food and water.";
+        return new EventStep(text, null, null, null, null);
     }
 
     private static EventStep Continue(Game game)
     {
-        return new EventStep("You tell her you're sorry but there's nothing more you can do so you continue your journey.", null, null);
+        string text = "You tell her you're sorry but there's nothing more you can do so you continue your journey.";
+        return new EventStep(text, null, null, null, null);
     }
 
     public E005_ParrowWomanReunion(EventStep initialStep) : base(

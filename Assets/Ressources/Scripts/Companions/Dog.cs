@@ -14,17 +14,16 @@ public class Dog : Companion
         { ItemType.Bandage, 5},
     };
 
-    public override List<string> OnEndDay(Game game)
+    public override void OnEndDay(Game game, MorningReport morningReport)
     {
-        List<string> eventReport = new List<string>();
         if(Random.value < FindItemChance)
         {
             ItemType foundItemType = HelperFunctions.GetWeightedRandomElement(FindItemTable);
             Item foundItem = game.GetItemInstance(foundItemType);
             game.AddItemToInventory(foundItem);
-            eventReport.Add("Your dog found a " + foundItem.Name + ".");
+            morningReport.NightEvents.Add("Your dog found a " + foundItem.Name + ".");
+            morningReport.AddedItems.Add(foundItem);
         }
-        return eventReport;
     }
 
     protected override void OnInit() { }

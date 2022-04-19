@@ -12,6 +12,6 @@ public abstract class Companion : MonoBehaviour
         OnInit();
     }
     protected abstract void OnInit();
-    public abstract List<string> OnEndDay(Game game);
+    public abstract void OnEndDay(Game game, MorningReport morningReport);
     public abstract void UpdateStatusEffects();
 }

@@ -15,7 +15,7 @@ public abstract class LocationEvent
         {
             options.Add(new EventOption(target.Value, (game) => ChoseNextLocation(game, target.Key)));
         }
-        EventStep = new EventStep(text, options, null);
+        EventStep = new EventStep(text, null, null, options, null);
     }
 
     private static EventStep ChoseNextLocation(Game game, Location location)
