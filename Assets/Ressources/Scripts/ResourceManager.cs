@@ -11,6 +11,7 @@ public class ResourceManager : MonoBehaviour
     public GameObject E003_EvilGuy_KO;
     public GameObject E004_Woman;
     public GameObject E004_Parrot;
+    public GameObject E006_WoodsBunker;
 
     [Header("Backgrounds")]
     public Location LOC_Suburbs;

@@ -13,6 +13,7 @@ public class Game : MonoBehaviour
     public GameObject StatusEffectsContainer;
     public UI_StatusEffect StatusEffectPrefab;
     public Text StatusEffectTitlePrefab;
+    public UI_Missions MissionsDisplay;
 
     [Header("Description Box")]
     public UI_DescriptionBox DescriptionBox;
@@ -40,6 +41,7 @@ public class Game : MonoBehaviour
     public Location CurrentLocation;
     public Location NextDayLocation;
     public List<Item> Inventory = new List<Item>();
+    public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
     [Header("Items")]
     public List<Item> ItemPrefabs;
@@ -58,7 +60,6 @@ public class Game : MonoBehaviour
         { ItemType.Knife, 2 },
         { ItemType.Antibiotics, 2 },
     };
-
 
     #region Game Flow
 
@@ -200,7 +201,7 @@ public class Game : MonoBehaviour
             case GameState.InDayTransition:
                 StartNewDay();
 
-                string gameOver = CheckGameOver();
+                string gameOver = GetGameOverReason();
                 if(gameOver != null)
                 {
                     BlackTransitionText.text = "Day " + Day + "\n" + gameOver;
@@ -359,13 +360,19 @@ public class Game : MonoBehaviour
         SwitchState(GameState.DayTransitionFadeIn);
     }
 
-    public string CheckGameOver()
+    public void CheckGameOver()
+    {
+        if (GetGameOverReason() != null) SwitchState(GameState.DayTransitionFadeIn);
+    }
+
+    private string GetGameOverReason()
     {
         if (Player.Nutrition <= 0f) return "You starved";
         if (Player.Hydration <= 0f) return "You died of dehydration";
         if (Player.BoneHealth <= 0f) return "You died due to extreme fractures";
         if (Player.BloodAmount <= 0f) return "You bled out";
         if (Player.ActiveWounds.Any(x => x.InfectionStage == InfectionStage.Fatal)) return "You died (Infection)";
+        if (E006_WoodsBunker.HasEnteredBunker) return "You are safe.";
         return null;
     }
 
@@ -382,6 +389,7 @@ public class Game : MonoBehaviour
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetProbability(this);
             case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetProbability(this);
             case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetProbability(this);
+            case EventType.E006_WoodsBunker: return E006_WoodsBunker.GetProbability(this);
 
             default: throw new System.Exception("Probability not handled for EventType " + type.ToString());
         }
@@ -396,6 +404,7 @@ public class Game : MonoBehaviour
             case EventType.E003_EvilGuy: return E003_EvilGuy.GetEventInstance(this);
             case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetEventInstance(this);
             case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetEventInstance(this);
+            case EventType.E006_WoodsBunker: return E006_WoodsBunker.GetEventInstance(this);
 
             default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
         }
@@ -617,11 +626,19 @@ public class Game : MonoBehaviour
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(StatusEffectsContainer.GetComponent<RectTransform>());
 
-        // Check Game Over
-        if(CheckGameOver() != null)
-        {
-            SwitchState(GameState.DayTransitionFadeIn);
-        }
+        CheckGameOver();
+    }
+
+    public void AddOrUpdateMission(MissionId missionId, string text)
+    {
+        if (Missions.ContainsKey(missionId)) Missions[missionId].Text = text;
+        else Missions.Add(missionId, new Mission(missionId, text));
+        MissionsDisplay.UpdateList(Missions.Values.ToList());
+    }
+    public void RemoveMission(MissionId missionId)
+    {
+        if (Missions.ContainsKey(missionId)) Missions.Remove(missionId);
+        MissionsDisplay.UpdateList(Missions.Values.ToList());
     }
 
     #endregion

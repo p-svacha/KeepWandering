@@ -35,12 +35,18 @@ public class Parrot : Companion
     {
         List<string> morningReport = new List<string>();
         Nutrition -= 1f;
-        if(Nutrition <= 0)
+        if (Nutrition <= 0)
         {
-            game.RemoveParrot();
+            Starve(game);
             morningReport.Add("Your parrot died from malnutrition.");
         }
         return morningReport;
+    }
+
+    private void Starve(Game game)
+    {
+        game.RemoveParrot();
+        game.RemoveMission(MissionId.M001_CareParrot);
     }
 
     public override void UpdateStatusEffects()

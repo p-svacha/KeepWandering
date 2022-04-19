@@ -8,5 +8,6 @@ public enum EventType
     E002_Dog,
     E003_EvilGuy,
     E004_ParrotWoman,
-    E005_ParrotWomanReunion
+    E005_ParrotWomanReunion,
+    E006_WoodsBunker
 }

@@ -8,10 +8,10 @@ public class E001_Crate : Event
     {
         { ItemType.Beans, 10},
         { ItemType.WaterBottle, 10},
-        { ItemType.Bandage, 10},
-        { ItemType.Antibiotics, 10},
-        { ItemType.Bone, 10},
-        { ItemType.Knife, 10},
+        { ItemType.Bandage, 5},
+        { ItemType.Antibiotics, 5},
+        { ItemType.Bone, 3},
+        { ItemType.Knife, 3},
         { ItemType.NutSnack, 10},
     };
 

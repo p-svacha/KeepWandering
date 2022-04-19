@@ -54,8 +54,11 @@ public class E005_ParrowWomanReunion : Event
     private static EventStep ReturnParrot(Game game)
     {
         game.RemoveParrot();
+        game.RemoveMission(MissionId.M001_CareParrot);
+        E006_WoodsBunker.SetRandomRequirements();
+        E006_WoodsBunker.UpdateBunkerMission(game);
         SuccessfulReturn = true;
-        return new EventStep(E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe place in the woods that will let you join them if you bring them food and water.", null, null);
+        return new EventStep(E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe bunker in the woods that will let you join them if you bring them food and water.", null, null);
     }
 
     private static EventStep Continue(Game game)
