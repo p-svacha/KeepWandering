@@ -14,6 +14,7 @@ public class Game : MonoBehaviour
     public UI_StatusEffect StatusEffectPrefab;
     public Text StatusEffectTitlePrefab;
     public UI_Missions MissionsDisplay;
+    public UI_EscapeMenu EscapeMenu;
 
     [Header("Description Box")]
     public UI_DescriptionBox DescriptionBox;
@@ -42,6 +43,12 @@ public class Game : MonoBehaviour
     public Location NextDayLocation;
     public List<Item> Inventory = new List<Item>();
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
+
+    // Forced events (god mode)
+    public bool HasForcedEvent;
+    public EventType ForcedEventType;
+    public bool HasForcedLocationEvent;
+    public LocationEventType ForcedLocationEventType;
 
     [Header("Items")]
     public List<Item> ItemPrefabs;
@@ -73,6 +80,7 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         Player.Init(this);
+        EscapeMenu.Init(this);
 
         AddItemToInventory(GetItemInstance(ItemType.Beans));
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
@@ -89,6 +97,10 @@ public class Game : MonoBehaviour
     {
         bool uiClick = EventSystem.current.IsPointerOverGameObject();
 
+        // Escape menu
+        if (Input.GetKeyDown(KeyCode.Escape)) EscapeMenu.gameObject.SetActive(!EscapeMenu.gameObject.activeSelf);
+
+        // Update per state
         switch (State) {
 
             case GameState.DayTransitionFadeIn:
@@ -290,6 +302,9 @@ public class Game : MonoBehaviour
         Dictionary<EventType, float> eventTable = new Dictionary<EventType, float>();
         foreach (EventType type in System.Enum.GetValues(typeof(EventType))) eventTable.Add(type, GetEventProbability(type));
         EventType chosenEventType = HelperFunctions.GetWeightedRandomElement<EventType>(eventTable);
+
+        if (HasForcedEvent && eventTable[ForcedEventType] != 0) chosenEventType = ForcedEventType;
+
         CurrentEvent = GetEventInstance(chosenEventType);
 
         // Display the event
@@ -354,6 +369,9 @@ public class Game : MonoBehaviour
         Dictionary<LocationEventType, float> eventTable = new Dictionary<LocationEventType, float>();
         foreach (LocationEventType type in System.Enum.GetValues(typeof(LocationEventType))) eventTable.Add(type, GetLocationEventProbability(type));
         LocationEventType chosenEventType = HelperFunctions.GetWeightedRandomElement<LocationEventType>(eventTable);
+
+        if (HasForcedLocationEvent && eventTable[ForcedLocationEventType] != 0) chosenEventType = ForcedLocationEventType;
+
         LocationEvent locationEvent = GetLocationEventInstance(chosenEventType);
         DisplayEventStep(locationEvent.EventStep);
     }
@@ -540,8 +558,9 @@ public class Game : MonoBehaviour
         ResourceManager.Singleton.Parrot.Init();
         UpdateStatusEffects();
     }
-    public void FeedParrot(float value)
+    public void FeedParrot(Item item, float value)
     {
+        DestroyOwnedItem(item);
         ResourceManager.Singleton.Parrot.AddNutrition(value);
         UpdateStatusEffects();
     }

@@ -54,6 +54,7 @@ public class E005_ParrowWomanReunion : Event
     private static EventStep ReturnParrot(Game game)
     {
         game.RemoveParrot();
+        ResourceManager.Singleton.E004_Parrot.SetActive(true);
         game.RemoveMission(MissionId.M001_CareParrot);
         E006_WoodsBunker.SetRandomRequirements();
         E006_WoodsBunker.UpdateBunkerMission(game);

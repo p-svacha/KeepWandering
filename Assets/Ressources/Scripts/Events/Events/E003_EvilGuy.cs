@@ -130,7 +130,7 @@ public class E003_EvilGuy : Event
             if (ransomItem != null)
             {
                 game.DestroyOwnedItem(ransomItem);
-                text += " He punches you and takes away your " + ransomItem.Name + " by force";
+                text += " He punches you and takes away your " + ransomItem.Name + " by force.";
             }
             text += " Defeated and injured you decide it's better to move on.";
             return new EventStep(text, null, ransomItem == null ? null : new List<Item>() { ransomItem }, null, null);

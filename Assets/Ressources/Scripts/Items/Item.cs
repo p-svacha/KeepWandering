@@ -59,7 +59,7 @@ public class Item : MonoBehaviour
         }
 
         // Item-specific options
-        if (Type == ItemType.NutSnack && Game.Player.HasParrot) allOptions.Add(new ItemInteractionOption("Feed to Parrot", () => Game.FeedParrot(OnEatNutrition)));
+        if (Type == ItemType.NutSnack && Game.Player.HasParrot) allOptions.Add(new ItemInteractionOption("Feed to Parrot", () => Game.FeedParrot(this, OnEatNutrition)));
 
         // Options by event step
         if (Game.CurrentEventStep != null)

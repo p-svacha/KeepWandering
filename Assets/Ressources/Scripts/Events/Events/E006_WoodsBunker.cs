@@ -18,7 +18,7 @@ public class E006_WoodsBunker : Event
 
     public static void UpdateBunkerMission(Game game)
     {
-        game.AddOrUpdateMission(MissionId.M002_FindWoodsBunker, "Find the Pams friends' bunker in the woods and bring them " + RequiredFood + " food and " + RequiredWater + " water");
+        game.AddOrUpdateMission(MissionId.M002_FindWoodsBunker, "Find Pams friends' bunker in the woods and bring them food (" + RequiredFood + ") and water (" + RequiredWater + ").");
     }
 
     public static float GetProbability(Game game)
@@ -53,6 +53,7 @@ public class E006_WoodsBunker : Event
 
     private static EventStep GiveFood(Game game, Item item)
     {
+        game.DestroyOwnedItem(item);
         RequiredFood--;
         UpdateBunkerMission(game);
         EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
@@ -62,6 +63,7 @@ public class E006_WoodsBunker : Event
 
     private static EventStep GiveWater(Game game, Item item)
     {
+        game.DestroyOwnedItem(item);
         RequiredWater--;
         UpdateBunkerMission(game);
         EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
