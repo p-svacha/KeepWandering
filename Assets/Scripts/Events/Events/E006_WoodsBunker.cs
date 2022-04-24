@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class E006_WoodsBunker : Event
 {
+    // Static
     public static int RequiredFood;
     public static int RequiredWater;
 
@@ -28,50 +29,28 @@ public class E006_WoodsBunker : Event
         return 2f;
     }
 
-    public static E006_WoodsBunker GetEventInstance(Game game)
+    // Instance
+    public E006_WoodsBunker(Game game) : base(game, EventType.E006_WoodsBunker) { }
+
+    public override void InitEvent()
     {
+        // Attributes
+        ItemActionsAllowed = true;
+
         // Sprite
         ResourceManager.Singleton.E006_WoodsBunker.SetActive(true);
 
         // Event
         string eventText = "You come across the bunker that " + E004_ParrotWoman.WomanName + " told you about.";
         if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you in if you give them enough food and water.";
-        return new E006_WoodsBunker(GetInitialStep(game, eventText));
+        InitialStep = GetInitialStep(eventText);
     }
-
-    private static EventStep EnterBunker(Game game)
+    public override void OnEventEnd()
     {
-        HasEnteredBunker = true;
-        game.CheckGameOver();
-        return null;
+        ResourceManager.Singleton.E006_WoodsBunker.SetActive(false);
     }
 
-    private static EventStep Continue(Game game)
-    {
-        return new EventStep("You walk past the bunker.", null, null, null, null);
-    }
-
-    private static EventStep GiveFood(Game game, Item item)
-    {
-        game.DestroyOwnedItem(item);
-        RequiredFood--;
-        UpdateBunkerMission(game);
-        EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
-        nextStep.RemovedItems = new List<Item>() { item };
-        return nextStep;
-    }
-
-    private static EventStep GiveWater(Game game, Item item)
-    {
-        game.DestroyOwnedItem(item);
-        RequiredWater--;
-        UpdateBunkerMission(game);
-        EventStep nextStep = GetInitialStep(game, "You gave the " + item.Name + " to the bunker.");
-        nextStep.RemovedItems = new List<Item>() { item };
-        return nextStep;
-    }
-
-    private static EventStep GetInitialStep(Game game, string eventText)
+    private EventStep GetInitialStep(string eventText)
     {
         // Options
         List<EventOption> dialogueOptions = new List<EventOption>();
@@ -88,9 +67,9 @@ public class E006_WoodsBunker : Event
 
         // Item Option - Give Food/Water
         List<ItemType> handledTypes = new List<ItemType>();
-        foreach(Item item in game.Inventory)
+        foreach (Item item in Game.Inventory)
         {
-            if(RequiredFood > 0 && item.IsEdible && !handledTypes.Contains(item.Type))
+            if (RequiredFood > 0 && item.IsEdible && !handledTypes.Contains(item.Type))
             {
                 handledTypes.Add(item.Type);
                 itemOptions.Add(new EventItemOption(item.Type, "Give to bunker", GiveFood));
@@ -105,12 +84,32 @@ public class E006_WoodsBunker : Event
         // Event
         return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
-
-    public E006_WoodsBunker(EventStep initialStep) : base(
-        EventType.E006_WoodsBunker,
-        initialStep,
-        new List<Item>() { },
-        new List<GameObject>() { ResourceManager.Singleton.E006_WoodsBunker},
-        itemActionsAllowed: true)
-    { }
+    private EventStep EnterBunker()
+    {
+        HasEnteredBunker = true;
+        Game.CheckGameOver();
+        return null;
+    }
+    private EventStep Continue()
+    {
+        return new EventStep("You walk past the bunker.", null, null, null, null);
+    }
+    private EventStep GiveFood(Item item)
+    {
+        Game.DestroyOwnedItem(item);
+        RequiredFood--;
+        UpdateBunkerMission(Game);
+        EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
+        nextStep.RemovedItems = new List<Item>() { item };
+        return nextStep;
+    }
+    private EventStep GiveWater(Item item)
+    {
+        Game.DestroyOwnedItem(item);
+        RequiredWater--;
+        UpdateBunkerMission(Game);
+        EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
+        nextStep.RemovedItems = new List<Item>() { item };
+        return nextStep;
+    }
 }

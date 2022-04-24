@@ -356,13 +356,7 @@ public class Game : MonoBehaviour
     private void StartLocationEvent()
     {
         // Clear day event
-        if (CurrentEvent != null)
-        {
-            foreach (GameObject sprite in CurrentEvent.EventSprites)
-                sprite.gameObject.SetActive(false);
-            foreach (Item item in CurrentEvent.EventItems)
-                GameObject.Destroy(item.gameObject);
-        }
+        if (CurrentEvent != null) CurrentEvent.OnEventEnd();
         CurrentEvent = null;
 
         // Get a location event
@@ -421,13 +415,13 @@ public class Game : MonoBehaviour
     {
         switch (type)
         {
-            case EventType.E001_Crate: return E001_Crate.GetEventInstance(this);
-            case EventType.E002_Dog: return E002_Dog.GetEventInstance(this);
-            case EventType.E003_EvilGuy: return E003_EvilGuy.GetEventInstance(this);
-            case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetEventInstance(this);
-            case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetEventInstance(this);
-            case EventType.E006_WoodsBunker: return E006_WoodsBunker.GetEventInstance(this);
-            case EventType.E007_Trader: return E007_Trader.GetEventInstance(this);
+            case EventType.E001_Crate: return new E001_Crate(this);
+            case EventType.E002_Dog: return new E002_Dog(this);
+            case EventType.E003_EvilGuy: return new E003_EvilGuy(this);
+            case EventType.E004_ParrotWoman: return new E004_ParrotWoman(this);
+            case EventType.E005_ParrotWomanReunion: return new E005_ParrowWomanReunion(this);
+            case EventType.E006_WoodsBunker: return new E006_WoodsBunker(this);
+            case EventType.E007_Trader: return new E007_Trader(this);
 
             default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
         }
@@ -488,7 +482,6 @@ public class Game : MonoBehaviour
 
     public void AddItemToInventory(Item item)
     {
-        if(CurrentEvent != null) CurrentEvent.EventItems.Remove(item);
         item.transform.position = new Vector3(Random.Range(-8f, -3f), Random.Range(2f, 4f), 0f);
         item.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
         item.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;

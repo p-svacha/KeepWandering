@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class E007_Trader : Event
 {
+    // Static
     private static float BaseProbability = 2f;
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
@@ -38,55 +39,71 @@ public class E007_Trader : Event
         return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
     }
 
-    public static E007_Trader GetEventInstance(Game game)
+    // Instance
+    private Dictionary<ItemType, int> ItemPrices;
+    private List<Item> BuyableItems;
+
+    public E007_Trader(Game game) : base(game, EventType.E007_Trader) { }
+
+    public override void InitEvent()
     {
-        // Sprite
+        // Attributes
+        ItemActionsAllowed = true;
+
+        // Sprites
         ResourceManager.Singleton.E007_Trader.SetActive(true);
         foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(true);
 
         // Set up prices
-        Dictionary<ItemType, int> buyPrices = new Dictionary<ItemType, int>();
-        foreach (ItemType type in game.GetAllItemTypes())
+        ItemPrices = new Dictionary<ItemType, int>();
+        foreach (ItemType type in Game.GetAllItemTypes())
         {
-            buyPrices.Add(type, HelperFunctions.GetWeightedRandomElement(TradeItemBuyPriceTable));
+            ItemPrices.Add(type, HelperFunctions.GetWeightedRandomElement(TradeItemBuyPriceTable));
         }
 
         // Set up trade items
-        List<Item> buyableItems = new List<Item>();
-        for(int i = 0; i < 3; i++)
+        BuyableItems = new List<Item>();
+        for (int i = 0; i < 3; i++)
         {
             ItemType type = HelperFunctions.GetWeightedRandomElement(TradeItemTable);
-            Item item = game.GetItemInstance(type);
+            Item item = Game.GetItemInstance(type);
             item.transform.position = new Vector3(5.2f + i * 1.15f, -3.5f, 0f);
-            buyableItems.Add(item);
-            ResourceManager.Singleton.E007_Prices[i].text = buyPrices[type].ToString();
+            BuyableItems.Add(item);
+            ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[type].ToString();
         }
 
         // Event
         string eventText = "You come across the bunker that " + E004_ParrotWoman.WomanName + " told you about.";
-        return new E007_Trader(GetInitialStep(game, eventText, buyableItems, buyPrices), buyableItems);
+        InitialStep = GetInitialStep(eventText);
+    }
+    public override void OnEventEnd()
+    {
+        ResourceManager.Singleton.E007_Trader.SetActive(false);
+        foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(false);
+        foreach (Item item in BuyableItems)
+            if (!item.IsOwned) GameObject.Destroy(item.gameObject);
     }
 
-    private static EventStep GetInitialStep(Game game, string text, List<Item> buyableItems, Dictionary<ItemType, int> buyPrices)
+    private EventStep GetInitialStep(string text)
     {
         // Options
         List<EventOption> dialogueOptions = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Options - Buy
-        foreach(Item buyableItem in buyableItems)
+        foreach(Item buyableItem in BuyableItems)
         {
-            int price = buyPrices[buyableItem.Type];
-            if(game.GetItemTypeAmount(ItemType.Coin) >= price)
-                dialogueOptions.Add(new EventOption("Buy " + buyableItem.Name + " for " + price + " coins", (game) => BuyItem(game, buyableItem, buyableItems, buyPrices)));
+            int price = ItemPrices[buyableItem.Type];
+            if(Game.GetItemTypeAmount(ItemType.Coin) >= price)
+                dialogueOptions.Add(new EventOption("Buy " + buyableItem.Name + " for " + price + " coins", () => BuyItem(buyableItem)));
         }
 
         // Item Options - Sell
-        foreach (ItemType type in game.GetAllItemTypes())
+        foreach (ItemType type in Game.GetAllItemTypes())
         {
             if (type == ItemType.Coin) continue;
-            int price = buyPrices[type] - 1;
-            itemOptions.Add(new EventItemOption(type, "Sell for " + price + " coins", (game, item) => SellItem(game, item, buyableItems, buyPrices)));
+            int price = ItemPrices[type] - 1;
+            itemOptions.Add(new EventItemOption(type, "Sell for " + price + " coins", SellItem));
         }
 
         // Dialogue Option - Continue
@@ -95,45 +112,36 @@ public class E007_Trader : Event
         // Event
         return new EventStep(text, null, null, dialogueOptions, itemOptions);
     }
-
-    private static EventStep BuyItem(Game game, Item item, List<Item> buyableItems, Dictionary<ItemType, int> buyPrices)
+    private EventStep BuyItem(Item item)
     {
-        int price = buyPrices[item.Type];
+        int price = ItemPrices[item.Type];
         string text = "You bought the " + item.Name + " for " + price + " coins.";
-        List<Item> payedCoins = game.DestroyOwnedItems(ItemType.Coin, price);
-        game.AddItemToInventory(item);
-        buyableItems.Remove(item);
+        List<Item> payedCoins = Game.DestroyOwnedItems(ItemType.Coin, price);
+        Game.AddItemToInventory(item);
+        BuyableItems.Remove(item);
 
-        EventStep nextStep = GetInitialStep(game, text, buyableItems, buyPrices);
+        EventStep nextStep = GetInitialStep(text);
         nextStep.AddedItems = new List<Item>() { item };
         nextStep.RemovedItems = payedCoins;
 
         return nextStep;
     }
-
-    private static EventStep SellItem(Game game, Item item, List<Item> buyableItems, Dictionary<ItemType, int> buyPrices)
+    private EventStep SellItem(Item item)
     {
-        int price = buyPrices[item.Type] - 1;
-        game.DestroyOwnedItem(item);
-        List<Item> addedCoins = game.AddItemsToInventory(ItemType.Coin, price);
+        int price = ItemPrices[item.Type] - 1;
+        Game.DestroyOwnedItem(item);
+        List<Item> addedCoins = Game.AddItemsToInventory(ItemType.Coin, price);
 
-        EventStep nextStep = GetInitialStep(game, "You sold the " + item.Name + " for " + price + " coins.", buyableItems, buyPrices);
+        EventStep nextStep = GetInitialStep("You sold the " + item.Name + " for " + price + " coins.");
         nextStep.AddedItems = addedCoins;
         nextStep.RemovedItems = new List<Item>() { item };
 
         return nextStep;
     }
-
-    private static EventStep Continue(Game game)
+    private EventStep Continue()
     {
         return new EventStep("You wish the trader a nice day and continue.", null, null, null, null);
     }
 
-    public E007_Trader(EventStep initialStep, List<Item> eventItems) : base(
-        EventType.E007_Trader,
-        initialStep,
-        eventItems,
-        new List<GameObject>() { ResourceManager.Singleton.E007_Trader, ResourceManager.Singleton.E007_Prices[0].gameObject, ResourceManager.Singleton.E007_Prices[1].gameObject, ResourceManager.Singleton.E007_Prices[2].gameObject },
-        itemActionsAllowed: true)
-    { }
+
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class E005_ParrowWomanReunion : Event
 {
+    // Static
     private const int MinDaysForReunion = 3;
 
     public static bool HasEncountered;
@@ -17,9 +18,13 @@ public class E005_ParrowWomanReunion : Event
         else return 1f * ((game.Day - MinDaysForReunion) - E004_ParrotWoman.EncounterDay);
     }
 
-    public static E005_ParrowWomanReunion GetEventInstance(Game game)
+    // Instance
+    public E005_ParrowWomanReunion(Game game) : base(game, EventType.E005_ParrotWomanReunion) { }
+
+    public override void InitEvent()
     {
         // Attributes
+        ItemActionsAllowed = true;
         HasEncountered = true;
 
         // Sprite
@@ -30,7 +35,7 @@ public class E005_ParrowWomanReunion : Event
         List<EventOption> dialogueOptions = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
-        if(game.Player.HasParrot)
+        if (Game.Player.HasParrot)
         {
             eventText = "You encounter " + E004_ParrotWoman.WomanName + " again and she's overcome with joy to see that her parrot is doing well.";
 
@@ -47,33 +52,30 @@ public class E005_ParrowWomanReunion : Event
         }
 
         // Event
-        EventStep initialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
-        return new E005_ParrowWomanReunion(initialStep);
+        InitialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+    }
+    public override void OnEventEnd()
+    {
+        ResourceManager.Singleton.E004_Woman.SetActive(false);
+        ResourceManager.Singleton.E004_Parrot.SetActive(false);
     }
 
-    private static EventStep ReturnParrot(Game game)
+    private EventStep ReturnParrot()
     {
-        game.RemoveParrot();
+        Game.RemoveParrot();
         ResourceManager.Singleton.E004_Parrot.SetActive(true);
-        game.RemoveMission(MissionId.M001_CareParrot);
+        Game.RemoveMission(MissionId.M001_CareParrot);
         E006_WoodsBunker.SetRandomRequirements();
-        E006_WoodsBunker.UpdateBunkerMission(game);
+        E006_WoodsBunker.UpdateBunkerMission(Game);
         SuccessfulReturn = true;
         string text = E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe bunker in the woods that will let you join them if you bring them food and water.";
         return new EventStep(text, null, null, null, null);
     }
-
-    private static EventStep Continue(Game game)
+    private EventStep Continue()
     {
         string text = "You tell her you're sorry but there's nothing more you can do so you continue your journey.";
         return new EventStep(text, null, null, null, null);
     }
 
-    public E005_ParrowWomanReunion(EventStep initialStep) : base(
-    EventType.E005_ParrotWomanReunion,
-    initialStep,
-    new List<Item>() { },
-    new List<GameObject>() { ResourceManager.Singleton.E004_Woman, ResourceManager.Singleton.E004_Parrot },
-    itemActionsAllowed: true)
-    { }
+
 }

@@ -13,7 +13,7 @@ public abstract class LocationEvent
         List<EventOption> options = new List<EventOption>();
         foreach(KeyValuePair<Location, string> target in targetLocations)
         {
-            options.Add(new EventOption(target.Value, (game) => ChoseNextLocation(game, target.Key)));
+            options.Add(new EventOption(target.Value, () => ChoseNextLocation(game, target.Key)));
         }
         EventStep = new EventStep(text, null, null, options, null);
     }

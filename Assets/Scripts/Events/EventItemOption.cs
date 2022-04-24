@@ -7,9 +7,9 @@ public class EventItemOption
 {
     public ItemType RequiredItemType;
     public string Text;
-    public Func<Game, Item, EventStep> Action;
+    public Func<Item, EventStep> Action;
 
-    public EventItemOption(ItemType requiredItem, string text, Func<Game, Item, EventStep> action)
+    public EventItemOption(ItemType requiredItem, string text, Func<Item, EventStep> action)
     {
         RequiredItemType = requiredItem;
         Text = text;

@@ -70,9 +70,9 @@ public class UI_EventDisplay : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
-    private EventStep EndEvent(Game game)
+    private EventStep EndEvent()
     {
-        game.EndEvent();
+        Game.EndEvent();
         return null;
     }
 
@@ -111,9 +111,9 @@ public class UI_EventDisplay : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
-    private EventStep EndMorningReport(Game game)
+    private EventStep EndMorningReport()
     {
-        game.EndMorningReport();
+        Game.EndMorningReport();
         return null;
     }
 

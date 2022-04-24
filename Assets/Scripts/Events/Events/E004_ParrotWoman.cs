@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class E004_ParrotWoman : Event
 {
+    // Static
     public const string WomanName = "Pam";
 
     public static bool HasEncountered;
@@ -17,12 +18,16 @@ public class E004_ParrotWoman : Event
         return 2f;
     }
 
-    public static E004_ParrotWoman GetEventInstance(Game game)
+    // Instance
+    public E004_ParrotWoman(Game game) : base(game, EventType.E004_ParrotWoman) { }
+
+    public override void InitEvent()
     {
         // Attributes
+        ItemActionsAllowed = true;
         HasEncountered = true;
-        EncounterDay = game.Day;
-        EncounterLocation = game.CurrentLocation;
+        EncounterDay = Game.Day;
+        EncounterLocation = Game.CurrentLocation;
 
         // Sprite
         ResourceManager.Singleton.E004_Woman.SetActive(true);
@@ -39,31 +44,28 @@ public class E004_ParrotWoman : Event
         dialogueOptions.Add(new EventOption("Refuse to take the parrot", RefuseParrot));
 
         // Event
-        string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
-        EventStep initialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
-        return new E004_ParrotWoman(initialStep);
+        string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + Game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
+        InitialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+    }
+    public override void OnEventEnd()
+    {
+        ResourceManager.Singleton.E004_Woman.SetActive(false);
+        ResourceManager.Singleton.E004_Parrot.SetActive(false);
     }
 
-    private static EventStep AcceptParrot(Game game)
+    private EventStep AcceptParrot()
     {
         HasAcceptedParrot = true;
-        game.AddParrot();
-        game.AddOrUpdateMission(MissionId.M001_CareParrot, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + ".");
+        Game.AddParrot();
+        Game.AddOrUpdateMission(MissionId.M001_CareParrot, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + ".");
         ResourceManager.Singleton.E004_Parrot.SetActive(false);
         string text = "You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.";
         return new EventStep(text, null, null, null, null);
     }
-
-    private static EventStep RefuseParrot(Game game)
+    private EventStep RefuseParrot()
     {
         return new EventStep("You refuse to take care of the parrot.", null, null, null, null);
     }
 
-    public E004_ParrotWoman(EventStep initialStep) : base(
-        EventType.E004_ParrotWoman,
-        initialStep,
-        new List<Item>() { },
-        new List<GameObject>() { ResourceManager.Singleton.E004_Woman, ResourceManager.Singleton.E004_Parrot },
-        itemActionsAllowed: true)
-    { }
+
 }

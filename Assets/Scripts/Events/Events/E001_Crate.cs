@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class E001_Crate : Event
 {
+    // Static
     private static Dictionary<ItemType, float> ItemTable = new Dictionary<ItemType, float>()
     {
         { ItemType.Beans, 10},
@@ -14,7 +15,6 @@ public class E001_Crate : Event
         { ItemType.Knife, 3},
         { ItemType.NutSnack, 10},
     };
-
     private const float CUT_CHANCE = 0.1f;
 
     public static float GetProbability(Game game)
@@ -22,51 +22,56 @@ public class E001_Crate : Event
         return 10;
     }
 
-    public static E001_Crate GetEventInstance(Game game)
+    // Instance
+    private Item CrateItem;
+
+    public E001_Crate(Game game) : base(game, EventType.E001_Crate) { }
+
+    public override void InitEvent()
     {
+        // Attributes
+        ItemActionsAllowed = true;
+
         // Sprite
         ResourceManager.Singleton.E001_Crate.SetActive(true);
 
         ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(ItemTable);
-        Item item = game.GetItemInstance(itemType);
-        item.transform.position = new Vector3(6, 0f, 0f);
-        item.transform.rotation = Quaternion.Euler(0f, 0f, -30f);
+        CrateItem = Game.GetItemInstance(itemType);
+        CrateItem.transform.position = new Vector3(6, 0f, 0f);
+        CrateItem.transform.rotation = Quaternion.Euler(0f, 0f, -30f);
 
         List<EventOption> options = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Option - Take item
-        options.Add(new EventOption("Take the " + item.Name + ".", (game) => TakeItem(game, item)));
+        options.Add(new EventOption("Take the " + CrateItem.Name + ".", TakeItem));
 
         // Dialogue Option - Don't take item
-        options.Add(new EventOption("Don't take the " + item.Name + ".", (game) => DontTakeItem(game, item)));
+        options.Add(new EventOption("Don't take the " + CrateItem.Name + ".", DontTakeItem));
 
-        EventStep initialStep = new EventStep("You stumble upon a crate that looks to have a " + item.Name + " inside.", null, null, options, itemOptions);
-        return new E001_Crate(initialStep, item);
+        InitialStep = new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", null, null, options, itemOptions);
+    }
+    public override void OnEventEnd()
+    {
+        ResourceManager.Singleton.E001_Crate.SetActive(false);
+        if (!CrateItem.IsOwned) GameObject.Destroy(CrateItem.gameObject);
     }
 
-    private static EventStep TakeItem(Game game, Item item)
+    private EventStep TakeItem()
     {
-        string text = "You reach into the crate and take out the " + item.Name + ".";
-        game.AddItemToInventory(item);
+        string text = "You reach into the crate and take out the " + CrateItem.Name + ".";
+        Game.AddItemToInventory(CrateItem);
         if(Random.value < CUT_CHANCE)
         {
-            game.AddCutWound();
+            Game.AddCutWound();
             text += " Upon taking out your hand you scratch yourself on a loose nail.";
         }
-        return new EventStep(text, new List<Item>() { item }, null, null, null);
+        return new EventStep(text, new List<Item>() { CrateItem }, null, null, null);
     }
-
-    private static EventStep DontTakeItem(Game game, Item item)
+    private EventStep DontTakeItem()
     {
-        return new EventStep("You didn't take the " + item.Name + ".", null, null, null, null);
+        return new EventStep("You didn't take the " + CrateItem.Name + ".", null, null, null, null);
     }
 
-    public E001_Crate(EventStep initialStep, Item item) : base(
-        EventType.E001_Crate, 
-        initialStep, 
-        new List<Item>() { item },
-        new List<GameObject>() { ResourceManager.Singleton.E001_Crate },
-        itemActionsAllowed: true)
-    { }
+
 }

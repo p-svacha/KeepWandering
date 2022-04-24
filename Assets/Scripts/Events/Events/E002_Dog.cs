@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class E002_Dog : Event
 {
+    // Static
     private const float PetSuccessChance = 0.2f;
 
     private static float BaseProbability = 2f;
@@ -22,8 +23,15 @@ public class E002_Dog : Event
         else return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
     }
 
-    public static E002_Dog GetEventInstance(Game game)
+    // Instance
+
+    public E002_Dog(Game game) : base(game, EventType.E002_Dog) { }
+
+    public override void InitEvent()
     {
+        // Attributes
+        ItemActionsAllowed = true;
+
         // Sprite
         ResourceManager.Singleton.E002_Dog.SetActive(true);
 
@@ -38,49 +46,43 @@ public class E002_Dog : Event
         options.Add(new EventOption("Ignore the dog", IgnoreDog));
 
         // Item Option (bone) - Offer bone
-        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", (game, item) => OfferBone(game, item)));
+        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", OfferBone));
 
-        EventStep initialStep = new EventStep("You encounter a dog that looks friendly towards you.", null, null, options, itemOptions);
-        return new E002_Dog(initialStep);
+        InitialStep = new EventStep("You encounter a dog that looks friendly towards you.", null, null, options, itemOptions);
+    }
+    public override void OnEventEnd()
+    {
+        ResourceManager.Singleton.E002_Dog.SetActive(false);
     }
 
-    private static EventStep PetDog(Game game)
+    private EventStep PetDog()
     {
         bool petSuccess = Random.value < PetSuccessChance;
 
         EventStep nextEventStep;
         if (petSuccess)
         {
-            RecruitDog(game);
+            RecruitDog();
             nextEventStep = new EventStep("The dog loves the pets and decides to follow you on your journey.", null, null, null, null);
         }
         else nextEventStep = new EventStep("The dog enjoys the pets and keeps watching into the distance.", null, null, null, null);
         return nextEventStep;
     }
-
-    private static EventStep IgnoreDog(Game game)
+    private EventStep IgnoreDog()
     {
         return new EventStep("The dog mirrors your reaction and ignores you too.", null, null, null, null);
     }
-
-    private static EventStep OfferBone(Game game, Item bone)
+    private EventStep OfferBone(Item bone)
     {
-        game.DestroyOwnedItem(bone);
-        RecruitDog(game);
+        Game.DestroyOwnedItem(bone);
+        RecruitDog();
         return new EventStep("The dog happily takes the bone and decides to follow you on your journey.", null, new List<Item>() { bone }, null, null);
     }
-
-    private static void RecruitDog(Game game)
+    private void RecruitDog()
     {
         ResourceManager.Singleton.E002_Dog.SetActive(false);
-        game.AddDog();
+        Game.AddDog();
     }
 
-    public E002_Dog(EventStep initialStep) : base(
-        EventType.E002_Dog,
-        initialStep,
-        new List<Item>() {  },
-        new List<GameObject>() { ResourceManager.Singleton.E002_Dog },
-        itemActionsAllowed: true)
-    { }
+
 }

@@ -92,7 +92,7 @@ public class Item : MonoBehaviour
         {
             if (option.Action != null)
             {
-                EventStep nextEventStep = option.Action(Game, this);
+                EventStep nextEventStep = option.Action(this);
                 Game.DisplayEventStep(nextEventStep);
             }
         }

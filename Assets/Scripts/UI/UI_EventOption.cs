@@ -20,7 +20,7 @@ public class UI_EventOption : MonoBehaviour
         {
             if (option.Action != null)
             {
-                EventStep nextEventStep = option.Action(game);
+                EventStep nextEventStep = option.Action();
                 if(nextEventStep != null) game.DisplayEventStep(nextEventStep);
             }
         }
