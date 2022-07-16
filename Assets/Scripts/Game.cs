@@ -405,7 +405,8 @@ public class Game : MonoBehaviour
             case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetProbability(this);
             case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetProbability(this);
             case EventType.E006_WoodsBunker: return E006_WoodsBunker.GetProbability(this);
-            case EventType.E007_Trader: return E007_Trader .GetProbability(this);
+            case EventType.E007_Trader: return E007_Trader.GetProbability(this);
+            case EventType.E008_DistressedPerson: return E008_DistressedPerson.GetProbability(this);
 
             default: throw new System.Exception("Probability not handled for EventType " + type.ToString());
         }
@@ -422,6 +423,7 @@ public class Game : MonoBehaviour
             case EventType.E005_ParrotWomanReunion: return new E005_ParrowWomanReunion(this);
             case EventType.E006_WoodsBunker: return new E006_WoodsBunker(this);
             case EventType.E007_Trader: return new E007_Trader(this);
+            case EventType.E008_DistressedPerson: return new E008_DistressedPerson(this);
 
             default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
         }

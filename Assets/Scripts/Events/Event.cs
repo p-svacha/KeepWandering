@@ -26,4 +26,13 @@ public abstract class Event
     /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying items.
     /// </summary>
     public abstract void OnEventEnd();
+
+    #region General Event Options
+
+    protected EventStep Attack(int enemyStrength)
+    {
+
+    }
+
+    #endregion
 }

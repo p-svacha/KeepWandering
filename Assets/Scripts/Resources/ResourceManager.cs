@@ -15,6 +15,7 @@ public class ResourceManager : MonoBehaviour
     public GameObject E006_WoodsBunker;
     public GameObject E007_Trader;
     public List<TextMeshPro> E007_Prices;
+    public GameObject E008_DistressedPerson;
 
     [Header("Backgrounds")]
     public Location LOC_Suburbs;

@@ -10,5 +10,6 @@ public enum EventType
     E004_ParrotWoman,
     E005_ParrotWomanReunion,
     E006_WoodsBunker,
-    E007_Trader
+    E007_Trader,
+    E008_DistressedPerson
 }
