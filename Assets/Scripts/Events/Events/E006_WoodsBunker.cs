@@ -22,28 +22,26 @@ public class E006_WoodsBunker : Event
         game.AddOrUpdateMission(MissionId.M002_FindWoodsBunker, "Find Pams friends' bunker in the woods and bring them food (" + RequiredFood + ") and water (" + RequiredWater + ").");
     }
 
-    public static float GetProbability(Game game)
+    // Instance
+    public E006_WoodsBunker(Game game) : base(game) { }
+    public override Event GetEventInstance => new E006_WoodsBunker(Game);
+
+    public override float GetEventProbability()
     {
-        if (game.CurrentLocation != ResourceManager.Singleton.LOC_Woods) return 0;
+        if (Game.CurrentLocation != ResourceManager.Singleton.LOC_Woods) return 0;
         if (!E005_ParrowWomanReunion.SuccessfulReturn) return 0;
         return 2f;
     }
-
-    // Instance
-    public E006_WoodsBunker(Game game) : base(game, EventType.E006_WoodsBunker) { }
-
-    public override void InitEvent()
+    public override void OnEventStart()
     {
-        // Attributes
-        ItemActionsAllowed = true;
-
-        // Sprite
+        // Sprites
         ResourceManager.Singleton.E006_WoodsBunker.SetActive(true);
-
-        // Event
+    }
+    public override EventStep GetInitialStep()
+    {
         string eventText = "You come across the bunker that " + E004_ParrotWoman.WomanName + " told you about.";
         if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you in if you give them enough food and water.";
-        InitialStep = GetInitialStep(eventText);
+        return GetInitialStep(eventText);
     }
     public override void OnEventEnd()
     {

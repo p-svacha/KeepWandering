@@ -10,26 +10,27 @@ public class E005_ParrowWomanReunion : Event
     public static bool HasEncountered;
     public static bool SuccessfulReturn;
 
-    public static float GetProbability(Game game)
+    // Instance
+    public E005_ParrowWomanReunion(Game game) : base(game) { }
+    public override Event GetEventInstance => new E005_ParrowWomanReunion(Game);
+
+    public override float GetEventProbability()
     {
         if (HasEncountered) return 0f;
-        if (!E004_ParrotWoman.HasEncountered || game.Day < E004_ParrotWoman.EncounterDay + MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
-        if (game.CurrentLocation != E004_ParrotWoman.EncounterLocation) return 0f;
-        else return 1f * ((game.Day - MinDaysForReunion) - E004_ParrotWoman.EncounterDay);
+        if (!E004_ParrotWoman.HasEncountered || Game.Day < E004_ParrotWoman.EncounterDay + MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
+        if (Game.CurrentLocation != E004_ParrotWoman.EncounterLocation) return 0f;
+        else return 1f * ((Game.Day - MinDaysForReunion) - E004_ParrotWoman.EncounterDay);
     }
-
-    // Instance
-    public E005_ParrowWomanReunion(Game game) : base(game, EventType.E005_ParrotWomanReunion) { }
-
-    public override void InitEvent()
+    public override void OnEventStart()
     {
         // Attributes
-        ItemActionsAllowed = true;
         HasEncountered = true;
 
         // Sprite
         ResourceManager.Singleton.E004_Woman.SetActive(true);
-
+    }
+    public override EventStep GetInitialStep()
+    {
         // Options
         string eventText = "";
         List<EventOption> dialogueOptions = new List<EventOption>();
@@ -51,8 +52,7 @@ public class E005_ParrowWomanReunion : Event
             dialogueOptions.Add(new EventOption("Continue", Continue));
         }
 
-        // Event
-        InitialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()
     {

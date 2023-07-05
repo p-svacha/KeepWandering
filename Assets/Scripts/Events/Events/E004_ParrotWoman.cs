@@ -12,40 +12,42 @@ public class E004_ParrotWoman : Event
     public static Location EncounterLocation;
     public static bool HasAcceptedParrot;
 
-    public static float GetProbability(Game game)
+    // Instance
+    public E004_ParrotWoman(Game game) : base(game) { }
+    public override Event GetEventInstance => new E004_ParrotWoman(Game);
+
+    public override float GetEventProbability()
     {
         if (HasEncountered) return 0f;
         return 2f;
     }
-
-    // Instance
-    public E004_ParrotWoman(Game game) : base(game, EventType.E004_ParrotWoman) { }
-
-    public override void InitEvent()
+    public override void OnEventStart()
     {
         // Attributes
-        ItemActionsAllowed = true;
         HasEncountered = true;
         EncounterDay = Game.Day;
         EncounterLocation = Game.CurrentLocation;
 
-        // Sprite
+        // Sprites
         ResourceManager.Singleton.E004_Woman.SetActive(true);
         ResourceManager.Singleton.E004_Parrot.SetActive(true);
-
-        // Init Event
+    }
+    public override EventStep GetInitialStep()
+    {
+        // Dialogue Options
         List<EventOption> dialogueOptions = new List<EventOption>();
-        List<EventItemOption> itemOptions = new List<EventItemOption>();
+        
 
         // Dialogue Option - Accept
         dialogueOptions.Add(new EventOption("Take the parrot", AcceptParrot));
 
-        // Dialogie Option - Refuse
+        // Item Options
+        List<EventItemOption> itemOptions = new List<EventItemOption>();
         dialogueOptions.Add(new EventOption("Refuse to take the parrot", RefuseParrot));
 
         // Event
         string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + Game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
-        InitialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()
     {

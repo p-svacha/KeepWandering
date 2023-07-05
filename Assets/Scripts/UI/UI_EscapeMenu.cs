@@ -29,11 +29,12 @@ public class UI_EscapeMenu : MonoBehaviour
         // Force event
         List<Dropdown.OptionData> eventOptions = new List<Dropdown.OptionData>();
         eventOptions.Add(new Dropdown.OptionData("No Force"));
-        foreach(EventType eventType in System.Enum.GetValues(typeof(EventType)))
-            eventOptions.Add(new Dropdown.OptionData(eventType.ToString()));
+        foreach(Event encounter in Game.EventManager.DummyEvents)
+            eventOptions.Add(new Dropdown.OptionData(encounter.ToString()));
         ForceEventDropdown.options = eventOptions;
         ForceEventDropdown.onValueChanged.AddListener(ForceEvent);
 
+        /*
         // Force location event
         List<Dropdown.OptionData> locEventOptions = new List<Dropdown.OptionData>();
         locEventOptions.Add(new Dropdown.OptionData("No Force"));
@@ -41,6 +42,7 @@ public class UI_EscapeMenu : MonoBehaviour
             locEventOptions.Add(new Dropdown.OptionData(eventType.ToString()));
         ForceLocationEventDropdown.options = locEventOptions;
         ForceLocationEventDropdown.onValueChanged.AddListener(ForceLocationEvent);
+        */
     }
 
     private void AddItem()
@@ -50,14 +52,11 @@ public class UI_EscapeMenu : MonoBehaviour
 
     private void ForceEvent(int value)
     {
-        if (value == 0) Game.HasForcedEvent = false;
-        else
-        {
-            Game.HasForcedEvent = true;
-            Game.ForcedEventType = (EventType)(value - 1);
-        }
+        if (value == 0) Game.EventManager.SetForcedEvent(null);
+        else Game.EventManager.SetForcedEvent(Game.EventManager.DummyEvents[value - 1]);
     }
 
+    /*
     private void ForceLocationEvent(int value)
     {
         if (value == 0) Game.HasForcedLocationEvent = false;
@@ -67,4 +66,5 @@ public class UI_EscapeMenu : MonoBehaviour
             Game.ForcedLocationEventType = (LocationEventType)(value - 1);
         }
     }
+    */
 }

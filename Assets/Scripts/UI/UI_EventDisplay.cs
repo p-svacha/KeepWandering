@@ -22,19 +22,19 @@ public class UI_EventDisplay : MonoBehaviour
         EventText.text = step.Text;
 
         // Dialogue Options
-        if (step.EventDialogueOptions != null)
+        if (step.IsFinalStep)
+        {
+            EventOption endDayOption = new EventOption("Continue journey", EndEvent);
+            UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+            optionDisplay.Init(Game, endDayOption);
+        }
+        else
         {
             foreach (EventOption option in step.EventDialogueOptions)
             {
                 UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
                 optionDisplay.Init(Game, option);
             }
-        }
-        else
-        {
-            EventOption endDayOption = new EventOption("Continue journey", EndEvent);
-            UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
-            optionDisplay.Init(Game, endDayOption);
         }
 
         // Item changes

@@ -17,44 +17,43 @@ public class E001_Crate : Event
     };
     private const float CUT_CHANCE = 0.1f;
 
-    public static float GetProbability(Game game)
-    {
-        return 10;
-    }
-
     // Instance
     private Item CrateItem;
 
-    public E001_Crate(Game game) : base(game, EventType.E001_Crate) { }
+    public E001_Crate(Game game) : base(game) { }
+    public override Event GetEventInstance => new E001_Crate(Game);
 
-    public override void InitEvent()
+    public override float GetEventProbability()
     {
-        // Attributes
-        ItemActionsAllowed = true;
-
-        // Sprite
+        return 10;
+    }
+    public override void OnEventStart()
+    {
+        // Sprites
         ResourceManager.Singleton.E001_Crate.SetActive(true);
 
+        // Crate item
         ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(ItemTable);
         CrateItem = Game.GetItemInstance(itemType);
         CrateItem.transform.position = new Vector3(6, 0f, 0f);
         CrateItem.transform.rotation = Quaternion.Euler(0f, 0f, -30f);
-
+    }
+    public override EventStep GetInitialStep()
+    {
+        // Dialogue Options
         List<EventOption> options = new List<EventOption>();
-        List<EventItemOption> itemOptions = new List<EventItemOption>();
+        options.Add(new EventOption("Take the " + CrateItem.Name + ".", TakeItem)); // Take item
+        options.Add(new EventOption("Don't take the " + CrateItem.Name + ".", DontTakeItem)); // Don't take item
 
-        // Dialogue Option - Take item
-        options.Add(new EventOption("Take the " + CrateItem.Name + ".", TakeItem));
+        // Item Options
+        List<EventItemOption> itemOptions = new List<EventItemOption>();      
 
-        // Dialogue Option - Don't take item
-        options.Add(new EventOption("Don't take the " + CrateItem.Name + ".", DontTakeItem));
-
-        InitialStep = new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", null, null, options, itemOptions);
+        return new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", null, null, options, itemOptions);
     }
     public override void OnEventEnd()
     {
         ResourceManager.Singleton.E001_Crate.SetActive(false);
-        if (!CrateItem.IsOwned) GameObject.Destroy(CrateItem.gameObject);
+        if (!CrateItem.IsPlayerOwned) GameObject.Destroy(CrateItem.gameObject);
     }
 
     private EventStep TakeItem()

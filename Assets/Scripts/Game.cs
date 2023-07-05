@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
+    public EventManager EventManager { get; private set; }
+
     [Header("UI Elements")]
     public Text DayText;
     public UI_EventDisplay EventStepDisplay;
@@ -44,12 +46,6 @@ public class Game : MonoBehaviour
     public List<Item> Inventory = new List<Item>();
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
-    // Forced events (god mode)
-    public bool HasForcedEvent;
-    public EventType ForcedEventType;
-    public bool HasForcedLocationEvent;
-    public LocationEventType ForcedLocationEventType;
-
     [Header("Items")]
     public List<Item> ItemPrefabs;
 
@@ -79,6 +75,8 @@ public class Game : MonoBehaviour
     }
     private void StartGame()
     {
+        EventManager = new EventManager(this);
+
         Player.Init(this);
         EscapeMenu.Init(this);
 
@@ -299,15 +297,10 @@ public class Game : MonoBehaviour
     private void StartDayEvent()
     {
         // Chose an event for the day
-        Dictionary<EventType, float> eventTable = new Dictionary<EventType, float>();
-        foreach (EventType type in System.Enum.GetValues(typeof(EventType))) eventTable.Add(type, GetEventProbability(type));
-        EventType chosenEventType = HelperFunctions.GetWeightedRandomElement<EventType>(eventTable);
-
-        if (HasForcedEvent && eventTable[ForcedEventType] != 0) chosenEventType = ForcedEventType;
-
-        CurrentEvent = GetEventInstance(chosenEventType);
+        CurrentEvent = EventManager.GetDayEvent();
 
         // Display the event
+        CurrentEvent.StartEvent();
         DisplayEventStep(CurrentEvent.InitialStep);
     }
 
@@ -364,7 +357,7 @@ public class Game : MonoBehaviour
         foreach (LocationEventType type in System.Enum.GetValues(typeof(LocationEventType))) eventTable.Add(type, GetLocationEventProbability(type));
         LocationEventType chosenEventType = HelperFunctions.GetWeightedRandomElement<LocationEventType>(eventTable);
 
-        if (HasForcedLocationEvent && eventTable[ForcedLocationEventType] != 0) chosenEventType = ForcedLocationEventType;
+        //if (HasForcedLocationEvent && eventTable[ForcedLocationEventType] != 0) chosenEventType = ForcedLocationEventType;
 
         LocationEvent locationEvent = GetLocationEventInstance(chosenEventType);
         DisplayEventStep(locationEvent.EventStep);
@@ -394,40 +387,6 @@ public class Game : MonoBehaviour
     #endregion
 
     #region Getters
-
-    private float GetEventProbability(EventType type)
-    {
-        switch(type)
-        {
-            case EventType.E001_Crate: return E001_Crate.GetProbability(this);
-            case EventType.E002_Dog: return E002_Dog.GetProbability(this);
-            case EventType.E003_EvilGuy: return E003_EvilGuy.GetProbability(this);
-            case EventType.E004_ParrotWoman: return E004_ParrotWoman.GetProbability(this);
-            case EventType.E005_ParrotWomanReunion: return E005_ParrowWomanReunion.GetProbability(this);
-            case EventType.E006_WoodsBunker: return E006_WoodsBunker.GetProbability(this);
-            case EventType.E007_Trader: return E007_Trader.GetProbability(this);
-            case EventType.E008_DistressedPerson: return E008_DistressedPerson.GetProbability(this);
-
-            default: throw new System.Exception("Probability not handled for EventType " + type.ToString());
-        }
-    }
-
-    private Event GetEventInstance(EventType type)
-    {
-        switch (type)
-        {
-            case EventType.E001_Crate: return new E001_Crate(this);
-            case EventType.E002_Dog: return new E002_Dog(this);
-            case EventType.E003_EvilGuy: return new E003_EvilGuy(this);
-            case EventType.E004_ParrotWoman: return new E004_ParrotWoman(this);
-            case EventType.E005_ParrotWomanReunion: return new E005_ParrowWomanReunion(this);
-            case EventType.E006_WoodsBunker: return new E006_WoodsBunker(this);
-            case EventType.E007_Trader: return new E007_Trader(this);
-            case EventType.E008_DistressedPerson: return new E008_DistressedPerson(this);
-
-            default: throw new System.Exception("Instancing not handled for EventType " + type.ToString());
-        }
-    }
 
     private float GetLocationEventProbability(LocationEventType type)
     {
@@ -488,7 +447,7 @@ public class Game : MonoBehaviour
         item.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
         item.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
         item.GetComponent<SpriteRenderer>().enabled = true;
-        item.IsOwned = true;
+        item.IsPlayerOwned = true;
         Inventory.Add(item);
     }
     /// <summary>

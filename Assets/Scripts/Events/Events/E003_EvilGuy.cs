@@ -37,24 +37,23 @@ public class E003_EvilGuy : Event
         { ItemType.Antibiotics, 4},
     };
 
-    public static float GetProbability(Game game)
-    {
-        if (game.Inventory.Count == 0) return 0;
-        else return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
-    }
+
 
     // Instance
     private List<Item> RewardItems;
     private Item RansomItem;
 
-    public E003_EvilGuy(Game game) : base(game, EventType.E003_EvilGuy) { }
+    public E003_EvilGuy(Game game) : base(game) { }
+    public override Event GetEventInstance => new E003_EvilGuy(Game);
 
-    public override void InitEvent()
+    public override float GetEventProbability()
     {
-        // Attributes
-        ItemActionsAllowed = false;
-
-        // Event Resources
+        if (Game.Inventory.Count == 0) return 0;
+        else return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
+    }
+    public override void OnEventStart()
+    {
+        // Sprites
         ResourceManager.Singleton.E003_EvilGuy.SetActive(true);
 
         // Ransom item
@@ -70,34 +69,33 @@ public class E003_EvilGuy : Event
             item.GetComponent<SpriteRenderer>().enabled = false;
             RewardItems.Add(item);
         }
-
-        string eventText = "You encounter a very angry and dangerous looking guy. He tells you to give him your " + RansomItem.Name + " or he's gonna punch you.";
-        InitialStep = GetInitialStep(eventText);
+    }
+    public override EventStep GetInitialStep()
+    {
+        string initialStep = "You encounter a very angry and dangerous looking guy. He tells you to give him your " + RansomItem.Name + " or he's gonna punch you.";
+        return GetStandoffStep(initialStep);
     }
     public override void OnEventEnd()
     {
         ResourceManager.Singleton.E003_EvilGuy.SetActive(false);
         ResourceManager.Singleton.E003_EvilGuy_KO.SetActive(false);
         foreach (Item item in RewardItems)
-            if (!item.IsOwned) GameObject.Destroy(item.gameObject);
+            if (!item.IsPlayerOwned) GameObject.Destroy(item.gameObject);
     }
 
-    private EventStep GetInitialStep(string text)
+    private EventStep GetStandoffStep(string text)
     {
+        // Dialogue Options
         List<EventOption> dialogueOptions = new List<EventOption>();
+        dialogueOptions.Add(new EventOption("Fight", Fight)); // Fight
+
+        // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();
-
-        // Dialogue Option - Fight
-        dialogueOptions.Add(new EventOption("Fight", Fight));
-
-        // Item Option - Pay him
-        itemOptions.Add(new EventItemOption(RansomItem.Type, "Give to the evil guy", PayRansom));
-
-        // Item Option - Throw item at him
+        itemOptions.Add(new EventItemOption(RansomItem.Type, "Give to the evil guy", PayRansom)); // Pay Ransom
         foreach (ItemType type in System.Enum.GetValues(typeof(ItemType)))
-            itemOptions.Add(new EventItemOption(type, "Throw", ThrowItem));
+            itemOptions.Add(new EventItemOption(type, "Throw", ThrowItem)); // Throw Item
 
-        return new EventStep(text, null, null, dialogueOptions, itemOptions);
+        return new EventStep(text, null, null, dialogueOptions, itemOptions, allowItems: false);
     }
     private EventStep Fight()
     {
@@ -187,7 +185,7 @@ public class E003_EvilGuy : Event
         else
         {
             string text = "The " + throwItem.Name + " missed the guy and gets destroyed upon hitting the floor.";
-            EventStep startStep = GetInitialStep(text);
+            EventStep startStep = GetStandoffStep(text);
             startStep.RemovedItems = new List<Item>() { throwItem };
             return startStep;
         }

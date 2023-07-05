@@ -123,6 +123,7 @@ MonoBehaviour:
   Type: 6
   IsEdible: 0
   OnEatNutrition: 0
+  OnEatHydration: 0
   IsDrinkable: 0
   OnDrinkHydration: 0
   CanTendWounds: 0

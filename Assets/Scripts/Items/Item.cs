@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
+    private Game Game;
+
     [Header("General")]
     public string Name;
     public string Description;
     public ItemType Type;
+    public bool IsPlayerOwned;
 
     [Header("Food")]
     public bool IsEdible;
@@ -22,10 +25,6 @@ public class Item : MonoBehaviour
     [Header("Wounds")]
     public bool CanTendWounds;
     public bool CanHealInfections;
-
-    [Header("Game")]
-    public Game Game;
-    public bool IsOwned;
 
     [Header("Visual")]
     public bool ForceGlow;
@@ -44,10 +43,10 @@ public class Item : MonoBehaviour
     public List<ItemInteractionOption> GetInteractionOptions()
     {
         List<ItemInteractionOption> allOptions = new List<ItemInteractionOption>();
-        if (!IsOwned) return allOptions;
+        if (!IsPlayerOwned) return allOptions; // todo. allow interactions of non-player items (i.e. trader)
 
         // Options by item attributes (eat, drink, etc.)
-        if(Game.CurrentEvent == null || Game.CurrentEvent.ItemActionsAllowed)
+        if(Game.CurrentEventStep == null || Game.CurrentEventStep.ItemsAllowed)
         {
             if (IsEdible) allOptions.Add(new ItemInteractionOption("Eat", () => Game.EatItem(this)));
             if (IsDrinkable) allOptions.Add(new ItemInteractionOption("Drink", () => Game.DrinkItem(this)));

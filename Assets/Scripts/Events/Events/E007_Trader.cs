@@ -34,22 +34,19 @@ public class E007_Trader : Event
         { 6, 5 },
     };
 
-    public static float GetProbability(Game game)
-    {
-        return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
-    }
-
     // Instance
     private Dictionary<ItemType, int> ItemPrices;
     private List<Item> BuyableItems;
 
-    public E007_Trader(Game game) : base(game, EventType.E007_Trader) { }
+    public E007_Trader(Game game) : base(game) { }
+    public override Event GetEventInstance => new E007_Trader(Game);
 
-    public override void InitEvent()
+    public override float GetEventProbability()
     {
-        // Attributes
-        ItemActionsAllowed = true;
-
+        return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
+    }
+    public override void OnEventStart()
+    {
         // Sprites
         ResourceManager.Singleton.E007_Trader.SetActive(true);
         foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(true);
@@ -71,20 +68,21 @@ public class E007_Trader : Event
             BuyableItems.Add(item);
             ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[type].ToString();
         }
-
-        // Event
-        string eventText = "You come across the bunker that " + E004_ParrotWoman.WomanName + " told you about.";
-        InitialStep = GetInitialStep(eventText);
+    }
+    public override EventStep GetInitialStep()
+    {
+        string eventText = "You come across a trader offering various items. He says that he is also willing to buy items.";
+        return GetShopStep(eventText);
     }
     public override void OnEventEnd()
     {
         ResourceManager.Singleton.E007_Trader.SetActive(false);
         foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(false);
         foreach (Item item in BuyableItems)
-            if (!item.IsOwned) GameObject.Destroy(item.gameObject);
+            if (!item.IsPlayerOwned) GameObject.Destroy(item.gameObject);
     }
 
-    private EventStep GetInitialStep(string text)
+    private EventStep GetShopStep(string text)
     {
         // Options
         List<EventOption> dialogueOptions = new List<EventOption>();
@@ -120,7 +118,7 @@ public class E007_Trader : Event
         Game.AddItemToInventory(item);
         BuyableItems.Remove(item);
 
-        EventStep nextStep = GetInitialStep(text);
+        EventStep nextStep = GetShopStep(text);
         nextStep.AddedItems = new List<Item>() { item };
         nextStep.RemovedItems = payedCoins;
 
@@ -132,7 +130,7 @@ public class E007_Trader : Event
         Game.DestroyOwnedItem(item);
         List<Item> addedCoins = Game.AddItemsToInventory(ItemType.Coin, price);
 
-        EventStep nextStep = GetInitialStep("You sold the " + item.Name + " for " + price + " coins.");
+        EventStep nextStep = GetShopStep("You sold the " + item.Name + " for " + price + " coins.");
         nextStep.AddedItems = addedCoins;
         nextStep.RemovedItems = new List<Item>() { item };
 

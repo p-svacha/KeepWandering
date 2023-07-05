@@ -17,38 +17,31 @@ public class E002_Dog : Event
         {LocationType.GroceryStore, 0f},
     };
 
-    public static float GetProbability(Game game)
+    public E002_Dog(Game game) : base(game) { }
+    public override Event GetEventInstance => new E002_Dog(Game);
+
+    public override float GetEventProbability()
     {
-        if (game.Player.HasDog) return 0;
-        else return BaseProbability * LocationProbabilityTable[game.CurrentLocation.Type];
+        if (Game.Player.HasDog) return 0;
+        else return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
     }
-
-    // Instance
-
-    public E002_Dog(Game game) : base(game, EventType.E002_Dog) { }
-
-    public override void InitEvent()
+    public override void OnEventStart()
     {
-        // Attributes
-        ItemActionsAllowed = true;
-
-        // Sprite
+        // Sprites
         ResourceManager.Singleton.E002_Dog.SetActive(true);
-
-        // Event
+    }
+    public override EventStep GetInitialStep()
+    {
+        // Dialogue Options
         List<EventOption> options = new List<EventOption>();
+        options.Add(new EventOption("Pet the dog", PetDog)); // Pet dog
+        options.Add(new EventOption("Ignore the dog", IgnoreDog)); // Ignore dog
+
+        // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();
+        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", OfferBone)); // Offer bone
 
-        // Dialogue Option - Pet the dog
-        options.Add(new EventOption("Pet the dog", PetDog));
-
-        // Dialogue Option - Ignore dog
-        options.Add(new EventOption("Ignore the dog", IgnoreDog));
-
-        // Item Option (bone) - Offer bone
-        itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", OfferBone));
-
-        InitialStep = new EventStep("You encounter a dog that looks friendly towards you.", null, null, options, itemOptions);
+        return new EventStep("You encounter a dog that looks friendly towards you.", null, null, options, itemOptions);
     }
     public override void OnEventEnd()
     {

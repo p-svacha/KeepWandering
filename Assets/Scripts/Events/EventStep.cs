@@ -18,14 +18,22 @@ public class EventStep
 
     public List<EventOption> EventDialogueOptions;
     public List<EventItemOption> EventItemOptions;
+    public bool ItemsAllowed;
 
-    public EventStep(string text, List<Item> addedItems, List<Item> removedItems, List<EventOption> dialogueOptions, List<EventItemOption> itemOptions)
+    public EventStep(string text, List<Item> addedItems, List<Item> removedItems, List<EventOption> dialogueOptions, List<EventItemOption> itemOptions, bool allowItems = true)
     {
         Text = text;
         AddedItems = addedItems;
         RemovedItems = removedItems;
         EventDialogueOptions = dialogueOptions;
         EventItemOptions = itemOptions;
+        ItemsAllowed = allowItems;
+        if (EventDialogueOptions == null) EventDialogueOptions = new List<EventOption>();
         if (EventItemOptions == null) EventItemOptions = new List<EventItemOption>();
     }
+
+    /// <summary>
+    /// If this is the final step of the event, meaning that there are no more interaction options.
+    /// </summary>
+    public bool IsFinalStep => EventDialogueOptions.Count == 0;
 }

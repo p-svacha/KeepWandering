@@ -7,22 +7,21 @@ public class E008_DistressedPerson : Event
     // Static
     private const float BaseProbability = 4f;
 
-    public static float GetProbability(Game game)
+    // Instance
+    public E008_DistressedPerson(Game game) : base(game) { }
+    public override Event GetEventInstance => new E008_DistressedPerson(Game);
+
+    public override float GetEventProbability()
     {
         return BaseProbability;
     }
-
-    // Instance
-    public E008_DistressedPerson(Game game) : base(game, EventType.E008_DistressedPerson) { }
-
-    public override void InitEvent()
+    public override void OnEventStart()
     {
-        // Attributes
-        ItemActionsAllowed = false;
-
         // Sprites
         ResourceManager.Singleton.E008_DistressedPerson.SetActive(true);
-
+    }
+    public override EventStep GetInitialStep()
+    {
         // Options
         List<EventOption> dialogueOptions = new List<EventOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
@@ -32,9 +31,8 @@ public class E008_DistressedPerson : Event
 
         // Event
         string eventText = "You see a very distressed person who is flailing their arms around.";
-        InitialStep = new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
-
     public override void OnEventEnd()
     {
         ResourceManager.Singleton.E008_DistressedPerson.SetActive(false);

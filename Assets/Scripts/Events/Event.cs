@@ -4,35 +4,45 @@ using UnityEngine;
 
 public abstract class Event
 {
-    public Game Game;
-    public EventType Type;
-    public EventStep InitialStep;
+    public Game Game { get; private set; }
+    public EventStep InitialStep { get; private set; }
 
-    public bool ItemActionsAllowed; // If false, the player cannot do default item interactions during the event (i.e. eat, drink)
-
-    public Event(Game game, EventType type)
+    public Event(Game game)
     {
         Game = game;
-        Type = type;
-        InitEvent();
     }
 
     /// <summary>
-    /// Sets all event attributes and creates the initial EventStep from which all other EventSteps branch out.
+    /// Returns a new instance of the event.
     /// </summary>
-    public abstract void InitEvent();
+    public abstract Event GetEventInstance { get; }
 
     /// <summary>
-    /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying items.
+    /// Initializes and starts the event, making it visible on screen and playable.
+    /// </summary>
+    public void StartEvent()
+    {
+        OnEventStart();
+        InitialStep = GetInitialStep();
+    }
+
+    /// <summary>
+    /// Returns a value that determines how likely this event appears at a specific game state.
+    /// </summary>
+    public abstract float GetEventProbability();
+
+    /// <summary>
+    /// Initializes the event by setting up all attributes, setting relevant sprites and items etc.
+    /// </summary>
+    public abstract void OnEventStart();
+
+    /// <summary>
+    /// Sets the first EventStep that appears when the event begins.
+    /// </summary>
+    public abstract EventStep GetInitialStep();
+
+    /// <summary>
+    /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying leftover items.
     /// </summary>
     public abstract void OnEventEnd();
-
-    #region General Event Options
-
-    protected EventStep Attack(int enemyStrength)
-    {
-
-    }
-
-    #endregion
 }
