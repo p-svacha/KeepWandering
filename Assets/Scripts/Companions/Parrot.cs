@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class Parrot : Companion
 {
+    public override string Name => "Parrot";
+
     private float Nutrition;
 
-    private static string SourceName = "Parrot";
     private bool StatusEffectsInitialized;
     private StatusEffect SE_Hungry;
     private StatusEffect SE_VeryHungry;
@@ -16,9 +17,9 @@ public class Parrot : Companion
     {
         StatusEffectsInitialized = true;
 
-        SE_Hungry = new StatusEffect(SourceName, "Hungry", "Needs nuts", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_VeryHungry = new StatusEffect(SourceName, "Very Hungry", "Needs nuts urgently", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_Starving = new StatusEffect(SourceName, "Starving", "Needs nuts or it will die", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_Hungry = new StatusEffect("Hungry", "Needs nuts", ResourceManager.Singleton.SE_Bad, Color.clear);
+        SE_VeryHungry = new StatusEffect("Very Hungry", "Needs nuts urgently", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_Starving = new StatusEffect("Starving", "Needs nuts or it will die", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
     }
 
     protected override void OnInit()

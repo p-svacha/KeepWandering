@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Dog : Companion
 {
+    public override string Name => "Dog";
     private const float FindItemChance = 0.3f;
     private static Dictionary<ItemType, float> FindItemTable = new Dictionary<ItemType, float>()
     {

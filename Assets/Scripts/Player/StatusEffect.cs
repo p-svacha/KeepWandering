@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class StatusEffect
 {
-    public string Source;
     public string Name;
     public string Description;
     public Color TextColor;
@@ -12,9 +11,8 @@ public class StatusEffect
 
     public UI_StatusEffect UI;
 
-    public StatusEffect(string source, string name, string description, Color textColor, Color backgroundColor)
+    public StatusEffect(string name, string description, Color textColor, Color backgroundColor)
     {
-        Source = source;
         Name = name;
         Description = description;
         TextColor = textColor;

@@ -29,7 +29,7 @@ public class E006_WoodsBunker : Event
     public override float GetEventProbability()
     {
         if (Game.CurrentLocation != ResourceManager.Singleton.LOC_Woods) return 0;
-        if (!E005_ParrowWomanReunion.SuccessfulReturn) return 0;
+        if (!E005_ParrotWomanReunion.SuccessfulReturn) return 0;
         return 2f;
     }
     public override void OnEventStart()

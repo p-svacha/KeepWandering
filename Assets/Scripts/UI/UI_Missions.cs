@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UI_Missions : MonoBehaviour
 {
-    public Text TitleText;
-    public UI_Mission MissionPrefab;
     public GameObject MissionsContainer;
+    public TextMeshProUGUI TitleText;
+    public TextMeshProUGUI MissionTextPrefab;
 
     public void UpdateList(List<Mission> missions)
     {
@@ -19,8 +20,8 @@ public class UI_Missions : MonoBehaviour
 
         foreach(Mission mission in missions)
         {
-            UI_Mission missionDisplay = Instantiate(MissionPrefab, MissionsContainer.transform);
-            missionDisplay.Init(mission);
+            TextMeshProUGUI missionDisplay = Instantiate(MissionTextPrefab, MissionsContainer.transform);
+            missionDisplay.text = mission.Text;
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(MissionsContainer.GetComponent<RectTransform>());

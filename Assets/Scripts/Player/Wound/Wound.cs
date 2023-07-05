@@ -138,7 +138,7 @@ public class Wound : MonoBehaviour
         // Background Color
         Color backgroundColor = Color.clear;
 
-        StatusEffect = new StatusEffect(PlayerCharacter.SourceName, name, description, color, backgroundColor);
+        StatusEffect = new StatusEffect(name, description, color, backgroundColor);
     }
 
     public void SetSprites()

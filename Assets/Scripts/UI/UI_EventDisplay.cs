@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UI_EventDisplay : MonoBehaviour
 {
     public Game Game;
 
-    public Text EventText;
+    [Header("Elements")]
+    public TextMeshProUGUI EventText;
     public GameObject EventOptionContainer;
-    public UI_EventOption EventOptionPrefab;
-
     public GameObject EventItemChangeContainer;
+
+    [Header("Prefabs")]
+    public UI_EventOption EventOptionPrefab;
     public UI_EventItemChange EventItemChangePrefab;
     
 
@@ -119,11 +122,7 @@ public class UI_EventDisplay : MonoBehaviour
 
     private void Clear()
     {
-        foreach (Transform child in EventOptionContainer.transform)
-        {
-            if (child.GetSiblingIndex() >= 2) Destroy(child.gameObject);
-        }
-
-        foreach (Transform child in EventItemChangeContainer.transform) Destroy(child.gameObject);
+        HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
+        HelperFunctions.DestroyAllChildredImmediately(EventItemChangeContainer);
     }
 }

@@ -33,7 +33,7 @@ public class UI_InteractionBoxOption : MonoBehaviour, IPointerEnterHandler, IPoi
     {
         if (game.State == GameState.InGame)
         {
-            game.HideInteractionBox();
+            game.UI.HideInteractionBox();
             option.Action();
         }
     }

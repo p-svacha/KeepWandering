@@ -30,7 +30,7 @@ public class EventManager
             new E002_Dog(Game),
             new E003_EvilGuy(Game),
             new E004_ParrotWoman(Game),
-            new E005_ParrowWomanReunion(Game),
+            new E005_ParrotWomanReunion(Game),
             new E006_WoodsBunker(Game),
             new E007_Trader(Game),
             new E008_DistressedPerson(Game)
@@ -45,8 +45,9 @@ public class EventManager
         // Forced event
         if (ForcedEvent != null)
         {
+            Event forcedEventInstance = ForcedEvent.GetEventInstance;
             ForcedEvent = null;
-            return ForcedEvent.GetEventInstance;
+            return forcedEventInstance;
         }
 
         // Chose an event for the day

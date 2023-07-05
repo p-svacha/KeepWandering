@@ -45,23 +45,46 @@ public class PlayerCharacter : MonoBehaviour
 
     [Header("Status Effects")]
     public List<StatusEffect> StatusEffects = new List<StatusEffect>();
-    public static string SourceName = "You";
 
-    private StatusEffect SE_Hungry = new StatusEffect(SourceName, "Hungry", "Some food would be nice", new Color(0.4f, 0f, 0f), Color.clear);
-    private StatusEffect SE_VeryHungry = new StatusEffect(SourceName, "Very Hungry", "I don't think I can go much longer without food.", new Color(0.7f, 0f, 0f), Color.clear);
-    private StatusEffect SE_Starving = new StatusEffect(SourceName, "Starving", "If I don't eat anything right now I'm not gonna make it another day.", new Color(1f, 0f, 0f), Color.clear);
+    private StatusEffect SE_Nothing;
 
-    private StatusEffect SE_Thirsty = new StatusEffect(SourceName, "Thirsty", "Some water would be nice", new Color(0.4f, 0f, 0f), Color.clear);
-    private StatusEffect SE_Dehydrated = new StatusEffect(SourceName, "Dehydrated", "I don't think I can go much longer without water.", new Color(0.7f, 0f, 0f), Color.clear);
-    private StatusEffect SE_Parched = new StatusEffect(SourceName, "Parched", "If I don't drink anything right now I'm not gonna make it another day.", new Color(1f, 0f, 0f), Color.clear);
+    private StatusEffect SE_Hungry;
+    private StatusEffect SE_VeryHungry;
+    private StatusEffect SE_Starving;
 
-    private StatusEffect SE_MinorFracture = new StatusEffect(SourceName, "Minor Fracture", "Oof ouch, my bones.", new Color(0.4f, 0f, 0f), Color.clear);
-    private StatusEffect SE_MajorFracture = new StatusEffect(SourceName, "Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", new Color(0.7f, 0f, 0f), Color.clear);
-    private StatusEffect SE_ExtremeFracture = new StatusEffect(SourceName, "Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", new Color(1f, 0f, 0f), Color.clear);
+    private StatusEffect SE_Thirsty;
+    private StatusEffect SE_Dehydrated;
+    private StatusEffect SE_Parched;
 
-    private StatusEffect SE_MinorBloodLoss = new StatusEffect(SourceName, "Minor Blood Loss", "I've been bleeding a little.", new Color(0.4f, 0f, 0f), Color.clear);
-    private StatusEffect SE_MajorBloodLoss = new StatusEffect(SourceName, "Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", new Color(0.7f, 0f, 0f), Color.clear);
-    private StatusEffect SE_ExtremeBloodLoss = new StatusEffect(SourceName, "Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", new Color(1f, 0f, 0f), Color.clear);
+    private StatusEffect SE_MinorFracture;
+    private StatusEffect SE_MajorFracture;
+    private StatusEffect SE_ExtremeFracture;
+
+    private StatusEffect SE_MinorBloodLoss;
+    private StatusEffect SE_MajorBloodLoss;
+    private StatusEffect SE_ExtremeBloodLoss;
+
+    private void Start()
+    {
+        // Initialize static status effects
+        SE_Nothing = new StatusEffect("Nothing Noteworthy", "Everything seems to be perfectly normal.", ResourceManager.Singleton.SE_Neutral, Color.clear);
+
+        SE_Hungry = new StatusEffect("Hungry", "Some food would be nice", ResourceManager.Singleton.SE_Bad, Color.clear);
+        SE_VeryHungry = new StatusEffect("Very Hungry", "I don't think I can go much longer without food.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_Starving = new StatusEffect("Starving", "If I don't eat anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+
+        SE_Thirsty = new StatusEffect("Thirsty", "Some water would be nice", ResourceManager.Singleton.SE_Bad, Color.clear);
+        SE_Dehydrated = new StatusEffect("Dehydrated", "I don't think I can go much longer without water.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_Parched = new StatusEffect("Parched", "If I don't drink anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+
+        SE_MinorFracture = new StatusEffect("Minor Fracture", "Oof ouch, my bones.", ResourceManager.Singleton.SE_Bad, Color.clear);
+        SE_MajorFracture = new StatusEffect("Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_ExtremeFracture = new StatusEffect("Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+
+        SE_MinorBloodLoss = new StatusEffect("Minor Blood Loss", "I've been bleeding a little.", ResourceManager.Singleton.SE_Bad, Color.clear);
+        SE_MajorBloodLoss = new StatusEffect("Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
+        SE_ExtremeBloodLoss = new StatusEffect("Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+    }
 
     public void Init(Game game)
     {
@@ -182,8 +205,9 @@ public class PlayerCharacter : MonoBehaviour
 
     /// <summary>
     /// Updates all status effects and and visuals (sprites on player) representing them.
+    /// This function does NOT change anything, it just sets the status effects according to the current player state.
     /// </summary>
-    public void UpdateSpritesAndStatusEffects()
+    public void UpdateStatusEffects()
     {
         // Sprites
         DisableAllSprites();
@@ -231,6 +255,9 @@ public class PlayerCharacter : MonoBehaviour
             w.UpdateStatusEffect();
             StatusEffects.Add(w.StatusEffect);
         }
+
+        // Add "everything ok" status effect if no other status effects
+        if (StatusEffects.Count == 0) StatusEffects.Add(SE_Nothing);
     }
 
     private void DisableAllSprites()
