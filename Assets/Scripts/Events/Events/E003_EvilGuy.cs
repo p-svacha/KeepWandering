@@ -17,7 +17,7 @@ public class E003_EvilGuy : Event
 
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.Suburbs, 0.5f},
+        {LocationType.MainRoad, 0.5f},
         {LocationType.City, 2f},
         {LocationType.Woods, 0.1f},
         {LocationType.GroceryStore, 1.5f},
@@ -49,7 +49,7 @@ public class E003_EvilGuy : Event
     public override float GetEventProbability()
     {
         if (Game.Inventory.Count == 0) return 0;
-        else return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
+        else return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
     }
     public override void OnEventStart()
     {
@@ -86,8 +86,8 @@ public class E003_EvilGuy : Event
     private EventStep GetStandoffStep(string text)
     {
         // Dialogue Options
-        List<EventOption> dialogueOptions = new List<EventOption>();
-        dialogueOptions.Add(new EventOption("Fight", Fight)); // Fight
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
+        dialogueOptions.Add(new EventDialogueOption("Fight", Fight)); // Fight
 
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();

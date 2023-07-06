@@ -9,18 +9,21 @@ public class Game : MonoBehaviour
 {
     public EventManager EventManager { get; private set; }
 
-    [Header("UI")]
+    [Header("Main Elements")]
+    public Camera MainCamera;
     public GameUI UI;
 
-    [Header("Game State")]
-    public GameState State;
+    // Game State
+    public GameState State { get; private set; }
     public int Day { get; private set; }
+    public MorningReport LatestMorningReport { get; private set; }
     public Event CurrentEvent;
     public EventStep CurrentEventStep;
 
-    public Location CurrentLocation;
-    public Location NextDayLocation;
-    public List<Item> Inventory = new List<Item>();
+    public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
+    public WorldMapTile CurrentPosition;
+    public WorldMapTile NextDayPosition;
+
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
     [Header("Items")]
@@ -28,6 +31,7 @@ public class Game : MonoBehaviour
     private Item CurrentHoverItem;
     private float CurrentHoverTime;
     private Item CurrentInteractionItem;
+    public List<Item> Inventory = new List<Item>();
 
     [Header("Characters")]
     public PlayerCharacter Player;
@@ -35,6 +39,7 @@ public class Game : MonoBehaviour
 
     [Header("World Map")]
     public WorldMap WorldMap;
+    public CameraHandler WorldMapCamera;
 
     // Debug
     public const bool DEBUG_RANDOM_CHOICES = true;
@@ -54,21 +59,27 @@ public class Game : MonoBehaviour
 
     void Start()
     {
+        Singleton = this;
         StartGame();
     }
+
     private void StartGame()
     {
-        WorldMap.GenerateWorld(100);
+        WorldMap.Init(this);
+        WorldMap.GenerateWorld(1000);
+        WorldMapCamera.Init(this);
+
         EventManager = new EventManager(this);
 
         UI.Init(this);
         Player.Init(this);
 
+        SetPosition(WorldMap.GetTile(new Vector2Int(5, 5))); // Vector2Int.zero));
+        WorldMap.ResetCamera();
+
         AddItemToInventory(GetItemInstance(ItemType.Beans));
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
         AddItemToInventory(GetItemInstance(HelperFunctions.GetWeightedRandomElement(StartItemTable)));
-
-        NextDayLocation = ResourceManager.Singleton.LOC_Suburbs;
 
         SwitchState(GameState.InDayTransition);
     }
@@ -78,8 +89,11 @@ public class Game : MonoBehaviour
     {
         bool uiClick = EventSystem.current.IsPointerOverGameObject();
 
-        // Escape menu
+        // Escape - Escape menu
         if (Input.GetKeyDown(KeyCode.Escape)) UI.ToggleEscapeMenu();
+
+        // M - Map
+        if (Input.GetKeyDown(KeyCode.M)) UI.ToggleWorldMap();
 
         // Update per state
         switch (State) {
@@ -87,7 +101,7 @@ public class Game : MonoBehaviour
             case GameState.InGame:
 
                 // Update Hovered Elements
-                Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mouseWorldPos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
                 if (hit.collider != null && hit.collider.GetComponent<Item>() != null)
                 {
@@ -146,22 +160,14 @@ public class Game : MonoBehaviour
         {
             case GameState.InGame:
                 UI.DescriptionBox.gameObject.SetActive(false);
+                UI.InteractionBox.gameObject.SetActive(false);
                 break;
         }
 
         switch(newState)
         {
             case GameState.InDayTransition:
-                StartNewDay();
-
-                string gameOver = GetGameOverReason();
-                if(gameOver != null)
-                {
-                    UI.BlackTransitionText.text = "Day " + Day + "\n" + gameOver;
-                    SwitchState(GameState.GameOver);
-                    return;
-                }
-
+                StartMorningEvent();
                 UI.HoldBlackTransition(GameUI.TRANSITION_HOLD_TIME);
                 break;
 
@@ -176,12 +182,12 @@ public class Game : MonoBehaviour
                 break;
 
             case GameState.EndMorningReportTransitionOut:
-                StartDayEvent();
+                StartAfternoonEvent();
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
             case GameState.EndEventTransitionOut:
-                StartLocationEvent();
+                StartEveningEvent();
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
@@ -189,57 +195,13 @@ public class Game : MonoBehaviour
                 UI.FadeInBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 UI.DayText.text = "Day " + Day;
                 break;
+
+            case GameState.GameOver:
+                UI.HoldBlackTransition(60f);
+                break;
         }
 
         State = newState;
-    }
-
-    private void SetLocation(Location location)
-    {
-        if(CurrentLocation != null) CurrentLocation.gameObject.SetActive(false);
-        CurrentLocation = location;
-        CurrentLocation.gameObject.SetActive(true);
-    }
-
-    private void StartNewDay()
-    {
-        MorningReport morningReport = new MorningReport(Day);
-
-        Day++;
-
-        Player.OnEndDay(this, morningReport);
-        List<Companion> companionsCopy = new List<Companion>();
-        foreach (Companion c in Companions) companionsCopy.Add(c);
-        foreach (Companion c in companionsCopy) c.OnEndDay(this, morningReport);
-        UpdateAllStatusEffects();
-
-        // Location switch
-        SetLocation(NextDayLocation);
-
-        // Show morning reports
-        UI.EventStepDisplay.DisplayMorningReport(morningReport);
-
-        // Day UI Updates
-        UI.BlackTransitionText.text = "Day " + Day;
-        UI.DayText.text = "Day " + Day;
-        UI.DayTimeText.text = "Morning";
-    }
-
-    public void EndMorningReport()
-    {
-        SwitchState(GameState.EndMorningReportTransitionIn);
-    }
-
-    private void StartDayEvent()
-    {
-        UI.DayTimeText.text = "Afternoon";
-
-        // Chose an event for the day
-        CurrentEvent = EventManager.GetDayEvent();
-
-        // Display the event
-        CurrentEvent.StartEvent();
-        DisplayEventStep(CurrentEvent.InitialStep);
     }
 
     public void DisplayEventStep(EventStep step)
@@ -279,38 +241,14 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void EndEvent()
-    {
-        SwitchState(GameState.EndEventTransitionIn);
-    }
-
-    private void StartLocationEvent()
-    {
-        UI.DayTimeText.text = "Evening";
-
-        // Clear day event
-        if (CurrentEvent != null) CurrentEvent.OnEventEnd();
-        CurrentEvent = null;
-
-        // Get a location event
-        Dictionary<LocationEventType, float> eventTable = new Dictionary<LocationEventType, float>();
-        foreach (LocationEventType type in System.Enum.GetValues(typeof(LocationEventType))) eventTable.Add(type, GetLocationEventProbability(type));
-        LocationEventType chosenEventType = HelperFunctions.GetWeightedRandomElement<LocationEventType>(eventTable);
-
-        //if (HasForcedLocationEvent && eventTable[ForcedLocationEventType] != 0) chosenEventType = ForcedLocationEventType;
-
-        LocationEvent locationEvent = GetLocationEventInstance(chosenEventType);
-        DisplayEventStep(locationEvent.EventStep);
-    }
-
-    public void EndDay()
-    {
-        SwitchState(GameState.DayTransitionFadeIn);
-    }
-
     public void CheckGameOver()
     {
-        if (GetGameOverReason() != null) SwitchState(GameState.DayTransitionFadeIn);
+        string gameOver = GetGameOverReason();
+        if (gameOver != null)
+        {
+            UI.BlackTransitionText.text = "Day " + Day + "\n" + gameOver;
+            SwitchState(GameState.GameOver);
+        }
     }
 
     private string GetGameOverReason()
@@ -326,84 +264,178 @@ public class Game : MonoBehaviour
 
     #endregion
 
-    #region UI Feedback
+    #region Morning
 
-    public void OnTransitionFadeInDone()
+    private void StartMorningEvent()
     {
-        if (State == GameState.DayTransitionFadeIn) SwitchState(GameState.InDayTransition);
-        else if (State == GameState.EndEventTransitionIn) SwitchState(GameState.EndEventTransitionOut);
-        else if (State == GameState.EndMorningReportTransitionIn) SwitchState(GameState.EndMorningReportTransitionOut);
-        else throw new System.Exception("State " + State.ToString() + " not handled.");
-    }
+        UI.DayTimeText.text = "Morning";
 
-    public void OnTransitionFadeOutDone()
-    {
-        if (State == GameState.DayTransitionFadeOut ||
-            State == GameState.EndEventTransitionOut ||
-            State == GameState.EndMorningReportTransitionOut)
+        LatestMorningReport = new MorningReport(Day);
+
+        Day++;
+
+        Player.OnEndDay(this, LatestMorningReport);
+        List<Companion> companionsCopy = new List<Companion>();
+        foreach (Companion c in Companions) companionsCopy.Add(c);
+        foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
+        UpdateAllStatusEffects();
+
+        // Show morning report
+        UpdateMorningEvent();
+
+        // Day UI Updates
+        UI.BlackTransitionText.text = "Day " + Day;
+        UI.DayText.text = "Day " + Day;
+
+        // Enable destination selection of adjacent tiles
+        WorldMap.UnhighlightAllBlueTiles();
+        WorldMap.CanSelectDestination = true;
+        foreach(Direction dir in HelperFunctions.GetAdjacentHexDirections())
         {
-            SwitchState(GameState.InGame);
+            Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(CurrentPosition.Coordinates, dir);
+            WorldMapTile adjTile = WorldMap.GetTile(adjCoord);
+            if(adjTile.IsPassable()) WorldMap.HighlightTileGreen(adjTile);
         }
-        else throw new System.Exception("State " + State.ToString() + " not handled.");
     }
 
-    public void OnTransitionHoldDone()
+    /// <summary>
+    /// Displays the morning event step.
+    /// </summary>
+    private void UpdateMorningEvent()
     {
-        if (State == GameState.InDayTransition) SwitchState(GameState.DayTransitionFadeOut);
-        else throw new System.Exception("State " + State.ToString() + " not handled.");
+        DisplayEventStep(GetMorningEvent());
+    }
+
+    /// <summary>
+    /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
+    /// </summary>
+    private EventStep GetMorningEvent()
+    {
+        // Text displaying night events
+        string text = "";
+        if (Day == 1) text = "After you saw the news you knew that you weren't save anymore at home. You ran outside, grabbed your handcart and so starts your journey.";
+        else if (LatestMorningReport.NightEvents.Count == 0) text = "You wake up in the " + CurrentPosition.Location.Name + ". Nothing eventful happened during the night.";
+        else
+        {
+            text = "You wake up in the " + CurrentPosition.Location.Name + ". The following happened during the night:";
+            foreach (string e in LatestMorningReport.NightEvents) text += "\n" + e;
+        }
+
+        // Dialogue Options
+        List<EventDialogueOption> options = new List<EventDialogueOption>();
+
+        if (NextDayPosition == null)
+        {
+            EventDialogueOption pickTargetLocationOption = new EventDialogueOption("Set destination", OpenMap);
+            options.Add(pickTargetLocationOption);
+        }
+        else
+        {
+            EventDialogueOption startTravelingOption = new EventDialogueOption("Start day journey", EndMorningEvent);
+            options.Add(startTravelingOption);
+        }
+
+        EventStep morningEventStep = new EventStep(text, LatestMorningReport.AddedItems, LatestMorningReport.RemovedItems, options, null);
+        return morningEventStep;
+    }
+
+    private EventStep OpenMap()
+    {
+        UI.OpenWorldMap();
+        return GetMorningEvent();
+    }
+
+    public void SetNextDayPosition(WorldMapTile tile)
+    {
+        // Set position
+        NextDayPosition = tile;
+
+        // Change display on world map
+        WorldMap.UnhighlightAllGreenTiles();
+        WorldMap.HighlightTileBlue(tile);
+        WorldMap.CanSelectDestination = false;
+
+        // Update morning event so day can be started
+        UpdateMorningEvent();
+    }
+
+    public EventStep EndMorningEvent()
+    {
+        UI.CloseAllWindows();
+        SwitchState(GameState.EndMorningReportTransitionIn);
+        return null;
+    }
+
+    #endregion
+    
+    #region Afternoon
+
+    private void StartAfternoonEvent()
+    {
+        UI.DayTimeText.text = "Afternoon";
+
+        // Chose an event for the afternoon
+        CurrentEvent = EventManager.GetAfternoonEvent();
+
+        // Display the event
+        CurrentEvent.StartEvent();
+        DisplayEventStep(CurrentEvent.InitialStep);
+    }
+
+    public void EndAfternoonEvent()
+    {
+        UI.CloseAllWindows();
+        SwitchState(GameState.EndEventTransitionIn);
     }
 
     #endregion
 
-    #region Getters
+    #region Evening
 
-    private float GetLocationEventProbability(LocationEventType type)
+    private void StartEveningEvent()
     {
-        switch (type)
-        {
-            case LocationEventType.LE001_SuburbsToCity: return LE001_SuburbsToCity.GetProbability(this);
-            case LocationEventType.LE002_SuburbsStay: return LE002_SuburbsStay.GetProbability(this);
-            case LocationEventType.LE003_CityToSuburbs: return LE003_CityToSuburbs.GetProbability(this);
-            case LocationEventType.LE004_CityStay: return LE004_CityStay.GetProbability(this);
-            case LocationEventType.LE005_SuburbsToWoodsForce: return LE005_SuburbsToWoodsForce.GetProbability(this);
-            case LocationEventType.LE006_WoodsStay: return LE006_WoodsStay.GetProbability(this);
-            case LocationEventType.LE007_WoodsToSuburbsForce: return LE007_WoodsToSuburbsForce.GetProbability(this);
+        UI.DayTimeText.text = "Evening";
 
-            default: throw new System.Exception("Probability not handled for LocationEventType " + type.ToString());
-        }
-    }
-    private LocationEvent GetLocationEventInstance(LocationEventType type)
-    {
-        switch (type)
-        {
-            case LocationEventType.LE001_SuburbsToCity: return new LE001_SuburbsToCity(this);
-            case LocationEventType.LE002_SuburbsStay: return new LE002_SuburbsStay(this);
-            case LocationEventType.LE003_CityToSuburbs: return new LE003_CityToSuburbs(this);
-            case LocationEventType.LE004_CityStay: return new LE004_CityStay(this);
-            case LocationEventType.LE005_SuburbsToWoodsForce: return new LE005_SuburbsToWoodsForce(this);
-            case LocationEventType.LE006_WoodsStay: return new LE006_WoodsStay(this);
-            case LocationEventType.LE007_WoodsToSuburbsForce: return new LE007_WoodsToSuburbsForce(this);
+        // Clear day event
+        if (CurrentEvent != null) CurrentEvent.OnEventEnd();
+        CurrentEvent = null;
 
-            default: throw new System.Exception("Instancing not handled for LocationEventType " + type.ToString());
-        }
+        // Position switch
+        SetPosition(NextDayPosition);
+        NextDayPosition = null;
+
+        // Display evening event
+        DisplayEventStep(GetEveningEvent());
     }
 
-    public Item GetItemInstance(ItemType type)
+    /// <summary>
+    /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
+    /// </summary>
+    private EventStep GetEveningEvent()
     {
-        Item item = Instantiate(ItemPrefabs.FirstOrDefault(x => x.Type == type));
-        if(item == null) throw new System.Exception("No item prefab found with type " + type.ToString());
-        item.Init(this);
-        return item;
+        // Text displaying night events
+        string text = "You arrived at " + CurrentPosition.Location.Name + " just as planned. You are tired and can't wait to get some rest.";
+
+        // Dialogue Options
+        List<EventDialogueOption> options = new List<EventDialogueOption>();
+
+        EventDialogueOption sleepOtion = new EventDialogueOption("Sleep", Sleep);
+        options.Add(sleepOtion);
+
+        EventStep eveningEventStep = new EventStep(text, null, null, options, null);
+        return eveningEventStep;
     }
 
-    public System.Array GetAllItemTypes()
+    private EventStep Sleep()
     {
-        return System.Enum.GetValues(typeof(ItemType));
+        EndEveningEvent();
+        return null;
     }
 
-    public int GetItemTypeAmount(ItemType type)
+    public void EndEveningEvent()
     {
-        return Inventory.Count(x => x.Type == type);
+        UI.CloseAllWindows();
+        SwitchState(GameState.DayTransitionFadeIn);
     }
 
     #endregion
@@ -548,9 +580,13 @@ public class Game : MonoBehaviour
         UpdateAllStatusEffects();
     }
 
-    public void SetNextDayLocation(Location location)
+    public void SetPosition(WorldMapTile tile)
     {
-        NextDayLocation = location;
+        if (CurrentPosition != null) CurrentPosition.Location.Sprite.gameObject.SetActive(false);
+        CurrentPosition = tile;
+        CurrentPosition.Location.Sprite.gameObject.SetActive(true);
+
+        PathHistory.Add(CurrentPosition);
     }
 
     private void UpdateAllStatusEffects()
@@ -560,6 +596,60 @@ public class Game : MonoBehaviour
         UI.UpdateHealthReports();
 
         CheckGameOver();
+    }
+
+    #endregion
+
+    #region Getters
+
+    public Item GetItemInstance(ItemType type)
+    {
+        Item item = Instantiate(ItemPrefabs.FirstOrDefault(x => x.Type == type));
+        if (item == null) throw new System.Exception("No item prefab found with type " + type.ToString());
+        item.Init(this);
+        return item;
+    }
+
+    public System.Array GetAllItemTypes()
+    {
+        return System.Enum.GetValues(typeof(ItemType));
+    }
+
+    public int GetItemTypeAmount(ItemType type)
+    {
+        return Inventory.Count(x => x.Type == type);
+    }
+
+    public static Game Singleton;
+
+    #endregion
+
+    #region UI Feedback
+
+    public void OnTransitionFadeInDone()
+    {
+        if (State == GameState.DayTransitionFadeIn) SwitchState(GameState.InDayTransition);
+        else if (State == GameState.EndEventTransitionIn) SwitchState(GameState.EndEventTransitionOut);
+        else if (State == GameState.EndMorningReportTransitionIn) SwitchState(GameState.EndMorningReportTransitionOut);
+        else if (State == GameState.GameOver) { } // game ended here
+        else throw new System.Exception("State " + State.ToString() + " not handled.");
+    }
+
+    public void OnTransitionFadeOutDone()
+    {
+        if (State == GameState.DayTransitionFadeOut ||
+            State == GameState.EndEventTransitionOut ||
+            State == GameState.EndMorningReportTransitionOut)
+        {
+            SwitchState(GameState.InGame);
+        }
+        else throw new System.Exception("State " + State.ToString() + " not handled.");
+    }
+
+    public void OnTransitionHoldDone()
+    {
+        if (State == GameState.InDayTransition) SwitchState(GameState.DayTransitionFadeOut);
+        else throw new System.Exception("State " + State.ToString() + " not handled.");
     }
 
     #endregion

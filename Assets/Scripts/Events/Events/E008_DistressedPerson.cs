@@ -23,11 +23,11 @@ public class E008_DistressedPerson : Event
     public override EventStep GetInitialStep()
     {
         // Options
-        List<EventOption> dialogueOptions = new List<EventOption>();
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Option - Ask what's wrong
-        dialogueOptions.Add(new EventOption("Ask what's wrong", Ask));
+        dialogueOptions.Add(new EventDialogueOption("Ask what's wrong", Ask));
 
         // Event
         string eventText = "You see a very distressed person who is flailing their arms around.";

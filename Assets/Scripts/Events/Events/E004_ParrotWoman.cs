@@ -26,7 +26,7 @@ public class E004_ParrotWoman : Event
         // Attributes
         HasEncountered = true;
         EncounterDay = Game.Day;
-        EncounterLocation = Game.CurrentLocation;
+        EncounterLocation = Game.CurrentPosition.Location;
 
         // Sprites
         ResourceManager.Singleton.E004_Woman.SetActive(true);
@@ -35,18 +35,18 @@ public class E004_ParrotWoman : Event
     public override EventStep GetInitialStep()
     {
         // Dialogue Options
-        List<EventOption> dialogueOptions = new List<EventOption>();
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
         
 
         // Dialogue Option - Accept
-        dialogueOptions.Add(new EventOption("Take the parrot", AcceptParrot));
+        dialogueOptions.Add(new EventDialogueOption("Take the parrot", AcceptParrot));
 
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();
-        dialogueOptions.Add(new EventOption("Refuse to take the parrot", RefuseParrot));
+        dialogueOptions.Add(new EventDialogueOption("Refuse to take the parrot", RefuseParrot));
 
         // Event
-        string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + Game.CurrentLocation.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
+        string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + Game.CurrentPosition.Location.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
         return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()

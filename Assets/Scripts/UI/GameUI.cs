@@ -30,6 +30,9 @@ public class GameUI : MonoBehaviour
     [Header("Windows")]
     public UI_EscapeMenu EscapeMenu;
 
+    [Header("World Map")]
+    public UI_WorldMapMenu WorldMapMenu;
+
     [Header("Description Box")]
     public UI_DescriptionBox DescriptionBox;
     public const float TOOLTIP_HOVER_TIME = 1f;
@@ -55,6 +58,7 @@ public class GameUI : MonoBehaviour
 
         // Buttons
         SettingsButton.onClick.AddListener(ToggleEscapeMenu);
+        MapButton.onClick.AddListener(ToggleWorldMap);
     }
 
     private void Update()
@@ -146,7 +150,7 @@ public class GameUI : MonoBehaviour
             companionHealthReport.Init(companion);
         }
 
-        //LayoutRebuilder.ForceRebuildLayoutImmediate(StatusEffectsContainer.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
     }
 
     public void UpdateMissionDisplay()
@@ -158,9 +162,38 @@ public class GameUI : MonoBehaviour
 
     #region Windows
 
+    public void CloseAllWindows()
+    {
+        CloseEscapeMenu();
+        CloseWorldMap();
+    }
+
     public void ToggleEscapeMenu()
     {
+        if (Game.State != GameState.InGame) return;
         EscapeMenu.gameObject.SetActive(!EscapeMenu.gameObject.activeSelf);
+    }
+    public void CloseEscapeMenu()
+    {
+        EscapeMenu.gameObject.SetActive(false);
+    }
+
+    public void ToggleWorldMap()
+    {
+        if (Game.State != GameState.InGame) return;
+        WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
+        Game.WorldMap.gameObject.SetActive(!Game.WorldMap.gameObject.activeSelf);
+    }
+    public void OpenWorldMap()
+    {
+        if (Game.State != GameState.InGame) return;
+        WorldMapMenu.gameObject.SetActive(true);
+        Game.WorldMap.gameObject.SetActive(true);
+    }
+    public void CloseWorldMap()
+    {
+        WorldMapMenu.gameObject.SetActive(false);
+        Game.WorldMap.gameObject.SetActive(false);
     }
 
     #endregion

@@ -28,7 +28,7 @@ public class E006_WoodsBunker : Event
 
     public override float GetEventProbability()
     {
-        if (Game.CurrentLocation != ResourceManager.Singleton.LOC_Woods) return 0;
+        if (Game.CurrentPosition.Location.Type != LocationType.Woods) return 0;
         if (!E005_ParrotWomanReunion.SuccessfulReturn) return 0;
         return 2f;
     }
@@ -51,17 +51,17 @@ public class E006_WoodsBunker : Event
     private EventStep GetInitialStep(string eventText)
     {
         // Options
-        List<EventOption> dialogueOptions = new List<EventOption>();
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Option - Enter Bunker
         if (RequiredFood == 0 && RequiredWater == 0)
         {
-            dialogueOptions.Add(new EventOption("Enter Bunker", EnterBunker));
+            dialogueOptions.Add(new EventDialogueOption("Enter Bunker", EnterBunker));
         }
 
         // Dialogue Option - Continue
-        dialogueOptions.Add(new EventOption("Ignore Bunker", Continue));
+        dialogueOptions.Add(new EventDialogueOption("Ignore Bunker", Continue));
 
         // Item Option - Give Food/Water
         List<ItemType> handledTypes = new List<ItemType>();

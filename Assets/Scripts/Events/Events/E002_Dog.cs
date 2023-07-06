@@ -11,7 +11,7 @@ public class E002_Dog : Event
     private static float BaseProbability = 2f;
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.Suburbs, 2f},
+        {LocationType.MainRoad, 2f},
         {LocationType.City, 0.3f},
         {LocationType.Woods, 0.5f},
         {LocationType.GroceryStore, 0f},
@@ -23,7 +23,7 @@ public class E002_Dog : Event
     public override float GetEventProbability()
     {
         if (Game.Player.HasDog) return 0;
-        else return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
+        else return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
     }
     public override void OnEventStart()
     {
@@ -33,9 +33,9 @@ public class E002_Dog : Event
     public override EventStep GetInitialStep()
     {
         // Dialogue Options
-        List<EventOption> options = new List<EventOption>();
-        options.Add(new EventOption("Pet the dog", PetDog)); // Pet dog
-        options.Add(new EventOption("Ignore the dog", IgnoreDog)); // Ignore dog
+        List<EventDialogueOption> options = new List<EventDialogueOption>();
+        options.Add(new EventDialogueOption("Pet the dog", PetDog)); // Pet dog
+        options.Add(new EventDialogueOption("Ignore the dog", IgnoreDog)); // Ignore dog
 
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();

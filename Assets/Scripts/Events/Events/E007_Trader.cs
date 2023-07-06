@@ -9,7 +9,7 @@ public class E007_Trader : Event
     private static float BaseProbability = 2f;
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.Suburbs, 0.5f},
+        {LocationType.MainRoad, 0.5f},
         {LocationType.City, 2f},
         {LocationType.Woods, 0f},
         {LocationType.GroceryStore, 1f},
@@ -43,7 +43,7 @@ public class E007_Trader : Event
 
     public override float GetEventProbability()
     {
-        return BaseProbability * LocationProbabilityTable[Game.CurrentLocation.Type];
+        return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
     }
     public override void OnEventStart()
     {
@@ -85,7 +85,7 @@ public class E007_Trader : Event
     private EventStep GetShopStep(string text)
     {
         // Options
-        List<EventOption> dialogueOptions = new List<EventOption>();
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         // Dialogue Options - Buy
@@ -93,7 +93,7 @@ public class E007_Trader : Event
         {
             int price = ItemPrices[buyableItem.Type];
             if(Game.GetItemTypeAmount(ItemType.Coin) >= price)
-                dialogueOptions.Add(new EventOption("Buy " + buyableItem.Name + " for " + price + " coins", () => BuyItem(buyableItem)));
+                dialogueOptions.Add(new EventDialogueOption("Buy " + buyableItem.Name + " for " + price + " coins", () => BuyItem(buyableItem)));
         }
 
         // Item Options - Sell
@@ -105,7 +105,7 @@ public class E007_Trader : Event
         }
 
         // Dialogue Option - Continue
-        dialogueOptions.Add(new EventOption("Continue", Continue));
+        dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
 
         // Event
         return new EventStep(text, null, null, dialogueOptions, itemOptions);

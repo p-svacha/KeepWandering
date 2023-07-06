@@ -19,10 +19,10 @@ public class ResourceManager : MonoBehaviour
     public GameObject E008_DistressedPerson;
 
     [Header("Backgrounds")]
-    public Location LOC_Suburbs;
-    public Location LOC_City;
-    public Location LOC_Woods;
-    public Location LOC_GroceryStore;
+    public SpriteRenderer MainRoadBackground;
+    public SpriteRenderer CityBackground;
+    public SpriteRenderer WoodsBackground;
+    public SpriteRenderer GroceryStoreBackground;
 
     [Header("Companions")]
     public Dog Dog;
@@ -39,25 +39,21 @@ public class ResourceManager : MonoBehaviour
 
 
     [Header("World Map")]
-    public Texture2D SuburbsTexture;
+    public Texture2D MainRoadTexture;
     public Texture2D WoodsTexture;
     public Texture2D CityTexture;
 
-    private Dictionary<LocationType, TileBase> LocationTiles;
+    public TileBase WhiteTile;
+    public TileBase TileMarkerTransparentWhite;
+    public TileBase TileMarkerGreen;
+    public TileBase TileMarkerBlue;
+
+    public Material PathHistoryMaterial;
 
 
     void Awake()
     {
-        LocationTiles = new Dictionary<LocationType, TileBase>();
-        LocationTiles.Add(LocationType.Suburbs, TileGenerator.CreateTileFromTexture(SuburbsTexture));
-        LocationTiles.Add(LocationType.Woods, TileGenerator.CreateTileFromTexture(WoodsTexture));
-        LocationTiles.Add(LocationType.City, TileGenerator.CreateTileFromTexture(CityTexture));
         Singleton = GameObject.Find("ResourceManager").GetComponent<ResourceManager>();
-    }
-
-    public TileBase GetLocationTile(LocationType loc)
-    {
-        return LocationTiles[loc];
     }
 
     public static ResourceManager Singleton;

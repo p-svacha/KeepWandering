@@ -41,9 +41,9 @@ public class E001_Crate : Event
     public override EventStep GetInitialStep()
     {
         // Dialogue Options
-        List<EventOption> options = new List<EventOption>();
-        options.Add(new EventOption("Take the " + CrateItem.Name + ".", TakeItem)); // Take item
-        options.Add(new EventOption("Don't take the " + CrateItem.Name + ".", DontTakeItem)); // Don't take item
+        List<EventDialogueOption> options = new List<EventDialogueOption>();
+        options.Add(new EventDialogueOption("Take the " + CrateItem.Name + ".", TakeItem)); // Take item
+        options.Add(new EventDialogueOption("Don't take the " + CrateItem.Name + ".", DontTakeItem)); // Don't take item
 
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();      

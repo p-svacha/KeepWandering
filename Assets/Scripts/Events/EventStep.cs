@@ -16,11 +16,11 @@ public class EventStep
     /// </summary>
     public List<Item> RemovedItems { get; set; }
 
-    public List<EventOption> EventDialogueOptions;
+    public List<EventDialogueOption> EventDialogueOptions;
     public List<EventItemOption> EventItemOptions;
     public bool ItemsAllowed;
 
-    public EventStep(string text, List<Item> addedItems, List<Item> removedItems, List<EventOption> dialogueOptions, List<EventItemOption> itemOptions, bool allowItems = true)
+    public EventStep(string text, List<Item> addedItems, List<Item> removedItems, List<EventDialogueOption> dialogueOptions, List<EventItemOption> itemOptions, bool allowItems = true)
     {
         Text = text;
         AddedItems = addedItems;
@@ -28,7 +28,7 @@ public class EventStep
         EventDialogueOptions = dialogueOptions;
         EventItemOptions = itemOptions;
         ItemsAllowed = allowItems;
-        if (EventDialogueOptions == null) EventDialogueOptions = new List<EventOption>();
+        if (EventDialogueOptions == null) EventDialogueOptions = new List<EventDialogueOption>();
         if (EventItemOptions == null) EventItemOptions = new List<EventItemOption>();
     }
 

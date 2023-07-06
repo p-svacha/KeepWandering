@@ -8,13 +8,13 @@ public class UI_EventOption : MonoBehaviour
     public TextMeshProUGUI EventOptionText;
     public Button OptionButton;
 
-    public void Init(Game game, EventOption eventOption)
+    public void Init(Game game, EventDialogueOption eventOption)
     {
         EventOptionText.text = eventOption.Text;
         OptionButton.onClick.AddListener(() => ChoseOption(game, eventOption));
     }
 
-    private void ChoseOption(Game game, EventOption option)
+    private void ChoseOption(Game game, EventDialogueOption option)
     {
         if (game.State == GameState.InGame)
         {

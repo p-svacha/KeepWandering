@@ -37,6 +37,6 @@ public class UI_InteractionBox : MonoBehaviour
 
     public void UpdatePosition(Item item)
     {
-        transform.position = Camera.main.WorldToScreenPoint(item.transform.position) + new Vector3(0.5f, 0.5f, 0f);
+        transform.position = item.transform.position + new Vector3(0.1f, -0.1f, 0f);
     }
 }

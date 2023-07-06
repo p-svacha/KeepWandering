@@ -40,7 +40,7 @@ public class EventManager
     /// <summary>
     /// Choses and returns an element given their probabilities during the current game state.
     /// </summary>
-    public Event GetDayEvent()
+    public Event GetAfternoonEvent()
     {
         // Forced event
         if (ForcedEvent != null)

@@ -18,7 +18,7 @@ public class E005_ParrotWomanReunion : Event
     {
         if (HasEncountered) return 0f;
         if (!E004_ParrotWoman.HasEncountered || Game.Day < E004_ParrotWoman.EncounterDay + MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
-        if (Game.CurrentLocation != E004_ParrotWoman.EncounterLocation) return 0f;
+        if (Game.CurrentPosition.Location != E004_ParrotWoman.EncounterLocation) return 0f;
         else return 1f * ((Game.Day - MinDaysForReunion) - E004_ParrotWoman.EncounterDay);
     }
     public override void OnEventStart()
@@ -33,7 +33,7 @@ public class E005_ParrotWomanReunion : Event
     {
         // Options
         string eventText = "";
-        List<EventOption> dialogueOptions = new List<EventOption>();
+        List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
         List<EventItemOption> itemOptions = new List<EventItemOption>();
 
         if (Game.Player.HasParrot)
@@ -41,7 +41,7 @@ public class E005_ParrotWomanReunion : Event
             eventText = "You encounter " + E004_ParrotWoman.WomanName + " again and she's overcome with joy to see that her parrot is doing well.";
 
             // Dialogue Option - Return parrot
-            dialogueOptions.Add(new EventOption("Return the parrot", ReturnParrot));
+            dialogueOptions.Add(new EventDialogueOption("Return the parrot", ReturnParrot));
         }
 
         else
@@ -49,7 +49,7 @@ public class E005_ParrotWomanReunion : Event
             eventText = "You encounter " + E004_ParrotWoman.WomanName + ". Upon realizing that her parrot is gone, she just stares into the void and doesn't interact with you anymore.";
 
             // Dialogue Option - Continue
-            dialogueOptions.Add(new EventOption("Continue", Continue));
+            dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
         }
 
         return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
