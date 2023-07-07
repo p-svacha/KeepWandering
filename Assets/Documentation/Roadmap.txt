@@ -1,0 +1,19 @@
+major new features:
+- possibility to not reach target destination at evening
+- evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
+- morning option to rest for the day (-tired and default encounter at afternoon)
+-night events
+-art: decouple background from sky and add daytime variations for sky (morning, afternoon, evening, late evening, night)
+- mission that can be completed at world tile positions (leads to new morning option "find mission location")
+- quarantine barrier (main goal: escape)
+- radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
+- special areas (multiple polygons) with tags (i.e. dangerous) that can alter event chances
+- points of interests on map (i.e. grocery store in city) that can be explored (chosen in morning event)
+- lootbox class (combining lootboxes, adding or multiplying them, resolve etc.)
+- eventstepoutcome class to display added/removed items/wounds/status effects.
+- improve map generation
+
+bugfixes:
+- status effect description should use description box
+- description box ui rewrk
+- interaction box ui rework

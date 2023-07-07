@@ -47,6 +47,7 @@ public class ResourceManager : MonoBehaviour
     public TileBase TileMarkerTransparentWhite;
     public TileBase TileMarkerGreen;
     public TileBase TileMarkerBlue;
+    public TileBase TileMarkerRed;
 
     public Material PathHistoryMaterial;
 

@@ -63,6 +63,20 @@ public static class HelperFunctions
         return new List<Direction>() { Direction.N, Direction.E, Direction.S, Direction.W };
     }
 
+    public static Direction GetNextHexDirectionClockwise(Direction dir)
+    {
+        return dir switch
+        {
+            Direction.NW => Direction.NE,
+            Direction.NE => Direction.E,
+            Direction.E => Direction.SE,
+            Direction.SE => Direction.SW,
+            Direction.SW => Direction.W,
+            Direction.W => Direction.NW,
+            _ => throw new System.Exception("Invalid hex direction")
+        };
+    }
+
     public static Vector2Int GetAdjacentHexCoordinates(Vector2Int source, Direction dir)
     {
         if (dir == Direction.E) return new Vector2Int(source.x + 1, source.y);

@@ -31,6 +31,14 @@ public class WorldMapTile
     #region Getters
 
     /// <summary>
+    /// Returns the adjacent tile in a specified direction
+    /// </summary>
+    public WorldMapTile GetAdjacentTile(Direction dir)
+    {
+        return World.GetTile(HelperFunctions.GetAdjacentHexCoordinates(Coordinates, dir));
+    }
+
+    /// <summary>
     /// Returns all existing adjacent tiles of this tile.
     /// </summary>
     public List<WorldMapTile> GetAdjacentTiles()
@@ -58,10 +66,18 @@ public class WorldMapTile
         return true;
     }
 
+    public Vector2 North => WorldPosition + new Vector2(0f, 0.5f);
+    public Vector2 NorthEast => WorldPosition + new Vector2(HelperFunctions.HEXAGON_SIDE2SIDE / 2f, 0.25f);
+    public Vector2 SouthEast => WorldPosition + new Vector2(HelperFunctions.HEXAGON_SIDE2SIDE / 2f, -0.25f);
+    public Vector2 South => WorldPosition + new Vector2(0f, -0.5f);
+    public Vector2 SouthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, -0.25f);
+    public Vector2 NorthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, 0.25f);
+
     public override string ToString()
     {
         return Location.ToString();
     }
+
 
     #endregion
 }

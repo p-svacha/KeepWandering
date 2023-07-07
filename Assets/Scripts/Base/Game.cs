@@ -66,7 +66,7 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         WorldMap.Init(this);
-        WorldMap.GenerateWorld(1000);
+        WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
         WorldMapCamera.Init(this);
 
         EventManager = new EventManager(this);
@@ -74,7 +74,7 @@ public class Game : MonoBehaviour
         UI.Init(this);
         Player.Init(this);
 
-        SetPosition(WorldMap.GetTile(new Vector2Int(5, 5))); // Vector2Int.zero));
+        SetPosition(WorldMap.GetTile(Vector2Int.zero));
         WorldMap.ResetCamera();
 
         AddItemToInventory(GetItemInstance(ItemType.Beans));

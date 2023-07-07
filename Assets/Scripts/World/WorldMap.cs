@@ -51,7 +51,11 @@ public class WorldMap : MonoBehaviour
     private WorldMapTile HoveredTile;
     private List<WorldMapTile> GreenHighlightedTiles = new List<WorldMapTile>();
     private List<WorldMapTile> BlueHighlightedTiles = new List<WorldMapTile>();
+    private List<WorldMapTile> RedHighlightedTiles = new List<WorldMapTile>();
     public bool CanSelectDestination;
+
+    // Areas
+    public Area QuarantineZone;
 
     public void Init(Game game)
     {
@@ -173,13 +177,29 @@ public class WorldMap : MonoBehaviour
         BlueHighlightedTiles.Clear();
     }
 
+    public void HighlightTileRed(WorldMapTile tile)
+    {
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.Singleton.TileMarkerRed);
+        RedHighlightedTiles.Add(tile);
+    }
+
+    public void UnhighlightAllRedTiles()
+    {
+        foreach (WorldMapTile tile in RedHighlightedTiles) SetTile(HighlightTilemap, tile.Coordinates, null);
+        RedHighlightedTiles.Clear();
+    }
+
     #endregion
 
     #region World Generation
 
     private PerlinNoise ForestNoise;
 
-    public void GenerateWorld(int initalMapSize)
+    /// <summary>
+    /// Generates a random world with a specified quarantine zone radius.
+    /// <br/> The number of additional tiles will add random tiles to the perimeter to randomize the quarantine zone shape.
+    /// </summary>
+    public void GenerateWorld(int zoneRadius, int numAdditionalTiles)
     {
         // Initialize noisemaps
         ForestNoise = new PerlinNoise();
@@ -189,10 +209,16 @@ public class WorldMap : MonoBehaviour
 
         AddTile(Vector2Int.zero);
 
-        for(int i = 0; i < initalMapSize - 1; i++)
-        {
-            ExpandRandomTile();
-        }
+        for (int i = 0; i < zoneRadius; i++) ExpandMapEdge(); // Create base perimeter to have minimum radius of zone
+        for (int i = 0; i < numAdditionalTiles; i++) ExpandRandomTile(); // Expand random tiles along the perimeter
+        ExpandMapEdge(); // Expand edge a final time to fill holes and smooth edges
+
+        QuarantineZone = new Area(this, "Quarantine Zone", new List<WorldMapTile>(Tiles.Values));
+
+        ExpandMapEdge(); // Expand edge to create safety zone outside quarantine
+
+        // Debug
+        QuarantineZone.DrawPerimeterFence();
     }
 
     /// <summary>
@@ -215,6 +241,29 @@ public class WorldMap : MonoBehaviour
 
         Vector2Int chosenCoordinates = candidateCoordinates[Random.Range(0, candidateCoordinates.Count)];
         AddTile(chosenCoordinates);
+    }
+
+    /// <summary>
+    /// Adds a layer of tiles at the edge of the map.
+    /// </summary>
+    private void ExpandMapEdge()
+    {
+        // Identify all coordinates where a new tile needs to be added
+        List<Vector2Int> coordinatesToExpand = new List<Vector2Int>();
+        foreach (WorldMapTile tile in Tiles.Values)
+        {
+            foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
+            {
+                if (!tile.HasAdjacentTile(dir))
+                {
+                    Vector2Int expandPos = HelperFunctions.GetAdjacentHexCoordinates(tile.Coordinates, dir);
+                    if(!coordinatesToExpand.Contains(expandPos)) coordinatesToExpand.Add(expandPos);
+                }
+            }
+        }
+
+        // Add tile to all identified coordiantes
+        foreach (Vector2Int coordinate in coordinatesToExpand) AddTile(coordinate);
     }
 
     /// <summary>
@@ -261,6 +310,14 @@ public class WorldMap : MonoBehaviour
     private void FillTile(WorldMapTile tile)
     {
         SetTile(BaseTextureTilemap, tile.Coordinates, tile.Location.BaseTextureTile);
+    }
+
+    /// <summary>
+    /// Draws a fence along the outside perimeter of a region.
+    /// </summary>
+    private void DrawFence()
+    {
+
     }
 
     #endregion

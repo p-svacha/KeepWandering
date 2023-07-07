@@ -4350,6 +4350,7 @@ MonoBehaviour:
   TileMarkerTransparentWhite: {fileID: 11400000, guid: e5af16c5f1f90da47a8c8aa9831395cc, type: 2}
   TileMarkerGreen: {fileID: 11400000, guid: 072e0e99894ee054bb2ba27c3c150e0a, type: 2}
   TileMarkerBlue: {fileID: 11400000, guid: 2f7c49bf339dcdc41ad61a474655eab7, type: 2}
+  TileMarkerRed: {fileID: 11400000, guid: 77114ebd601024a4c96a884f9d10a076, type: 2}
   PathHistoryMaterial: {fileID: 2100000, guid: 71f547e491cdd6c49ab2ae3043d5b219, type: 2}
 --- !u!4 &652981094
 Transform:
