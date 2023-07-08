@@ -33,12 +33,12 @@ public class GameUI : MonoBehaviour
     [Header("World Map")]
     public UI_WorldMapMenu WorldMapMenu;
 
-    [Header("Description Box")]
-    public UI_DescriptionBox DescriptionBox;
-    public const float TOOLTIP_HOVER_TIME = 1f;
+    [Header("Tooltip")]
+    public UI_Tooltip Tooltip;
+    public const float TOOLTIP_HOVER_TIME = 0.4f;
 
-    [Header("Interaction Box")]
-    public UI_InteractionBox InteractionBox;
+    [Header("Context Menu")]
+    public UI_ContextMenu ContextMenu;
 
     [Header("Day Transition")]
     public Image BlackTransitionImage;
@@ -111,28 +111,7 @@ public class GameUI : MonoBehaviour
         }
     }
 
-    #region UI Elements
-
-    public void ShowDescriptionBox(Item item)
-    {
-        DescriptionBox.gameObject.SetActive(true);
-        DescriptionBox.Init(item);
-    }
-    public void HideDescriptionBox()
-    {
-        DescriptionBox.gameObject.SetActive(false);
-    }
-
-    public void ShowInteractionBox(Item item)
-    {
-        InteractionBox.gameObject.SetActive(true);
-        InteractionBox.Init(item);
-    }
-    public void HideInteractionBox()
-    {
-        InteractionBox.gameObject.SetActive(false);
-        InteractionBox.Clear();
-    }
+    #region Misc
 
     public void UpdateHealthReports()
     {
@@ -166,16 +145,22 @@ public class GameUI : MonoBehaviour
     {
         CloseEscapeMenu();
         CloseWorldMap();
+        Tooltip.Hide();
+        ContextMenu.Hide();
     }
 
     public void ToggleEscapeMenu()
     {
         if (Game.State != GameState.InGame) return;
         EscapeMenu.gameObject.SetActive(!EscapeMenu.gameObject.activeSelf);
+        ContextMenu.Hide();
+        Tooltip.Hide();
     }
     public void CloseEscapeMenu()
     {
         EscapeMenu.gameObject.SetActive(false);
+        ContextMenu.Hide();
+        Tooltip.Hide();
     }
 
     public void ToggleWorldMap()
@@ -183,17 +168,23 @@ public class GameUI : MonoBehaviour
         if (Game.State != GameState.InGame) return;
         WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
         Game.WorldMap.gameObject.SetActive(!Game.WorldMap.gameObject.activeSelf);
+        ContextMenu.Hide();
+        Tooltip.Hide();
     }
     public void OpenWorldMap()
     {
         if (Game.State != GameState.InGame) return;
         WorldMapMenu.gameObject.SetActive(true);
         Game.WorldMap.gameObject.SetActive(true);
+        ContextMenu.Hide();
+        Tooltip.Hide();
     }
     public void CloseWorldMap()
     {
         WorldMapMenu.gameObject.SetActive(false);
         Game.WorldMap.gameObject.SetActive(false);
+        ContextMenu.Hide();
+        Tooltip.Hide();
     }
 
     #endregion

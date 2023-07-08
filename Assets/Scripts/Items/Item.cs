@@ -40,26 +40,26 @@ public class Item : MonoBehaviour
         return GetInteractionOptions().Count > 0;
     }
 
-    public List<ItemInteractionOption> GetInteractionOptions()
+    public List<InteractionOption> GetInteractionOptions()
     {
-        List<ItemInteractionOption> allOptions = new List<ItemInteractionOption>();
+        List<InteractionOption> allOptions = new List<InteractionOption>();
         if (!IsPlayerOwned) return allOptions; // todo. allow interactions of non-player items (i.e. trader)
 
         // Options by item attributes (eat, drink, etc.)
         if(Game.CurrentEventStep == null || Game.CurrentEventStep.ItemsAllowed)
         {
-            if (IsEdible) allOptions.Add(new ItemInteractionOption("Eat", () => Game.EatItem(this)));
-            if (IsDrinkable) allOptions.Add(new ItemInteractionOption("Drink", () => Game.DrinkItem(this)));
+            if (IsEdible) allOptions.Add(new InteractionOption("Eat", () => Game.EatItem(this)));
+            if (IsDrinkable) allOptions.Add(new InteractionOption("Drink", () => Game.DrinkItem(this)));
             if (CanTendWounds)
                 foreach (Wound wound in Game.Player.ActiveWounds.Where(x => !x.IsTended))
-                    allOptions.Add(new ItemInteractionOption("Tend " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                    allOptions.Add(new InteractionOption("Tend " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             if (CanHealInfections)
                 foreach (Wound wound in Game.Player.ActiveWounds.Where(x => x.InfectionStage != InfectionStage.None))
-                    allOptions.Add(new ItemInteractionOption("Heal " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                    allOptions.Add(new InteractionOption("Heal " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
         }
 
         // Item-specific options
-        if (Type == ItemType.NutSnack && Game.Player.HasParrot) allOptions.Add(new ItemInteractionOption("Feed to Parrot", () => Game.FeedParrot(this, OnEatNutrition)));
+        if (Type == ItemType.NutSnack && Game.Player.HasParrot) allOptions.Add(new InteractionOption("Feed to Parrot", () => Game.FeedParrot(this, OnEatNutrition)));
 
         // Options by event step
         if (Game.CurrentEventStep != null)
@@ -68,7 +68,7 @@ public class Item : MonoBehaviour
             {
                 if (eventItemOption.RequiredItemType == Type)
                 {
-                    allOptions.Add(new ItemInteractionOption(eventItemOption.Text, () => ChoseEventItemOption(eventItemOption)));
+                    allOptions.Add(new InteractionOption(eventItemOption.Text, () => ChoseEventItemOption(eventItemOption)));
                 }
             }
         }

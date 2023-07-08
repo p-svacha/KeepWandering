@@ -1,0 +1,13 @@
+Morning:
+	- Happens every day
+	- Waking up and displaying night events.
+	- Chose location to instantly switch
+
+Afternoon:
+	- Happens every day
+	- Daily encounter
+
+Evening:
+	- Happens every day
+	- Arrive at camp spot OR do not find spot
+	- Go to sleep

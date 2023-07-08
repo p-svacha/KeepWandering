@@ -6,9 +6,17 @@ public class E005_ParrotWomanReunion : Event
 {
     // Static
     private const int MinDaysForReunion = 3;
-
     public static bool HasEncountered;
-    public static bool SuccessfulReturn;
+
+    private const int NUM_REWARDS = 3;
+    private static Dictionary<ItemType, float> RewardTable = new Dictionary<ItemType, float>()
+    {
+        { ItemType.Beans, 10},
+        { ItemType.WaterBottle, 10},
+        { ItemType.Coin, 10},
+        { ItemType.Bandage, 5},
+        { ItemType.Antibiotics, 5},
+    };
 
     // Instance
     public E005_ParrotWomanReunion(Game game) : base(game) { }
@@ -65,11 +73,19 @@ public class E005_ParrotWomanReunion : Event
         Game.RemoveParrot();
         ResourceManager.Singleton.E004_Parrot.SetActive(true);
         Game.RemoveMission(MissionId.M001_CareParrot);
-        E006_WoodsBunker.SetRandomRequirements();
-        E006_WoodsBunker.UpdateBunkerMission(Game);
-        SuccessfulReturn = true;
-        string text = E004_ParrotWoman.WomanName + " thanks you thoroughly. She adds that she has some friends in a safe bunker in the woods that will let you join them if you bring them food and water.";
-        return new EventStep(text, null, null, null, null);
+        string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
+
+        List<Item> rewardItems = new List<Item>();
+        for (int i = 0; i < NUM_REWARDS; i++)
+        {
+            ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(RewardTable);
+            Item item = Game.GetItemInstance(itemType);
+            Game.AddItemToInventory(item);
+            rewardItems.Add(item);
+        }
+
+
+        return new EventStep(text, rewardItems, null, null, null);
     }
     private EventStep Continue()
     {

@@ -50,7 +50,7 @@ public class ResourceManager : MonoBehaviour
     public TileBase TileMarkerRed;
 
     public Material PathHistoryMaterial;
-
+    public Material QuarantineZoneBorderMaterial;
 
     void Awake()
     {

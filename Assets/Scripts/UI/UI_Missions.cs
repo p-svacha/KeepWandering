@@ -6,18 +6,18 @@ using TMPro;
 
 public class UI_Missions : MonoBehaviour
 {
+    [Header("Elements")]
     public GameObject MissionsContainer;
-    public TextMeshProUGUI TitleText;
+
+    [Header("Prefabs")]
     public TextMeshProUGUI MissionTextPrefab;
 
     public void UpdateList(List<Mission> missions)
     {
         // Clear old elements
-        foreach (Transform t in MissionsContainer.transform) Destroy(t.gameObject);
+        HelperFunctions.DestroyAllChildredImmediately(MissionsContainer);
 
         // Display new elements
-        TitleText.gameObject.SetActive(missions.Count > 0);
-
         foreach(Mission mission in missions)
         {
             TextMeshProUGUI missionDisplay = Instantiate(MissionTextPrefab, MissionsContainer.transform);

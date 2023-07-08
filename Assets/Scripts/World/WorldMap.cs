@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using TMPro;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// The world is the playing board of the whole game.
@@ -53,6 +54,7 @@ public class WorldMap : MonoBehaviour
     private List<WorldMapTile> BlueHighlightedTiles = new List<WorldMapTile>();
     private List<WorldMapTile> RedHighlightedTiles = new List<WorldMapTile>();
     public bool CanSelectDestination;
+    private WorldMapTile ContextMenuTile;
 
     // Areas
     public Area QuarantineZone;
@@ -99,12 +101,18 @@ public class WorldMap : MonoBehaviour
         if (HoveredTile != null) SetTile(HoverTilemap, HoveredTile.Coordinates, null);
 
         // Identify new hovered tile
-        if (normalizedPointInRect.x < 0 || normalizedPointInRect.x > 1 || normalizedPointInRect.y < 0 || normalizedPointInRect.y > 1) HoveredTile = null;
-        else HoveredTile = GetTile(cursorWorldPosition);
+        WorldMapTile newHoveredTile;
+        if (normalizedPointInRect.x < 0 || normalizedPointInRect.x > 1 || normalizedPointInRect.y < 0 || normalizedPointInRect.y > 1) newHoveredTile = null;
+        else newHoveredTile = GetTile(cursorWorldPosition);
+        if (newHoveredTile != HoveredTile) OnHoveredTileChanged(HoveredTile, newHoveredTile);
+        HoveredTile = newHoveredTile;
 
         // Add selection marker to new hovered tile
         if (HoveredTile != null)
             SetTile(HoverTilemap, HoveredTile.Coordinates, ResourceManager.Singleton.TileMarkerTransparentWhite);
+
+        // Hide context menu
+        if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) Game.UI.ContextMenu.Hide();
 
         // Update tile info text
         Game.UI.WorldMapMenu.TileInfoText.text = HoveredTile == null ? "" : HoveredTile.ToString();
@@ -117,10 +125,26 @@ public class WorldMap : MonoBehaviour
     {
         if (!CanSelectDestination) return;
         if (HoveredTile == null) return;
-        if (!GreenHighlightedTiles.Contains(HoveredTile)) return;
 
-        if(Input.GetMouseButtonDown(0)) Game.SetNextDayPosition(HoveredTile);
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (GreenHighlightedTiles.Contains(HoveredTile))
+            {
+                ContextMenuTile = HoveredTile;
+                Game.UI.ContextMenu.Show(ContextMenuTile.Location.Name, new List<InteractionOption>() { new InteractionOption("Go there", () => Game.SelectPositionOnMap(ContextMenuTile)) });
+            }
+            else if (RedHighlightedTiles.Contains(HoveredTile))
+            {
+                ContextMenuTile = HoveredTile;
+                Game.UI.ContextMenu.Show("Fence", new List<InteractionOption>() { new InteractionOption("Approach fence", () => Game.SelectPositionOnMap(ContextMenuTile)) });
+            }
+        }
     }
+
+    /// <summary>
+    /// Gets called when the hovered tile changed.
+    /// </summary>
+    private void OnHoveredTileChanged(WorldMapTile oldTile, WorldMapTile newTile) { }
 
     #region Player Position
 
@@ -212,13 +236,12 @@ public class WorldMap : MonoBehaviour
         for (int i = 0; i < zoneRadius; i++) ExpandMapEdge(); // Create base perimeter to have minimum radius of zone
         for (int i = 0; i < numAdditionalTiles; i++) ExpandRandomTile(); // Expand random tiles along the perimeter
         ExpandMapEdge(); // Expand edge a final time to fill holes and smooth edges
-
-        QuarantineZone = new Area(this, "Quarantine Zone", new List<WorldMapTile>(Tiles.Values));
-
+        List<WorldMapTile> quarantineZoneTiles = new List<WorldMapTile>(Tiles.Values); // all tiles generated so far will make up quarantine zone
         ExpandMapEdge(); // Expand edge to create safety zone outside quarantine
 
-        // Debug
-        QuarantineZone.DrawPerimeterFence();
+        // Create and draw quarantine zone
+        QuarantineZone = new Area(this, "Quarantine Zone", quarantineZoneTiles);
+        QuarantineZone.DrawPerimeterFence(ResourceManager.Singleton.QuarantineZoneBorderMaterial, 0.4f);
     }
 
     /// <summary>

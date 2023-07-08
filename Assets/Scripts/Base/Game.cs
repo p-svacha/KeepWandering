@@ -22,7 +22,8 @@ public class Game : MonoBehaviour
 
     public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
     public WorldMapTile CurrentPosition;
-    public WorldMapTile NextDayPosition;
+    private WorldMapTile NextPosition;
+    public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
@@ -40,6 +41,7 @@ public class Game : MonoBehaviour
     [Header("World Map")]
     public WorldMap WorldMap;
     public CameraHandler WorldMapCamera;
+    public Area QuarantineZone => WorldMap.QuarantineZone;
 
     // Debug
     public const bool DEBUG_RANDOM_CHOICES = true;
@@ -66,12 +68,14 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         WorldMap.Init(this);
-        WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        //WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
         WorldMapCamera.Init(this);
 
         EventManager = new EventManager(this);
 
         UI.Init(this);
+        UI.ContextMenu.Init(this);
         Player.Init(this);
 
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
@@ -112,12 +116,13 @@ public class Game : MonoBehaviour
                         CurrentHoverItem.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 1);
                         CurrentHoverTime = 0f;
 
-                        UI.HideDescriptionBox();
+                        UI.Tooltip.Hide();
                     }
                     else
                     {
                         CurrentHoverTime += Time.deltaTime;
-                        if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.InteractionBox.gameObject.activeSelf) UI.ShowDescriptionBox(CurrentHoverItem);
+                        if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.ContextMenu.gameObject.activeSelf) 
+                            UI.Tooltip.Show(CurrentHoverItem);
                     }
                 }
                 else
@@ -126,27 +131,26 @@ public class Game : MonoBehaviour
                     {
                         if(!CurrentHoverItem.ForceGlow) CurrentHoverItem.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 0);
                         CurrentHoverItem = null;
-                        UI.DescriptionBox.gameObject.SetActive(false);
+                        UI.Tooltip.Hide();
                     }
                 }
 
                 // Click -> Interact
                 if (Input.GetMouseButtonDown(0) && !uiClick)
                 {
-                    if (UI.InteractionBox.gameObject.activeSelf && (CurrentHoverItem == null || CurrentInteractionItem == CurrentHoverItem))
+                    if (UI.ContextMenu.gameObject.activeSelf && (CurrentHoverItem == null || CurrentInteractionItem == CurrentHoverItem))
                     {
                         CurrentInteractionItem = null;
-                        UI.HideInteractionBox();
+                        UI.ContextMenu.Hide();
                         CurrentHoverTime = 0f;
                     }
                     else if (CurrentHoverItem != null && CurrentHoverItem.CanInteract())
                     {
                         CurrentInteractionItem = CurrentHoverItem;
-                        UI.ShowInteractionBox(CurrentHoverItem);
-                        UI.HideDescriptionBox();
+                        UI.ContextMenu.Show(CurrentHoverItem);
+                        UI.Tooltip.Hide();
                     }
                 }
-                if (UI.InteractionBox.gameObject.activeSelf) UI.InteractionBox.UpdatePosition(CurrentInteractionItem);
                 break;
         }
     }
@@ -159,8 +163,8 @@ public class Game : MonoBehaviour
         switch (oldState)
         {
             case GameState.InGame:
-                UI.DescriptionBox.gameObject.SetActive(false);
-                UI.InteractionBox.gameObject.SetActive(false);
+                UI.Tooltip.Hide();
+                UI.ContextMenu.Hide();
                 break;
         }
 
@@ -253,12 +257,15 @@ public class Game : MonoBehaviour
 
     private string GetGameOverReason()
     {
+        // Lose
         if (Player.Nutrition <= 0f) return "You starved";
         if (Player.Hydration <= 0f) return "You died of dehydration";
         if (Player.BoneHealth <= 0f) return "You died due to extreme fractures";
         if (Player.BloodAmount <= 0f) return "You bled out";
         if (Player.ActiveWounds.Any(x => x.InfectionStage == InfectionStage.Fatal)) return "You died (Infection)";
-        if (E006_WoodsBunker.HasEnteredBunker) return "You are safe.";
+
+        // Win
+        if (!QuarantineZone.IsInArea(CurrentPosition)) return "You escaped the quarantine.\nYou win.";
         return null;
     }
 
@@ -288,13 +295,16 @@ public class Game : MonoBehaviour
         UI.DayText.text = "Day " + Day;
 
         // Enable destination selection of adjacent tiles
-        WorldMap.UnhighlightAllBlueTiles();
         WorldMap.CanSelectDestination = true;
         foreach(Direction dir in HelperFunctions.GetAdjacentHexDirections())
         {
             Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(CurrentPosition.Coordinates, dir);
             WorldMapTile adjTile = WorldMap.GetTile(adjCoord);
-            if(adjTile.IsPassable()) WorldMap.HighlightTileGreen(adjTile);
+            if (adjTile.IsPassable())
+            {
+                if(QuarantineZone.IsInArea(adjTile)) WorldMap.HighlightTileGreen(adjTile);
+                else WorldMap.HighlightTileRed(adjTile);
+            }
         }
     }
 
@@ -313,27 +323,25 @@ public class Game : MonoBehaviour
     {
         // Text displaying night events
         string text = "";
-        if (Day == 1) text = "After you saw the news you knew that you weren't save anymore at home. You ran outside, grabbed your handcart and so starts your journey.";
-        else if (LatestMorningReport.NightEvents.Count == 0) text = "You wake up in the " + CurrentPosition.Location.Name + ". Nothing eventful happened during the night.";
+        if (Day == 1) text = "After you saw the news you knew that you have to get out of the quarantine zone. You ran outside, grabbed your handcart and so starts your journey.";
+        else if (LatestMorningReport.NightEvents.Count == 0) text = "You wake after an uneventful night.";
         else
         {
             text = "You wake up in the " + CurrentPosition.Location.Name + ". The following happened during the night:";
             foreach (string e in LatestMorningReport.NightEvents) text += "\n" + e;
         }
+        text += "\nWhat would you like to do today?";
 
         // Dialogue Options
         List<EventDialogueOption> options = new List<EventDialogueOption>();
 
-        if (NextDayPosition == null)
-        {
-            EventDialogueOption pickTargetLocationOption = new EventDialogueOption("Set destination", OpenMap);
-            options.Add(pickTargetLocationOption);
-        }
-        else
-        {
-            EventDialogueOption startTravelingOption = new EventDialogueOption("Start day journey", EndMorningEvent);
-            options.Add(startTravelingOption);
-        }
+        // Stay
+        EventDialogueOption pickTargetLocationOption = new EventDialogueOption("Stay and explore", ExploreThisLocation);
+        options.Add(pickTargetLocationOption);
+
+        // Explore other location
+        EventDialogueOption startTravelingOption = new EventDialogueOption("Go somewhere else", OpenMap);
+        options.Add(startTravelingOption);
 
         EventStep morningEventStep = new EventStep(text, LatestMorningReport.AddedItems, LatestMorningReport.RemovedItems, options, null);
         return morningEventStep;
@@ -344,24 +352,34 @@ public class Game : MonoBehaviour
         UI.OpenWorldMap();
         return GetMorningEvent();
     }
+    private EventStep ExploreThisLocation()
+    {
+        EndMorningEvent();
+        return null;
+    }
 
-    public void SetNextDayPosition(WorldMapTile tile)
+    /// <summary>
+    /// Gets called when a position is selected on the world map.
+    /// </summary>
+    public void SelectPositionOnMap(WorldMapTile tile)
     {
         // Set position
-        NextDayPosition = tile;
+        NextPosition = tile;
 
-        // Change display on world map
-        WorldMap.UnhighlightAllGreenTiles();
-        WorldMap.HighlightTileBlue(tile);
-        WorldMap.CanSelectDestination = false;
-
-        // Update morning event so day can be started
-        UpdateMorningEvent();
+        // End morning event
+        EndMorningEvent();
     }
 
     public EventStep EndMorningEvent()
     {
         UI.CloseAllWindows();
+
+        // Reset world map selection
+        WorldMap.CanSelectDestination = false;
+        WorldMap.UnhighlightAllGreenTiles();
+        WorldMap.UnhighlightAllRedTiles();
+
+        // Switch state
         SwitchState(GameState.EndMorningReportTransitionIn);
         return null;
     }
@@ -374,12 +392,22 @@ public class Game : MonoBehaviour
     {
         UI.DayTimeText.text = "Afternoon";
 
+        // Switch location if a new one was set in the morning
+        if(NextPosition != null)
+        {
+            SetPosition(NextPosition);
+            NextPosition = null;
+        }
+
         // Chose an event for the afternoon
         CurrentEvent = EventManager.GetAfternoonEvent();
 
         // Display the event
         CurrentEvent.StartEvent();
         DisplayEventStep(CurrentEvent.InitialStep);
+
+        // Update status
+        UpdateAllStatusEffects();
     }
 
     public void EndAfternoonEvent()
@@ -400,10 +428,6 @@ public class Game : MonoBehaviour
         if (CurrentEvent != null) CurrentEvent.OnEventEnd();
         CurrentEvent = null;
 
-        // Position switch
-        SetPosition(NextDayPosition);
-        NextDayPosition = null;
-
         // Display evening event
         DisplayEventStep(GetEveningEvent());
     }
@@ -414,7 +438,7 @@ public class Game : MonoBehaviour
     private EventStep GetEveningEvent()
     {
         // Text displaying night events
-        string text = "You arrived at " + CurrentPosition.Location.Name + " just as planned. You are tired and can't wait to get some rest.";
+        string text = "You arrived at a good camp spot in " + CurrentPosition.Location.Name + " just as planned. You are tired and can't wait to get some rest.";
 
         // Dialogue Options
         List<EventDialogueOption> options = new List<EventDialogueOption>();

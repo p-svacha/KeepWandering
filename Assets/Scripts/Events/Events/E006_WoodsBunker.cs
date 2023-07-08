@@ -6,21 +6,8 @@ using UnityEngine;
 public class E006_WoodsBunker : Event
 {
     // Static
-    public static int RequiredFood;
-    public static int RequiredWater;
-
-    public static bool HasEnteredBunker;
-
-    public static void SetRandomRequirements()
-    {
-        RequiredFood = Random.Range(1, 4);
-        RequiredWater = Random.Range(1, 4);
-    }
-
-    public static void UpdateBunkerMission(Game game)
-    {
-        game.AddOrUpdateMission(MissionId.M002_FindWoodsBunker, "Find Pams friends' bunker in the woods and bring them food (" + RequiredFood + ") and water (" + RequiredWater + ").");
-    }
+    public int RequiredFood;
+    public int RequiredWater;
 
     // Instance
     public E006_WoodsBunker(Game game) : base(game) { }
@@ -28,19 +15,23 @@ public class E006_WoodsBunker : Event
 
     public override float GetEventProbability()
     {
-        if (Game.CurrentPosition.Location.Type != LocationType.Woods) return 0;
-        if (!E005_ParrotWomanReunion.SuccessfulReturn) return 0;
+        if (Game.CurrentPosition.Location.Type != LocationType.Woods) return 0; // only happens in woods
+        if (!Game.PlayerIsOnQuarantinePerimeter) return 0; // only happens on perimeter
         return 2f;
     }
     public override void OnEventStart()
     {
         // Sprites
         ResourceManager.Singleton.E006_WoodsBunker.SetActive(true);
+
+        // Required items
+        RequiredFood = Random.Range(1, 2);
+        RequiredWater = Random.Range(1, 2);
     }
     public override EventStep GetInitialStep()
     {
-        string eventText = "You come across the bunker that " + E004_ParrotWoman.WomanName + " told you about.";
-        if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you in if you give them enough food and water.";
+        string eventText = "You come across a secret tunnel entry that seems like it will lead to the outside of the quarantine zone.";
+        if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you through if you give them " + RequiredFood + " food and " + RequiredWater + " water.";
         return GetInitialStep(eventText);
     }
     public override void OnEventEnd()
@@ -57,11 +48,11 @@ public class E006_WoodsBunker : Event
         // Dialogue Option - Enter Bunker
         if (RequiredFood == 0 && RequiredWater == 0)
         {
-            dialogueOptions.Add(new EventDialogueOption("Enter Bunker", EnterBunker));
+            dialogueOptions.Add(new EventDialogueOption("Enter Tunnel", EnterBunker));
         }
 
         // Dialogue Option - Continue
-        dialogueOptions.Add(new EventDialogueOption("Ignore Bunker", Continue));
+        dialogueOptions.Add(new EventDialogueOption("Ignore Tunnel", Continue));
 
         // Item Option - Give Food/Water
         List<ItemType> handledTypes = new List<ItemType>();
@@ -84,7 +75,19 @@ public class E006_WoodsBunker : Event
     }
     private EventStep EnterBunker()
     {
-        HasEnteredBunker = true;
+        // Get position of other side of the tunnel
+        WorldMapTile targetTile = null;
+        foreach(WorldMapTile tile in Game.CurrentPosition.GetAdjacentTiles())
+        {
+            if(!Game.QuarantineZone.IsInArea(tile))
+            {
+                targetTile = tile;
+                break;
+            }
+        }
+
+        // Go outside of quarantine zone
+        Game.SetPosition(targetTile);
         Game.CheckGameOver();
         return null;
     }
@@ -96,7 +99,6 @@ public class E006_WoodsBunker : Event
     {
         Game.DestroyOwnedItem(item);
         RequiredFood--;
-        UpdateBunkerMission(Game);
         EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
         nextStep.RemovedItems = new List<Item>() { item };
         return nextStep;
@@ -105,7 +107,6 @@ public class E006_WoodsBunker : Event
     {
         Game.DestroyOwnedItem(item);
         RequiredWater--;
-        UpdateBunkerMission(Game);
         EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
         nextStep.RemovedItems = new List<Item>() { item };
         return nextStep;
