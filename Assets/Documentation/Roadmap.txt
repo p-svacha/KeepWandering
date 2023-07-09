@@ -1,17 +1,24 @@
 feature wheel:
-- add tiredness
+- add tiredness system
 - location movement difficulty + possibility to not reach camp spot at evening
-- night events
 - mission that can be completed at world tile positions (leads to new morning option "find mission location")
 - radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
-- lootbox class (combining lootboxes, adding or multiplying them, resolve etc.)
-- eventstepoutcome class to display added/removed items/wounds/status effects.
-- improve map generation to correctly include main road, forests, cities and farmland
+- !!! eventstepoutcome class to display added/removed items/wounds/status effects. !!! also add that stuff can be added after constructor
 - position on map should not be centered on tile during afternoon when traveling there => add marker for where you are going
-- new event
-- fix distressed guy event
-- fix woodsbunker event
+- add new event
+- complete E008 distressed guy event
+- fix E006 woodsbunker event (display required food and water after giving)
 - status effect description should use description box
+- add item interaction options for items not owned (trader)
+- add main road on map and as location
+- add more detailed info box on world map of hovered tile (also include disance from current tile)
+- add event step outcome chances and details when hovering options (details should just be what affects the chances with either +/-)
+- add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
+- in E009 replace trap bruise with missing leg
+- add loottables to locations and events with loottables will combine them with location loot tabel
+- in E009 add ability to throw items at trap
+- add something with rats and diseases
+- in event add ShowSprite method to show a sprite and add it to a list. then when event ends automatically hide all shown sprites instead of manually per event
 
 feature wheel with dependencies first or low prio:
 - evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
@@ -22,3 +29,4 @@ feature wheel with dependencies first or low prio:
 - fix parrot event to include map destination
 - parrot sprites for status effects
 - dog sprites for status effects
+- night events

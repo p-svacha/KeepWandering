@@ -12,5 +12,6 @@ public enum ItemType
     Bandage,
     Antibiotics,
     NutSnack,
-    Coin
+    Coin,
+    MedicalKit
 }

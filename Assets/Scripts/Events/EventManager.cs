@@ -33,7 +33,8 @@ public class EventManager
             new E005_ParrotWomanReunion(Game),
             new E006_WoodsBunker(Game),
             new E007_Trader(Game),
-            new E008_DistressedPerson(Game)
+            new E008_DistressedPerson(Game),
+            new E009_AbandondedShelter(Game)
         };
     }
 

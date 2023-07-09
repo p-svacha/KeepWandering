@@ -4,8 +4,8 @@ using UnityEngine;
 
 public enum LocationType
 {
-    MainRoad,
+    Farmland,
     City,
     Woods,
-    GroceryStore
+    Lake
 }

@@ -11,10 +11,9 @@ public class E002_Dog : Event
     private static float BaseProbability = 2f;
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.MainRoad, 2f},
+        {LocationType.Farmland, 2f},
         {LocationType.City, 0.3f},
         {LocationType.Woods, 0.5f},
-        {LocationType.GroceryStore, 0f},
     };
 
     public E002_Dog(Game game) : base(game) { }

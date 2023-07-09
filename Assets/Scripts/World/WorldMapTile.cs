@@ -63,7 +63,7 @@ public class WorldMapTile
 
     public bool IsPassable()
     {
-        return true;
+        return Location.IsPassable;
     }
 
     public Vector2 North => WorldPosition + new Vector2(0f, 0.5f);

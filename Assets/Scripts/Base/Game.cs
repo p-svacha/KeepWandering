@@ -68,8 +68,8 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         WorldMap.Init(this);
-        //WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
-        WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
+        WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        //WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
         WorldMapCamera.Init(this);
 
         EventManager = new EventManager(this);

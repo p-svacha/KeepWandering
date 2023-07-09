@@ -66,7 +66,8 @@ public class WorldMap : MonoBehaviour
         Locations = new Dictionary<LocationType, Location>();
         Locations.Add(LocationType.City, new Loc_City());
         Locations.Add(LocationType.Woods, new Loc_Woods());
-        Locations.Add(LocationType.MainRoad, new Loc_MainRoad());
+        Locations.Add(LocationType.Farmland, new Loc_Farmland());
+        Locations.Add(LocationType.Lake, new Loc_Lake());
     }
 
     public void ResetCamera()
@@ -125,6 +126,7 @@ public class WorldMap : MonoBehaviour
     {
         if (!CanSelectDestination) return;
         if (HoveredTile == null) return;
+        if (EventSystem.current.IsPointerOverGameObject()) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -217,7 +219,9 @@ public class WorldMap : MonoBehaviour
 
     #region World Generation
 
+    private PerlinNoise WaterNoise;
     private PerlinNoise ForestNoise;
+    private PerlinNoise CityNoise;
 
     /// <summary>
     /// Generates a random world with a specified quarantine zone radius.
@@ -226,7 +230,9 @@ public class WorldMap : MonoBehaviour
     public void GenerateWorld(int zoneRadius, int numAdditionalTiles)
     {
         // Initialize noisemaps
-        ForestNoise = new PerlinNoise();
+        WaterNoise = new PerlinNoise(scale: 0.1f);
+        ForestNoise = new PerlinNoise(scale: 0.15f);
+        CityNoise = new PerlinNoise(scale: 0.3f);
 
         // Add initial tiles
         Tiles = new Dictionary<Vector2Int, WorldMapTile>();
@@ -299,8 +305,10 @@ public class WorldMap : MonoBehaviour
         Tiles.Add(coordinates, newTile);
 
         // Set Biome
-        LocationType locType = LocationType.MainRoad;
-        if (ForestNoise.GetValue(coordinates) > 0.65f) locType = LocationType.Woods;
+        LocationType locType = LocationType.Farmland;
+        if (WaterNoise.GetValue(coordinates) > 0.65f) locType = LocationType.Lake;
+        else if (ForestNoise.GetValue(coordinates) > 0.65f) locType = LocationType.Woods;
+        else if (CityNoise.GetValue(coordinates) > 0.7f) locType = LocationType.City;
         newTile.SetLocation(Locations[locType]);
 
         // Fill Tilemaps

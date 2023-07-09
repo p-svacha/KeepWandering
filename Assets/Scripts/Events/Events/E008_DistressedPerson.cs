@@ -11,6 +11,7 @@ public class E008_DistressedPerson : Event
     public E008_DistressedPerson(Game game) : base(game) { }
     public override Event GetEventInstance => new E008_DistressedPerson(Game);
 
+    // Base
     public override float GetEventProbability()
     {
         return BaseProbability;
@@ -38,6 +39,7 @@ public class E008_DistressedPerson : Event
         ResourceManager.Singleton.E008_DistressedPerson.SetActive(false);
     }
 
+    // Steps
     private EventStep Ask()
     {
         return new EventStep("The person doesn't react. There's appearently nothing you can do.", null, null, null, null);

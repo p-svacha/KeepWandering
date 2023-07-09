@@ -9,10 +9,9 @@ public class E007_Trader : Event
     private static float BaseProbability = 2f;
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.MainRoad, 0.5f},
+        {LocationType.Farmland, 0.5f},
         {LocationType.City, 2f},
         {LocationType.Woods, 0f},
-        {LocationType.GroceryStore, 1f},
     };
 
     private static Dictionary<ItemType, float> TradeItemTable = new Dictionary<ItemType, float>()

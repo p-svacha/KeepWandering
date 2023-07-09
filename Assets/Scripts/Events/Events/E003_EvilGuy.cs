@@ -17,10 +17,9 @@ public class E003_EvilGuy : Event
 
     private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
     {
-        {LocationType.MainRoad, 0.5f},
+        {LocationType.Farmland, 0.5f},
         {LocationType.City, 2f},
         {LocationType.Woods, 0.1f},
-        {LocationType.GroceryStore, 1.5f},
     };
     private static Dictionary<int, float> NumRewardsTable = new Dictionary<int, float>()
     {

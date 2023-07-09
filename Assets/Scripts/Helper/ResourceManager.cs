@@ -18,13 +18,19 @@ public class ResourceManager : MonoBehaviour
     public List<TextMeshPro> E007_Prices;
     public GameObject E008_DistressedPerson;
 
+    public GameObject E009_Shelter;
+    public GameObject E009_TrapOpen;
+    public GameObject E009_TrapClosed;
+    public GameObject E009_WindowBlood;
+
     [Header("Backgrounds")]
-    public SpriteRenderer MainRoadBackground;
+    public SpriteRenderer FarmlandBackground;
     public SpriteRenderer CityBackground;
     public SpriteRenderer WoodsBackground;
     public SpriteRenderer GroceryStoreBackground;
 
-    [Header("Companions")]
+    [Header("Characters")]
+    public GameObject PlayerCharacter;
     public Dog Dog;
     public Parrot Parrot;
 
@@ -39,9 +45,10 @@ public class ResourceManager : MonoBehaviour
 
 
     [Header("World Map")]
-    public Texture2D MainRoadTexture;
+    public Texture2D FarmlandTexture;
     public Texture2D WoodsTexture;
     public Texture2D CityTexture;
+    public Texture2D LakeTexture;
 
     public TileBase WhiteTile;
     public TileBase TileMarkerTransparentWhite;

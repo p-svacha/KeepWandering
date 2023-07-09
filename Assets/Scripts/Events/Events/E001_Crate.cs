@@ -5,6 +5,9 @@ using UnityEngine;
 public class E001_Crate : Event
 {
     // Static
+    private static float BaseProbability = 10f;
+    private const float CUT_CHANCE = 0.1f;
+
     private static Dictionary<ItemType, float> ItemTable = new Dictionary<ItemType, float>()
     {
         { ItemType.Beans, 10},
@@ -15,7 +18,6 @@ public class E001_Crate : Event
         { ItemType.Knife, 3},
         { ItemType.NutSnack, 10},
     };
-    private const float CUT_CHANCE = 0.1f;
 
     // Instance
     private Item CrateItem;
@@ -25,7 +27,7 @@ public class E001_Crate : Event
 
     public override float GetEventProbability()
     {
-        return 10;
+        return BaseProbability;
     }
     public override void OnEventStart()
     {
