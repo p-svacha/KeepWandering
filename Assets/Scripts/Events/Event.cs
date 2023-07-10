@@ -13,6 +13,14 @@ public abstract class Event
     }
 
     /// <summary>
+    /// Returns the modified version of a loot table taking in account the current location.
+    /// </summary>
+    protected LootTable GetLocationLootTable(LootTable table)
+    {
+        return table.Union(Game.CurrentLocation.LootTable);
+    }
+
+    /// <summary>
     /// Returns a new instance of the event.
     /// </summary>
     public abstract Event GetEventInstance { get; }

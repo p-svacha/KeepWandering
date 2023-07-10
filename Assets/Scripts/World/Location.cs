@@ -7,6 +7,7 @@ public abstract class Location
     public abstract LocationType Type { get; }
     public abstract SpriteRenderer Sprite { get; }
     public abstract bool IsPassable { get; }
+    public abstract LootTable LootTable { get; }
     public TileBase BaseTextureTile { get; private set; }
 
     public Location()

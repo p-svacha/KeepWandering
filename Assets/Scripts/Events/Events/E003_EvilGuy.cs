@@ -27,14 +27,14 @@ public class E003_EvilGuy : Event
         {2, 30 },
         {3, 10 }
     };
-    private static Dictionary<ItemType, float> FightRewardTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 10},
-        { ItemType.WaterBottle, 10},
-        { ItemType.Bone, 2},
-        { ItemType.Bandage, 4},
-        { ItemType.Antibiotics, 4},
-    };
+
+    private static LootTable FightRewardTable = new LootTable(
+        new(ItemType.Beans, 10),
+        new(ItemType.WaterBottle, 10),
+        new(ItemType.Bone, 2),
+        new(ItemType.Bandage, 4),
+        new(ItemType.Antibiotics, 4)
+    );
 
 
 
@@ -60,15 +60,9 @@ public class E003_EvilGuy : Event
 
         // Reward item(s)
         int numRewards = HelperFunctions.GetWeightedRandomElement<int>(NumRewardsTable);
-        RewardItems = new List<Item>();
-        for (int i = 0; i < numRewards; i++)
-        {
-            ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(FightRewardTable);
-            Item item = Game.GetItemInstance(itemType);
-            item.GetComponent<SpriteRenderer>().enabled = false;
-            RewardItems.Add(item);
-        }
+        RewardItems = GetLocationLootTable(FightRewardTable).GetItems(numRewards, hide: true);
     }
+
     public override EventStep GetInitialStep()
     {
         string initialStep = "You encounter a very angry and dangerous looking guy. He tells you to give him your " + RansomItem.Name + " or he's gonna punch you.";

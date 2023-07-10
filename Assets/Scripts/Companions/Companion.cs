@@ -4,11 +4,13 @@ using UnityEngine;
 
 public abstract class Companion : MonoBehaviour
 {
+    protected Game Game;
     public abstract string Name { get; }
     public List<StatusEffect> StatusEffects = new List<StatusEffect>();
 
-    public void Init()
+    public void Init(Game game)
     {
+        Game = game;
         gameObject.SetActive(true);
         OnInit();
     }
@@ -20,4 +22,12 @@ public abstract class Companion : MonoBehaviour
     /// This function does NOT change anything, it just sets the status effects according to the current player state.
     /// </summary>
     public abstract void UpdateStatusEffects();
+
+    /// <summary>
+    /// Returns the modified version of a loot table taking in account the current location.
+    /// </summary>
+    protected LootTable GetLocationLootTable(LootTable table)
+    {
+        return table.Union(Game.CurrentLocation.LootTable);
+    }
 }

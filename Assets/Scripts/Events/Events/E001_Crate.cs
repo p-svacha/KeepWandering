@@ -8,16 +8,16 @@ public class E001_Crate : Event
     private static float BaseProbability = 10f;
     private const float CUT_CHANCE = 0.1f;
 
-    private static Dictionary<ItemType, float> ItemTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 10},
-        { ItemType.WaterBottle, 10},
-        { ItemType.Bandage, 5},
-        { ItemType.Antibiotics, 5},
-        { ItemType.Bone, 3},
-        { ItemType.Knife, 3},
-        { ItemType.NutSnack, 10},
-    };
+    private static LootTable ItemTable = new LootTable(
+        new(ItemType.Beans, 10),
+        new(ItemType.WaterBottle, 10),
+        new(ItemType.Bandage, 5),
+        new(ItemType.Antibiotics, 5),
+        new(ItemType.Bone, 3),
+        new(ItemType.Knife, 3),
+        new(ItemType.NutSnack, 10),
+        new(ItemType.MedicalKit, 1)
+    );
 
     // Instance
     private Item CrateItem;
@@ -35,8 +35,7 @@ public class E001_Crate : Event
         ResourceManager.Singleton.E001_Crate.SetActive(true);
 
         // Crate item
-        ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(ItemTable);
-        CrateItem = Game.GetItemInstance(itemType);
+        CrateItem = GetLocationLootTable(ItemTable).GetItem();
         CrateItem.transform.position = new Vector3(6, 0f, 0f);
         CrateItem.transform.rotation = Quaternion.Euler(0f, 0f, -30f);
     }

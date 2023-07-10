@@ -9,14 +9,13 @@ public class E005_ParrotWomanReunion : Event
     public static bool HasEncountered;
 
     private const int NUM_REWARDS = 3;
-    private static Dictionary<ItemType, float> RewardTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 10},
-        { ItemType.WaterBottle, 10},
-        { ItemType.Coin, 10},
-        { ItemType.Bandage, 5},
-        { ItemType.Antibiotics, 5},
-    };
+    private static LootTable RewardTable = new LootTable(
+        new(ItemType.Beans, 10),
+        new(ItemType.WaterBottle, 10),
+        new(ItemType.Coin, 10),
+        new(ItemType.Bandage, 5),
+        new(ItemType.Antibiotics, 5)
+    );
 
     // Instance
     public E005_ParrotWomanReunion(Game game) : base(game) { }
@@ -75,15 +74,7 @@ public class E005_ParrotWomanReunion : Event
         Game.RemoveMission(MissionId.M001_CareParrot);
         string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 
-        List<Item> rewardItems = new List<Item>();
-        for (int i = 0; i < NUM_REWARDS; i++)
-        {
-            ItemType itemType = HelperFunctions.GetWeightedRandomElement<ItemType>(RewardTable);
-            Item item = Game.GetItemInstance(itemType);
-            Game.AddItemToInventory(item);
-            rewardItems.Add(item);
-        }
-
+        List<Item> rewardItems = GetLocationLootTable(RewardTable).AddItemsToInventory(NUM_REWARDS);
 
         return new EventStep(text, rewardItems, null, null, null);
     }

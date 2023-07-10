@@ -14,15 +14,14 @@ public class E007_Trader : Event
         {LocationType.Woods, 0f},
     };
 
-    private static Dictionary<ItemType, float> TradeItemTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 10},
-        { ItemType.NutSnack, 10},
-        { ItemType.WaterBottle, 10},
-        { ItemType.Bandage, 5},
-        { ItemType.Antibiotics, 5},
-        { ItemType.Knife, 2},
-    };
+    private static LootTable TradeItemTable = new LootTable(
+        new(ItemType.Beans, 10),
+        new(ItemType.NutSnack, 10),
+        new(ItemType.WaterBottle, 10),
+        new(ItemType.Bandage, 5),
+        new(ItemType.Antibiotics, 5),
+        new(ItemType.Knife, 2)
+    );
 
     private static Dictionary<int, float> TradeItemBuyPriceTable = new Dictionary<int, float>()
     {
@@ -61,11 +60,10 @@ public class E007_Trader : Event
         BuyableItems = new List<Item>();
         for (int i = 0; i < 3; i++)
         {
-            ItemType type = HelperFunctions.GetWeightedRandomElement(TradeItemTable);
-            Item item = Game.GetItemInstance(type);
+            Item item = TradeItemTable.GetItem();
             item.transform.position = new Vector3(5.2f + i * 1.15f, -3.5f, 0f);
             BuyableItems.Add(item);
-            ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[type].ToString();
+            ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[item.Type].ToString();
         }
     }
     public override EventStep GetInitialStep()

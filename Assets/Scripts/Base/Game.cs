@@ -468,11 +468,13 @@ public class Game : MonoBehaviour
 
     public void AddItemToInventory(Item item)
     {
+        item.Show();
+        item.IsPlayerOwned = true;
+
         item.transform.position = new Vector3(Random.Range(-8f, -3f), Random.Range(2f, 4f), 0f);
         item.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
         item.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-        item.GetComponent<SpriteRenderer>().enabled = true;
-        item.IsPlayerOwned = true;
+        
         Inventory.Add(item);
     }
     /// <summary>
@@ -572,7 +574,7 @@ public class Game : MonoBehaviour
     {
         Player.AddDog();
         Companions.Add(ResourceManager.Singleton.Dog);
-        ResourceManager.Singleton.Dog.Init();
+        ResourceManager.Singleton.Dog.Init(this);
         UpdateAllStatusEffects();
     }
     public void RemoveDog()
@@ -587,7 +589,7 @@ public class Game : MonoBehaviour
     {
         Player.AddParrot();
         Companions.Add(ResourceManager.Singleton.Parrot);
-        ResourceManager.Singleton.Parrot.Init();
+        ResourceManager.Singleton.Parrot.Init(this);
         UpdateAllStatusEffects();
     }
     public void FeedParrot(Item item, float value)
@@ -625,6 +627,8 @@ public class Game : MonoBehaviour
     #endregion
 
     #region Getters
+
+    public Location CurrentLocation => CurrentPosition.Location;
 
     public Item GetItemInstance(ItemType type)
     {

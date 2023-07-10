@@ -6,22 +6,21 @@ public class Dog : Companion
 {
     public override string Name => "Dog";
     private const float FindItemChance = 0.3f;
-    private static Dictionary<ItemType, float> FindItemTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 10},
-        { ItemType.NutSnack, 10},
-        { ItemType.Bone, 10},
-        { ItemType.WaterBottle, 5},
-        { ItemType.Bandage, 5},
-    };
+    private static LootTable FindItemTable = new LootTable(
+        new(ItemType.Beans, 10),
+        new(ItemType.NutSnack, 10),
+        new(ItemType.Bone, 10),
+        new(ItemType.WaterBottle, 5),
+        new(ItemType.Bandage, 5),
+        new(ItemType.Coin, 1)
+    );
 
     public override void OnEndDay(Game game, MorningReport morningReport)
     {
         if(Random.value < FindItemChance)
         {
-            ItemType foundItemType = HelperFunctions.GetWeightedRandomElement(FindItemTable);
-            Item foundItem = game.GetItemInstance(foundItemType);
-            game.AddItemToInventory(foundItem);
+            Item foundItem = GetLocationLootTable(FindItemTable).AddItemToInventory();
+
             morningReport.NightEvents.Add("Your dog found a " + foundItem.Name + ".");
             morningReport.AddedItems.Add(foundItem);
         }

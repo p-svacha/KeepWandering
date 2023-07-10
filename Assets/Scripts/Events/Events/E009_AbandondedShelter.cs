@@ -117,7 +117,7 @@ public class E009_AbandondedShelter : Event
     private EventStep GetLeaveShelterStep(string text)
     {
         // Add items from shelter
-        List<Item> items = ItemTable.AddItemsToInventory(MIN_ITEMS, MAX_ITEMS);
+        List<Item> items = GetLocationLootTable(ItemTable).AddItemsToInventory(MIN_ITEMS, MAX_ITEMS);
 
         // Hide character
         ResourceManager.Singleton.PlayerCharacter.gameObject.SetActive(false);
