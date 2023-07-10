@@ -41,10 +41,10 @@ public class UI_EventDisplay : MonoBehaviour
         }
 
         // Item changes
-        if(step.AddedItems != null)
+        if(Game.ItemsAddedSinceLastStep != null)
         {
             Dictionary<Item, int> groupedItems = new Dictionary<Item, int>();
-            foreach(Item item in step.AddedItems)
+            foreach(Item item in Game.ItemsAddedSinceLastStep)
             {
                 if (!groupedItems.Any(x => x.Key.Type == item.Type)) groupedItems.Add(item, 1);
                 else groupedItems[groupedItems.First(x => x.Key.Type == item.Type).Key]++;
@@ -55,10 +55,10 @@ public class UI_EventDisplay : MonoBehaviour
                 itemChange.Init(item.Key, true, item.Value);
             }
         }
-        if (step.RemovedItems != null)
+        if (Game.ItemsRemovedSinceLastStep != null)
         {
             Dictionary<Item, int> groupedItems = new Dictionary<Item, int>();
-            foreach (Item item in step.RemovedItems)
+            foreach (Item item in Game.ItemsRemovedSinceLastStep)
             {
                 if (!groupedItems.Any(x => x.Key.Type == item.Type)) groupedItems.Add(item, 1);
                 else groupedItems[groupedItems.First(x => x.Key.Type == item.Type).Key]++;

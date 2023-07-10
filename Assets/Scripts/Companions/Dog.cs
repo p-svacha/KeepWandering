@@ -22,7 +22,6 @@ public class Dog : Companion
             Item foundItem = GetLocationLootTable(FindItemTable).AddItemToInventory();
 
             morningReport.NightEvents.Add("Your dog found a " + foundItem.Name + ".");
-            morningReport.AddedItems.Add(foundItem);
         }
     }
 

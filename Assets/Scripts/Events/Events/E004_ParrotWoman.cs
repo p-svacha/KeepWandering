@@ -47,7 +47,7 @@ public class E004_ParrotWoman : Event
 
         // Event
         string eventText = "You encounter a woman called " + WomanName + " with a parrot on her shoulder. She asks you to take care of it for a while and then meet her again in the " + Game.CurrentPosition.Location.Name + ". She adds that the parrot is a very picky eater and will only accept nuts.";
-        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()
     {
@@ -62,11 +62,11 @@ public class E004_ParrotWoman : Event
         Game.AddOrUpdateMission(MissionId.M001_CareParrot, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + ".");
         ResourceManager.Singleton.E004_Parrot.SetActive(false);
         string text = "You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.";
-        return new EventStep(text, null, null, null, null);
+        return new EventStep(text);
     }
     private EventStep RefuseParrot()
     {
-        return new EventStep("You refuse to take care of the parrot.", null, null, null, null);
+        return new EventStep("You refuse to take care of the parrot.");
     }
 
 

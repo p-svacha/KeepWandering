@@ -29,10 +29,13 @@ public class Item : MonoBehaviour
     [Header("Visual")]
     public bool ForceGlow;
 
+    public Sprite Sprite { get; private set; }
+
     public void Init(Game game)
     {
         Game = game;
         GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+        Sprite = GetComponent<SpriteRenderer>().sprite;
     }
 
     public bool CanInteract()

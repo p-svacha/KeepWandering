@@ -6,25 +6,13 @@ public class EventStep
 {
     public string Text;
 
-    /// <summary>
-    /// Items that were added to the inventory with this step
-    /// </summary>
-    public List<Item> AddedItems { get; set; }
-
-    /// <summary>
-    /// Items that were removed from the inventory with this step
-    /// </summary>
-    public List<Item> RemovedItems { get; set; }
-
     public List<EventDialogueOption> EventDialogueOptions;
     public List<EventItemOption> EventItemOptions;
     public bool ItemsAllowed;
 
-    public EventStep(string text, List<Item> addedItems, List<Item> removedItems, List<EventDialogueOption> dialogueOptions, List<EventItemOption> itemOptions, bool allowItems = true)
+    public EventStep(string text, List<EventDialogueOption> dialogueOptions = null, List<EventItemOption> itemOptions = null, bool allowItems = true)
     {
         Text = text;
-        AddedItems = addedItems;
-        RemovedItems = removedItems;
         EventDialogueOptions = dialogueOptions;
         EventItemOptions = itemOptions;
         ItemsAllowed = allowItems;

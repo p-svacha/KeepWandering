@@ -47,15 +47,18 @@ public class Game : MonoBehaviour
     public const bool DEBUG_RANDOM_CHOICES = true;
 
     // Rules
-    private static Dictionary<ItemType, float> StartItemTable = new Dictionary<ItemType, float>()
-    {
-        { ItemType.Beans, 8 },
-        { ItemType.WaterBottle, 8 },
-        { ItemType.Bandage, 5 },
-        { ItemType.Bone, 3 },
-        { ItemType.Knife, 2 },
-        { ItemType.Antibiotics, 2 },
-    };
+    private static LootTable StartItemTable = new LootTable(
+        new(ItemType.Beans, 8),
+        new(ItemType.WaterBottle, 8),
+        new(ItemType.Bandage, 5),
+        new(ItemType.Bone, 3),
+        new(ItemType.Knife, 2),
+        new(ItemType.Antibiotics, 2)
+    );
+
+    // Event step display
+    public List<Item> ItemsAddedSinceLastStep = new List<Item>();
+    public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
 
     #region Game Flow
 
@@ -83,7 +86,7 @@ public class Game : MonoBehaviour
 
         AddItemToInventory(GetItemInstance(ItemType.Beans));
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
-        AddItemToInventory(GetItemInstance(HelperFunctions.GetWeightedRandomElement(StartItemTable)));
+        StartItemTable.AddItemToInventory();
 
         SwitchState(GameState.InDayTransition);
     }
@@ -206,6 +209,8 @@ public class Game : MonoBehaviour
         }
 
         State = newState;
+
+        CheckGameOver();
     }
 
     public void DisplayEventStep(EventStep step)
@@ -243,6 +248,9 @@ public class Game : MonoBehaviour
                 }
             }
         }
+
+        ItemsAddedSinceLastStep.Clear();
+        ItemsRemovedSinceLastStep.Clear();
     }
 
     public void CheckGameOver()
@@ -328,7 +336,7 @@ public class Game : MonoBehaviour
         else
         {
             text = "You wake up in the " + CurrentPosition.Location.Name + ". The following happened during the night:";
-            foreach (string e in LatestMorningReport.NightEvents) text += "\n" + e;
+            foreach (string e in LatestMorningReport.NightEvents) text += "\n- " + e;
         }
         text += "\nWhat would you like to do today?";
 
@@ -343,7 +351,7 @@ public class Game : MonoBehaviour
         EventDialogueOption startTravelingOption = new EventDialogueOption("Go somewhere else", OpenMap);
         options.Add(startTravelingOption);
 
-        EventStep morningEventStep = new EventStep(text, LatestMorningReport.AddedItems, LatestMorningReport.RemovedItems, options, null);
+        EventStep morningEventStep = new EventStep(text, options, null);
         return morningEventStep;
     }
 
@@ -446,7 +454,7 @@ public class Game : MonoBehaviour
         EventDialogueOption sleepOtion = new EventDialogueOption("Sleep", Sleep);
         options.Add(sleepOtion);
 
-        EventStep eveningEventStep = new EventStep(text, null, null, options, null);
+        EventStep eveningEventStep = new EventStep(text, options, null);
         return eveningEventStep;
     }
 
@@ -474,7 +482,8 @@ public class Game : MonoBehaviour
         item.transform.position = new Vector3(Random.Range(-8f, -3f), Random.Range(2f, 4f), 0f);
         item.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
         item.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-        
+
+        ItemsAddedSinceLastStep.Add(item);
         Inventory.Add(item);
     }
     /// <summary>
@@ -491,21 +500,22 @@ public class Game : MonoBehaviour
         }
         return addedItems;
     }
-    public void DestroyOwnedItem(Item item)
+    public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
     {
+        if(showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
         Destroy(item.gameObject);
     }
     /// <summary>
     /// Destroys multiple items of the player of the same type. Returns a list containing the destroyed items.
     /// </summary>
-    public List<Item> DestroyOwnedItems(ItemType type, int amount)
+    public List<Item> DestroyOwnedItems(ItemType type, int amount, bool showOnEventStepDisplay = true)
     {
         List<Item> destroyedItems = new List<Item>();
         for(int i = 0; i < amount; i++)
         {
             Item item = Inventory.First(x => x.Type == type);
-            DestroyOwnedItem(item);
+            DestroyOwnedItem(item, showOnEventStepDisplay);
             destroyedItems.Add(item);
         }
         return destroyedItems;
@@ -516,7 +526,7 @@ public class Game : MonoBehaviour
         if (!item.IsEdible) Debug.LogWarning("Eating item that is not edible! " + item.Name);
         Player.AddNutrition(item.OnEatNutrition);
         Player.AddHydration(item.OnEatHydration);
-        DestroyOwnedItem(item);
+        DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
         UpdateAllStatusEffects();
     }
@@ -524,7 +534,7 @@ public class Game : MonoBehaviour
     {
         if (!item.IsDrinkable) Debug.LogWarning("Drinking item that is not edible! " + item.Name);
         Player.AddHydration(item.OnDrinkHydration);
-        DestroyOwnedItem(item);
+        DestroyOwnedItem(item, showOnEventStepDisplay: false);
         UpdateAllStatusEffects();
     }
 
@@ -545,7 +555,7 @@ public class Game : MonoBehaviour
         if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
         wound.SetHightlight(false);
         Player.TendWound(wound);
-        DestroyOwnedItem(item);
+        DestroyOwnedItem(item, showOnEventStepDisplay: false);
         UpdateAllStatusEffects();
     }
     public void HealInfection(Wound wound, Item item)
@@ -554,7 +564,7 @@ public class Game : MonoBehaviour
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
         wound.SetHightlight(false);
         Player.HealInfection(wound);
-        DestroyOwnedItem(item);
+        DestroyOwnedItem(item, showOnEventStepDisplay: false);
         UpdateAllStatusEffects();
     }
 
@@ -594,7 +604,7 @@ public class Game : MonoBehaviour
     }
     public void FeedParrot(Item item, float value)
     {
-        DestroyOwnedItem(item);
+        DestroyOwnedItem(item, showOnEventStepDisplay: false);
         ResourceManager.Singleton.Parrot.AddNutrition(value);
         UpdateAllStatusEffects();
     }
@@ -620,8 +630,6 @@ public class Game : MonoBehaviour
         Player.UpdateStatusEffects();
         foreach (Companion c in Companions) c.UpdateStatusEffects();
         UI.UpdateHealthReports();
-
-        CheckGameOver();
     }
 
     #endregion

@@ -105,7 +105,7 @@ public class E007_Trader : Event
         dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
 
         // Event
-        return new EventStep(text, null, null, dialogueOptions, itemOptions);
+        return new EventStep(text, dialogueOptions, itemOptions);
     }
     private EventStep BuyItem(Item item)
     {
@@ -116,8 +116,6 @@ public class E007_Trader : Event
         BuyableItems.Remove(item);
 
         EventStep nextStep = GetShopStep(text);
-        nextStep.AddedItems = new List<Item>() { item };
-        nextStep.RemovedItems = payedCoins;
 
         return nextStep;
     }
@@ -128,14 +126,12 @@ public class E007_Trader : Event
         List<Item> addedCoins = Game.AddItemsToInventory(ItemType.Coin, price);
 
         EventStep nextStep = GetShopStep("You sold the " + item.Name + " for " + price + " coins.");
-        nextStep.AddedItems = addedCoins;
-        nextStep.RemovedItems = new List<Item>() { item };
 
         return nextStep;
     }
     private EventStep Continue()
     {
-        return new EventStep("You wish the trader a nice day and continue.", null, null, null, null);
+        return new EventStep("You wish the trader a nice day and continue.", null, null);
     }
 
 

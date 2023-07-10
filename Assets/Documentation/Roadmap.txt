@@ -3,7 +3,7 @@ feature wheel:
 - location movement difficulty + possibility to not reach camp spot at evening
 - mission that can be completed at world tile positions (leads to new morning option "find mission location")
 - radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
-- !!! eventstepoutcome class to display added/removed items/wounds/status effects. !!! also add that stuff can be added after constructor
+- show cuts and bruises as event step outcome
 - position on map should not be centered on tile during afternoon when traveling there => add marker for where you are going
 - add new event
 - complete E008 distressed guy event
@@ -13,14 +13,13 @@ feature wheel:
 - add main road on map and as location
 - add more detailed info box on world map of hovered tile (also include disance from current tile)
 - add event step outcome chances and details when hovering options (details should just be what affects the chances with either +/-)
-	- make added items, cuts etc. automatic 
 - add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
 - in E009 replace trap bruise with missing leg
-- add loottables to locations and events with loottables will combine them with location loot tabel
 - in E009 add ability to throw items at traps
 - in event add ShowSprite method to show a sprite and add it to a list. then when event ends automatically hide all shown sprites instead of manually per event
 - add lastencountered to event and alter probability if last encounter was recent
 	- add default event probability calculation based on baseprob, locationtable and recent encouter
+- fix event step outclose display (elemnts shoud have fixed size, maybe own panel?)
 
 feature wheel with dependencies first or low prio:
 - evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)

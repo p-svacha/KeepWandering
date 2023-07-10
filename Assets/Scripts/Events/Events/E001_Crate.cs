@@ -49,7 +49,7 @@ public class E001_Crate : Event
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();      
 
-        return new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", null, null, options, itemOptions);
+        return new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", options, itemOptions);
     }
     public override void OnEventEnd()
     {
@@ -66,11 +66,11 @@ public class E001_Crate : Event
             Game.AddCutWound();
             text += " Upon taking out your hand you scratch yourself on a loose nail.";
         }
-        return new EventStep(text, new List<Item>() { CrateItem }, null, null, null);
+        return new EventStep(text);
     }
     private EventStep DontTakeItem()
     {
-        return new EventStep("You didn't take the " + CrateItem.Name + ".", null, null, null, null);
+        return new EventStep("You didn't take the " + CrateItem.Name + ".");
     }
 
 

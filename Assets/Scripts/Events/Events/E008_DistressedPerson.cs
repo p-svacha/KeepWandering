@@ -32,7 +32,7 @@ public class E008_DistressedPerson : Event
 
         // Event
         string eventText = "You see a very distressed person who is flailing their arms around.";
-        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()
     {
@@ -42,7 +42,7 @@ public class E008_DistressedPerson : Event
     // Steps
     private EventStep Ask()
     {
-        return new EventStep("The person doesn't react. There's appearently nothing you can do.", null, null, null, null);
+        return new EventStep("The person doesn't react. There's appearently nothing you can do.", null, null);
     }
 
 

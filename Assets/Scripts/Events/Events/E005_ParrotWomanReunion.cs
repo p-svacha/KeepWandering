@@ -59,7 +59,7 @@ public class E005_ParrotWomanReunion : Event
             dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
         }
 
-        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, dialogueOptions, itemOptions);
     }
     public override void OnEventEnd()
     {
@@ -74,14 +74,15 @@ public class E005_ParrotWomanReunion : Event
         Game.RemoveMission(MissionId.M001_CareParrot);
         string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 
-        List<Item> rewardItems = GetLocationLootTable(RewardTable).AddItemsToInventory(NUM_REWARDS);
+        // Get reward
+        GetLocationLootTable(RewardTable).AddItemsToInventory(NUM_REWARDS);
 
-        return new EventStep(text, rewardItems, null, null, null);
+        return new EventStep(text);
     }
     private EventStep Continue()
     {
         string text = "You tell her you're sorry but there's nothing more you can do so you continue your journey.";
-        return new EventStep(text, null, null, null, null);
+        return new EventStep(text);
     }
 
 

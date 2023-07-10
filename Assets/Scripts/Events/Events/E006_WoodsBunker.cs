@@ -71,7 +71,7 @@ public class E006_WoodsBunker : Event
         }
 
         // Event
-        return new EventStep(eventText, null, null, dialogueOptions, itemOptions);
+        return new EventStep(eventText, dialogueOptions, itemOptions);
     }
     private EventStep EnterBunker()
     {
@@ -93,14 +93,13 @@ public class E006_WoodsBunker : Event
     }
     private EventStep Continue()
     {
-        return new EventStep("You walk past the bunker.", null, null, null, null);
+        return new EventStep("You walk past the bunker.");
     }
     private EventStep GiveFood(Item item)
     {
         Game.DestroyOwnedItem(item);
         RequiredFood--;
         EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
-        nextStep.RemovedItems = new List<Item>() { item };
         return nextStep;
     }
     private EventStep GiveWater(Item item)
@@ -108,7 +107,6 @@ public class E006_WoodsBunker : Event
         Game.DestroyOwnedItem(item);
         RequiredWater--;
         EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
-        nextStep.RemovedItems = new List<Item>() { item };
         return nextStep;
     }
 }
