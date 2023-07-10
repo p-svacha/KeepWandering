@@ -8,6 +8,7 @@ public abstract class Event
     public abstract int Id { get;  }
     public EventStep InitialStep { get; private set; }
     public int DaysSinceLastOccurence;
+    private List<GameObject> EventSprites = new List<GameObject>();
 
     public Event(Game game)
     {
@@ -61,6 +62,7 @@ public abstract class Event
     /// <returns></returns>
     protected float GetDefaultEventProbability()
     {
+        if (BaseProbability == 0f) return 0f;
         if (CanOnlyOccurOnce && HasOccuredAlready) return 0f;
 
         float locationProb = BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
@@ -73,15 +75,43 @@ public abstract class Event
     /// <summary>
     /// Initializes the event by setting up all attributes, setting relevant sprites and items etc.
     /// </summary>
-    public abstract void OnEventStart();
+    protected abstract void OnEventStart();
 
     /// <summary>
     /// Sets the first EventStep that appears when the event begins.
     /// </summary>
-    public abstract EventStep GetInitialStep();
+    protected abstract EventStep GetInitialStep();
+
+    /// <summary>
+    /// Makes a gameobject belonging to this event visible. The gameobject will be hidden when the event ends.
+    /// </summary>
+    protected void ShowEventSprite(GameObject sprite)
+    {
+        sprite.gameObject.SetActive(true);
+        EventSprites.Add(sprite);
+    }
+
+    /// <summary>
+    /// Makes a gameobject belonging to this event invisible.
+    /// </summary>
+    protected void HideEventSprite(GameObject sprite)
+    {
+        sprite.gameObject.SetActive(false);
+        EventSprites.Remove(sprite);
+    }
+
+    /// <summary>
+    /// Ends the event.
+    /// </summary>
+    public void EndEvent()
+    {
+        foreach (GameObject sprite in EventSprites) sprite.gameObject.SetActive(false);
+        EventSprites.Clear();
+        OnEventEnd();
+    }
 
     /// <summary>
     /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying leftover items.
     /// </summary>
-    public abstract void OnEventEnd();
+    protected virtual void OnEventEnd() { }
 }

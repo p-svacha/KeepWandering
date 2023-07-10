@@ -23,24 +23,20 @@ public class E006_WoodsBunker : Event
         if (!Game.PlayerIsOnQuarantinePerimeter) return 0; // only happens on perimeter
         return BaseProbability;
     }
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E006_WoodsBunker.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E006_WoodsBunker);
 
         // Required items
         RequiredFood = Random.Range(1, 2);
         RequiredWater = Random.Range(1, 2);
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         string eventText = "You come across a secret tunnel entry that seems like it will lead to the outside of the quarantine zone.";
         if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you through if you give them " + RequiredFood + " food and " + RequiredWater + " water.";
         return GetInitialStep(eventText);
-    }
-    public override void OnEventEnd()
-    {
-        ResourceManager.Singleton.E006_WoodsBunker.SetActive(false);
     }
 
     private EventStep GetInitialStep(string eventText)

@@ -23,6 +23,9 @@ public class ResourceManager : MonoBehaviour
     public GameObject E009_TrapClosed;
     public GameObject E009_WindowBlood;
 
+    public GameObject E010_FenceForeground;
+    public GameObject E010_FenceBackground;
+
     [Header("Backgrounds")]
     public SpriteRenderer FarmlandBackground;
     public SpriteRenderer CityBackground;

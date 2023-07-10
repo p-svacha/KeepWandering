@@ -25,16 +25,16 @@ public class E005_ParrotWomanReunion : Event
     public override float GetEventProbability()
     {
         if (HasOccuredAlready) return 0f;
-        if (!Game.EventManager.HasEncounteredEvent(id: 004) || Game.EventManager.DaysSinceLastEventOccurence(id: 004) < MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
+        if (!Game.EventManager.HasEncounteredEvent(eventId: 004) || Game.EventManager.DaysSinceLastEventOccurence(eventId: 004) < MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
         if (Game.CurrentPosition.Location != E004_ParrotWoman.EncounterLocation) return 0f;
-        else return 1f * (Game.EventManager.DaysSinceLastEventOccurence(id: 004) - MinDaysForReunion + 1);
+        else return 1f * (Game.EventManager.DaysSinceLastEventOccurence(eventId: 004) - MinDaysForReunion + 1);
     }
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprite
-        ResourceManager.Singleton.E004_Woman.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E004_Woman);
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         // Options
         string eventText = "";
@@ -59,16 +59,11 @@ public class E005_ParrotWomanReunion : Event
 
         return new EventStep(eventText, dialogueOptions, itemOptions);
     }
-    public override void OnEventEnd()
-    {
-        ResourceManager.Singleton.E004_Woman.SetActive(false);
-        ResourceManager.Singleton.E004_Parrot.SetActive(false);
-    }
 
     private EventStep ReturnParrot()
     {
         Game.RemoveParrot();
-        ResourceManager.Singleton.E004_Parrot.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E004_Parrot);
         Game.RemoveMission(MissionId.M001_CareParrot);
         string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 

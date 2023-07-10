@@ -52,10 +52,10 @@ public class E003_EvilGuy : Event
         if (Game.Inventory.Count == 0) return 0;
         else return GetDefaultEventProbability();
     }
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E003_EvilGuy.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E003_EvilGuy);
 
         // Ransom item
         RansomItem = Game.Inventory[Random.Range(0, Game.Inventory.Count)];
@@ -65,15 +65,13 @@ public class E003_EvilGuy : Event
         RewardItems = GetLocationLootTable(FightRewardTable).GetItems(numRewards, hide: true);
     }
 
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         string initialStep = "You encounter a very angry and dangerous looking guy. He tells you to give him your " + RansomItem.Name + " or he's gonna punch you.";
         return GetStandoffStep(initialStep);
     }
-    public override void OnEventEnd()
+    protected override void OnEventEnd()
     {
-        ResourceManager.Singleton.E003_EvilGuy.SetActive(false);
-        ResourceManager.Singleton.E003_EvilGuy_KO.SetActive(false);
         foreach (Item item in RewardItems)
             if (!item.IsPlayerOwned) GameObject.Destroy(item.gameObject);
     }
@@ -158,8 +156,8 @@ public class E003_EvilGuy : Event
     }
     private void WinFight()
     {
-        ResourceManager.Singleton.E003_EvilGuy.SetActive(false);
-        ResourceManager.Singleton.E003_EvilGuy_KO.SetActive(true);
+        HideEventSprite(ResourceManager.Singleton.E003_EvilGuy);
+        ShowEventSprite(ResourceManager.Singleton.E003_EvilGuy_KO);
         foreach (Item item in RewardItems) Game.AddItemToInventory(item);
     }
     private void GetInjured()

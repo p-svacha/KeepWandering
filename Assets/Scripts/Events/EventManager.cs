@@ -34,7 +34,8 @@ public class EventManager
             new E006_WoodsBunker(Game),
             new E007_Trader(Game),
             new E008_DistressedPerson(Game),
-            new E009_AbandondedShelter(Game)
+            new E009_AbandondedShelter(Game),
+            new E010_QuarantineFence(Game)
         };
 
         DummyEvents = new Dictionary<int, Event>();
@@ -71,18 +72,19 @@ public class EventManager
         }
     }
 
-    public bool HasEncounteredEvent(int id)
+    public bool HasEncounteredEvent(int eventId)
     {
-        return DummyEvents[id].DaysSinceLastOccurence != -1;
+        return DummyEvents[eventId].DaysSinceLastOccurence != -1;
     }
 
-    public int DaysSinceLastEventOccurence(int id)
+    public int DaysSinceLastEventOccurence(int eventId)
     {
-        return DummyEvents[id].DaysSinceLastOccurence;
+        return DummyEvents[eventId].DaysSinceLastOccurence;
     }
 
-    public void SetForcedEvent(Event forcedEvent)
+    public void SetForcedEvent(int eventId)
     {
-        ForcedEvent = forcedEvent;
+        if (!DummyEvents.ContainsKey(eventId)) ForcedEvent = null;
+        else ForcedEvent = DummyEvents[eventId];
     }
 }

@@ -20,12 +20,12 @@ public class E008_DistressedPerson : Event
     public override Event GetEventInstance => new E008_DistressedPerson(Game);
 
     // Base
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E008_DistressedPerson.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E008_DistressedPerson);
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -37,10 +37,6 @@ public class E008_DistressedPerson : Event
         // Event
         string eventText = "You see a very distressed person who is flailing their arms around.";
         return new EventStep(eventText, dialogueOptions, itemOptions);
-    }
-    public override void OnEventEnd()
-    {
-        ResourceManager.Singleton.E008_DistressedPerson.SetActive(false);
     }
 
     // Steps

@@ -52,8 +52,8 @@ public class UI_EscapeMenu : MonoBehaviour
 
     private void ForceEvent(int value)
     {
-        if (value == 0) Game.EventManager.SetForcedEvent(null);
-        else Game.EventManager.SetForcedEvent(Game.EventManager.DummyEvents[value - 1]);
+        if (value == 0) Game.EventManager.SetForcedEvent(-1);
+        else Game.EventManager.SetForcedEvent(value - 1);
     }
 
     /*

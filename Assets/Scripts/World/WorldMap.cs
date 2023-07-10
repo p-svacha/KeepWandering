@@ -133,12 +133,12 @@ public class WorldMap : MonoBehaviour
             if (GreenHighlightedTiles.Contains(HoveredTile))
             {
                 ContextMenuTile = HoveredTile;
-                Game.UI.ContextMenu.Show(ContextMenuTile.Location.Name, new List<InteractionOption>() { new InteractionOption("Go there", () => Game.SelectPositionOnMap(ContextMenuTile)) });
+                Game.UI.ContextMenu.Show(ContextMenuTile.Location.Name, new List<InteractionOption>() { new InteractionOption("Go there", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.Move)) });
             }
             else if (RedHighlightedTiles.Contains(HoveredTile))
             {
                 ContextMenuTile = HoveredTile;
-                Game.UI.ContextMenu.Show("Fence", new List<InteractionOption>() { new InteractionOption("Approach fence", () => Game.SelectPositionOnMap(ContextMenuTile)) });
+                Game.UI.ContextMenu.Show("Fence", new List<InteractionOption>() { new InteractionOption("Approach fence", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.ApproachFence)) });
             }
         }
     }

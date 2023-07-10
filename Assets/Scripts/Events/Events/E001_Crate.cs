@@ -34,17 +34,17 @@ public class E001_Crate : Event
     public override Event GetEventInstance => new E001_Crate(Game);
 
     // Base
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E001_Crate.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E001_Crate);
 
         // Crate item
         CrateItem = GetLocationLootTable(ItemTable).GetItem();
         CrateItem.transform.position = new Vector3(6, 0f, 0f);
         CrateItem.transform.rotation = Quaternion.Euler(0f, 0f, -30f);
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         // Dialogue Options
         List<EventDialogueOption> options = new List<EventDialogueOption>();
@@ -56,9 +56,8 @@ public class E001_Crate : Event
 
         return new EventStep("You stumble upon a crate that looks to have a " + CrateItem.Name + " inside.", options, itemOptions);
     }
-    public override void OnEventEnd()
+    protected override void OnEventEnd()
     {
-        ResourceManager.Singleton.E001_Crate.SetActive(false);
         if (!CrateItem.IsPlayerOwned) GameObject.Destroy(CrateItem.gameObject);
     }
 

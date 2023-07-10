@@ -27,12 +27,12 @@ public class E002_Dog : Event
         if (Game.Player.HasDog) return 0;
         else return GetDefaultEventProbability();
     }
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E002_Dog.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E002_Dog);
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         // Dialogue Options
         List<EventDialogueOption> options = new List<EventDialogueOption>();
@@ -44,10 +44,6 @@ public class E002_Dog : Event
         itemOptions.Add(new EventItemOption(ItemType.Bone, "Offer to dog", OfferBone)); // Offer bone
 
         return new EventStep("You encounter a dog that looks friendly towards you.", options, itemOptions);
-    }
-    public override void OnEventEnd()
-    {
-        ResourceManager.Singleton.E002_Dog.SetActive(false);
     }
 
     private EventStep PetDog()
@@ -75,7 +71,7 @@ public class E002_Dog : Event
     }
     private void RecruitDog()
     {
-        ResourceManager.Singleton.E002_Dog.SetActive(false);
+        HideEventSprite(ResourceManager.Singleton.E002_Dog);
         Game.AddDog();
     }
 

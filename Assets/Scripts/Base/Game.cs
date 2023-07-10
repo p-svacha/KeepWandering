@@ -20,11 +20,23 @@ public class Game : MonoBehaviour
     public Event CurrentEvent;
     public EventStep CurrentEventStep;
 
+    // Position
+    /// <summary>
+    /// The type of action the player is doing on the current day.
+    /// </summary>
+    public DayAction DayAction { get; private set; }
     public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
-    public WorldMapTile CurrentPosition;
-    private WorldMapTile NextPosition;
+    /// <summary>
+    /// Position the player is currently at.
+    /// </summary>
+    public WorldMapTile CurrentPosition { get; private set; }
+    /// <summary>
+    /// Position the player is moving towards.
+    /// </summary>
+    public WorldMapTile TargetPosition { get; private set; }
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
+    // Missions
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
     [Header("Items")]
@@ -71,8 +83,8 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         WorldMap.Init(this);
-        WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
-        //WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
+        //WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
         WorldMapCamera.Init(this);
 
         EventManager = new EventManager(this);
@@ -363,6 +375,7 @@ public class Game : MonoBehaviour
     }
     private EventStep ExploreThisLocation()
     {
+        DayAction = DayAction.Stay;
         EndMorningEvent();
         return null;
     }
@@ -370,10 +383,13 @@ public class Game : MonoBehaviour
     /// <summary>
     /// Gets called when a position is selected on the world map.
     /// </summary>
-    public void SelectPositionOnMap(WorldMapTile tile)
+    public void SelectPositionOnMap(WorldMapTile tile, DayAction action)
     {
         // Set position
-        NextPosition = tile;
+        TargetPosition = tile;
+
+        // Set action
+        DayAction = action;
 
         // End morning event
         EndMorningEvent();
@@ -401,11 +417,17 @@ public class Game : MonoBehaviour
     {
         UI.DayTimeText.text = "Afternoon";
 
-        // Switch location if a new one was set in the morning
-        if(NextPosition != null)
+        // Switch location if player is moving
+        if (DayAction == DayAction.Move)
         {
-            SetPosition(NextPosition);
-            NextPosition = null;
+            SetPosition(TargetPosition);
+            TargetPosition = null;
+        }
+
+        // Force fence event is player is approaching fence
+        if(DayAction == DayAction.ApproachFence)
+        {
+            EventManager.SetForcedEvent(eventId: 10);
         }
 
         // Chose an event for the afternoon
@@ -435,7 +457,7 @@ public class Game : MonoBehaviour
         UI.DayTimeText.text = "Evening";
 
         // Clear day event
-        if (CurrentEvent != null) CurrentEvent.OnEventEnd();
+        if (CurrentEvent != null) CurrentEvent.EndEvent();
         CurrentEvent = null;
 
         // Display evening event
@@ -625,6 +647,8 @@ public class Game : MonoBehaviour
         CurrentPosition.Location.Sprite.gameObject.SetActive(true);
 
         PathHistory.Add(CurrentPosition);
+
+        CheckGameOver();
     }
 
     private void UpdateAllStatusEffects()

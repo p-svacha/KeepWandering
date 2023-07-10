@@ -41,11 +41,11 @@ public class E007_Trader : Event
     public override Event GetEventInstance => new E007_Trader(Game);
 
     // Base
-    public override void OnEventStart()
+    protected override void OnEventStart()
     {
         // Sprites
-        ResourceManager.Singleton.E007_Trader.SetActive(true);
-        foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(true);
+        ShowEventSprite(ResourceManager.Singleton.E007_Trader);
+        foreach (var text in ResourceManager.Singleton.E007_Prices) ShowEventSprite(text.gameObject);
 
         // Set up prices
         ItemPrices = new Dictionary<ItemType, int>();
@@ -64,15 +64,13 @@ public class E007_Trader : Event
             ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[item.Type].ToString();
         }
     }
-    public override EventStep GetInitialStep()
+    protected override EventStep GetInitialStep()
     {
         string eventText = "You come across a trader offering various items. He says that he is also willing to buy items.";
         return GetShopStep(eventText);
     }
-    public override void OnEventEnd()
+    protected override void OnEventEnd()
     {
-        ResourceManager.Singleton.E007_Trader.SetActive(false);
-        foreach (var text in ResourceManager.Singleton.E007_Prices) text.gameObject.SetActive(false);
         foreach (Item item in BuyableItems)
             if (!item.IsPlayerOwned) GameObject.Destroy(item.gameObject);
     }
