@@ -6,7 +6,15 @@ using UnityEngine;
 public class E003_EvilGuy : Event
 {
     // Static
-    private const float BaseProbability = 4f;
+    public override int Id => 3;
+
+    protected override float BaseProbability => 5f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
+    {
+        {LocationType.Farmland, 0.5f},
+        {LocationType.City, 2f},
+        {LocationType.Woods, 0.1f},
+    };
 
     private const float BaseFightSuccess = 0.2f;
     private const float AddChance_Dog = 0.6f;
@@ -15,12 +23,6 @@ public class E003_EvilGuy : Event
 
     private const float ItemThrowSuccessChance = 0.4f;
 
-    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
-    {
-        {LocationType.Farmland, 0.5f},
-        {LocationType.City, 2f},
-        {LocationType.Woods, 0.1f},
-    };
     private static Dictionary<int, float> NumRewardsTable = new Dictionary<int, float>()
     {
         {1, 60 },
@@ -48,7 +50,7 @@ public class E003_EvilGuy : Event
     public override float GetEventProbability()
     {
         if (Game.Inventory.Count == 0) return 0;
-        else return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
+        else return GetDefaultEventProbability();
     }
     public override void OnEventStart()
     {

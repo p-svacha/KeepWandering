@@ -6,6 +6,9 @@ using UnityEngine;
 public class E006_WoodsBunker : Event
 {
     // Static
+    public override int Id => 6;
+    protected override float BaseProbability => 2f;
+
     public int RequiredFood;
     public int RequiredWater;
 
@@ -13,11 +16,12 @@ public class E006_WoodsBunker : Event
     public E006_WoodsBunker(Game game) : base(game) { }
     public override Event GetEventInstance => new E006_WoodsBunker(Game);
 
+    // Base
     public override float GetEventProbability()
     {
         if (Game.CurrentPosition.Location.Type != LocationType.Woods) return 0; // only happens in woods
         if (!Game.PlayerIsOnQuarantinePerimeter) return 0; // only happens on perimeter
-        return 2f;
+        return BaseProbability;
     }
     public override void OnEventStart()
     {

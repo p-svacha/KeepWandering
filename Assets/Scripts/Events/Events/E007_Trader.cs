@@ -6,10 +6,11 @@ using UnityEngine;
 public class E007_Trader : Event
 {
     // Static
-    private static float BaseProbability = 2f;
-    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
+    public override int Id => 7;
+    protected override float BaseProbability => 2f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
-        {LocationType.Farmland, 0.5f},
+        {LocationType.Farmland, 0.1f},
         {LocationType.City, 2f},
         {LocationType.Woods, 0f},
     };
@@ -39,10 +40,7 @@ public class E007_Trader : Event
     public E007_Trader(Game game) : base(game) { }
     public override Event GetEventInstance => new E007_Trader(Game);
 
-    public override float GetEventProbability()
-    {
-        return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
-    }
+    // Base
     public override void OnEventStart()
     {
         // Sprites

@@ -5,8 +5,8 @@ using UnityEngine;
 public class E005_ParrotWomanReunion : Event
 {
     // Static
+    public override int Id => 5;
     private const int MinDaysForReunion = 3;
-    public static bool HasEncountered;
 
     private const int NUM_REWARDS = 3;
     private static LootTable RewardTable = new LootTable(
@@ -21,18 +21,16 @@ public class E005_ParrotWomanReunion : Event
     public E005_ParrotWomanReunion(Game game) : base(game) { }
     public override Event GetEventInstance => new E005_ParrotWomanReunion(Game);
 
+    // Base
     public override float GetEventProbability()
     {
-        if (HasEncountered) return 0f;
-        if (!E004_ParrotWoman.HasEncountered || Game.Day < E004_ParrotWoman.EncounterDay + MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
+        if (HasOccuredAlready) return 0f;
+        if (!Game.EventManager.HasEncounteredEvent(id: 004) || Game.EventManager.DaysSinceLastEventOccurence(id: 004) < MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
         if (Game.CurrentPosition.Location != E004_ParrotWoman.EncounterLocation) return 0f;
-        else return 1f * ((Game.Day - MinDaysForReunion) - E004_ParrotWoman.EncounterDay);
+        else return 1f * (Game.EventManager.DaysSinceLastEventOccurence(id: 004) - MinDaysForReunion + 1);
     }
     public override void OnEventStart()
     {
-        // Attributes
-        HasEncountered = true;
-
         // Sprite
         ResourceManager.Singleton.E004_Woman.SetActive(true);
     }

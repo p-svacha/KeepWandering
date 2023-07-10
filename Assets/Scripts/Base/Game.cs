@@ -201,6 +201,7 @@ public class Game : MonoBehaviour
             case GameState.DayTransitionFadeIn:
                 UI.FadeInBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 UI.DayText.text = "Day " + Day;
+                UI.BlackTransitionText.text = "Day " + Day;
                 break;
 
             case GameState.GameOver:
@@ -210,7 +211,7 @@ public class Game : MonoBehaviour
 
         State = newState;
 
-        CheckGameOver();
+        if(State != GameState.GameOver) CheckGameOver();
     }
 
     public void DisplayEventStep(EventStep step)
@@ -409,6 +410,7 @@ public class Game : MonoBehaviour
 
         // Chose an event for the afternoon
         CurrentEvent = EventManager.GetAfternoonEvent();
+        EventManager.UpdateDaysSinceLastOccurence(CurrentEvent);
 
         // Display the event
         CurrentEvent.StartEvent();

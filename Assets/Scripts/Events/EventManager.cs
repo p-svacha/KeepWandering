@@ -8,7 +8,7 @@ using UnityEngine;
 public class EventManager
 {
     private Game Game;
-    public List<Event> DummyEvents;
+    public Dictionary<int, Event> DummyEvents;
 
     // Forced (god mode)
     private Event ForcedEvent;
@@ -24,7 +24,7 @@ public class EventManager
     /// </summary>
     private void InitDummyEvents()
     {
-        DummyEvents = new List<Event>()
+        List<Event> eventList = new List<Event>()
         {
             new E001_Crate(Game),
             new E002_Dog(Game),
@@ -36,6 +36,9 @@ public class EventManager
             new E008_DistressedPerson(Game),
             new E009_AbandondedShelter(Game)
         };
+
+        DummyEvents = new Dictionary<int, Event>();
+        foreach (Event e in eventList) DummyEvents.Add(e.Id, e);
     }
 
     /// <summary>
@@ -53,10 +56,29 @@ public class EventManager
 
         // Chose an event for the day
         Dictionary<Event, float> eventTable = new Dictionary<Event, float>();
-        foreach (Event dummyEvent in DummyEvents) eventTable.Add(dummyEvent, dummyEvent.GetEventProbability());
+        foreach (Event dummyEvent in DummyEvents.Values) eventTable.Add(dummyEvent, dummyEvent.GetEventProbability());
         Event chosenEvent = HelperFunctions.GetWeightedRandomElement(eventTable);
 
         return chosenEvent.GetEventInstance;
+    }
+
+    public void UpdateDaysSinceLastOccurence(Event dayEvent)
+    {
+        foreach(Event e in DummyEvents.Values)
+        {
+            if (e.Id == dayEvent.Id) DummyEvents[e.Id].DaysSinceLastOccurence = 0;
+            else if (DummyEvents[e.Id].DaysSinceLastOccurence != -1) DummyEvents[e.Id].DaysSinceLastOccurence++;
+        }
+    }
+
+    public bool HasEncounteredEvent(int id)
+    {
+        return DummyEvents[id].DaysSinceLastOccurence != -1;
+    }
+
+    public int DaysSinceLastEventOccurence(int id)
+    {
+        return DummyEvents[id].DaysSinceLastOccurence;
     }
 
     public void SetForcedEvent(Event forcedEvent)

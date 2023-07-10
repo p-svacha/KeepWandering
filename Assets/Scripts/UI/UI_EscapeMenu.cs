@@ -29,7 +29,7 @@ public class UI_EscapeMenu : MonoBehaviour
         // Force event
         List<Dropdown.OptionData> eventOptions = new List<Dropdown.OptionData>();
         eventOptions.Add(new Dropdown.OptionData("No Force"));
-        foreach(Event encounter in Game.EventManager.DummyEvents)
+        foreach(Event encounter in Game.EventManager.DummyEvents.Values)
             eventOptions.Add(new Dropdown.OptionData(encounter.ToString()));
         ForceEventDropdown.options = eventOptions;
         ForceEventDropdown.onValueChanged.AddListener(ForceEvent);

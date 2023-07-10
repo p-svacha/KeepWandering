@@ -5,17 +5,21 @@ using UnityEngine;
 public class E008_DistressedPerson : Event
 {
     // Static
-    private const float BaseProbability = 4f;
+    public override int Id => 8;
+
+    protected override float BaseProbability => 5f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
+    {
+        {LocationType.Farmland, 0.2f},
+        {LocationType.City, 1f},
+        {LocationType.Woods, 0.2f},
+    };
 
     // Instance
     public E008_DistressedPerson(Game game) : base(game) { }
     public override Event GetEventInstance => new E008_DistressedPerson(Game);
 
     // Base
-    public override float GetEventProbability()
-    {
-        return BaseProbability;
-    }
     public override void OnEventStart()
     {
         // Sprites

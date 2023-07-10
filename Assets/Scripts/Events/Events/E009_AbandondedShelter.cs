@@ -5,8 +5,9 @@ using UnityEngine;
 public class E009_AbandondedShelter : Event
 {
     // Static
-    private const float BaseProbability = 5f;
-    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
+    public override int Id => 9;
+    protected override float BaseProbability => 5f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
         {LocationType.Farmland, 1.2f},
         {LocationType.City, 0.5f},
@@ -36,10 +37,6 @@ public class E009_AbandondedShelter : Event
     public override Event GetEventInstance => new E009_AbandondedShelter(Game);
 
     // Base
-    public override float GetEventProbability()
-    {
-        return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
-    }
     public override void OnEventStart()
     {
         // Sprites

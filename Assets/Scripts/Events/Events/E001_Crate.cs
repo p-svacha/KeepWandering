@@ -5,7 +5,15 @@ using UnityEngine;
 public class E001_Crate : Event
 {
     // Static
-    private static float BaseProbability = 10f;
+    public override int Id => 1;
+    protected override float BaseProbability => 8f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
+    {
+        {LocationType.Farmland, 1.1f},
+        {LocationType.City, 0.2f},
+        {LocationType.Woods, 0.9f},
+    };
+
     private const float CUT_CHANCE = 0.1f;
 
     private static LootTable ItemTable = new LootTable(
@@ -25,10 +33,7 @@ public class E001_Crate : Event
     public E001_Crate(Game game) : base(game) { }
     public override Event GetEventInstance => new E001_Crate(Game);
 
-    public override float GetEventProbability()
-    {
-        return BaseProbability;
-    }
+    // Base
     public override void OnEventStart()
     {
         // Sprites

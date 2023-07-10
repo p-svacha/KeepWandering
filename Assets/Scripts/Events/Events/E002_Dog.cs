@@ -6,23 +6,26 @@ using UnityEngine;
 public class E002_Dog : Event
 {
     // Static
+    public override int Id => 2;
     private const float PetSuccessChance = 0.2f;
 
-    private static float BaseProbability = 2f;
-    private static Dictionary<LocationType, float> LocationProbabilityTable = new Dictionary<LocationType, float>()
+    protected override float BaseProbability => 2f;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
         {LocationType.Farmland, 2f},
         {LocationType.City, 0.3f},
         {LocationType.Woods, 0.5f},
     };
 
+    // Instance
     public E002_Dog(Game game) : base(game) { }
     public override Event GetEventInstance => new E002_Dog(Game);
 
+    // Base
     public override float GetEventProbability()
     {
         if (Game.Player.HasDog) return 0;
-        else return BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
+        else return GetDefaultEventProbability();
     }
     public override void OnEventStart()
     {

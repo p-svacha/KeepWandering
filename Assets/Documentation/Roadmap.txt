@@ -10,16 +10,15 @@ feature wheel:
 - fix E006 woodsbunker event (display required food and water after giving)
 - status effect description should use description box
 - add item interaction options for items not owned (trader)
-- add main road on map and as location
+- add main road on map and as location (if starting on main road you can move two tiles on road)
 - add more detailed info box on world map of hovered tile (also include disance from current tile)
 - add event step outcome chances and details when hovering options (details should just be what affects the chances with either +/-)
 - add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
 - in E009 replace trap bruise with missing leg
 - in E009 add ability to throw items at traps
 - in event add ShowSprite method to show a sprite and add it to a list. then when event ends automatically hide all shown sprites instead of manually per event
-- add lastencountered to event and alter probability if last encounter was recent
-	- add default event probability calculation based on baseprob, locationtable and recent encouter
 - fix event step outclose display (elemnts shoud have fixed size, maybe own panel?)
+- add pain system
 
 feature wheel with dependencies first or low prio:
 - evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)

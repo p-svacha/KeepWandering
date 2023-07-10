@@ -123,8 +123,6 @@ public class Area
             }
         }
 
-        Debug.Log(perimeterTiles.Count);
-
         return perimeterTiles;
     }
 

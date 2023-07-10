@@ -5,10 +5,18 @@ using UnityEngine;
 public class E004_ParrotWoman : Event
 {
     // Static
+    public override int Id => 4;
+    protected override float BaseProbability => 2f;
+    protected override bool CanOnlyOccurOnce => true;
+    protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
+    {
+        {LocationType.Farmland, 0.8f},
+        {LocationType.City, 1f},
+        {LocationType.Woods, 0.8f},
+    };
+
     public const string WomanName = "Pam";
 
-    public static bool HasEncountered;
-    public static int EncounterDay;
     public static Location EncounterLocation;
     public static bool HasAcceptedParrot;
 
@@ -16,16 +24,10 @@ public class E004_ParrotWoman : Event
     public E004_ParrotWoman(Game game) : base(game) { }
     public override Event GetEventInstance => new E004_ParrotWoman(Game);
 
-    public override float GetEventProbability()
-    {
-        if (HasEncountered) return 0f;
-        return 2f;
-    }
+    // Base
     public override void OnEventStart()
     {
         // Attributes
-        HasEncountered = true;
-        EncounterDay = Game.Day;
         EncounterLocation = Game.CurrentPosition.Location;
 
         // Sprites
