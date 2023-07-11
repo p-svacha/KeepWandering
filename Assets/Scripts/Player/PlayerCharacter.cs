@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// Visual entity representing the player.
+/// </summary>
 public class PlayerCharacter : MonoBehaviour
 {
     public Game Game;

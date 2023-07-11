@@ -14,13 +14,23 @@ feature wheel:
 - add main road on map and as location (if starting on main road you can move two tiles on road)
 - add more detailed info box on world map of hovered tile (also include disance from current tile)
 - add event step outcome chances and details when hovering options (details should just be what affects the chances with either +/-)
+	- hover options info!
+	- hover options info!
 - add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
 - in E009 replace trap bruise with missing leg
 - in E009 add ability to throw items at traps
 - fix event step outclose display (elemnts shoud have fixed size, maybe own panel?)
 - add pain system (pass out for the day when too many cuts or bruises)
+	- implement a system to avoid infinite cuts exploit
 - add small delay when adding multiple items to inventory at once (to avoid them being stuck in each other)
 - chose between 3 starting packs when starting the game containing random 3 items
+- use fighting stat in E003
+- use moving stat
+- use dexterity stat
+- use charisma stat in E003 and E007 to negotiate
+- make wounds affect stats
+- make companions affect stats
+- add to escape menu: exit button, add wounds, add companions
 
 feature wheel with dependencies first or low prio:
 - evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
@@ -33,5 +43,7 @@ feature wheel with dependencies first or low prio:
 - dog sprites for status effects
 - night events
 
-event ideas:
+content ideas:
 - add something with rats and disease
+- add cat as companion
+- e003 guy can be companion (will backstab after a while)

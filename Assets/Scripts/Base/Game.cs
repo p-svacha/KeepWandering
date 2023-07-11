@@ -9,16 +9,14 @@ public class Game : MonoBehaviour
 {
     public EventManager EventManager { get; private set; }
 
-    [Header("Main Elements")]
-    public Camera MainCamera;
-    public GameUI UI;
-
     // Game State
     public GameState State { get; private set; }
     public int Day { get; private set; }
     public MorningReport LatestMorningReport { get; private set; }
     public Event CurrentEvent;
     public EventStep CurrentEventStep;
+    public List<Item> ItemsAddedSinceLastStep = new List<Item>();
+    public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
 
     // Position
     /// <summary>
@@ -36,8 +34,16 @@ public class Game : MonoBehaviour
     public WorldMapTile TargetPosition { get; private set; }
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
+    // Stats
+    public Dictionary<StatId, Stat> Stats { get; private set; }
+
     // Missions
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
+
+    // Elements
+    [Header("Main Elements")]
+    public Camera MainCamera;
+    public GameUI UI;
 
     [Header("Items")]
     public List<Item> ItemPrefabs;
@@ -68,10 +74,6 @@ public class Game : MonoBehaviour
         new(ItemType.Antibiotics, 2)
     );
 
-    // Event step display
-    public List<Item> ItemsAddedSinceLastStep = new List<Item>();
-    public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
-
     #region Game Flow
 
     void Start()
@@ -82,19 +84,30 @@ public class Game : MonoBehaviour
 
     private void StartGame()
     {
+        // Init world
         WorldMap.Init(this);
         //WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
         WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
         WorldMapCamera.Init(this);
-
-        EventManager = new EventManager(this);
-
-        UI.Init(this);
-        UI.ContextMenu.Init(this);
-        Player.Init(this);
-
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
         WorldMap.ResetCamera();
+
+        // Init events
+        EventManager = new EventManager(this);
+
+        // Init stats
+        Stats = new Dictionary<StatId, Stat>();
+        Stats.Add(StatId.Moving, new Stat_Moving(this));
+        Stats.Add(StatId.Fighting, new Stat_Fighting(this));
+        Stats.Add(StatId.Dexterity, new Stat_Dexterity(this));
+        Stats.Add(StatId.Charisma, new Stat_Charisma(this));
+
+        // Init UI
+        UI.Init(this);
+        UI.ContextMenu.Init(this);
+
+        // Init player
+        Player.Init(this);
 
         AddItemToInventory(GetItemInstance(ItemType.Beans));
         AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
@@ -159,7 +172,7 @@ public class Game : MonoBehaviour
                         UI.ContextMenu.Hide();
                         CurrentHoverTime = 0f;
                     }
-                    else if (CurrentHoverItem != null && CurrentHoverItem.CanInteract())
+                    else if (CurrentHoverItem != null && CurrentHoverItem.CanInteract)
                     {
                         CurrentInteractionItem = CurrentHoverItem;
                         UI.ContextMenu.Show(CurrentHoverItem);
@@ -306,7 +319,7 @@ public class Game : MonoBehaviour
         List<Companion> companionsCopy = new List<Companion>();
         foreach (Companion c in Companions) companionsCopy.Add(c);
         foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
 
         // Show morning report
         UpdateMorningEvent();
@@ -439,7 +452,7 @@ public class Game : MonoBehaviour
         DisplayEventStep(CurrentEvent.InitialStep);
 
         // Update status
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void EndAfternoonEvent()
@@ -509,6 +522,8 @@ public class Game : MonoBehaviour
 
         ItemsAddedSinceLastStep.Add(item);
         Inventory.Add(item);
+
+        UpdatePlayerStats();
     }
     /// <summary>
     /// Adds multiple items to the player of the same type. Returns a list containing the added items.
@@ -529,6 +544,8 @@ public class Game : MonoBehaviour
         if(showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
         Destroy(item.gameObject);
+
+        UpdatePlayerStats();
     }
     /// <summary>
     /// Destroys multiple items of the player of the same type. Returns a list containing the destroyed items.
@@ -552,25 +569,25 @@ public class Game : MonoBehaviour
         Player.AddHydration(item.OnEatHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void DrinkItem(Item item)
     {
         if (!item.IsDrinkable) Debug.LogWarning("Drinking item that is not edible! " + item.Name);
         Player.AddHydration(item.OnDrinkHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void AddBruiseWound()
     {
         Player.AddBruiseWound();
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void AddCutWound()
     {
         Player.AddCutWound();
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void TendWound(Wound wound, Item item)
@@ -580,7 +597,7 @@ public class Game : MonoBehaviour
         wound.SetHightlight(false);
         Player.TendWound(wound);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void HealInfection(Wound wound, Item item)
     {
@@ -589,7 +606,7 @@ public class Game : MonoBehaviour
         wound.SetHightlight(false);
         Player.HealInfection(wound);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void AddOrUpdateMission(MissionId missionId, string text)
@@ -609,14 +626,14 @@ public class Game : MonoBehaviour
         Player.AddDog();
         Companions.Add(ResourceManager.Singleton.Dog);
         ResourceManager.Singleton.Dog.Init(this);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void RemoveDog()
     {
         Player.RemoveDog();
         Companions.Remove(ResourceManager.Singleton.Dog);
         ResourceManager.Singleton.Dog.gameObject.SetActive(false);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void AddParrot()
@@ -624,20 +641,20 @@ public class Game : MonoBehaviour
         Player.AddParrot();
         Companions.Add(ResourceManager.Singleton.Parrot);
         ResourceManager.Singleton.Parrot.Init(this);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void FeedParrot(Item item, float value)
     {
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
         ResourceManager.Singleton.Parrot.AddNutrition(value);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
     public void RemoveParrot()
     {
         Player.RemoveParrot();
         Companions.Remove(ResourceManager.Singleton.Parrot);
         ResourceManager.Singleton.Parrot.gameObject.SetActive(false);
-        UpdateAllStatusEffects();
+        UpdatePlayerStats();
     }
 
     public void SetPosition(WorldMapTile tile)
@@ -651,11 +668,13 @@ public class Game : MonoBehaviour
         CheckGameOver();
     }
 
-    private void UpdateAllStatusEffects()
+    private void UpdatePlayerStats()
     {
         Player.UpdateStatusEffects();
         foreach (Companion c in Companions) c.UpdateStatusEffects();
+
         UI.UpdateHealthReports();
+        UI.UpdateStats();
     }
 
     #endregion

@@ -24,6 +24,12 @@ public class GameUI : MonoBehaviour
     [Header("Event Display")]
     public UI_EventDisplay EventStepDisplay;
 
+    [Header("Stat Display")]
+    public UI_Stat FightingStat;
+    public UI_Stat MovingStat;
+    public UI_Stat DexterityStat;
+    public UI_Stat ResilienceStat;
+
     [Header("Mission Display")]
     public UI_Missions MissionsDisplay;
 
@@ -53,7 +59,9 @@ public class GameUI : MonoBehaviour
     {
         Game = game;
 
+        InitStats();
         EscapeMenu.Init(Game);
+
         BlackTransitionText.text = "Day " + Game.Day;
 
         // Buttons
@@ -130,6 +138,22 @@ public class GameUI : MonoBehaviour
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
+    }
+
+    private void InitStats()
+    {
+        FightingStat.Init(Game.Stats[StatId.Fighting]);
+        MovingStat.Init(Game.Stats[StatId.Moving]);
+        DexterityStat.Init(Game.Stats[StatId.Dexterity]);
+        ResilienceStat.Init(Game.Stats[StatId.Charisma]);
+    }
+
+    public void UpdateStats()
+    {
+        FightingStat.UpdateStat();
+        MovingStat.UpdateStat();
+        DexterityStat.UpdateStat();
+        ResilienceStat.UpdateStat();
     }
 
     public void UpdateMissionDisplay()
