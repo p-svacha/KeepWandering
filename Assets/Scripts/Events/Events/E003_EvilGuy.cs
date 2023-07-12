@@ -16,13 +16,11 @@ public class E003_EvilGuy : Event
         {LocationType.Woods, 0.1f},
     };
 
-    private const float BaseFightSuccess = 0.2f;
-    private const float AddChance_Dog = 0.6f;
-    private const float AddChance_Knife = 0.3f;
-    private const float AddChance_Injured = -0.3f;
+    private const float FIGHT_WIN_BASE_CHANCE = 0.3f;
+    private const float FIGHTING_STAT_AFFECTION = 1f; // +1% in fighting means +1% chance
 
-    private const float ItemThrowSuccessChance = 0.4f;
-
+    private const float ITEM_THROW_SUCCESS_CHANCE = 0.5f;
+    
     private static Dictionary<int, float> NumRewardsTable = new Dictionary<int, float>()
     {
         {1, 60 },
@@ -80,46 +78,22 @@ public class E003_EvilGuy : Event
     {
         // Dialogue Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
-        dialogueOptions.Add(new EventDialogueOption("Fight", Fight)); // Fight
+        dialogueOptions.Add(new EventDialogueOption("Fight", Fight, StatId.Fighting)); // Fight
 
         // Item Options
         List<EventItemOption> itemOptions = new List<EventItemOption>();
         itemOptions.Add(new EventItemOption(RansomItem.Type, "Give to the evil guy", PayRansom)); // Pay Ransom
-        foreach (ItemType type in System.Enum.GetValues(typeof(ItemType)))
-            itemOptions.Add(new EventItemOption(type, "Throw", ThrowItem)); // Throw Item
+        foreach (Item item in Game.Inventory.Where(x => x.IsWeapon)) itemOptions.Add(new EventItemOption(item.Type, "Throw", ThrowItem)); // Throw Item
+
 
         return new EventStep(text, dialogueOptions, itemOptions, allowDefaultItemInteractions: false);
     }
     private EventStep Fight()
     {
         // Success chance
-        float fightSuccessChance = BaseFightSuccess;
-        List<string> fightModifiers = new List<string>();
-        if (Game.Player.HasDog)
-        {
-            fightSuccessChance += AddChance_Dog;
-            fightModifiers.Add("Dog (++)");
-        }
-        if (Game.Inventory.Any(x => x.Type == ItemType.Knife))
-        {
-            fightSuccessChance += AddChance_Knife;
-            fightModifiers.Add("Knife (+)");
-        }
-        /*
-        if(game.Player.IsInjured)
-        {
-            fightSuccessChance += AddChance_Injured;
-            fightModifiers.Add("Injured (-)");
-        }
-        */
-        string fightModifiersText = "";
-        if (fightModifiers.Count > 0)
-        {
-            fightModifiersText += " (Chance affected by";
-            foreach (string s in fightModifiers) fightModifiersText += " " + s + ",";
-            fightModifiersText = fightModifiersText.TrimEnd(',');
-            fightModifiersText += ")";
-        }
+        float fightSuccessChance = FIGHT_WIN_BASE_CHANCE;
+        float fightSuccessModifier = (100 + (Game.Stats[StatId.Fighting].GetRelativeValue() * FIGHTING_STAT_AFFECTION)) / 100f;
+        fightSuccessChance *= fightSuccessModifier;
 
         bool fightSuccess = Random.value < fightSuccessChance;
         bool gotInjured = !fightSuccess || Random.value < fightSuccessChance;
@@ -166,7 +140,7 @@ public class E003_EvilGuy : Event
     }
     private EventStep ThrowItem(Item throwItem)
     {
-        bool throwSuccessful = Random.value < ItemThrowSuccessChance;
+        bool throwSuccessful = Random.value < ITEM_THROW_SUCCESS_CHANCE;
 
         Game.DestroyOwnedItem(throwItem);
 

@@ -103,7 +103,7 @@ public class Item : MonoBehaviour
             {
                 if (eventItemOption.RequiredItemType == Type)
                 {
-                    allOptions.Add(new InteractionOption(eventItemOption.Text, () => ChoseEventItemOption(eventItemOption)));
+                    allOptions.Add(new InteractionOption(eventItemOption.Text, () => ChoseEventItemOption(eventItemOption), eventItemOption.OnHoverStart, eventItemOption.OnHoverEnd));
                 }
             }
         }

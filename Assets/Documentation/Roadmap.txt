@@ -13,9 +13,6 @@ feature wheel:
 - add item interaction options for items not owned (trader)
 - add main road on map and as location (if starting on main road you can move two tiles on road)
 - add more detailed info box on world map of hovered tile (also include disance from current tile)
-- add event step outcome chances and details when hovering options (details should just be what affects the chances with either +/-)
-	- hover options info!
-	- hover options info!
 - add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
 - in E009 replace trap bruise with missing leg
 - in E009 add ability to throw items at traps

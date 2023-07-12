@@ -10,6 +10,7 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public Stat Stat { get; private set; }
 
     [Header("Elements")]
+    public Image HighlightImage;
     public TextMeshProUGUI LabelText;
     public TextMeshProUGUI ValueText;
 
@@ -46,6 +47,15 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             if (CurrentDelay < GameUI.TOOLTIP_HOVER_TIME) CurrentDelay += Time.deltaTime;
             else ShowTooltip();
         }
+    }
+
+    public void Highlight()
+    {
+        HighlightImage.color = Color.white;
+    }
+    public void Unhighlight()
+    {
+        HighlightImage.color = Color.clear;
     }
 
     private void ShowTooltip()

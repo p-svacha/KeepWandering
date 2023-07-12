@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class Stat
 {
-    private const int BASE_VALUE = 100;
+    private const int BASE_VALUE = 100; // never change!
 
     protected Game Game;
     public abstract StatId Id { get; }
@@ -21,6 +21,14 @@ public abstract class Stat
         int value = BASE_VALUE;
         foreach(StatModifier mod in GetModifiers()) value += mod.Value;
         return value;
+    }
+
+    /// <summary>
+    /// Returns the deviation of the stat value from the base value.
+    /// </summary>
+    public int GetRelativeValue()
+    {
+        return GetValue() - BASE_VALUE;
     }
 
     public abstract List<StatModifier> GetModifiers();

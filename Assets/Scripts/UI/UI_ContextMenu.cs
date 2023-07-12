@@ -17,7 +17,7 @@ public class UI_ContextMenu : MonoBehaviour
     public GameObject OptionsContainer;
 
     [Header("Prefabs")]
-    public UI_ContextMenuOption InteractionOptionPrefab;
+    public UI_ContextMenuOption ContextMenuOptionPrefab;
 
     public void Init(Game game)
     {
@@ -45,12 +45,12 @@ public class UI_ContextMenu : MonoBehaviour
         TitleText.text = title;
         foreach (InteractionOption option in options)
         {
-            UI_ContextMenuOption optionButton = Instantiate(InteractionOptionPrefab, OptionsContainer.transform);
+            UI_ContextMenuOption optionButton = Instantiate(ContextMenuOptionPrefab, OptionsContainer.transform);
             Options.Add(optionButton);
             optionButton.Init(Game, option);
         }
 
-        // LayoutRebuilder.ForceRebuildLayoutImmediate(OptionsContainer.GetComponent<RectTransform>());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(OptionsContainer.GetComponent<RectTransform>());
     }
 
     public void Hide()

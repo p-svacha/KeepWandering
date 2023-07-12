@@ -226,10 +226,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecd9042ca072647498aa9521e17d2c79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HighlightImage: {fileID: 8701795690507317393}
   LabelText: {fileID: 330245679938096856}
   ValueText: {fileID: 2710405897748776583}
-  Tooltip: {fileID: 0}
-  TooltipText: {fileID: 0}
 --- !u!1 &3519675981534176535
 GameObject:
   m_ObjectHideFlags: 0

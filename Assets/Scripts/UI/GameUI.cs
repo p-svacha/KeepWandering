@@ -28,7 +28,7 @@ public class GameUI : MonoBehaviour
     public UI_Stat FightingStat;
     public UI_Stat MovingStat;
     public UI_Stat DexterityStat;
-    public UI_Stat ResilienceStat;
+    public UI_Stat CharismaStat;
 
     [Header("Mission Display")]
     public UI_Missions MissionsDisplay;
@@ -119,6 +119,47 @@ public class GameUI : MonoBehaviour
         }
     }
 
+    #region Stats
+
+    private UI_Stat GetStatDisplay(StatId id)
+    {
+        return id switch
+        {
+            StatId.Moving => MovingStat,
+            StatId.Fighting => FightingStat,
+            StatId.Dexterity => DexterityStat,
+            StatId.Charisma => CharismaStat,
+            _ => throw new System.Exception("Stat " + id.ToString() + " not handled")
+        };
+    }
+
+    private void InitStats()
+    {
+        FightingStat.Init(Game.Stats[StatId.Fighting]);
+        MovingStat.Init(Game.Stats[StatId.Moving]);
+        DexterityStat.Init(Game.Stats[StatId.Dexterity]);
+        CharismaStat.Init(Game.Stats[StatId.Charisma]);
+    }
+
+    public void UpdateStats()
+    {
+        FightingStat.UpdateStat();
+        MovingStat.UpdateStat();
+        DexterityStat.UpdateStat();
+        CharismaStat.UpdateStat();
+    }
+
+    public void HightlightStat(StatId id)
+    {
+        GetStatDisplay(id).Highlight();
+    }
+    public void UnhighlightStat(StatId id)
+    {
+        GetStatDisplay(id).Unhighlight();
+    }
+
+    #endregion
+
     #region Misc
 
     public void UpdateHealthReports()
@@ -138,22 +179,6 @@ public class GameUI : MonoBehaviour
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
-    }
-
-    private void InitStats()
-    {
-        FightingStat.Init(Game.Stats[StatId.Fighting]);
-        MovingStat.Init(Game.Stats[StatId.Moving]);
-        DexterityStat.Init(Game.Stats[StatId.Dexterity]);
-        ResilienceStat.Init(Game.Stats[StatId.Charisma]);
-    }
-
-    public void UpdateStats()
-    {
-        FightingStat.UpdateStat();
-        MovingStat.UpdateStat();
-        DexterityStat.UpdateStat();
-        ResilienceStat.UpdateStat();
     }
 
     public void UpdateMissionDisplay()
