@@ -45,7 +45,7 @@ public class Parrot : Companion
     private void Starve(Game game)
     {
         game.RemoveParrot();
-        game.RemoveMission(MissionId.M001_CareParrot);
+        game.RemoveMission(MissionId.E004);
     }
 
     public override void UpdateStatusEffects()

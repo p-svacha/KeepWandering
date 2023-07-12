@@ -440,7 +440,7 @@ public class Game : MonoBehaviour
         // Force fence event is player is approaching fence
         if(DayAction == DayAction.ApproachFence)
         {
-            EventManager.SetForcedEvent(eventId: 10);
+            EventManager.ForceEvent(eventId: 10);
         }
 
         // Chose an event for the afternoon
@@ -448,7 +448,7 @@ public class Game : MonoBehaviour
         EventManager.UpdateDaysSinceLastOccurence(CurrentEvent);
 
         // Display the event
-        CurrentEvent.StartEvent();
+        CurrentEvent.StartEvent(CurrentPosition.Mission);
         DisplayEventStep(CurrentEvent.InitialStep);
 
         // Update status
@@ -562,6 +562,12 @@ public class Game : MonoBehaviour
         return destroyedItems;
     }
 
+    public void DestroyItem(Item item)
+    {
+        if (item.IsPlayerOwned) throw new System.Exception("Can't use DestroyItem on player owned item. Use DestroyOwnedItem instead.");
+        Destroy(item.gameObject);
+    }
+
     public void EatItem(Item item)
     {
         if (!item.IsEdible) Debug.LogWarning("Eating item that is not edible! " + item.Name);
@@ -609,15 +615,22 @@ public class Game : MonoBehaviour
         UpdatePlayerStats();
     }
 
-    public void AddOrUpdateMission(MissionId missionId, string text)
+    public void AddMission(Mission mission)
     {
-        if (Missions.ContainsKey(missionId)) Missions[missionId].Text = text;
-        else Missions.Add(missionId, new Mission(missionId, text));
+        Missions.Add(mission.Id, mission);
+
+        if (mission.IsLocationBased) mission.Location.SetMission(mission);
+
         UI.UpdateMissionDisplay();
     }
     public void RemoveMission(MissionId missionId)
     {
-        if (Missions.ContainsKey(missionId)) Missions.Remove(missionId);
+        if (!Missions.ContainsKey(missionId)) return;
+
+        Mission mission = Missions[missionId];
+        if (mission.IsLocationBased) mission.Location.SetMission(null);
+        Missions.Remove(missionId);
+
         UI.UpdateMissionDisplay();
     }
 
@@ -699,6 +712,22 @@ public class Game : MonoBehaviour
     public int GetItemTypeAmount(ItemType type)
     {
         return Inventory.Count(x => x.Type == type);
+    }
+
+    /// <summary>
+    /// Returns a LootTable containing all items with equal chances.
+    /// </summary>
+    public LootTable GetStandardLootTable()
+    {
+        Dictionary<ItemType, float> dic = new Dictionary<ItemType, float>();
+        foreach (Item item in ItemPrefabs) dic.Add(item.Type, 1f);
+        return new LootTable(dic);
+    }
+
+    public Item RandomInventoryItem => Inventory[Random.Range(0, Inventory.Count)];
+    public bool IsMissionActive(MissionId id)
+    {
+        return Missions.ContainsKey(id);
     }
 
     public static Game Singleton;

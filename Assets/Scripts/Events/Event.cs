@@ -7,6 +7,7 @@ public abstract class Event
     public Game Game { get; private set; }
     public abstract int Id { get;  }
     public EventStep InitialStep { get; private set; }
+    public Mission Mission { get; private set; }
     public int DaysSinceLastOccurence;
     private List<GameObject> EventSprites = new List<GameObject>();
 
@@ -32,8 +33,9 @@ public abstract class Event
     /// <summary>
     /// Initializes and starts the event, making it visible on screen and playable.
     /// </summary>
-    public void StartEvent()
+    public void StartEvent(Mission mission = null)
     {
+        Mission = mission;
         OnEventStart();
         InitialStep = GetInitialStep();
     }
@@ -64,12 +66,16 @@ public abstract class Event
     {
         if (BaseProbability == 0f) return 0f;
         if (CanOnlyOccurOnce && HasOccuredAlready) return 0f;
+        if (LocationProbabilityTable != null && !LocationProbabilityTable.ContainsKey(Game.CurrentPosition.Location.Type)) return 0f;
 
-        float locationProb = BaseProbability * LocationProbabilityTable[Game.CurrentPosition.Location.Type];
-        if (DaysSinceLastOccurence == -1) return locationProb;
+        float probability = BaseProbability;
+        if (LocationProbabilityTable != null) probability *= LocationProbabilityTable[Game.CurrentPosition.Location.Type];
+        if (DaysSinceLastOccurence == -1) return probability;
 
         float lastOccurenceModifier = 1f - (5f / (5f + DaysSinceLastOccurence));
-        return locationProb * lastOccurenceModifier;
+        probability *= lastOccurenceModifier;
+
+        return probability;
     }
 
     /// <summary>

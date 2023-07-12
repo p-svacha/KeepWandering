@@ -14,6 +14,7 @@ public class WorldMapTile
     public Vector2 WorldPosition;
 
     public Location Location { get; private set; }
+    public Mission Mission { get; private set; }
 
     public WorldMapTile(WorldMap world, Vector2Int coordinates)
     {
@@ -26,6 +27,14 @@ public class WorldMapTile
     public void SetLocation(Location loc)
     {
         Location = loc;
+    }
+
+    public void SetMission(Mission mission)
+    {
+        Mission = mission;
+
+        if(mission == null) World.SetTile(World.MarkerTilemap, Coordinates, null);
+        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker ?? ResourceManager.Singleton.TileMarkerX);
     }
 
     #region Getters
@@ -75,7 +84,9 @@ public class WorldMapTile
 
     public override string ToString()
     {
-        return Location.ToString();
+        string info = Location.ToString();
+        if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
+        return info;
     }
 
 

@@ -56,7 +56,7 @@ public class E004_ParrotWoman : Event
     {
         HasAcceptedParrot = true;
         Game.AddParrot();
-        Game.AddOrUpdateMission(MissionId.M001_CareParrot, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + ".");
+        Game.AddMission(new Mission(MissionId.E004, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + "."));
         HideEventSprite(ResourceManager.Singleton.E004_Parrot);
         string text = "You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.";
         return new EventStep(text);

@@ -14,7 +14,7 @@ public class E009_AbandondedShelter : Event
         {LocationType.Woods, 1.2f},
     };
 
-    private static int MIN_ITEMS = 2;
+    private static int MIN_ITEMS = 1;
     private static int MAX_ITEMS = 4;
     private static LootTable ItemTable = new LootTable(
         new(ItemType.Beans, 10),

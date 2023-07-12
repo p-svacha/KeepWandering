@@ -4,6 +4,7 @@ using UnityEngine;
 
 public enum MissionId
 {
-    M001_CareParrot,
-    M002_FindWoodsBunker
+    E004,
+    E011_ItemStash,
+    E011_BringItemToSurvivor
 }

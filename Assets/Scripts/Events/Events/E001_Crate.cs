@@ -6,7 +6,7 @@ public class E001_Crate : Event
 {
     // Static
     public override int Id => 1;
-    protected override float BaseProbability => 8f;
+    protected override float BaseProbability => 6f;
     protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
         {LocationType.Farmland, 1.1f},

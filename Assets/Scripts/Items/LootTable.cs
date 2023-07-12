@@ -58,7 +58,11 @@ public class LootTable
     {
         ItemType type = HelperFunctions.GetWeightedRandomElement(Items);
         Item item = Game.Singleton.GetItemInstance(type);
-        if (hide) item.Hide();
+        if (hide)
+        {
+            item.Hide();
+            item.transform.position = new Vector3(-200, -200, 0f);
+        }
         return item;
     }
     public List<Item> GetItems(int amount, bool hide = false)

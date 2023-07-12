@@ -18,11 +18,12 @@ public class WorldMap : MonoBehaviour
     public Camera MainCamera;
     public CameraHandler RenderCamera;
     public RectTransform RenderTargetRect;
-    public const float DEFAULT_ZOOM = 5f;
+    public const float DEFAULT_ZOOM = 4f;
 
     [Header("Tilemaps")]
     public Grid HexGrid;
     public Tilemap BaseTextureTilemap;
+    public Tilemap MarkerTilemap;
     public Tilemap HighlightTilemap;
     public Tilemap HoverTilemap;
 
@@ -74,6 +75,12 @@ public class WorldMap : MonoBehaviour
     {
         RenderCamera.SetZoom(DEFAULT_ZOOM);
         RenderCamera.SetPosition(new Vector3(Game.CurrentPosition.WorldPosition.x, Game.CurrentPosition.WorldPosition.y, -10));
+    }
+
+    public void FocusTile(WorldMapTile tile)
+    {
+        RenderCamera.SetZoom(DEFAULT_ZOOM);
+        RenderCamera.SetPosition(new Vector3(tile.WorldPosition.x, tile.WorldPosition.y, -10));
     }
 
     private void Update()
@@ -133,10 +140,14 @@ public class WorldMap : MonoBehaviour
             if (GreenHighlightedTiles.Contains(HoveredTile))
             {
                 ContextMenuTile = HoveredTile;
+
+                // Enter mission
+                if (ContextMenuTile.Mission != null) Game.EventManager.ForceEvent(ContextMenuTile.Mission.EventId);
                 Game.UI.ContextMenu.Show(ContextMenuTile.Location.Name, new List<InteractionOption>() { new InteractionOption("Go there", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.Move)) });
             }
             else if (RedHighlightedTiles.Contains(HoveredTile))
             {
+                // Approach fence
                 ContextMenuTile = HoveredTile;
                 Game.UI.ContextMenu.Show("Fence", new List<InteractionOption>() { new InteractionOption("Approach fence", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.ApproachFence)) });
             }
@@ -386,6 +397,11 @@ public class WorldMap : MonoBehaviour
     {
         Vector3Int tileCoords = HexGrid.LocalToCell(worldPosition);
         return GetTile(tileCoords.x, tileCoords.y);
+    }
+
+    public WorldMapTile GetRandomQuarantineTile()
+    {
+        return QuarantineZone.GetRandomPassableTile();
     }
 
     #endregion

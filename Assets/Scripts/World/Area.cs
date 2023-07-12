@@ -143,6 +143,17 @@ public class Area
         };
     }
 
+    public WorldMapTile GetRandomTile()
+    {
+        return Tiles[Random.Range(0, Tiles.Count)];
+    }
+
+    public WorldMapTile GetRandomPassableTile()
+    {
+        List<WorldMapTile> candidates = Tiles.Where(x => x.IsPassable()).ToList();
+        return candidates[Random.Range(0, candidates.Count)];
+    }
+
     #endregion
 
 }

@@ -10,12 +10,12 @@ public class EventStep
     public List<EventItemOption> EventItemOptions;
     public bool ItemsAllowed;
 
-    public EventStep(string text, List<EventDialogueOption> dialogueOptions = null, List<EventItemOption> itemOptions = null, bool allowItems = true)
+    public EventStep(string text, List<EventDialogueOption> dialogueOptions = null, List<EventItemOption> itemOptions = null, bool allowDefaultItemInteractions = true)
     {
         Text = text;
         EventDialogueOptions = dialogueOptions;
         EventItemOptions = itemOptions;
-        ItemsAllowed = allowItems;
+        ItemsAllowed = allowDefaultItemInteractions;
         if (EventDialogueOptions == null) EventDialogueOptions = new List<EventDialogueOption>();
         if (EventItemOptions == null) EventItemOptions = new List<EventItemOption>();
     }

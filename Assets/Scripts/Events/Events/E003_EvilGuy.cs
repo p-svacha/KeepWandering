@@ -58,7 +58,7 @@ public class E003_EvilGuy : Event
         ShowEventSprite(ResourceManager.Singleton.E003_EvilGuy);
 
         // Ransom item
-        RansomItem = Game.Inventory[Random.Range(0, Game.Inventory.Count)];
+        RansomItem = Game.RandomInventoryItem;
 
         // Reward item(s)
         int numRewards = HelperFunctions.GetWeightedRandomElement<int>(NumRewardsTable);
@@ -88,7 +88,7 @@ public class E003_EvilGuy : Event
         foreach (ItemType type in System.Enum.GetValues(typeof(ItemType)))
             itemOptions.Add(new EventItemOption(type, "Throw", ThrowItem)); // Throw Item
 
-        return new EventStep(text, dialogueOptions, itemOptions, allowItems: false);
+        return new EventStep(text, dialogueOptions, itemOptions, allowDefaultItemInteractions: false);
     }
     private EventStep Fight()
     {

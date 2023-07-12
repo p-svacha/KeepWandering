@@ -26,6 +26,11 @@ public class ResourceManager : MonoBehaviour
     public GameObject E010_FenceForeground;
     public GameObject E010_FenceBackground;
 
+    public GameObject E011_Survivor;
+
+    public GameObject E012_ItemStashClosed;
+    public GameObject E012_ItemStashOpen;
+
     [Header("Backgrounds")]
     public SpriteRenderer FarmlandBackground;
     public SpriteRenderer CityBackground;
@@ -47,20 +52,24 @@ public class ResourceManager : MonoBehaviour
     public Color SE_ExtremelyBad;
 
 
-    [Header("World Map")]
+    [Header("World Map Textures")]
     public Texture2D FarmlandTexture;
     public Texture2D WoodsTexture;
     public Texture2D CityTexture;
     public Texture2D LakeTexture;
+    public Material PathHistoryMaterial;
+    public Material QuarantineZoneBorderMaterial;
 
+    [Header("World Map Tiles")]
     public TileBase WhiteTile;
     public TileBase TileMarkerTransparentWhite;
     public TileBase TileMarkerGreen;
     public TileBase TileMarkerBlue;
     public TileBase TileMarkerRed;
 
-    public Material PathHistoryMaterial;
-    public Material QuarantineZoneBorderMaterial;
+    public TileBase TileMarkerX;
+    public TileBase TileMarkerItem;
+    public TileBase TileMarkerPerson;
 
     void Awake()
     {

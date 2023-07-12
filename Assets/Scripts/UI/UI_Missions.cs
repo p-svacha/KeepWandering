@@ -10,7 +10,7 @@ public class UI_Missions : MonoBehaviour
     public GameObject MissionsContainer;
 
     [Header("Prefabs")]
-    public TextMeshProUGUI MissionTextPrefab;
+    public UI_Mission MissionPrefab;
 
     public void UpdateList(List<Mission> missions)
     {
@@ -20,8 +20,8 @@ public class UI_Missions : MonoBehaviour
         // Display new elements
         foreach(Mission mission in missions)
         {
-            TextMeshProUGUI missionDisplay = Instantiate(MissionTextPrefab, MissionsContainer.transform);
-            missionDisplay.text = mission.Text;
+            UI_Mission missionDisplay = Instantiate(MissionPrefab, MissionsContainer.transform);
+            missionDisplay.Init(mission);
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(MissionsContainer.GetComponent<RectTransform>());

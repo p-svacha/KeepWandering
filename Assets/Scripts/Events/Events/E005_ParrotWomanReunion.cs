@@ -64,7 +64,7 @@ public class E005_ParrotWomanReunion : Event
     {
         Game.RemoveParrot();
         ShowEventSprite(ResourceManager.Singleton.E004_Parrot);
-        Game.RemoveMission(MissionId.M001_CareParrot);
+        Game.RemoveMission(MissionId.E004);
         string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 
         // Get reward

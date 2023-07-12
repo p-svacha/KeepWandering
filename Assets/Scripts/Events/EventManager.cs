@@ -35,7 +35,9 @@ public class EventManager
             new E007_Trader(Game),
             new E008_DistressedPerson(Game),
             new E009_AbandondedShelter(Game),
-            new E010_QuarantineFence(Game)
+            new E010_QuarantineFence(Game),
+            new E011_SurvivorNeedsItemFromLocation(Game),
+            new E012_ItemStash(Game),
         };
 
         DummyEvents = new Dictionary<int, Event>();
@@ -82,7 +84,7 @@ public class EventManager
         return DummyEvents[eventId].DaysSinceLastOccurence;
     }
 
-    public void SetForcedEvent(int eventId)
+    public void ForceEvent(int eventId)
     {
         if (!DummyEvents.ContainsKey(eventId)) ForcedEvent = null;
         else ForcedEvent = DummyEvents[eventId];

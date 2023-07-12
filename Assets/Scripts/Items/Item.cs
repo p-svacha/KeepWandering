@@ -25,6 +25,7 @@ public class Item : MonoBehaviour
     [Header("Medical")]
     public bool CanTendWounds;
     public bool CanHealInfections;
+    public bool CanHealPoisoning;
 
     [Header("Misc")]
     public int WeaponStrength;

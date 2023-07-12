@@ -72,7 +72,7 @@ public class E007_Trader : Event
     protected override void OnEventEnd()
     {
         foreach (Item item in BuyableItems)
-            if (!item.IsPlayerOwned) GameObject.Destroy(item.gameObject);
+            if (!item.IsPlayerOwned) Game.DestroyItem(item);
     }
 
     private EventStep GetShopStep(string text)
