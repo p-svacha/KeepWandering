@@ -33,11 +33,14 @@ public abstract class Event
     /// <summary>
     /// Initializes and starts the event, making it visible on screen and playable.
     /// </summary>
-    public void StartEvent(Mission mission = null)
+    public void StartEvent()
     {
-        Mission = mission;
         OnEventStart();
         InitialStep = GetInitialStep();
+    }
+    public void SetMission(Mission mission)
+    {
+        Mission = mission;
     }
 
     protected virtual float BaseProbability { get; }

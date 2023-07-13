@@ -5483,7 +5483,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
-  m_Sprite: {fileID: 21300000, guid: 5f91bf381d85a0d43a30c9f84184db61, type: 3}
+  m_Sprite: {fileID: 21300000, guid: caebcde6356e0fd4ebdc93542a8ad038, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5491,7 +5491,7 @@ SpriteRenderer:
   m_Size: {x: 19.2, y: 10.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &676164688
@@ -8641,7 +8641,7 @@ MonoBehaviour:
   EventText: {fileID: 1274578107}
   EventOptionContainer: {fileID: 676164688}
   EventItemChangeContainer: {fileID: 512796439}
-  EventOptionPrefab: {fileID: 6325695257415795019, guid: 46f076bf2a7059046aa8224ba4e522fa, type: 3}
+  EventOptionPrefab: {fileID: 4691898625398642730, guid: 46f076bf2a7059046aa8224ba4e522fa, type: 3}
   EventItemChangePrefab: {fileID: 4126444004584790441, guid: aa1ad2c4ffa092c4db309a5224cdd4c0, type: 3}
 --- !u!114 &1098471732
 MonoBehaviour:

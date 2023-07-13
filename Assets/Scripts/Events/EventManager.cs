@@ -11,6 +11,7 @@ public class EventManager
     public Dictionary<int, Event> DummyEvents;
 
     // Forced (god mode)
+    private Mission ForcedMission;
     private Event ForcedEvent;
 
     public EventManager(Game game)
@@ -49,6 +50,15 @@ public class EventManager
     /// </summary>
     public Event GetAfternoonEvent()
     {
+        // Forced mission
+        if(ForcedMission != null)
+        {
+            Event forcedEvent = DummyEvents[ForcedMission.EventId];
+            Event forcedEventInstance = forcedEvent.GetEventInstance;
+            forcedEventInstance.SetMission(ForcedMission);
+            return forcedEventInstance;
+        }
+
         // Forced event
         if (ForcedEvent != null)
         {
@@ -88,5 +98,13 @@ public class EventManager
     {
         if (!DummyEvents.ContainsKey(eventId)) ForcedEvent = null;
         else ForcedEvent = DummyEvents[eventId];
+    }
+
+    /// <summary>
+    /// Sets the next event to be the specified mission event.
+    /// </summary>
+    public void ForceMission(Mission mission)
+    {
+        ForcedMission = mission;
     }
 }

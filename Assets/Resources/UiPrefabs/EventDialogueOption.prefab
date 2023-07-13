@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6846028685242879236}
   - component: {fileID: 3845091793270437924}
   - component: {fileID: 7609551572261221070}
-  - component: {fileID: 6325695257415795019}
+  - component: {fileID: 4691898625398642730}
   m_Layer: 5
   m_Name: EventDialogueOption
   m_TagString: Untagged
@@ -165,7 +165,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6325695257415795019
+--- !u!114 &4691898625398642730
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5455108681892087370}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b01c35dd2aab8a4d94a2c33316bc77d, type: 3}
+  m_Script: {fileID: 11500000, guid: b4cb9ff752a58764092e6d1f5529653d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   EventOptionText: {fileID: 388548921118431631}

@@ -137,19 +137,10 @@ public class WorldMap : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (GreenHighlightedTiles.Contains(HoveredTile))
+            if (Game.GetNextPositionTiles().Contains(HoveredTile))
             {
                 ContextMenuTile = HoveredTile;
-
-                // Enter mission
-                if (ContextMenuTile.Mission != null) Game.EventManager.ForceEvent(ContextMenuTile.Mission.EventId);
-                Game.UI.ContextMenu.Show(ContextMenuTile.Location.Name, new List<InteractionOption>() { new InteractionOption("Go there", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.Move)) });
-            }
-            else if (RedHighlightedTiles.Contains(HoveredTile))
-            {
-                // Approach fence
-                ContextMenuTile = HoveredTile;
-                Game.UI.ContextMenu.Show("Fence", new List<InteractionOption>() { new InteractionOption("Approach fence", () => Game.SelectPositionOnMap(ContextMenuTile, DayAction.ApproachFence)) });
+                Game.SelectTileOnMap(ContextMenuTile);
             }
         }
     }

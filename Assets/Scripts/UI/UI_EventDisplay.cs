@@ -15,7 +15,7 @@ public class UI_EventDisplay : MonoBehaviour
     public GameObject EventItemChangeContainer;
 
     [Header("Prefabs")]
-    public UI_EventOption EventOptionPrefab;
+    public UI_EventDialogueOption EventOptionPrefab;
     public UI_EventItemChange EventItemChangePrefab;
     
 
@@ -28,14 +28,14 @@ public class UI_EventDisplay : MonoBehaviour
         if (step.IsFinalStep)
         {
             EventDialogueOption endDayOption = new EventDialogueOption("Continue journey", EndEvent);
-            UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+            UI_EventDialogueOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(Game, endDayOption);
         }
         else
         {
             foreach (EventDialogueOption option in step.EventDialogueOptions)
             {
-                UI_EventOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+                UI_EventDialogueOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
                 optionDisplay.Init(Game, option);
             }
         }

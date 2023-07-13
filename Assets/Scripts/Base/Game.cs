@@ -330,16 +330,7 @@ public class Game : MonoBehaviour
 
         // Enable destination selection of adjacent tiles
         WorldMap.CanSelectDestination = true;
-        foreach(Direction dir in HelperFunctions.GetAdjacentHexDirections())
-        {
-            Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(CurrentPosition.Coordinates, dir);
-            WorldMapTile adjTile = WorldMap.GetTile(adjCoord);
-            if (adjTile.IsPassable())
-            {
-                if(QuarantineZone.IsInArea(adjTile)) WorldMap.HighlightTileGreen(adjTile);
-                else WorldMap.HighlightTileRed(adjTile);
-            }
-        }
+        foreach(WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMap.HighlightTileRed(nextPositionTarget);
     }
 
     /// <summary>
@@ -364,17 +355,10 @@ public class Game : MonoBehaviour
             text = "You wake up in the " + CurrentPosition.Location.Name + ". The following happened during the night:";
             foreach (string e in LatestMorningReport.NightEvents) text += "\n- " + e;
         }
-        text += "\nWhat would you like to do today?";
 
-        // Dialogue Options
+        // Dialogue Option - Open Map
         List<EventDialogueOption> options = new List<EventDialogueOption>();
-
-        // Stay
-        EventDialogueOption pickTargetLocationOption = new EventDialogueOption("Stay and explore", ExploreThisLocation);
-        options.Add(pickTargetLocationOption);
-
-        // Explore other location
-        EventDialogueOption startTravelingOption = new EventDialogueOption("Go somewhere else", OpenMap);
+        EventDialogueOption startTravelingOption = new EventDialogueOption("Make plans for the day", OpenMap);
         options.Add(startTravelingOption);
 
         EventStep morningEventStep = new EventStep(text, options, null);
@@ -386,17 +370,51 @@ public class Game : MonoBehaviour
         UI.OpenWorldMap();
         return GetMorningEvent();
     }
-    private EventStep ExploreThisLocation()
+
+    /// <summary>
+    /// Returns all tiles the player can select when chosing what to do in the morning.
+    /// </summary>
+    public List<WorldMapTile> GetNextPositionTiles()
     {
-        DayAction = DayAction.Stay;
-        EndMorningEvent();
-        return null;
+        List<WorldMapTile> tiles = new List<WorldMapTile>();
+        tiles.Add(CurrentPosition);
+        foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
+        {
+            Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(CurrentPosition.Coordinates, dir);
+            WorldMapTile adjTile = WorldMap.GetTile(adjCoord);
+            if (adjTile.IsPassable()) tiles.Add(adjTile);
+        }
+        return tiles;
     }
 
     /// <summary>
-    /// Gets called when a position is selected on the world map.
+    /// Gets called when a tile is clicked on on the world map.
     /// </summary>
-    public void SelectPositionOnMap(WorldMapTile tile, DayAction action)
+    public void SelectTileOnMap(WorldMapTile tile)
+    {
+        if (!GetNextPositionTiles().Contains(tile)) return;
+
+        List<InteractionOption> options = new List<InteractionOption>();
+
+        // Stay
+        if (tile == CurrentPosition) options.Add(new InteractionOption("Stay and explore", () => SelectDayAction(tile, DayAction.Stay)));
+
+        // Go there
+        if (tile != CurrentPosition && WorldMap.QuarantineZone.IsInArea(tile)) options.Add(new InteractionOption("Go there", () => SelectDayAction(tile, DayAction.Move)));
+
+        // Enter mission event
+        if (tile.Mission != null) options.Add(new InteractionOption(tile.Mission.MapText, () => SelectDayAction(tile, DayAction.EnterMission)));
+
+        // Approach fence
+        if (!WorldMap.QuarantineZone.IsInArea(tile)) options.Add(new InteractionOption("Approach fence", () => SelectDayAction(tile, DayAction.ApproachFence)));
+
+        UI.ContextMenu.Show(tile.Location.Name, options);
+    }
+
+    /// <summary>
+    /// Selects where to go and the type of action for that day. Ends the morning event.
+    /// </summary>
+    private void SelectDayAction(WorldMapTile tile, DayAction action)
     {
         // Set position
         TargetPosition = tile;
@@ -414,7 +432,6 @@ public class Game : MonoBehaviour
 
         // Reset world map selection
         WorldMap.CanSelectDestination = false;
-        WorldMap.UnhighlightAllGreenTiles();
         WorldMap.UnhighlightAllRedTiles();
 
         // Switch state
@@ -430,17 +447,25 @@ public class Game : MonoBehaviour
     {
         UI.DayTimeText.text = "Afternoon";
 
-        // Switch location if player is moving
-        if (DayAction == DayAction.Move)
+        switch(DayAction)
         {
-            SetPosition(TargetPosition);
-            TargetPosition = null;
-        }
+            case DayAction.Move:
+                SetPosition(TargetPosition);
+                TargetPosition = null;
+                break;
 
-        // Force fence event is player is approaching fence
-        if(DayAction == DayAction.ApproachFence)
-        {
-            EventManager.ForceEvent(eventId: 10);
+            case DayAction.EnterMission:
+                EventManager.ForceMission(TargetPosition.Mission);
+                if (TargetPosition != null)
+                {
+                    SetPosition(TargetPosition);
+                    TargetPosition = null;
+                }
+                break;
+
+            case DayAction.ApproachFence:
+                EventManager.ForceEvent(eventId: 10);
+                break;
         }
 
         // Chose an event for the afternoon
@@ -448,7 +473,7 @@ public class Game : MonoBehaviour
         EventManager.UpdateDaysSinceLastOccurence(CurrentEvent);
 
         // Display the event
-        CurrentEvent.StartEvent(CurrentPosition.Mission);
+        CurrentEvent.StartEvent();
         DisplayEventStep(CurrentEvent.InitialStep);
 
         // Update status

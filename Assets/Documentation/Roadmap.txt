@@ -5,6 +5,7 @@ feature wheel:
 - special grocery store place on map that can appear on city, when chosing location in morning you can chose between "go to city" and "go to grocery store"
 - radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
 - show cuts and bruises as event step outcome
+- improve event step outcome display (display items in individual post-it-notes below display)
 - position on map should not be centered on tile during afternoon when traveling there => add marker for where you are going
 - add new event
 - improve event (take random number and expand that event)
@@ -29,17 +30,13 @@ feature wheel:
 - make companions affect stats
 - add to escape menu: exit button, add wounds, add companions
 - add poison system
-- improve map missions
-	mission map approach text
-	option to visit tile without mission
-	remove "stay and explore" option and remove "what you do?" text and only have "Chose what to do today" option which opens map
-	add clicking on same tile you are on map
+- art: decouple background from sky and add daytime variations for sky (morning, afternoon, evening, late evening, night)
 - fix item stash item is not hidden and open sprite
+- add e11 and e12 to base.psd
 
 feature wheel with dependencies first or low prio:
 - evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
 - morning option to rest for the day (-tired and default encounter at afternoon)
-- art: decouple background from sky and add daytime variations for sky (morning, afternoon, evening, late evening, night)
 - points of interests on map (i.e. grocery store in city) that can be explored (chosen in morning event)
 - special areas (multiple polygons) with tags (i.e. dangerous) that can alter event chances
 - fix parrot event to include map destination

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class UI_EventOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UI_EventDialogueOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private EventDialogueOption Option;
 
@@ -22,6 +22,8 @@ public class UI_EventOption : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void ChoseOption(Game game, EventDialogueOption option)
     {
+        foreach (StatId stat in Option.AffectingStats) Game.Singleton.UI.UnhighlightStat(stat);
+
         if (game.State == GameState.InGame)
         {
             if (option.Action != null)

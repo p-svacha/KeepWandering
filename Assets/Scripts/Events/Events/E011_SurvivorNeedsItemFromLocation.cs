@@ -105,8 +105,8 @@ public class E011_SurvivorNeedsItemFromLocation : Event
         ItemLocationRevealed = true;
         WorldMapTile targetTile = Game.WorldMap.GetRandomQuarantineTile();
 
-        Mission mission = new Mission(MissionId.E011_ItemStash, "Get " + RequestedItemDummy.Name + " from item stash", targetTile, eventId: 12, ResourceManager.Singleton.TileMarkerItem);
-        E012_ItemStash.MissionItems.Add(mission.Id, RequestedItemDummy.Type);
+        Mission mission = new Mission(MissionId.E011_ItemStash, "Get " + RequestedItemDummy.Name + " from item stash", targetTile, "Approach item stash", eventId: 12, ResourceManager.Singleton.TileMarkerItem);
+        E012_ItemStash.ForcedItems.Add(mission.Id, RequestedItemDummy.Type);
 
         Game.AddMission(mission);
     }
@@ -114,7 +114,7 @@ public class E011_SurvivorNeedsItemFromLocation : Event
     private void ActivateBringBackItemQuest()
     {
         WorldMapTile targetTile = Game.CurrentPosition;
-        Mission mission = new Mission(MissionId.E011_BringItemToSurvivor, "Bring " + RequestedItemDummy.Name + " to survivor", targetTile, eventId: 11, ResourceManager.Singleton.TileMarkerPerson);
+        Mission mission = new Mission(MissionId.E011_BringItemToSurvivor, "Bring " + RequestedItemDummy.Name + " to survivor", targetTile, "Approach survivor", eventId: 11, ResourceManager.Singleton.TileMarkerPerson);
         Game.AddMission(mission);
     }
 

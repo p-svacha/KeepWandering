@@ -6,5 +6,6 @@ public enum DayAction
 {
     Stay,
     Move,
+    EnterMission,
     ApproachFence
 }
