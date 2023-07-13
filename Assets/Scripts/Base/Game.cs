@@ -15,8 +15,11 @@ public class Game : MonoBehaviour
     public MorningReport LatestMorningReport { get; private set; }
     public Event CurrentEvent;
     public EventStep CurrentEventStep;
+
+    // Event Step Outcome
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
+    public List<Injury> InjuriesAddedSinceLastStep = new List<Injury>();
 
     // Position
     /// <summary>
@@ -277,6 +280,7 @@ public class Game : MonoBehaviour
 
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
+        InjuriesAddedSinceLastStep.Clear();
     }
 
     public void CheckGameOver()
@@ -612,16 +616,18 @@ public class Game : MonoBehaviour
 
     public void AddBruiseWound()
     {
-        Player.AddBruiseWound();
+        Injury injury = Player.AddBruiseWound();
+        InjuriesAddedSinceLastStep.Add(injury);
         UpdatePlayerStats();
     }
     public void AddCutWound()
     {
-        Player.AddCutWound();
+        Injury injury = Player.AddCutWound();
+        InjuriesAddedSinceLastStep.Add(injury);
         UpdatePlayerStats();
     }
 
-    public void TendWound(Wound wound, Item item)
+    public void TendInjury(Injury wound, Item item)
     {
         if (!item.CanTendWounds) Debug.LogWarning("Tending wound with an item that can't tend wounds! " + item.Name);
         if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
@@ -630,7 +636,13 @@ public class Game : MonoBehaviour
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
         UpdatePlayerStats();
     }
-    public void HealInfection(Wound wound, Item item)
+
+    public void RemoveInjury(Injury injury)
+    {
+        Player.RemoveInjury(injury);
+    }
+
+    public void HealInfection(Injury wound, Item item)
     {
         if(!item.CanHealInfections) Debug.LogWarning("Healing infection with an item that can't heal infections! " + item.Name);
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");

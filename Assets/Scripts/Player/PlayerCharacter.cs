@@ -20,7 +20,7 @@ public class PlayerCharacter : MonoBehaviour
     public GameObject Limbs_Fractured2;
     public GameObject DehydrationOverlay1;
     public GameObject DehydrationOverlay2;
-    public List<Wound> Wounds;
+    public List<Injury> Injuries;
 
     public Color HealthyColor;
     public Color MinorBloodLossColor;
@@ -110,20 +110,20 @@ public class PlayerCharacter : MonoBehaviour
         AddHydration(-BaseHydrationDropPerDay);
 
         // Bone Health
-        bool canRegenBone = !ActiveWounds.Any(x => x.Type == WoundType.Bruise && !x.IsTended);
+        bool canRegenBone = !ActiveWounds.Any(x => x.Type == InjuryId.Bruise && !x.IsTended);
         if (canRegenBone) AddBoneHealth(BaseBoneRegenPerDay);
 
         // Blood Amount
         float bloodChange = BaseBloodRegenPerDay;
-        if(ActiveWounds.Any(x => x.Type == WoundType.Cut && !x.IsTended))
+        if(ActiveWounds.Any(x => x.Type == InjuryId.Cut && !x.IsTended))
         {
             bloodChange = 0f;
-            foreach (Wound wound in ActiveWounds.Where(x => x.Type == WoundType.Cut && !x.IsTended)) bloodChange -= CutWoundBleedPerDay; 
+            foreach (Injury wound in ActiveWounds.Where(x => x.Type == InjuryId.Cut && !x.IsTended)) bloodChange -= CutWoundBleedPerDay; 
         }
         AddBlood(bloodChange);
 
         // Wounds
-        foreach(Wound wound in ActiveWounds) wound.OnEndDay(game, morningReport);
+        foreach(Injury wound in ActiveWounds) wound.OnEndDay(game, morningReport);
     }
 
     public void AddNutrition(float value)
@@ -148,41 +148,45 @@ public class PlayerCharacter : MonoBehaviour
         if (BloodAmount > 1f) BloodAmount = 1f;
     }
 
-    public void AddBruiseWound()
+    public Injury AddBruiseWound()
     {
         AddBoneHealth(-BruiseWoundBoneDamage);
 
-        List<Wound> candidateWounds = Wounds.Where(x => !x.IsActive && x.Type == WoundType.Bruise).ToList();
+        List<Injury> candidateWounds = Injuries.Where(x => !x.IsActive && x.Type == InjuryId.Bruise).ToList();
         if (candidateWounds.Count == 0)
         {
             Debug.LogWarning("Tried to add bruise wound but there is no more space for wounds.");
-            return;
+            return null;
         }
-        Wound newBruiseWound = candidateWounds[Random.Range(0, candidateWounds.Count)];
-        newBruiseWound.SetActive(Game.Day);
+        Injury newBruiseWound = candidateWounds[Random.Range(0, candidateWounds.Count)];
+        newBruiseWound.Activate(Game.Day);
+
+        return newBruiseWound;
     }
-    public void AddCutWound()
+    public Injury AddCutWound()
     {
-        List<Wound> candidateWounds = Wounds.Where(x => !x.IsActive && x.Type == WoundType.Cut).ToList();
+        List<Injury> candidateWounds = Injuries.Where(x => !x.IsActive && x.Type == InjuryId.Cut).ToList();
         if (candidateWounds.Count == 0)
         {
             Debug.LogWarning("Tried to add cut wound but there is no more space for wounds.");
-            return;
+            return null;
         }
-        Wound newCutWound = candidateWounds[Random.Range(0, candidateWounds.Count)];
-        newCutWound.SetActive(Game.Day);
+        Injury newCutWound = candidateWounds[Random.Range(0, candidateWounds.Count)];
+        newCutWound.Activate(Game.Day);
+
+        return newCutWound;
     }
 
-    public void RemoveWound(Wound wound)
+    public void RemoveInjury(Injury injury)
     {
-        wound.IsActive = false;
+        injury.Heal();
     }
 
-    public void TendWound(Wound wound)
+    public void TendWound(Injury wound)
     {
         wound.Tend(Game);
     }
-    public void HealInfection(Wound wound)
+    public void HealInfection(Injury wound)
     {
         wound.HealInfection(Game);
     }
@@ -232,7 +236,7 @@ public class PlayerCharacter : MonoBehaviour
         else if (BloodAmount <= 0.6f) SetCharacterColor(MinorBloodLossColor);
         else SetCharacterColor(HealthyColor);
 
-        foreach (Wound w in Wounds) w.SetSprites();
+        foreach (Injury injury in Injuries) injury.SetSprites();
 
         // Status effects
         StatusEffects.Clear();
@@ -253,7 +257,7 @@ public class PlayerCharacter : MonoBehaviour
         else if (BloodAmount <= 0.5f) StatusEffects.Add(SE_MajorBloodLoss);
         else if (BloodAmount <= 0.9f) StatusEffects.Add(SE_MinorBloodLoss);
 
-        foreach (Wound w in ActiveWounds)
+        foreach (Injury w in ActiveWounds)
         {
             w.UpdateStatusEffect();
             StatusEffects.Add(w.StatusEffect);
@@ -284,5 +288,5 @@ public class PlayerCharacter : MonoBehaviour
         Torso_Thin2.GetComponent<SpriteRenderer>().color = c;
     }
 
-    public List<Wound> ActiveWounds { get { return Wounds.Where(x => x.IsActive).ToList(); } }
+    public List<Injury> ActiveWounds { get { return Injuries.Where(x => x.IsActive).ToList(); } }
 }

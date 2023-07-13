@@ -42,6 +42,17 @@ public class ResourceManager : MonoBehaviour
     public Dog Dog;
     public Parrot Parrot;
 
+    [Header("Injury Sprites")]
+    public Sprite Cut_Base;
+    public Sprite Cut_Infect_Minor;
+    public Sprite Cut_Infect_Major;
+    public Sprite Cut_Tended;
+
+    public Sprite Bruise_Base;
+    public Sprite Bruise_Infect_Minor;
+    public Sprite Bruise_Infect_Major;
+    public Sprite Bruise_Tended;
+
     [Header("Colors")]
     public Color SE_Neutral;
     public Color SE_Good;

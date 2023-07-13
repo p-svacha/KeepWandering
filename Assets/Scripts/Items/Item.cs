@@ -42,11 +42,11 @@ public class Item : MonoBehaviour
         Sprite = GetComponent<SpriteRenderer>().sprite;
     }
 
-    private void HighlightWound(Wound wound)
+    private void HighlightWound(Injury wound)
     {
         wound.SetHightlight(true);
     }
-    private void UnhightlightWound(Wound wound)
+    private void UnhightlightWound(Injury wound)
     {
         wound.SetHightlight(false);
     }
@@ -86,10 +86,10 @@ public class Item : MonoBehaviour
             if (IsEdible) allOptions.Add(new InteractionOption("Eat", () => Game.EatItem(this)));
             if (IsDrinkable) allOptions.Add(new InteractionOption("Drink", () => Game.DrinkItem(this)));
             if (CanTendWounds)
-                foreach (Wound wound in Game.Player.ActiveWounds.Where(x => !x.IsTended))
-                    allOptions.Add(new InteractionOption("Tend " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                foreach (Injury wound in Game.Player.ActiveWounds.Where(x => !x.IsTended))
+                    allOptions.Add(new InteractionOption("Tend " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound", () => Game.TendInjury(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             if (CanHealInfections)
-                foreach (Wound wound in Game.Player.ActiveWounds.Where(x => x.InfectionStage != InfectionStage.None))
+                foreach (Injury wound in Game.Player.ActiveWounds.Where(x => x.InfectionStage != InfectionStage.None))
                     allOptions.Add(new InteractionOption("Heal " + HelperFunctions.GetEnumDescription(wound.Type) + " Wound Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
         }
 

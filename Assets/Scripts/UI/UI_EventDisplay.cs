@@ -12,11 +12,11 @@ public class UI_EventDisplay : MonoBehaviour
     [Header("Elements")]
     public TextMeshProUGUI EventText;
     public GameObject EventOptionContainer;
-    public GameObject EventItemChangeContainer;
+    public GameObject OutcomeNotesContainer;
 
     [Header("Prefabs")]
     public UI_EventDialogueOption EventOptionPrefab;
-    public UI_EventItemChange EventItemChangePrefab;
+    public UI_EventOutcomeNote OutcomeNotePrefab;
     
 
     public void Init(EventStep step) 
@@ -40,37 +40,51 @@ public class UI_EventDisplay : MonoBehaviour
             }
         }
 
-        // Item changes
-        if(Game.ItemsAddedSinceLastStep != null)
-        {
-            Dictionary<Item, int> groupedItems = new Dictionary<Item, int>();
-            foreach(Item item in Game.ItemsAddedSinceLastStep)
-            {
-                if (!groupedItems.Any(x => x.Key.Type == item.Type)) groupedItems.Add(item, 1);
-                else groupedItems[groupedItems.First(x => x.Key.Type == item.Type).Key]++;
-            }
-            foreach(KeyValuePair<Item, int> item in groupedItems)
-            {
-                UI_EventItemChange itemChange = Instantiate(EventItemChangePrefab, EventItemChangeContainer.transform);
-                itemChange.Init(item.Key, true, item.Value);
-            }
-        }
-        if (Game.ItemsRemovedSinceLastStep != null)
-        {
-            Dictionary<Item, int> groupedItems = new Dictionary<Item, int>();
-            foreach (Item item in Game.ItemsRemovedSinceLastStep)
-            {
-                if (!groupedItems.Any(x => x.Key.Type == item.Type)) groupedItems.Add(item, 1);
-                else groupedItems[groupedItems.First(x => x.Key.Type == item.Type).Key]++;
-            }
-            foreach (KeyValuePair<Item, int> item in groupedItems)
-            {
-                UI_EventItemChange itemChange = Instantiate(EventItemChangePrefab, EventItemChangeContainer.transform);
-                itemChange.Init(item.Key, false, item.Value);
-            }
-        }
+        InitEventStepOutcomeNotes();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+
+    private void InitEventStepOutcomeNotes()
+    {
+        // Added items
+        Dictionary<Item, int> groupedAddedItems = new Dictionary<Item, int>();
+        foreach (Item item in Game.ItemsAddedSinceLastStep)
+        {
+            if (!groupedAddedItems.Any(x => x.Key.Type == item.Type)) groupedAddedItems.Add(item, 1);
+            else groupedAddedItems[groupedAddedItems.First(x => x.Key.Type == item.Type).Key]++;
+        }
+        foreach (KeyValuePair<Item, int> item in groupedAddedItems)
+        {
+            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(item.Key.Sprite, true, item.Value);
+        }
+
+        // Removed items
+        Dictionary<Item, int> groupedRemovedItems = new Dictionary<Item, int>();
+        foreach (Item item in Game.ItemsRemovedSinceLastStep)
+        {
+            if (!groupedRemovedItems.Any(x => x.Key.Type == item.Type)) groupedRemovedItems.Add(item, 1);
+            else groupedRemovedItems[groupedRemovedItems.First(x => x.Key.Type == item.Type).Key]++;
+        }
+        foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
+        {
+            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(item.Key.Sprite, false, item.Value);
+        }
+
+        // Added injuries
+        Dictionary<Injury, int> groupedInjuries = new Dictionary<Injury, int>();
+        foreach (Injury injury in Game.InjuriesAddedSinceLastStep)
+        {
+            if (!groupedInjuries.Any(x => x.Key.Type == injury.Type)) groupedInjuries.Add(injury, 1);
+            else groupedInjuries[groupedInjuries.First(x => x.Key.Type == injury.Type).Key]++;
+        }
+        foreach (var group in groupedInjuries)
+        {
+            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(group.Key.GetSprite(), true, group.Value);
+        }
     }
 
     private EventStep EndEvent()
@@ -82,6 +96,6 @@ public class UI_EventDisplay : MonoBehaviour
     private void Clear()
     {
         HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
-        HelperFunctions.DestroyAllChildredImmediately(EventItemChangeContainer);
+        HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
     }
 }

@@ -1,25 +1,28 @@
 feature wheel:
 - add tiredness system
+	- evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
+	- morning option to rest for the day (-tired and default encounter at afternoon)
 - location movement difficulty + possibility to not reach camp spot at evening
-- mission that can be completed at world tile positions
-- special grocery store place on map that can appear on city, when chosing location in morning you can chose between "go to city" and "go to grocery store"
+- add pain system (pass out for the day when too many cuts or bruises)
+	- implement a system to avoid infinite cuts exploit
+	- get unconcious with too much pain (day ends, can lose random item)
+- points of interest on map (alternate locations, not forced events)
+	special grocery store place on map that can appear on city, when chosing location in morning you can chose between "go to city" and "go to grocery store"
+	grocery store for food (city)
+	pharmacy for medical stuff (city)
 - radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
-- show cuts and bruises as event step outcome
-- improve event step outcome display (display items in individual post-it-notes below display)
 - position on map should not be centered on tile during afternoon when traveling there => add marker for where you are going
 - add new event
 - improve event (take random number and expand that event)
+- improve companion
 - fix E006 woodsbunker event (display required food and water after giving)
 - status effect description should use description box
 - add item interaction options for items not owned (trader)
 - add main road on map and as location (if starting on main road you can move two tiles on road)
 - add more detailed info box on world map of hovered tile (also include disance from current tile)
 - add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
-- in E009 replace trap bruise with missing leg
+- in E009 make bruise wound more severe (more bone damage) and change text to match it
 - in E009 add ability to throw items at traps
-- fix event step outclose display (elemnts shoud have fixed size, maybe own panel?)
-- add pain system (pass out for the day when too many cuts or bruises)
-	- implement a system to avoid infinite cuts exploit
 - add small delay when adding multiple items to inventory at once (to avoid them being stuck in each other)
 - chose between 3 starting packs when starting the game containing random 3 items
 - use fighting stat in E003
@@ -31,20 +34,22 @@ feature wheel:
 - add to escape menu: exit button, add wounds, add companions
 - add poison system
 - art: decouple background from sky and add daytime variations for sky (morning, afternoon, evening, late evening, night)
-- fix item stash item is not hidden and open sprite
+- fix item stash item is not hidden and open sprite, fix text so you don't know the item when taking
 - add e11 and e12 to base.psd
-
-feature wheel with dependencies first or low prio:
-- evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
-- morning option to rest for the day (-tired and default encounter at afternoon)
-- points of interests on map (i.e. grocery store in city) that can be explored (chosen in morning event)
+- for map missions add mission title (gets displayed as hover info on map)
 - special areas (multiple polygons) with tags (i.e. dangerous) that can alter event chances
-- fix parrot event to include map destination
-- parrot sprites for status effects
-- dog sprites for status effects
-- night events
+- generalize injury system
+	- make injury abstract monobheaviour and add subclasses for each type handling behaviour
+	- then attach the subclasses to the injury sprites
+- add "dud" event, meaning that it's possible that nothing happens when staying at same location, can also appear randomly else (not likely)
+- make path history line smoother
+- make infections visible on event outcome notes
+
+
 
 content ideas:
 - add something with rats and disease
 - add cat as companion
 - e003 guy can be companion (will backstab after a while)
+- rare night events
+- care packages falling from sky (flare gun as item)
