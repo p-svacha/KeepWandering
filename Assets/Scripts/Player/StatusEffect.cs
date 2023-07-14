@@ -11,11 +11,19 @@ public class StatusEffect
 
     public UI_StatusEffect UI;
 
-    public StatusEffect(string name, string description, Color textColor, Color backgroundColor)
+    public StatusEffect(string name, string description, Color textColor, Color? backgroundColor = null)
     {
         Name = name;
         Description = description;
         TextColor = textColor;
-        BackgroundColor = backgroundColor;
+        BackgroundColor = backgroundColor ?? Color.clear;
+    }
+
+    public StatusEffect(StatusEffect copyTemplate)
+    {
+        Name = copyTemplate.Name;
+        Description = copyTemplate.Description;
+        TextColor = copyTemplate.TextColor;
+        BackgroundColor = copyTemplate.BackgroundColor;
     }
 }

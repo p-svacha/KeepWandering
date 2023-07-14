@@ -12,14 +12,22 @@ public class PlayerCharacter : MonoBehaviour
 
     [Header("Sprites")]
     public GameObject Head;
+
     public GameObject Torso_Normal;
     public GameObject Torso_Thin1;
     public GameObject Torso_Thin2;
+
     public GameObject Limbs_Normal;
     public GameObject Limbs_Fractured1;
     public GameObject Limbs_Fractured2;
+
     public GameObject DehydrationOverlay1;
     public GameObject DehydrationOverlay2;
+
+    public GameObject PoisonOverlay1;
+    public GameObject PoisonOverlay2;
+    public GameObject PoisonOverlay3;
+
     public List<Injury> Injuries;
 
     public Color HealthyColor;
@@ -43,13 +51,18 @@ public class PlayerCharacter : MonoBehaviour
     public float BoneHealth; // [0-1] how fractures the bones are, 1 = healthy, 0 = dead
     public float BloodAmount; // [0-1] how much blood you have, 1 = healthy, 0 = dead
 
+    public bool IsPoisoned; // If true, poison countdown will decrease every day
+    public int PoisonCountdown; // Death upon reaching zero
+    private const int POISON_COUNTDOWN_START = 20; // How many days to live when poisoning starts
+    private const int REPOISON_STRENGTH = 5; // How much the poison countdown gets reduced when getting poisoned while already posioned
+    private const int EXTREME_POISONING_LIMIT = 3; // At how many days left the poisoning is considered extreme
+    private const int MAJOR_POISONING_LIMIT = 10; // At how many days left the poisoning is considered major
+
     public bool HasDog;
     public bool HasParrot;
 
     [Header("Status Effects")]
     public List<StatusEffect> StatusEffects = new List<StatusEffect>();
-
-    private StatusEffect SE_Nothing;
 
     private StatusEffect SE_Hungry;
     private StatusEffect SE_VeryHungry;
@@ -67,26 +80,32 @@ public class PlayerCharacter : MonoBehaviour
     private StatusEffect SE_MajorBloodLoss;
     private StatusEffect SE_ExtremeBloodLoss;
 
+    private StatusEffect SE_MinorPoisoning;
+    private StatusEffect SE_MajorPoisoning;
+    private StatusEffect SE_ExtremePoisoning;
+
     private void Start()
     {
         // Initialize static status effects
-        SE_Nothing = new StatusEffect("Nothing Noteworthy", "Everything seems to be perfectly normal.", ResourceManager.Singleton.SE_Neutral, Color.clear);
-
-        SE_Hungry = new StatusEffect("Hungry", "Some food would be nice", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_VeryHungry = new StatusEffect("Very Hungry", "I don't think I can go much longer without food.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_Starving = new StatusEffect("Starving", "If I don't eat anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_Hungry = new StatusEffect("Hungry", "Some food would be nice", ResourceManager.Singleton.SE_Bad);
+        SE_VeryHungry = new StatusEffect("Very Hungry", "I don't think I can go much longer without food.", ResourceManager.Singleton.SE_VeryBad);
+        SE_Starving = new StatusEffect("Starving", "If I don't eat anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad);
 
         SE_Thirsty = new StatusEffect("Thirsty", "Some water would be nice", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_Dehydrated = new StatusEffect("Dehydrated", "I don't think I can go much longer without water.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_Parched = new StatusEffect("Parched", "If I don't drink anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_Dehydrated = new StatusEffect("Dehydrated", "I don't think I can go much longer without water.", ResourceManager.Singleton.SE_VeryBad);
+        SE_Parched = new StatusEffect("Parched", "If I don't drink anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad);
 
         SE_MinorFracture = new StatusEffect("Minor Fracture", "Oof ouch, my bones.", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_MajorFracture = new StatusEffect("Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_ExtremeFracture = new StatusEffect("Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_MajorFracture = new StatusEffect("Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad);
+        SE_ExtremeFracture = new StatusEffect("Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", ResourceManager.Singleton.SE_ExtremelyBad);
 
         SE_MinorBloodLoss = new StatusEffect("Minor Blood Loss", "I've been bleeding a little.", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_MajorBloodLoss = new StatusEffect("Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad, Color.clear);
-        SE_ExtremeBloodLoss = new StatusEffect("Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", ResourceManager.Singleton.SE_ExtremelyBad, Color.clear);
+        SE_MajorBloodLoss = new StatusEffect("Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad);
+        SE_ExtremeBloodLoss = new StatusEffect("Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", ResourceManager.Singleton.SE_ExtremelyBad);
+
+        SE_MinorPoisoning = new StatusEffect("Poisoning", "Something poisoned me. I need to find an antidote.", ResourceManager.Singleton.SE_Bad);
+        SE_MajorPoisoning = new StatusEffect("Major Poisoning", "The poisoning is getting really bad. I need to find an antidote asap.", ResourceManager.Singleton.SE_VeryBad);
+        SE_ExtremePoisoning = new StatusEffect("Extreme Poisoning", "If I don't inject an antidote right now I won't make it.", ResourceManager.Singleton.SE_ExtremelyBad);
     }
 
     public void Init(Game game)
@@ -124,6 +143,9 @@ public class PlayerCharacter : MonoBehaviour
 
         // Wounds
         foreach(Injury wound in ActiveWounds) wound.OnEndDay(game, morningReport);
+
+        // Poison
+        if (IsPoisoned) PoisonCountdown--;
     }
 
     public void AddNutrition(float value)
@@ -191,6 +213,20 @@ public class PlayerCharacter : MonoBehaviour
         wound.HealInfection(Game);
     }
 
+    public void Poison()
+    {
+        if (IsPoisoned) PoisonCountdown -= REPOISON_STRENGTH;
+        else
+        {
+            IsPoisoned = true;
+            PoisonCountdown = POISON_COUNTDOWN_START;
+        }
+    }
+    public void HealPoison()
+    {
+        IsPoisoned = false;
+    }
+
     public void AddDog()
     {
         HasDog = true;
@@ -211,34 +247,11 @@ public class PlayerCharacter : MonoBehaviour
 
 
     /// <summary>
-    /// Updates all status effects and and visuals (sprites on player) representing them.
-    /// This function does NOT change anything, it just sets the status effects according to the current player state.
+    /// Updates all status effects according to the player state.
+    /// This function does NOT change anything about the player state.
     /// </summary>
     public void UpdateStatusEffects()
     {
-        // Sprites
-        DisableAllSprites();
-
-        Head.SetActive(true);
-
-        if (Nutrition <= 1.5f) Torso_Thin2.SetActive(true);
-        else if (Nutrition <= 4f) Torso_Thin1.SetActive(true);
-        else Torso_Normal.SetActive(true);
-
-        if (Hydration <= 1.5f) DehydrationOverlay2.SetActive(true);
-        else if (Hydration <= 3.5f) DehydrationOverlay1.SetActive(true);
-
-        if (BoneHealth <= 0.2f) Limbs_Fractured2.SetActive(true);
-        else if (BoneHealth <= 0.6f) Limbs_Fractured1.SetActive(true);
-        else Limbs_Normal.SetActive(true);
-
-        if (BloodAmount <= 0.2f) SetCharacterColor(MajorBloodLossColor);
-        else if (BloodAmount <= 0.6f) SetCharacterColor(MinorBloodLossColor);
-        else SetCharacterColor(HealthyColor);
-
-        foreach (Injury injury in Injuries) injury.SetSprites();
-
-        // Status effects
         StatusEffects.Clear();
 
         if (Nutrition <= 1f) StatusEffects.Add(SE_Starving);
@@ -257,14 +270,62 @@ public class PlayerCharacter : MonoBehaviour
         else if (BloodAmount <= 0.5f) StatusEffects.Add(SE_MajorBloodLoss);
         else if (BloodAmount <= 0.9f) StatusEffects.Add(SE_MinorBloodLoss);
 
+        // Poison
+        if (IsPoisoned)
+        {
+            StatusEffect poisonSE;
+            if (PoisonCountdown <= EXTREME_POISONING_LIMIT) poisonSE = new StatusEffect(SE_ExtremePoisoning);
+            else if (PoisonCountdown <= MAJOR_POISONING_LIMIT) poisonSE = new StatusEffect(SE_MajorPoisoning);
+            else poisonSE = new StatusEffect(SE_MinorPoisoning);
+            poisonSE.Name += " (Death in " + PoisonCountdown + " Days)";
+            StatusEffects.Add(poisonSE);
+        }
+
         foreach (Injury w in ActiveWounds)
         {
             w.UpdateStatusEffect();
             StatusEffects.Add(w.StatusEffect);
         }
+    }
 
-        // Add "everything ok" status effect if no other status effects
-        if (StatusEffects.Count == 0) StatusEffects.Add(SE_Nothing);
+    /// <summary>
+    /// Updates all visuals/sprites according to the player state.
+    /// This function does NOT change anything about the player state.
+    /// </summary>
+    public void UpdateSprites()
+    {
+        DisableAllSprites();
+
+        Head.SetActive(true);
+
+        // Nutrition torso sprite
+        if (Nutrition <= 1.5f) Torso_Thin2.SetActive(true);
+        else if (Nutrition <= 4f) Torso_Thin1.SetActive(true);
+        else Torso_Normal.SetActive(true);
+
+        // Hydration overlay
+        if (Hydration <= 1.5f) DehydrationOverlay2.SetActive(true);
+        else if (Hydration <= 3.5f) DehydrationOverlay1.SetActive(true);
+
+        // Bone health limb sprite
+        if (BoneHealth <= 0.2f) Limbs_Fractured2.SetActive(true);
+        else if (BoneHealth <= 0.6f) Limbs_Fractured1.SetActive(true);
+        else Limbs_Normal.SetActive(true);
+
+        // Blood loss color
+        if (BloodAmount <= 0.2f) SetCharacterColor(MajorBloodLossColor);
+        else if (BloodAmount <= 0.6f) SetCharacterColor(MinorBloodLossColor);
+        else SetCharacterColor(HealthyColor);
+
+        // Poison overlay
+        if (IsPoisoned)
+        {
+            if (PoisonCountdown <= EXTREME_POISONING_LIMIT) PoisonOverlay3.SetActive(true);
+            else if (PoisonCountdown <= MAJOR_POISONING_LIMIT) PoisonOverlay2.SetActive(true);
+            else PoisonOverlay1.SetActive(true);
+        }
+
+        foreach (Injury injury in Injuries) injury.SetSprites();
     }
 
     private void DisableAllSprites()
@@ -278,6 +339,9 @@ public class PlayerCharacter : MonoBehaviour
         Limbs_Fractured2.SetActive(false);
         DehydrationOverlay1.SetActive(false);
         DehydrationOverlay2.SetActive(false);
+        PoisonOverlay1.SetActive(false);
+        PoisonOverlay2.SetActive(false);
+        PoisonOverlay3.SetActive(false);
     }
 
     private void SetCharacterColor(Color c)

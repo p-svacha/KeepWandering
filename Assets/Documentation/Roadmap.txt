@@ -44,7 +44,10 @@ feature wheel:
 - add "dud" event, meaning that it's possible that nothing happens when staying at same location, can also appear randomly else (not likely)
 - make path history line smoother
 - make infections visible on event outcome notes
-
+- make it more clear that you are bleeding
+- add damage parameter to addbruisewound
+- create followup to E008
+- add reward for E011
 
 
 content ideas:

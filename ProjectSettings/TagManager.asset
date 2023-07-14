@@ -44,6 +44,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Overlay
+    uniqueID: 508708611
+    locked: 0
+  - name: Injury
+    uniqueID: 2487721409
+    locked: 0
   - name: UI
     uniqueID: 3092948663
     locked: 0
