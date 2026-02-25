@@ -300,7 +300,7 @@ public class Game : MonoBehaviour
         if (Player.Hydration <= 0f) return "You died of dehydration";
         if (Player.BoneHealth <= 0f) return "You died due to extreme fractures";
         if (Player.BloodAmount <= 0f) return "You bled out";
-        if (Player.PoisonCountdown <= 0) return "You died of poisoning";
+        if (Player.IsPoisoned && Player.PoisonCountdown <= 0) return "You died of poisoning";
         if (Player.ActiveWounds.Any(x => x.InfectionStage == InfectionStage.Fatal)) return "You died of an infection";
 
         // Win

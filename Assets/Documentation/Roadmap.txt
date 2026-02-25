@@ -48,6 +48,23 @@ feature wheel:
 - add damage parameter to addbruisewound
 - create followup to E008
 - add reward for E011
+- add details to locations in map view (farmland = low danger/tools, city = high danger/high supplies, forest = medium danger/animals etc)
+
+reward system (get a random reward that brings you closer to winning)
+	- apply to parrot reunion
+	- apply to distressed guy reunion
+		- add event first
+		- make it area based (he lives in x city)
+		- give city names
+		- improve map tile info
+	- apply to survivor looking for item reward
+	
+rewards are
+	- items
+	- special event location reveal
+	- can be chosen
+
+special event warehouse
 
 
 content ideas:
