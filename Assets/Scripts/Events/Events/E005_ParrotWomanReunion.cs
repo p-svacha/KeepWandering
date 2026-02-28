@@ -32,7 +32,7 @@ public class E005_ParrotWomanReunion : Event
     protected override void OnEventStart()
     {
         // Sprite
-        ShowEventSprite(ResourceManager.Singleton.E004_Woman);
+        ShowEventSprite(ResourceManager_Old.Singleton.E004_Woman);
     }
     protected override EventStep GetInitialStep()
     {
@@ -63,7 +63,7 @@ public class E005_ParrotWomanReunion : Event
     private EventStep ReturnParrot()
     {
         Game.RemoveParrot();
-        ShowEventSprite(ResourceManager.Singleton.E004_Parrot);
+        ShowEventSprite(ResourceManager_Old.Singleton.E004_Parrot);
         Game.RemoveMission(MissionId.E004);
         string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 

@@ -17,8 +17,8 @@ public class E010_QuarantineFence : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E010_FenceForeground);
-        ShowEventSprite(ResourceManager.Singleton.E010_FenceBackground);
+        ShowEventSprite(ResourceManager_Old.Singleton.E010_FenceForeground);
+        ShowEventSprite(ResourceManager_Old.Singleton.E010_FenceBackground);
     }
     protected override EventStep GetInitialStep()
     {

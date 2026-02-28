@@ -25,7 +25,7 @@ public class E008_DistressedPerson : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E008_DistressedPerson);
+        ShowEventSprite(ResourceManager_Old.Singleton.E008_DistressedPerson);
     }
     protected override EventStep GetInitialStep()
     {

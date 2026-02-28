@@ -53,7 +53,7 @@ public class E003_EvilGuy : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E003_EvilGuy);
+        ShowEventSprite(ResourceManager_Old.Singleton.E003_EvilGuy);
 
         // Ransom item
         RansomItem = Game.RandomInventoryItem;
@@ -130,8 +130,8 @@ public class E003_EvilGuy : Event
     }
     private void WinFight()
     {
-        HideEventSprite(ResourceManager.Singleton.E003_EvilGuy);
-        ShowEventSprite(ResourceManager.Singleton.E003_EvilGuy_KO);
+        HideEventSprite(ResourceManager_Old.Singleton.E003_EvilGuy);
+        ShowEventSprite(ResourceManager_Old.Singleton.E003_EvilGuy_KO);
         foreach (Item item in RewardItems) Game.AddItemToInventory(item);
     }
     private void GetInjured()

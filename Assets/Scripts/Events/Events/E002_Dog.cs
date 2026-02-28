@@ -30,7 +30,7 @@ public class E002_Dog : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E002_Dog);
+        ShowEventSprite(ResourceManager_Old.Singleton.E002_Dog);
     }
     protected override EventStep GetInitialStep()
     {
@@ -71,7 +71,7 @@ public class E002_Dog : Event
     }
     private void RecruitDog()
     {
-        HideEventSprite(ResourceManager.Singleton.E002_Dog);
+        HideEventSprite(ResourceManager_Old.Singleton.E002_Dog);
         Game.AddDog();
     }
 

@@ -31,8 +31,8 @@ public class E004_ParrotWoman : Event
         EncounterLocation = Game.CurrentPosition.Location;
 
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E004_Woman);
-        ShowEventSprite(ResourceManager.Singleton.E004_Parrot);
+        ShowEventSprite(ResourceManager_Old.Singleton.E004_Woman);
+        ShowEventSprite(ResourceManager_Old.Singleton.E004_Parrot);
     }
     protected override EventStep GetInitialStep()
     {
@@ -57,7 +57,7 @@ public class E004_ParrotWoman : Event
         HasAcceptedParrot = true;
         Game.AddParrot();
         Game.AddMission(new Mission(MissionId.E004, "Take care of parrot until meeting " + WomanName + " again in the " + EncounterLocation.Name + "."));
-        HideEventSprite(ResourceManager.Singleton.E004_Parrot);
+        HideEventSprite(ResourceManager_Old.Singleton.E004_Parrot);
         string text = "You promise " + WomanName + " to take care of the parrot. She asks you to take good care of him.";
         return new EventStep(text);
     }

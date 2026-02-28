@@ -7,7 +7,7 @@ public class Loc_Farmland : Location
 {
     public override string Name => "Farmland";
     public override LocationType Type => LocationType.Farmland;
-    public override SpriteRenderer Sprite => ResourceManager.Singleton.FarmlandBackground;
+    public override SpriteRenderer Sprite => ResourceManager_Old.Singleton.FarmlandBackground;
     public override bool IsPassable => true;
 
     private LootTable _LootTable = new LootTable(
@@ -26,6 +26,6 @@ public class Loc_Farmland : Location
 
     protected override TileBase CreateBaseTextureTile()
     {
-        return TileGenerator.CreateTileFromTexture(ResourceManager.Singleton.FarmlandTexture);
+        return TileGenerator.CreateTileFromTexture(ResourceManager_Old.Singleton.FarmlandTexture);
     }
 }

@@ -26,7 +26,7 @@ public class E006_WoodsBunker : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E006_WoodsBunker);
+        ShowEventSprite(ResourceManager_Old.Singleton.E006_WoodsBunker);
 
         // Required items
         RequiredFood = Random.Range(1, 2);

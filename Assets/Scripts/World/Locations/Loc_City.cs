@@ -7,7 +7,7 @@ public class Loc_City : Location
 {
     public override string Name => "City";
     public override LocationType Type => LocationType.City;
-    public override SpriteRenderer Sprite => ResourceManager.Singleton.CityBackground;
+    public override SpriteRenderer Sprite => ResourceManager_Old.Singleton.CityBackground;
     public override bool IsPassable => true;
 
     private LootTable _LootTable = new LootTable(
@@ -24,6 +24,6 @@ public class Loc_City : Location
 
     protected override TileBase CreateBaseTextureTile()
     {
-        return TileGenerator.CreateTileFromTexture(ResourceManager.Singleton.CityTexture);
+        return TileGenerator.CreateTileFromTexture(ResourceManager_Old.Singleton.CityTexture);
     }
 }

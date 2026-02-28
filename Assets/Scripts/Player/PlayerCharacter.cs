@@ -87,25 +87,25 @@ public class PlayerCharacter : MonoBehaviour
     private void Start()
     {
         // Initialize static status effects
-        SE_Hungry = new StatusEffect("Hungry", "Some food would be nice", ResourceManager.Singleton.SE_Bad);
-        SE_VeryHungry = new StatusEffect("Very Hungry", "I don't think I can go much longer without food.", ResourceManager.Singleton.SE_VeryBad);
-        SE_Starving = new StatusEffect("Starving", "If I don't eat anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad);
+        SE_Hungry = new StatusEffect("Hungry", "Some food would be nice", ResourceManager_Old.Singleton.SE_Bad);
+        SE_VeryHungry = new StatusEffect("Very Hungry", "I don't think I can go much longer without food.", ResourceManager_Old.Singleton.SE_VeryBad);
+        SE_Starving = new StatusEffect("Starving", "If I don't eat anything right now I'm not gonna make it another day.", ResourceManager_Old.Singleton.SE_ExtremelyBad);
 
-        SE_Thirsty = new StatusEffect("Thirsty", "Some water would be nice", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_Dehydrated = new StatusEffect("Dehydrated", "I don't think I can go much longer without water.", ResourceManager.Singleton.SE_VeryBad);
-        SE_Parched = new StatusEffect("Parched", "If I don't drink anything right now I'm not gonna make it another day.", ResourceManager.Singleton.SE_ExtremelyBad);
+        SE_Thirsty = new StatusEffect("Thirsty", "Some water would be nice", ResourceManager_Old.Singleton.SE_Bad, Color.clear);
+        SE_Dehydrated = new StatusEffect("Dehydrated", "I don't think I can go much longer without water.", ResourceManager_Old.Singleton.SE_VeryBad);
+        SE_Parched = new StatusEffect("Parched", "If I don't drink anything right now I'm not gonna make it another day.", ResourceManager_Old.Singleton.SE_ExtremelyBad);
 
-        SE_MinorFracture = new StatusEffect("Minor Fracture", "Oof ouch, my bones.", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_MajorFracture = new StatusEffect("Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad);
-        SE_ExtremeFracture = new StatusEffect("Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", ResourceManager.Singleton.SE_ExtremelyBad);
+        SE_MinorFracture = new StatusEffect("Minor Fracture", "Oof ouch, my bones.", ResourceManager_Old.Singleton.SE_Bad, Color.clear);
+        SE_MajorFracture = new StatusEffect("Major Fracture", "I took a major hit to my bones. I shouldn't take any big risks right now.", ResourceManager_Old.Singleton.SE_VeryBad);
+        SE_ExtremeFracture = new StatusEffect("Extreme Fracture", "My insides feel chaoticly distorted. Any more hits will certainly be my death.", ResourceManager_Old.Singleton.SE_ExtremelyBad);
 
-        SE_MinorBloodLoss = new StatusEffect("Minor Blood Loss", "I've been bleeding a little.", ResourceManager.Singleton.SE_Bad, Color.clear);
-        SE_MajorBloodLoss = new StatusEffect("Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", ResourceManager.Singleton.SE_VeryBad);
-        SE_ExtremeBloodLoss = new StatusEffect("Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", ResourceManager.Singleton.SE_ExtremelyBad);
+        SE_MinorBloodLoss = new StatusEffect("Minor Blood Loss", "I've been bleeding a little.", ResourceManager_Old.Singleton.SE_Bad, Color.clear);
+        SE_MajorBloodLoss = new StatusEffect("Major Blood Loss", "I lost quite a bit of blood. I shouldn't take any big risks right now.", ResourceManager_Old.Singleton.SE_VeryBad);
+        SE_ExtremeBloodLoss = new StatusEffect("Extreme Blood Loss", "I can't afford to lose one more mililiter of blood or I'll be dead.", ResourceManager_Old.Singleton.SE_ExtremelyBad);
 
-        SE_MinorPoisoning = new StatusEffect("Poisoning", "Something poisoned me. I need to find an antidote.", ResourceManager.Singleton.SE_Bad);
-        SE_MajorPoisoning = new StatusEffect("Major Poisoning", "The poisoning is getting really bad. I need to find an antidote asap.", ResourceManager.Singleton.SE_VeryBad);
-        SE_ExtremePoisoning = new StatusEffect("Extreme Poisoning", "If I don't inject an antidote right now I won't make it.", ResourceManager.Singleton.SE_ExtremelyBad);
+        SE_MinorPoisoning = new StatusEffect("Poisoning", "Something poisoned me. I need to find an antidote.", ResourceManager_Old.Singleton.SE_Bad);
+        SE_MajorPoisoning = new StatusEffect("Major Poisoning", "The poisoning is getting really bad. I need to find an antidote asap.", ResourceManager_Old.Singleton.SE_VeryBad);
+        SE_ExtremePoisoning = new StatusEffect("Extreme Poisoning", "If I don't inject an antidote right now I won't make it.", ResourceManager_Old.Singleton.SE_ExtremelyBad);
     }
 
     public void Init(Game game)

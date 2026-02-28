@@ -44,8 +44,8 @@ public class E007_Trader : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E007_Trader);
-        foreach (var text in ResourceManager.Singleton.E007_Prices) ShowEventSprite(text.gameObject);
+        ShowEventSprite(ResourceManager_Old.Singleton.E007_Trader);
+        foreach (var text in ResourceManager_Old.Singleton.E007_Prices) ShowEventSprite(text.gameObject);
 
         // Set up prices
         ItemPrices = new Dictionary<ItemType, int>();
@@ -61,7 +61,7 @@ public class E007_Trader : Event
             Item item = TradeItemTable.GetItem();
             item.transform.position = new Vector3(5.2f + i * 1.15f, -3.5f, 0f);
             BuyableItems.Add(item);
-            ResourceManager.Singleton.E007_Prices[i].text = ItemPrices[item.Type].ToString();
+            ResourceManager_Old.Singleton.E007_Prices[i].text = ItemPrices[item.Type].ToString();
         }
     }
     protected override EventStep GetInitialStep()

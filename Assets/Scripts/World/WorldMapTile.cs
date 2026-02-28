@@ -34,7 +34,7 @@ public class WorldMapTile
         Mission = mission;
 
         if(mission == null) World.SetTile(World.MarkerTilemap, Coordinates, null);
-        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker ?? ResourceManager.Singleton.TileMarkerX);
+        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker ?? ResourceManager_Old.Singleton.TileMarkerX);
     }
 
     #region Getters

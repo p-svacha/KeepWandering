@@ -37,15 +37,15 @@ public abstract class Stat
     {
         int value = GetValue();
 
-        if (value == 100) return ResourceManager.Singleton.SE_Neutral;
+        if (value == 100) return ResourceManager_Old.Singleton.SE_Neutral;
 
-        if (value < 50) return ResourceManager.Singleton.SE_ExtremelyBad;
-        if (value < 75) return ResourceManager.Singleton.SE_VeryBad;
-        if (value < 100) return ResourceManager.Singleton.SE_Bad;
+        if (value < 50) return ResourceManager_Old.Singleton.SE_ExtremelyBad;
+        if (value < 75) return ResourceManager_Old.Singleton.SE_VeryBad;
+        if (value < 100) return ResourceManager_Old.Singleton.SE_Bad;
 
-        if (value > 150) return ResourceManager.Singleton.SE_ExtremelyGood;
-        if (value > 125) return ResourceManager.Singleton.SE_VeryGood;
-        if (value > 100) return ResourceManager.Singleton.SE_Good;
+        if (value > 150) return ResourceManager_Old.Singleton.SE_ExtremelyGood;
+        if (value > 125) return ResourceManager_Old.Singleton.SE_VeryGood;
+        if (value > 100) return ResourceManager_Old.Singleton.SE_Good;
 
         throw new System.Exception("Value " + value + " not handled.");
     }

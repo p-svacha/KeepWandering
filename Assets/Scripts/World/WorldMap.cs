@@ -117,7 +117,7 @@ public class WorldMap : MonoBehaviour
 
         // Add selection marker to new hovered tile
         if (HoveredTile != null)
-            SetTile(HoverTilemap, HoveredTile.Coordinates, ResourceManager.Singleton.TileMarkerTransparentWhite);
+            SetTile(HoverTilemap, HoveredTile.Coordinates, ResourceManager_Old.Singleton.TileMarkerTransparentWhite);
 
         // Hide context menu
         if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) Game.UI.ContextMenu.Hide();
@@ -164,7 +164,7 @@ public class WorldMap : MonoBehaviour
     {
         if (Game.PathHistory.Count >= 2)
         {
-            PathHistoryRenderer.material = ResourceManager.Singleton.PathHistoryMaterial;
+            PathHistoryRenderer.material = ResourceManager_Old.Singleton.PathHistoryMaterial;
             PathHistoryRenderer.startWidth = PathVisualizationWidth;
             PathHistoryRenderer.endWidth = PathVisualizationWidth;
             PathHistoryRenderer.startColor = PathVisualizationColor;
@@ -183,7 +183,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileGreen(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.Singleton.TileMarkerGreen);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerGreen);
         GreenHighlightedTiles.Add(tile);
     }
 
@@ -195,7 +195,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileBlue(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.Singleton.TileMarkerBlue);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerBlue);
         BlueHighlightedTiles.Add(tile);
     }
 
@@ -207,7 +207,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileRed(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.Singleton.TileMarkerRed);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerRed);
         RedHighlightedTiles.Add(tile);
     }
 
@@ -249,7 +249,7 @@ public class WorldMap : MonoBehaviour
 
         // Create and draw quarantine zone
         QuarantineZone = new Area(this, "Quarantine Zone", quarantineZoneTiles);
-        QuarantineZone.DrawPerimeterFence(ResourceManager.Singleton.QuarantineZoneBorderMaterial, 0.4f);
+        QuarantineZone.DrawPerimeterFence(ResourceManager_Old.Singleton.QuarantineZoneBorderMaterial, 0.4f);
     }
 
     /// <summary>

@@ -40,8 +40,8 @@ public class E009_AbandondedShelter : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E009_Shelter);
-        ShowEventSprite(ResourceManager.Singleton.E009_TrapOpen);
+        ShowEventSprite(ResourceManager_Old.Singleton.E009_Shelter);
+        ShowEventSprite(ResourceManager_Old.Singleton.E009_TrapOpen);
     }
     protected override EventStep GetInitialStep()
     {
@@ -110,7 +110,7 @@ public class E009_AbandondedShelter : Event
         List<Item> items = GetLocationLootTable(ItemTable).AddItemsToInventory(MIN_ITEMS, MAX_ITEMS);
 
         // Hide character
-        ResourceManager.Singleton.PlayerCharacter.gameObject.SetActive(false);
+        ResourceManager_Old.Singleton.PlayerCharacter.gameObject.SetActive(false);
 
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -130,7 +130,7 @@ public class E009_AbandondedShelter : Event
     private EventStep LeaveWindow()
     {
         // Show character
-        ResourceManager.Singleton.PlayerCharacter.gameObject.SetActive(true);
+        ResourceManager_Old.Singleton.PlayerCharacter.gameObject.SetActive(true);
 
         int numCuts = HelperFunctions.GetWeightedRandomElement(WindowCutsTable);
         if (numCuts == 0)
@@ -150,7 +150,7 @@ public class E009_AbandondedShelter : Event
     private EventStep LeaveDoor()
     {
         // Show character
-        ResourceManager.Singleton.PlayerCharacter.gameObject.SetActive(true);
+        ResourceManager_Old.Singleton.PlayerCharacter.gameObject.SetActive(true);
 
         if (IsTrapTriggered) return new EventStep("You walk past the already triggered trap and move on.");
         else
@@ -173,14 +173,14 @@ public class E009_AbandondedShelter : Event
     private void CutOnWindows(int numCuts)
     {
         for (int i = 0; i < numCuts; i++) Game.AddCutWound();
-        ShowEventSprite(ResourceManager.Singleton.E009_WindowBlood);
+        ShowEventSprite(ResourceManager_Old.Singleton.E009_WindowBlood);
     }
 
     private void TriggerTrap()
     {
         Game.AddBruiseWound();
         IsTrapTriggered = true;
-        HideEventSprite(ResourceManager.Singleton.E009_TrapOpen);
-        ShowEventSprite(ResourceManager.Singleton.E009_TrapClosed);
+        HideEventSprite(ResourceManager_Old.Singleton.E009_TrapOpen);
+        ShowEventSprite(ResourceManager_Old.Singleton.E009_TrapClosed);
     }
 }

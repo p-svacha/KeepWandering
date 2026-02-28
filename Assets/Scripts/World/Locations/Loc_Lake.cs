@@ -7,7 +7,7 @@ public class Loc_Lake : Location
 {
     public override string Name => "Lake";
     public override LocationType Type => LocationType.Lake;
-    public override SpriteRenderer Sprite => ResourceManager.Singleton.WoodsBackground;
+    public override SpriteRenderer Sprite => ResourceManager_Old.Singleton.WoodsBackground;
     public override bool IsPassable => false;
 
     private LootTable _LootTable = new LootTable(
@@ -18,6 +18,6 @@ public class Loc_Lake : Location
 
     protected override TileBase CreateBaseTextureTile()
     {
-        return TileGenerator.CreateTileFromTexture(ResourceManager.Singleton.LakeTexture);
+        return TileGenerator.CreateTileFromTexture(ResourceManager_Old.Singleton.LakeTexture);
     }
 }

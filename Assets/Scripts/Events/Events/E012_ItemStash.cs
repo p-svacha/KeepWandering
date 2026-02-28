@@ -20,7 +20,7 @@ public class E012_ItemStash : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E012_ItemStashClosed);
+        ShowEventSprite(ResourceManager_Old.Singleton.E012_ItemStashClosed);
 
         // Item
         if (Mission != null && ForcedItems.ContainsKey(Mission.Id))
@@ -52,8 +52,8 @@ public class E012_ItemStash : Event
     // Steps
     private EventStep TakeItem()
     {
-        ShowEventSprite(ResourceManager.Singleton.E012_ItemStashOpen);
-        HideEventSprite(ResourceManager.Singleton.E012_ItemStashClosed);
+        ShowEventSprite(ResourceManager_Old.Singleton.E012_ItemStashOpen);
+        HideEventSprite(ResourceManager_Old.Singleton.E012_ItemStashClosed);
 
         string text = "You take the " + Item.Name + ".";
         Game.AddItemToInventory(Item);

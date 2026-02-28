@@ -82,6 +82,10 @@ public class Game : MonoBehaviour
     void Start()
     {
         Singleton = this;
+
+        ResourceManager_New.ClearCache();
+        DefDatabaseRegistry.InitDefs();
+
         StartGame();
     }
 
@@ -675,36 +679,36 @@ public class Game : MonoBehaviour
     public void AddDog()
     {
         Player.AddDog();
-        Companions.Add(ResourceManager.Singleton.Dog);
-        ResourceManager.Singleton.Dog.Init(this);
+        Companions.Add(ResourceManager_Old.Singleton.Dog);
+        ResourceManager_Old.Singleton.Dog.Init(this);
         UpdatePlayerStats();
     }
     public void RemoveDog()
     {
         Player.RemoveDog();
-        Companions.Remove(ResourceManager.Singleton.Dog);
-        ResourceManager.Singleton.Dog.gameObject.SetActive(false);
+        Companions.Remove(ResourceManager_Old.Singleton.Dog);
+        ResourceManager_Old.Singleton.Dog.gameObject.SetActive(false);
         UpdatePlayerStats();
     }
 
     public void AddParrot()
     {
         Player.AddParrot();
-        Companions.Add(ResourceManager.Singleton.Parrot);
-        ResourceManager.Singleton.Parrot.Init(this);
+        Companions.Add(ResourceManager_Old.Singleton.Parrot);
+        ResourceManager_Old.Singleton.Parrot.Init(this);
         UpdatePlayerStats();
     }
     public void FeedParrot(Item item, float value)
     {
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        ResourceManager.Singleton.Parrot.AddNutrition(value);
+        ResourceManager_Old.Singleton.Parrot.AddNutrition(value);
         UpdatePlayerStats();
     }
     public void RemoveParrot()
     {
         Player.RemoveParrot();
-        Companions.Remove(ResourceManager.Singleton.Parrot);
-        ResourceManager.Singleton.Parrot.gameObject.SetActive(false);
+        Companions.Remove(ResourceManager_Old.Singleton.Parrot);
+        ResourceManager_Old.Singleton.Parrot.gameObject.SetActive(false);
         UpdatePlayerStats();
     }
 

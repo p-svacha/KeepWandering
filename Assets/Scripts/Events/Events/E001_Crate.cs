@@ -37,7 +37,7 @@ public class E001_Crate : Event
     protected override void OnEventStart()
     {
         // Sprites
-        ShowEventSprite(ResourceManager.Singleton.E001_Crate);
+        ShowEventSprite(ResourceManager_Old.Singleton.E001_Crate);
 
         // Crate item
         CrateItem = GetLocationLootTable(ItemTable).GetItem();
