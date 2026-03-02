@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// General class representing an option for the player to interact with. Used for item context menus.
+/// </summary>
 public class InteractionOption
 {
     public string Text { get; private set; }

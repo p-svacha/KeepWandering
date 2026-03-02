@@ -2,18 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Stat
+public class Stat
 {
-    private const int BASE_VALUE = 100; // never change!
+    private const int BASE_VALUE = 0;
 
     protected Game Game;
-    public abstract StatId Id { get; }
-    public abstract string Name { get; }
-    public abstract string Description { get; }
+    public StatDef Def { get; private set; }
 
-    public Stat(Game game)
+    public string Label => Def.Label;
+    public string Description => Def.Description;
+
+    public Stat(Game game, StatDef def)
     {
         Game = game;
+        Def = def;
     }
 
     public int GetValue()
@@ -31,22 +33,28 @@ public abstract class Stat
         return GetValue() - BASE_VALUE;
     }
 
-    public abstract List<StatModifier> GetModifiers();
+    public List<StatModifier> GetModifiers()
+    {
+        List<StatModifier> modifiers = new List<StatModifier>();
+
+
+
+        return modifiers;
+    }
 
     public Color GetValueColor()
     {
         int value = GetValue();
 
-        if (value == 100) return ResourceManager_Old.Singleton.SE_Neutral;
+        if (value == 0) return ResourceManager.Color_Text_Default;
 
-        if (value < 50) return ResourceManager_Old.Singleton.SE_ExtremelyBad;
-        if (value < 75) return ResourceManager_Old.Singleton.SE_VeryBad;
-        if (value < 100) return ResourceManager_Old.Singleton.SE_Bad;
+        if (value < -20) return ResourceManager.Color_Text_ExtremelyNegative;
+        if (value < -10) return ResourceManager.Color_Text_VeryNegative;
+        if (value < 0) return ResourceManager.Color_Text_Negative;
 
-        if (value > 150) return ResourceManager_Old.Singleton.SE_ExtremelyGood;
-        if (value > 125) return ResourceManager_Old.Singleton.SE_VeryGood;
-        if (value > 100) return ResourceManager_Old.Singleton.SE_Good;
-
+        if (value > 20) return ResourceManager.Color_Text_ExtremelyPositive;
+        if (value > 10) return ResourceManager.Color_Text_VeryPositive;
+        if (value > 0) return ResourceManager.Color_Text_Positive;
         throw new System.Exception("Value " + value + " not handled.");
     }
 }

@@ -22,6 +22,6 @@ public class UI_Mission : MonoBehaviour
 
     private void LocationButton_OnClick()
     {
-        Game.Singleton.UI.OpenWorldMap(focusTile: Mission.Location);
+        Game.Instance.UI.OpenWorldMap(focusTile: Mission.Location);
     }
 }

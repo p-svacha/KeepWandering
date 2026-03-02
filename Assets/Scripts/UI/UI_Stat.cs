@@ -20,13 +20,13 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void Init(Stat stat)
     {
         Stat = stat;
-        UpdateStat();
+        Refresh();
     }
 
-    public void UpdateStat()
+    public void Refresh()
     {
         // Label
-        LabelText.text = Stat.Name;
+        LabelText.text = Stat.Def.LabelCapWord;
 
         // Value
         ValueText.text = Stat.GetValue() + "%";
@@ -42,7 +42,7 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void Update()
     {
-        if (IsFocussed && !Game.Singleton.UI.Tooltip.gameObject.activeSelf)
+        if (IsFocussed && !Game.Instance.UI.Tooltip.gameObject.activeSelf)
         {
             if (CurrentDelay < GameUI.TOOLTIP_HOVER_TIME) CurrentDelay += Time.deltaTime;
             else ShowTooltip();
@@ -60,14 +60,14 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void ShowTooltip()
     {
-        Game.Singleton.UI.Tooltip.Show(this);
+        Game.Instance.UI.Tooltip.Show(this);
     }
 
     private void HideTooltip()
     {
         IsFocussed = false;
         CurrentDelay = 0;
-        Game.Singleton.UI.Tooltip.Hide();
+        Game.Instance.UI.Tooltip.Hide();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

@@ -44,11 +44,6 @@ public class WorldMap : MonoBehaviour
     /// </summary>
     private Dictionary<Vector2Int, WorldMapTile> Tiles;
 
-    /// <summary>
-    /// Dictionary containing the unique instances of each biome.
-    /// </summary>
-    private Dictionary<LocationType, Location> Locations;
-
     // Special tiles
     private WorldMapTile HoveredTile;
     private List<WorldMapTile> GreenHighlightedTiles = new List<WorldMapTile>();
@@ -63,12 +58,6 @@ public class WorldMap : MonoBehaviour
     public void Init(Game game)
     {
         Game = game;
-
-        Locations = new Dictionary<LocationType, Location>();
-        Locations.Add(LocationType.City, new Loc_City());
-        Locations.Add(LocationType.Woods, new Loc_Woods());
-        Locations.Add(LocationType.Farmland, new Loc_Farmland());
-        Locations.Add(LocationType.Lake, new Loc_Lake());
     }
 
     public void ResetCamera()
@@ -117,7 +106,9 @@ public class WorldMap : MonoBehaviour
 
         // Add selection marker to new hovered tile
         if (HoveredTile != null)
-            SetTile(HoverTilemap, HoveredTile.Coordinates, ResourceManager_Old.Singleton.TileMarkerTransparentWhite);
+        {
+            SetTile(HoverTilemap, HoveredTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileMarkerTransparentWhite"));
+        }
 
         // Hide context menu
         if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) Game.UI.ContextMenu.Hide();
@@ -164,7 +155,7 @@ public class WorldMap : MonoBehaviour
     {
         if (Game.PathHistory.Count >= 2)
         {
-            PathHistoryRenderer.material = ResourceManager_Old.Singleton.PathHistoryMaterial;
+            PathHistoryRenderer.material = ResourceManager.LoadMaterial("WorldMap/PathHistoryMaterial");
             PathHistoryRenderer.startWidth = PathVisualizationWidth;
             PathHistoryRenderer.endWidth = PathVisualizationWidth;
             PathHistoryRenderer.startColor = PathVisualizationColor;
@@ -183,7 +174,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileGreen(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerGreen);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileMarkerGreen"));
         GreenHighlightedTiles.Add(tile);
     }
 
@@ -195,7 +186,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileBlue(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerBlue);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileMarkerBlue"));
         BlueHighlightedTiles.Add(tile);
     }
 
@@ -207,7 +198,7 @@ public class WorldMap : MonoBehaviour
 
     public void HighlightTileRed(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager_Old.Singleton.TileMarkerRed);
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileMarkerRed"));
         RedHighlightedTiles.Add(tile);
     }
 
@@ -249,7 +240,7 @@ public class WorldMap : MonoBehaviour
 
         // Create and draw quarantine zone
         QuarantineZone = new Area(this, "Quarantine Zone", quarantineZoneTiles);
-        QuarantineZone.DrawPerimeterFence(ResourceManager_Old.Singleton.QuarantineZoneBorderMaterial, 0.4f);
+        QuarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/QuarantineZoneBorderMaterial"), 0.4f);
     }
 
     /// <summary>
@@ -307,11 +298,11 @@ public class WorldMap : MonoBehaviour
         Tiles.Add(coordinates, newTile);
 
         // Set Biome
-        LocationType locType = LocationType.Farmland;
-        if (WaterNoise.GetValue(coordinates) > 0.65f) locType = LocationType.Lake;
-        else if (ForestNoise.GetValue(coordinates) > 0.65f) locType = LocationType.Woods;
-        else if (CityNoise.GetValue(coordinates) > 0.7f) locType = LocationType.City;
-        newTile.SetLocation(Locations[locType]);
+        BiomeDef biome = BiomeDefOf.Farmland;
+        if (WaterNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Lake;
+        else if (ForestNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Woods;
+        else if (CityNoise.GetValue(coordinates) > 0.7f) biome = BiomeDefOf.City;
+        newTile.SetBiome(biome);
 
         // Fill Tilemaps
         FillTile(newTile);
@@ -342,7 +333,7 @@ public class WorldMap : MonoBehaviour
     /// </summary>
     private void FillTile(WorldMapTile tile)
     {
-        SetTile(BaseTextureTilemap, tile.Coordinates, tile.Location.BaseTextureTile);
+        SetTile(BaseTextureTilemap, tile.Coordinates, tile.Biome.WorldMapTile);
     }
 
     /// <summary>
@@ -393,6 +384,19 @@ public class WorldMap : MonoBehaviour
     public WorldMapTile GetRandomQuarantineTile()
     {
         return QuarantineZone.GetRandomPassableTile();
+    }
+
+    /// <summary>
+    /// Returns the number of appearances of a specific encounter on the world map.
+    /// </summary>
+    public int GetNumAppearances(EncounterDef def)
+    {
+        int numAppearances = 0;
+        foreach (WorldMapTile tile in Tiles.Values)
+        {
+            if (tile.Encounter != null && tile.Encounter.Def == def) numAppearances++;
+        }
+        return numAppearances;
     }
 
     #endregion

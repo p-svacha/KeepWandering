@@ -3,42 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class Game : MonoBehaviour
 {
-    public EventManager EventManager { get; private set; }
+    public EncounterManager EncounterManager { get; private set; }
+    public GameObject EncounterContainer {  get; private set; }
+    public GameObject BiomeBackgroundContainer {  get; private set; }
 
     // Game State
     public GameState State { get; private set; }
     public int Day { get; private set; }
+    public int ItemIdCounter { get; private set; }
     public MorningReport LatestMorningReport { get; private set; }
-    public Event CurrentEvent;
-    public EventStep CurrentEventStep;
+    public Encounter CurrentEncounter;
+    public EncounterStep CurrentEventStep;
 
     // Event Step Outcome
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
-    public List<Injury> InjuriesAddedSinceLastStep = new List<Injury>();
+    public List<Wound> InjuriesAddedSinceLastStep = new List<Wound>();
 
     // Position
-    /// <summary>
-    /// The type of action the player is doing on the current day.
-    /// </summary>
-    public DayAction DayAction { get; private set; }
+    public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
     public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
-    /// <summary>
-    /// Position the player is currently at.
-    /// </summary>
-    public WorldMapTile CurrentPosition { get; private set; }
-    /// <summary>
-    /// Position the player is moving towards.
-    /// </summary>
-    public WorldMapTile TargetPosition { get; private set; }
+    public WorldMapTile CurrentPosition { get; private set; } // Position the player is currently at.
+    public WorldMapTile TargetPosition { get; private set; } // Position the player is moving towards.
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
     // Stats
-    public Dictionary<StatId, Stat> Stats { get; private set; }
+    public Dictionary<StatDef, Stat> PlayerStats { get; private set; }
 
     // Missions
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
@@ -49,7 +45,6 @@ public class Game : MonoBehaviour
     public GameUI UI;
 
     [Header("Items")]
-    public List<Item> ItemPrefabs;
     private Item CurrentHoverItem;
     private float CurrentHoverTime;
     private Item CurrentInteractionItem;
@@ -57,7 +52,7 @@ public class Game : MonoBehaviour
 
     [Header("Characters")]
     public PlayerCharacter Player;
-    public List<Companion> Companions = new List<Companion>();
+    //public List<Companion> Companions = new List<Companion>();
 
     [Header("World Map")]
     public WorldMap WorldMap;
@@ -69,21 +64,23 @@ public class Game : MonoBehaviour
 
     // Rules
     private static LootTable StartItemTable = new LootTable(
-        new(ItemType.Beans, 8),
-        new(ItemType.WaterBottle, 8),
-        new(ItemType.Bandage, 5),
-        new(ItemType.Bone, 3),
-        new(ItemType.Knife, 2),
-        new(ItemType.Antibiotics, 2)
+        new(ItemDefOf.Beans, 8),
+        new(ItemDefOf.WaterBottle, 8),
+        new(ItemDefOf.Bandage, 5),
+        new(ItemDefOf.Bone, 3),
+        new(ItemDefOf.Knife, 2),
+        new(ItemDefOf.Antibiotics, 2)
     );
 
     #region Game Flow
 
     void Start()
     {
-        Singleton = this;
+        Instance = this;
 
-        ResourceManager_New.ClearCache();
+        EncounterContainer = GameObject.Find("Encounters");
+        BiomeBackgroundContainer = GameObject.Find("BiomeBackgrounds");
+        ResourceManager.ClearCache();
         DefDatabaseRegistry.InitDefs();
 
         StartGame();
@@ -100,24 +97,22 @@ public class Game : MonoBehaviour
         WorldMap.ResetCamera();
 
         // Init events
-        EventManager = new EventManager(this);
+        EncounterManager = new EncounterManager(this);
 
         // Init stats
-        Stats = new Dictionary<StatId, Stat>();
-        Stats.Add(StatId.Moving, new Stat_Moving(this));
-        Stats.Add(StatId.Fighting, new Stat_Fighting(this));
-        Stats.Add(StatId.Dexterity, new Stat_Dexterity(this));
-        Stats.Add(StatId.Charisma, new Stat_Charisma(this));
+        PlayerStats = new Dictionary<StatDef, Stat>();
+        foreach(StatDef stat in DefDatabase<StatDef>.AllDefs) PlayerStats.Add(stat, new Stat(this, stat));
 
         // Init UI
         UI.Init(this);
         UI.ContextMenu.Init(this);
 
         // Init player
-        Player.Init(this);
+        ItemIdCounter = 0;
+        Player = new PlayerCharacter(this);
 
-        AddItemToInventory(GetItemInstance(ItemType.Beans));
-        AddItemToInventory(GetItemInstance(ItemType.WaterBottle));
+        AddNewItemToInventory(ItemDefOf.Beans);
+        AddNewItemToInventory(ItemDefOf.WaterBottle);
         StartItemTable.AddItemToInventory();
 
         SwitchState(GameState.InDayTransition);
@@ -146,9 +141,9 @@ public class Game : MonoBehaviour
                 {
                     if (hit.collider.GetComponent<Item>() != CurrentHoverItem)
                     {
-                        if(CurrentHoverItem != null && !CurrentHoverItem.ForceGlow) CurrentHoverItem.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 0);
+                        if (CurrentHoverItem != null) CurrentHoverItem.Renderer.Unhighlight();
                         CurrentHoverItem = hit.collider.GetComponent<Item>();
-                        CurrentHoverItem.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 1);
+                        CurrentHoverItem.Renderer.Highlight(Color.white);
                         CurrentHoverTime = 0f;
 
                         UI.Tooltip.Hide();
@@ -164,7 +159,7 @@ public class Game : MonoBehaviour
                 {
                     if (CurrentHoverItem != null)
                     {
-                        if(!CurrentHoverItem.ForceGlow) CurrentHoverItem.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 0);
+                        CurrentHoverItem.Renderer.Unhighlight();
                         CurrentHoverItem = null;
                         UI.Tooltip.Hide();
                     }
@@ -221,12 +216,13 @@ public class Game : MonoBehaviour
                 break;
 
             case GameState.EndMorningReportTransitionOut:
-                StartAfternoonEvent();
+                if (DayAction == DayAction.Rest) StartEveningEncounter(); // Resting skips afternoon
+                else StartAfternoonEncounter();
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
             case GameState.EndEventTransitionOut:
-                StartEveningEvent();
+                StartEveningEncounter();
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
@@ -243,48 +239,34 @@ public class Game : MonoBehaviour
 
         State = newState;
 
-        if(State != GameState.GameOver) CheckGameOver();
+        if (State != GameState.GameOver) CheckGameOver();
     }
 
-    public void DisplayEventStep(EventStep step)
+    public void DisplayEncounterStep(EncounterStep step)
     {
-        if (CurrentEventStep != null)
-        {
-            foreach (EventItemOption eventItemOption in CurrentEventStep.EventItemOptions)
-            {
-                foreach (Item item in Inventory)
-                {
-                    if (item.Type == eventItemOption.RequiredItemType)
-                    {
-                        item.ForceGlow = false;
-                        item.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 0);
-                        item.GetComponent<SpriteRenderer>().material.SetColor("_GlowColor", Color.white);
-                    }
-                }
-            }
-        }
+        // Unhighlight from previous step
+        ForceUnhighlightAllInventoryItems();
 
+        // Display new step
         CurrentEventStep = step;
         if (step != null)
         {
             UI.EventStepDisplay.Init(step);
-            foreach (EventItemOption eventItemOption in CurrentEventStep.EventItemOptions)
-            {
-                foreach (Item item in Inventory)
-                {
-                    if (item.Type == eventItemOption.RequiredItemType)
-                    {
-                        item.ForceGlow = true;
-                        item.GetComponent<SpriteRenderer>().material.SetFloat("_IsGlowing", 1);
-                        item.GetComponent<SpriteRenderer>().material.SetColor("_GlowColor", Color.red);
-                    }
-                }
-            }
+            step.HighlightSlottableItems();
         }
 
+        // Clear event step outcome
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
         InjuriesAddedSinceLastStep.Clear();
+    }
+
+    public void ForceUnhighlightAllInventoryItems()
+    {
+        foreach (Item item in Inventory)
+        {
+            item.Renderer.Unhighlight(removeForced: true);
+        }
     }
 
     public void CheckGameOver()
@@ -300,12 +282,11 @@ public class Game : MonoBehaviour
     private string GetGameOverReason()
     {
         // Lose
-        if (Player.Nutrition <= 0f) return "You starved";
-        if (Player.Hydration <= 0f) return "You died of dehydration";
-        if (Player.BoneHealth <= 0f) return "You died due to extreme fractures";
-        if (Player.BloodAmount <= 0f) return "You bled out";
-        if (Player.IsPoisoned && Player.PoisonCountdown <= 0) return "You died of poisoning";
-        if (Player.ActiveWounds.Any(x => x.InfectionStage == InfectionStage.Fatal)) return "You died of an infection";
+        foreach(HealthCondition condition in Player.HealthConditions)
+        {
+            string deathReason = condition.IsFatal();
+            if (deathReason != null && deathReason != "") return deathReason;
+        }
 
         // Win
         if (!QuarantineZone.IsInArea(CurrentPosition)) return "You escaped the quarantine.\nYou win.";
@@ -325,10 +306,12 @@ public class Game : MonoBehaviour
         Day++;
 
         Player.OnEndDay(this, LatestMorningReport);
+        /*
         List<Companion> companionsCopy = new List<Companion>();
         foreach (Companion c in Companions) companionsCopy.Add(c);
         foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
-        UpdatePlayerStats();
+        */
+        OnGameStateChanged();
 
         // Show morning report
         UpdateMorningEvent();
@@ -347,13 +330,13 @@ public class Game : MonoBehaviour
     /// </summary>
     private void UpdateMorningEvent()
     {
-        DisplayEventStep(GetMorningEvent());
+        DisplayEncounterStep(GetMorningEncounter());
     }
 
     /// <summary>
     /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
     /// </summary>
-    private EventStep GetMorningEvent()
+    private EncounterStep GetMorningEncounter()
     {
         // Text displaying night events
         string text = "";
@@ -361,23 +344,38 @@ public class Game : MonoBehaviour
         else if (LatestMorningReport.NightEvents.Count == 0) text = "You wake after an uneventful night.";
         else
         {
-            text = "You wake up in the " + CurrentPosition.Location.Name + ". The following happened during the night:";
+            text = $"You wake up in the {CurrentPosition.Biome.Label}. The following happened during the night:";
             foreach (string e in LatestMorningReport.NightEvents) text += "\n- " + e;
         }
 
-        // Dialogue Option - Open Map
-        List<EventDialogueOption> options = new List<EventDialogueOption>();
-        EventDialogueOption startTravelingOption = new EventDialogueOption("Make plans for the day", OpenMap);
-        options.Add(startTravelingOption);
 
-        EventStep morningEventStep = new EventStep(text, options, null);
+        // Options
+        List<EncounterStepOption> options = new List<EncounterStepOption>();
+
+        options.Add(new FixedOutcomeOption("Move", OpenMap)); // Move
+        options.Add(new FixedOutcomeOption("Stay", Stay)); // Stay
+        options.Add(new FixedOutcomeOption("Rest", Rest)); // Rest
+
+        EncounterStep morningEventStep = new EncounterStep(text, options);
         return morningEventStep;
     }
 
-    private EventStep OpenMap()
+    private EncounterStep Stay()
+    {
+        DayAction = DayAction.Stay;
+        return EndMorning();
+    }
+
+    private EncounterStep Rest()
+    {
+        DayAction = DayAction.Rest;
+        return EndMorning();
+    }
+
+    private EncounterStep OpenMap()
     {
         UI.OpenWorldMap();
-        return GetMorningEvent();
+        return GetMorningEncounter();
     }
 
     /// <summary>
@@ -403,39 +401,12 @@ public class Game : MonoBehaviour
     {
         if (!GetNextPositionTiles().Contains(tile)) return;
 
-        List<InteractionOption> options = new List<InteractionOption>();
-
-        // Stay
-        if (tile == CurrentPosition) options.Add(new InteractionOption("Stay and explore", () => SelectDayAction(tile, DayAction.Stay)));
-
-        // Go there
-        if (tile != CurrentPosition && WorldMap.QuarantineZone.IsInArea(tile)) options.Add(new InteractionOption("Go there", () => SelectDayAction(tile, DayAction.Move)));
-
-        // Enter mission event
-        if (tile.Mission != null) options.Add(new InteractionOption(tile.Mission.MapText, () => SelectDayAction(tile, DayAction.EnterMission)));
-
-        // Approach fence
-        if (!WorldMap.QuarantineZone.IsInArea(tile)) options.Add(new InteractionOption("Approach fence", () => SelectDayAction(tile, DayAction.ApproachFence)));
-
-        UI.ContextMenu.Show(tile.Location.Name, options);
-    }
-
-    /// <summary>
-    /// Selects where to go and the type of action for that day. Ends the morning event.
-    /// </summary>
-    private void SelectDayAction(WorldMapTile tile, DayAction action)
-    {
-        // Set position
+        DayAction = DayAction.Move;
         TargetPosition = tile;
-
-        // Set action
-        DayAction = action;
-
-        // End morning event
-        EndMorningEvent();
+        EndMorning();
     }
 
-    public EventStep EndMorningEvent()
+    public EncounterStep EndMorning()
     {
         UI.CloseAllWindows();
 
@@ -452,41 +423,29 @@ public class Game : MonoBehaviour
     
     #region Afternoon
 
-    private void StartAfternoonEvent()
+    private void StartAfternoonEncounter()
     {
         UI.DayTimeText.text = "Afternoon";
 
-        switch(DayAction)
+        // Move to selected target position
+        if (DayAction == DayAction.Move)
         {
-            case DayAction.Move:
-                SetPosition(TargetPosition);
-                TargetPosition = null;
-                break;
-
-            case DayAction.EnterMission:
-                EventManager.ForceMission(TargetPosition.Mission);
-                if (TargetPosition != null)
-                {
-                    SetPosition(TargetPosition);
-                    TargetPosition = null;
-                }
-                break;
-
-            case DayAction.ApproachFence:
-                EventManager.ForceEvent(eventId: 10);
-                break;
+            SetPosition(TargetPosition);
+            TargetPosition = null;
         }
 
-        // Chose an event for the afternoon
-        CurrentEvent = EventManager.GetAfternoonEvent();
-        EventManager.UpdateDaysSinceLastOccurence(CurrentEvent);
+        // If the tile already has a location encounter set, just take that.
+        if (CurrentPosition.Encounter != null) CurrentEncounter = CurrentPosition.Encounter;
 
-        // Display the event
-        CurrentEvent.StartEvent();
-        DisplayEventStep(CurrentEvent.InitialStep);
+        // Else generate a new one
+        CurrentEncounter = EncounterManager.GenerateLocationEncounter(CurrentPosition);
+
+        // Display the encounter
+        CurrentEncounter.StartEncounter();
+        DisplayEncounterStep(CurrentEncounter.InitialStep);
 
         // Update status
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
 
     public void EndAfternoonEvent()
@@ -499,37 +458,37 @@ public class Game : MonoBehaviour
 
     #region Evening
 
-    private void StartEveningEvent()
+    private void StartEveningEncounter()
     {
         UI.DayTimeText.text = "Evening";
 
-        // Clear day event
-        if (CurrentEvent != null) CurrentEvent.EndEvent();
-        CurrentEvent = null;
+        // Clear previous encounter
+        if (CurrentEncounter != null) CurrentEncounter.EndEvent();
+        CurrentEncounter = null;
 
         // Display evening event
-        DisplayEventStep(GetEveningEvent());
+        DisplayEncounterStep(GetEveningEncounter()); // todo: replace with biome specific evening encounter
     }
 
     /// <summary>
     /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
     /// </summary>
-    private EventStep GetEveningEvent()
+    private EncounterStep GetEveningEncounter()
     {
         // Text displaying night events
-        string text = "You arrived at a good camp spot in " + CurrentPosition.Location.Name + " just as planned. You are tired and can't wait to get some rest.";
+        string text = $"How would you like to spend your evening in the {CurrentPosition.Biome.Label}?";
 
         // Dialogue Options
-        List<EventDialogueOption> options = new List<EventDialogueOption>();
+        List<EncounterStepOption> options = new List<EncounterStepOption>();
 
-        EventDialogueOption sleepOtion = new EventDialogueOption("Sleep", Sleep);
+        FixedOutcomeOption sleepOtion = new FixedOutcomeOption("Sleep", Sleep);
         options.Add(sleepOtion);
 
-        EventStep eveningEventStep = new EventStep(text, options, null);
+        EncounterStep eveningEventStep = new EncounterStep(text, options);
         return eveningEventStep;
     }
 
-    private EventStep Sleep()
+    private EncounterStep Sleep()
     {
         EndEveningEvent();
         return null;
@@ -545,30 +504,42 @@ public class Game : MonoBehaviour
 
     #region Game Actions
 
-    public void AddItemToInventory(Item item)
+    public Item CreateItem(ItemDef itemDef)
     {
-        item.Show();
-        item.IsPlayerOwned = true;
+        Item item = new Item(this, ItemIdCounter++, itemDef);
+        return item;
+    }
 
-        item.transform.position = new Vector3(Random.Range(-8f, -3f), Random.Range(2f, 4f), 0f);
-        item.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
-        item.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+    public void AddNewItemToInventory(ItemDef itemDef)
+    {
+        Item item = CreateItem(itemDef);
+        AddExistingItemToInventory(item);
+    }
+
+    public void AddExistingItemToInventory(Item item)
+    {
+        item.Renderer.Show();
+        item.SetIsPlayerOwned(true);
+
+        item.Renderer.SetPosition(Random.Range(-8f, -3f), Random.Range(2f, 4f));
+        item.Renderer.SetRotation(Random.Range(0f, 360f));
+        item.Renderer.Unfreeze();
 
         ItemsAddedSinceLastStep.Add(item);
         Inventory.Add(item);
 
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
     /// <summary>
     /// Adds multiple items to the player of the same type. Returns a list containing the added items.
     /// </summary>
-    public List<Item> AddItemsToInventory(ItemType type, int amount)
+    public List<Item> AddNewItemsToInventory(ItemDef itemDef, int amount)
     {
         List<Item> addedItems = new List<Item>();
         for(int i = 0; i < amount; i++)
         {
-            Item item = GetItemInstance(type);
-            AddItemToInventory(item);
+            Item item = CreateItem(itemDef);
+            AddExistingItemToInventory(item);
             addedItems.Add(item);
         }
         return addedItems;
@@ -577,19 +548,19 @@ public class Game : MonoBehaviour
     {
         if(showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
-        Destroy(item.gameObject);
+        DestroyItem(item);
 
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
     /// <summary>
     /// Destroys multiple items of the player of the same type. Returns a list containing the destroyed items.
     /// </summary>
-    public List<Item> DestroyOwnedItems(ItemType type, int amount, bool showOnEventStepDisplay = true)
+    public List<Item> DestroyOwnedItems(ItemDef itemDef, int amount, bool showOnEventStepDisplay = true)
     {
         List<Item> destroyedItems = new List<Item>();
         for(int i = 0; i < amount; i++)
         {
-            Item item = Inventory.First(x => x.Type == type);
+            Item item = Inventory.First(x => x.Def == itemDef);
             DestroyOwnedItem(item, showOnEventStepDisplay);
             destroyedItems.Add(item);
         }
@@ -599,62 +570,62 @@ public class Game : MonoBehaviour
     public void DestroyItem(Item item)
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't use DestroyItem on player owned item. Use DestroyOwnedItem instead.");
-        Destroy(item.gameObject);
+        GameObject.Destroy(item.Renderer.gameObject);
     }
 
     public void EatItem(Item item)
     {
-        if (!item.IsEdible) Debug.LogWarning("Eating item that is not edible! " + item.Name);
-        Player.AddNutrition(item.OnEatNutrition);
-        Player.AddHydration(item.OnEatHydration);
+        if (!item.Def.IsEdible) Debug.LogWarning($"Eating item that is not edible! {item.Label}");
+        Player.ModifyNutrition(item.Def.OnEatNutrition);
+        Player.ModifyHydration(item.Def.OnEatHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
     public void DrinkItem(Item item)
     {
-        if (!item.IsDrinkable) Debug.LogWarning("Drinking item that is not edible! " + item.Name);
-        Player.AddHydration(item.OnDrinkHydration);
+        if (!item.Def.IsDrinkable) Debug.LogWarning($"Drinking item that is not drinkable! {item.Label}");
+        Player.ModifyHydration(item.Def.OnDrinkHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
 
     public void AddBruiseWound()
     {
-        Injury injury = Player.AddBruiseWound();
+        Wound injury = Player.AddBruiseWound();
         InjuriesAddedSinceLastStep.Add(injury);
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
     public void AddCutWound()
     {
-        Injury injury = Player.AddCutWound();
+        Wound injury = Player.AddCutWound();
         InjuriesAddedSinceLastStep.Add(injury);
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
 
-    public void TendInjury(Injury wound, Item item)
+    public void TendInjury(Wound wound, Item item)
     {
-        if (!item.CanTendWounds) Debug.LogWarning("Tending wound with an item that can't tend wounds! " + item.Name);
+        if (!item.Def.CanTendWounds) Debug.LogWarning($"Tending wound with an item that can't tend wounds! {item.Label}");
         if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
-        wound.SetHightlight(false);
+        wound.SetHightlighted(false);
         Player.TendWound(wound);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
 
-    public void RemoveInjury(Injury injury)
+    public void RemoveInjury(Wound injury)
     {
         Player.RemoveInjury(injury);
     }
 
-    public void HealInfection(Injury wound, Item item)
+    public void HealInfection(Wound wound, Item item)
     {
-        if(!item.CanHealInfections) Debug.LogWarning("Healing infection with an item that can't heal infections! " + item.Name);
+        if(!item.Def.CanHealInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
-        wound.SetHightlight(false);
+        wound.SetHightlighted(false);
         Player.HealInfection(wound);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-        UpdatePlayerStats();
+        OnGameStateChanged();
     }
 
     public void AddMission(Mission mission)
@@ -676,6 +647,7 @@ public class Game : MonoBehaviour
         UI.UpdateMissionDisplay();
     }
 
+    /*
     public void AddDog()
     {
         Player.AddDog();
@@ -711,69 +683,63 @@ public class Game : MonoBehaviour
         ResourceManager_Old.Singleton.Parrot.gameObject.SetActive(false);
         UpdatePlayerStats();
     }
+    */
 
     public void SetPosition(WorldMapTile tile)
     {
-        if (CurrentPosition != null) CurrentPosition.Location.Sprite.gameObject.SetActive(false);
+        if (CurrentPosition != null) CurrentPosition.Biome.Visuals.SetActive(false);
         CurrentPosition = tile;
-        CurrentPosition.Location.Sprite.gameObject.SetActive(true);
+        CurrentPosition.Biome.Visuals.SetActive(true);
 
         PathHistory.Add(CurrentPosition);
 
         CheckGameOver();
     }
 
-    private void UpdatePlayerStats()
+
+    
+    private void OnGameStateChanged()
     {
-        Player.UpdateStatusEffects();
-        Player.UpdateSprites();
-        foreach (Companion c in Companions) c.UpdateStatusEffects();
+        UpdateHealthConditions();
+        RefreshVisuals();
+    }
+
+    private void UpdateHealthConditions()
+    {
+        foreach (HealthCondition condition in Player.HealthConditions) condition.OnUpdate();
+    }
+
+    /// <summary>
+    /// Refreshes all visual elements in the game according to the current game state. This includes both UI and world elements. Should be called after every change to the game state.
+    /// </summary>
+    private void RefreshVisuals()
+    {
+        PlayerCharacterRenderer.Instance.UpdateSprites();
+        //foreach (Companion c in Companions) c.UpdateStatusEffects();
 
         UI.UpdateHealthReports();
-        UI.UpdateStats();
+        UI.RefreshStats();
     }
 
     #endregion
 
     #region Getters
 
-    public Location CurrentLocation => CurrentPosition.Location;
-
-    public Item GetItemInstance(ItemType type)
+    public int GetItemAmount(ItemDef itemDef)
     {
-        Item item = Instantiate(ItemPrefabs.FirstOrDefault(x => x.Type == type));
-        if (item == null) throw new System.Exception("No item prefab found with type " + type.ToString());
-        item.Init(this);
-        return item;
+        return Inventory.Count(x => x.Def == itemDef);
     }
 
-    public System.Array GetAllItemTypes()
-    {
-        return System.Enum.GetValues(typeof(ItemType));
-    }
-
-    public int GetItemTypeAmount(ItemType type)
-    {
-        return Inventory.Count(x => x.Type == type);
-    }
-
-    /// <summary>
-    /// Returns a LootTable containing all items with equal chances.
-    /// </summary>
-    public LootTable GetStandardLootTable()
-    {
-        Dictionary<ItemType, float> dic = new Dictionary<ItemType, float>();
-        foreach (Item item in ItemPrefabs) dic.Add(item.Type, 1f);
-        return new LootTable(dic);
-    }
-
-    public Item RandomInventoryItem => Inventory[Random.Range(0, Inventory.Count)];
+    public Item RandomInventoryItem => Inventory.RandomElement();
     public bool IsMissionActive(MissionId id)
     {
         return Missions.ContainsKey(id);
     }
 
-    public static Game Singleton;
+    public static Game Instance;
+
+    public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => DefDatabase<ItemDef>.AllDefs.Where(x => x.HasTag(tag)).ToList().RandomElement();
+    public ItemDef GetRandomItem() => DefDatabase<ItemDef>.AllDefs.RandomElement();
 
     #endregion
 

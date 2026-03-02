@@ -8,13 +8,16 @@ using UnityEngine.Tilemaps;
 /// <summary>
 /// Class used to dynamically load materials from resources on demand. All materials are cached after the first load.
 /// </summary>
-public static class ResourceManager_New
+public static class ResourceManager
 {
     // Global colors
-    public static readonly Color Color_Text_White = new Color(1f, 1f, 1f);
-    public static readonly Color Color_Text_Green = new Color(0.47f, 0.70f, 0.45f);
-    public static readonly Color Color_Text_Red = new Color(0.70f, 0.47f, 0.45f);
-    public static readonly Color ERROR_COLOR = new Color(1f, 0.4f, 0.7f);
+    public static readonly Color Color_Text_Default = Color.black;
+    public static readonly Color Color_Text_Positive = new Color(0.18f, 0.60f, 0.18f);
+    public static readonly Color Color_Text_VeryPositive = new Color(0.10f, 0.50f, 0.10f);
+    public static readonly Color Color_Text_ExtremelyPositive = new Color(0.00f, 0.40f, 0.00f);
+    public static readonly Color Color_Text_Negative = new Color(0.80f, 0.20f, 0.20f);
+    public static readonly Color Color_Text_VeryNegative = new Color(0.70f, 0.10f, 0.10f);
+    public static readonly Color Color_Text_ExtremelyNegative = new Color(0.55f, 0.00f, 0.00f);
 
     private static Dictionary<string, Material> CachedMaterials = new Dictionary<string, Material>();
     public static Material LoadMaterial(string resourcePath)

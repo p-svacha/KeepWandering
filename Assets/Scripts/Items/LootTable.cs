@@ -7,15 +7,15 @@ using UnityEngine;
 /// </summary>
 public class LootTable
 {
-    private Dictionary<ItemType, float> Items;
+    private Dictionary<ItemDef, float> Items;
 
-    public LootTable(params KeyValuePair<ItemType, float>[] items)
+    public LootTable(params KeyValuePair<ItemDef, float>[] items)
     {
-        Items = new Dictionary<ItemType, float>();
+        Items = new Dictionary<ItemDef, float>();
         foreach (var kvp in items) Items.Add(kvp.Key, kvp.Value);
     }
 
-    public LootTable(Dictionary<ItemType, float> items)
+    public LootTable(Dictionary<ItemDef, float> items)
     {
         Items = items;
     }
@@ -25,7 +25,7 @@ public class LootTable
     /// </summary>
     public LootTable Union(LootTable other)
     {
-        Dictionary<ItemType, float> newChances = new Dictionary<ItemType, float>(Items);
+        Dictionary<ItemDef, float> newChances = new Dictionary<ItemDef, float>(Items);
         foreach(var kvp in other.Items)
         {
             if (newChances.ContainsKey(kvp.Key)) newChances[kvp.Key] += kvp.Value;
@@ -39,7 +39,7 @@ public class LootTable
     /// </summary>
     public LootTable Intersect(LootTable other)
     {
-        Dictionary<ItemType, float> newChances = new Dictionary<ItemType, float>(Items);
+        Dictionary<ItemDef, float> newChances = new Dictionary<ItemDef, float>(Items);
 
         foreach(var kvp in newChances)
         {
@@ -56,12 +56,12 @@ public class LootTable
 
     public Item GetItem(bool hide = false)
     {
-        ItemType type = HelperFunctions.GetWeightedRandomElement(Items);
-        Item item = Game.Singleton.GetItemInstance(type);
+        ItemDef type = HelperFunctions.GetWeightedRandomElement(Items);
+        Item item = Game.Instance.CreateItem(type);
         if (hide)
         {
-            item.Hide();
-            item.transform.position = new Vector3(-200, -200, 0f);
+            item.Renderer.Hide();
+            item.Renderer.SetPosition(-200, -200);
         }
         return item;
     }
@@ -79,9 +79,9 @@ public class LootTable
 
     public Item AddItemToInventory()
     {
-        ItemType type = HelperFunctions.GetWeightedRandomElement(Items);
-        Item item = Game.Singleton.GetItemInstance(type);
-        Game.Singleton.AddItemToInventory(item);
+        ItemDef type = HelperFunctions.GetWeightedRandomElement(Items);
+        Item item = Game.Instance.CreateItem(type);
+        Game.Instance.AddExistingItemToInventory(item);
         return item;
     }
     public List<Item> AddItemsToInventory(int amount)

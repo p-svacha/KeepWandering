@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class E007_Trader : Event
+/*
+public class E007_Trader : Encounter
 {
     // Static
-    public override int Id => 7;
+    public override int DefName => 7;
     protected override float BaseProbability => 2f;
     protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
@@ -38,7 +39,7 @@ public class E007_Trader : Event
     private List<Item> BuyableItems;
 
     public E007_Trader(Game game) : base(game) { }
-    public override Event GetEventInstance => new E007_Trader(Game);
+    public override Encounter GetEventInstance => new E007_Trader(Game);
 
     // Base
     protected override void OnEventStart()
@@ -64,7 +65,7 @@ public class E007_Trader : Event
             ResourceManager_Old.Singleton.E007_Prices[i].text = ItemPrices[item.Type].ToString();
         }
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         string eventText = "You come across a trader offering various items. He says that he is also willing to buy items.";
         return GetShopStep(eventText);
@@ -75,7 +76,7 @@ public class E007_Trader : Event
             if (!item.IsPlayerOwned) Game.DestroyItem(item);
     }
 
-    private EventStep GetShopStep(string text)
+    private EncounterStep GetShopStep(string text)
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -101,9 +102,9 @@ public class E007_Trader : Event
         dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
 
         // Event
-        return new EventStep(text, dialogueOptions, itemOptions);
+        return new EncounterStep(text, dialogueOptions, itemOptions);
     }
-    private EventStep BuyItem(Item item)
+    private EncounterStep BuyItem(Item item)
     {
         int price = ItemPrices[item.Type];
         string text = "You bought the " + item.Name + " for " + price + " coins.";
@@ -111,24 +112,25 @@ public class E007_Trader : Event
         Game.AddItemToInventory(item);
         BuyableItems.Remove(item);
 
-        EventStep nextStep = GetShopStep(text);
+        EncounterStep nextStep = GetShopStep(text);
 
         return nextStep;
     }
-    private EventStep SellItem(Item item)
+    private EncounterStep SellItem(Item item)
     {
         int price = ItemPrices[item.Type] - 1;
         Game.DestroyOwnedItem(item);
         List<Item> addedCoins = Game.AddItemsToInventory(ItemType.Coin, price);
 
-        EventStep nextStep = GetShopStep("You sold the " + item.Name + " for " + price + " coins.");
+        EncounterStep nextStep = GetShopStep("You sold the " + item.Name + " for " + price + " coins.");
 
         return nextStep;
     }
-    private EventStep Continue()
+    private EncounterStep Continue()
     {
-        return new EventStep("You wish the trader a nice day and continue.", null, null);
+        return new EncounterStep("You wish the trader a nice day and continue.", null, null);
     }
 
 
 }
+*/

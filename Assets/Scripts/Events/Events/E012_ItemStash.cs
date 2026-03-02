@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class E012_ItemStash : Event
+/*
+public class E012_ItemStash : Encounter
 {
     // Static
-    public override int Id => 12;
+    public override int DefName => 12;
     protected override float BaseProbability => 0.1f;
 
     public static Dictionary<MissionId, ItemType> ForcedItems = new Dictionary<MissionId, ItemType>();
@@ -14,7 +15,7 @@ public class E012_ItemStash : Event
     private Item Item;
 
     public E012_ItemStash(Game game) : base(game) { }
-    public override Event GetEventInstance => new E012_ItemStash(Game);
+    public override Encounter GetEventInstance => new E012_ItemStash(Game);
 
     // Base
     protected override void OnEventStart()
@@ -35,7 +36,7 @@ public class E012_ItemStash : Event
         // Mission
         if (Mission != null) Game.RemoveMission(Mission.Id);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -46,17 +47,18 @@ public class E012_ItemStash : Event
 
         // Event
         string eventText = "You find an item stash.";
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
 
     // Steps
-    private EventStep TakeItem()
+    private EncounterStep TakeItem()
     {
         ShowEventSprite(ResourceManager_Old.Singleton.E012_ItemStashOpen);
         HideEventSprite(ResourceManager_Old.Singleton.E012_ItemStashClosed);
 
         string text = "You take the " + Item.Name + ".";
         Game.AddItemToInventory(Item);
-        return new EventStep(text);
+        return new EncounterStep(text);
     }
 }
+*/

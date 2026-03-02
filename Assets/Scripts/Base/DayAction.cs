@@ -5,7 +5,6 @@ using UnityEngine;
 public enum DayAction
 {
     Stay,
+    Rest,
     Move,
-    EnterMission,
-    ApproachFence
 }

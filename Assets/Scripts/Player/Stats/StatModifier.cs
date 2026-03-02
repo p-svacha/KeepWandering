@@ -15,16 +15,15 @@ public class StatModifier
 
     public Color GetValueColor()
     {
-        if (Value == 0) return ResourceManager_Old.Singleton.SE_Neutral;
+        if (Value == 0) return ResourceManager.Color_Text_Default;
 
-        if (Value < -20) return ResourceManager_Old.Singleton.SE_ExtremelyBad;
-        if (Value < -10) return ResourceManager_Old.Singleton.SE_VeryBad;
-        if (Value < 0) return ResourceManager_Old.Singleton.SE_Bad;
+        if (Value <= -10) return ResourceManager.Color_Text_ExtremelyNegative;
+        if (Value <= -5) return ResourceManager.Color_Text_VeryNegative;
+        if (Value < 0) return ResourceManager.Color_Text_Negative;
 
-        if (Value > 20) return ResourceManager_Old.Singleton.SE_ExtremelyGood;
-        if (Value > 10) return ResourceManager_Old.Singleton.SE_VeryGood;
-        if (Value > 0) return ResourceManager_Old.Singleton.SE_Good;
-
+        if (Value >= 10) return ResourceManager.Color_Text_ExtremelyPositive;
+        if (Value >= 5) return ResourceManager.Color_Text_VeryPositive;
+        if (Value > 0) return ResourceManager.Color_Text_Positive;
         throw new System.Exception("Value " + Value + " not handled.");
     }
 }

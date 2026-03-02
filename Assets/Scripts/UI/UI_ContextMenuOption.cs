@@ -8,7 +8,7 @@ using TMPro;
 public class UI_ContextMenuOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private Game Game;
-    private InteractionOption InteractionOption;
+    private InteractionOption Option;
 
     [Header("Elements")]
     public TextMeshProUGUI OptionText;
@@ -18,19 +18,19 @@ public class UI_ContextMenuOption : MonoBehaviour, IPointerEnterHandler, IPointe
     public void Init(Game game, InteractionOption option)
     {
         Game = game;
-        InteractionOption = option;
+        Option = option;
         OptionText.text = option.Text;
         OptionButton.onClick.AddListener(() => ChoseOption(game, option));
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (InteractionOption.OnHoverStartAction != null) InteractionOption.OnHoverStartAction();
+        if (Option.OnHoverStartAction != null) Option.OnHoverStartAction();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (InteractionOption.OnHoverEndAction != null) InteractionOption.OnHoverEndAction();
+        if (Option.OnHoverEndAction != null) Option.OnHoverEndAction();
     }
 
     private void ChoseOption(Game game, InteractionOption option)

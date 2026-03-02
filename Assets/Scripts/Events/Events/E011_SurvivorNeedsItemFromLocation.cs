@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class E011_SurvivorNeedsItemFromLocation : Event
+/*
+public class E011_SurvivorNeedsItemFromLocation : Encounter
 {
     // Static
-    public override int Id => 11;
+    public override int DefName => 11;
     protected override float BaseProbability => 2.5f;
     protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
@@ -27,7 +28,7 @@ public class E011_SurvivorNeedsItemFromLocation : Event
 
     // Instance
     public E011_SurvivorNeedsItemFromLocation(Game game) : base(game) { }
-    public override Event GetEventInstance => new E011_SurvivorNeedsItemFromLocation(Game);
+    public override Encounter GetEventInstance => new E011_SurvivorNeedsItemFromLocation(Game);
 
     // Base
     public override float GetEventProbability()
@@ -45,7 +46,7 @@ public class E011_SurvivorNeedsItemFromLocation : Event
         // Requested Item
         if(!SurvivorMetAlready) RequestedItemDummy = RequestedItemLootTable.GetItem(hide: true);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -66,19 +67,19 @@ public class E011_SurvivorNeedsItemFromLocation : Event
 
         SurvivorMetAlready = true;
 
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
 
     // Steps
-    private EventStep OfferHelp()
+    private EncounterStep OfferHelp()
     {
         RevealItemLocation();
         ActivateBringBackItemQuest();
 
-        return new EventStep("You offer to help the survivor and promise to get the " + RequestedItemDummy.Name + " as quickly as possible");
+        return new EncounterStep("You offer to help the survivor and promise to get the " + RequestedItemDummy.Name + " as quickly as possible");
     }
 
-    private EventStep GiveItem(Item item)
+    private EncounterStep GiveItem(Item item)
     {
         Game.DestroyOwnedItem(item);
 
@@ -86,18 +87,18 @@ public class E011_SurvivorNeedsItemFromLocation : Event
         {
             RevealItemLocation();
             CompleteBringBackItemQuest();
-            return new EventStep("The survivor thanks you. Even though they no longer need the " + RequestedItemDummy.Name + " they tell you the location of where to find it so you can keep it for yourself.");
+            return new EncounterStep("The survivor thanks you. Even though they no longer need the " + RequestedItemDummy.Name + " they tell you the location of where to find it so you can keep it for yourself.");
         }
         else
         {
             CompleteBringBackItemQuest();
-            return new EventStep("The survivor thanks you.");
+            return new EncounterStep("The survivor thanks you.");
         }
     }
 
-    private EventStep Ignore()
+    private EncounterStep Ignore()
     {
-        return new EventStep("Not wanting to waste your time helping them you move on.");
+        return new EncounterStep("Not wanting to waste your time helping them you move on.");
     }
 
     private void RevealItemLocation()
@@ -127,3 +128,4 @@ public class E011_SurvivorNeedsItemFromLocation : Event
         SurvivorMetAlready = false;
     }
 }
+*/

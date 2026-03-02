@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class E008_DistressedPerson : Event
+/*
+public class E008_DistressedPerson : Encounter
 {
     // Static
-    public override int Id => 8;
+    public override int DefName => 8;
 
     protected override float BaseProbability => 5f;
     protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
@@ -19,7 +20,7 @@ public class E008_DistressedPerson : Event
 
     // Instance
     public E008_DistressedPerson(Game game) : base(game) { }
-    public override Event GetEventInstance => new E008_DistressedPerson(Game);
+    public override Encounter GetEventInstance => new E008_DistressedPerson(Game);
 
     // Base
     protected override void OnEventStart()
@@ -27,7 +28,7 @@ public class E008_DistressedPerson : Event
         // Sprites
         ShowEventSprite(ResourceManager_Old.Singleton.E008_DistressedPerson);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -41,13 +42,13 @@ public class E008_DistressedPerson : Event
 
         // Event
         string eventText = "You see a very distressed person who is flailing their arms around.";
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
 
     // Steps
-    private EventStep Ask()
+    private EncounterStep Ask()
     {
-        if(Random.value < NO_REACTION_CHANCE) return new EventStep("The person doesn't react. There's appearently nothing you can do.");
+        if(Random.value < NO_REACTION_CHANCE) return new EncounterStep("The person doesn't react. There's appearently nothing you can do.");
 
         // Requested item
         Item requestedItem = Game.RandomInventoryItem;
@@ -62,19 +63,20 @@ public class E008_DistressedPerson : Event
         // Item Option - Give item
         itemOptions.Add(new EventItemOption(requestedItem.Type, "Give", GiveItem));
 
-        return new EventStep("He tells you that he is dire need of a " + requestedItem.Name + ".", dialogueOptions, itemOptions, allowDefaultItemInteractions: false);
+        return new EncounterStep("He tells you that he is dire need of a " + requestedItem.Name + ".", dialogueOptions, itemOptions, allowDefaultItemInteractions: false);
     }
 
-    private EventStep Ignore(string text)
+    private EncounterStep Ignore(string text)
     {
-        return new EventStep(text);
+        return new EncounterStep(text);
     }
 
-    private EventStep GiveItem(Item item)
+    private EncounterStep GiveItem(Item item)
     {
         Game.DestroyOwnedItem(item);
 
-        return new EventStep("He thanks you vigourously and adds that he will come back to you if he'll meet you again.");
+        return new EncounterStep("He thanks you vigourously and adds that he will come back to you if he'll meet you again.");
     }
 
 }
+*/

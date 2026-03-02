@@ -9,11 +9,11 @@ using UnityEngine;
 public class WorldMapTile
 {
     // World
-    public WorldMap World;
-    public Vector2Int Coordinates;
-    public Vector2 WorldPosition;
-
-    public Location Location { get; private set; }
+    public WorldMap World { get; private set; }
+    public Vector2Int Coordinates { get; private set; }
+    public Vector2 WorldPosition { get; private set; }
+    public BiomeDef Biome { get; private set; }
+    public LocationEncounter Encounter { get; private set; }
     public Mission Mission { get; private set; }
 
     public WorldMapTile(WorldMap world, Vector2Int coordinates)
@@ -24,17 +24,17 @@ public class WorldMapTile
         WorldPosition = new Vector2(worldPos.x, worldPos.y);
     }
 
-    public void SetLocation(Location loc)
+    public void SetBiome(BiomeDef biome)
     {
-        Location = loc;
+        Biome = biome;
     }
 
     public void SetMission(Mission mission)
     {
         Mission = mission;
 
-        if(mission == null) World.SetTile(World.MarkerTilemap, Coordinates, null);
-        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker ?? ResourceManager_Old.Singleton.TileMarkerX);
+        if (mission == null) World.SetTile(World.MarkerTilemap, Coordinates, null);
+        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker);
     }
 
     #region Getters
@@ -72,7 +72,7 @@ public class WorldMapTile
 
     public bool IsPassable()
     {
-        return Location.IsPassable;
+        return Biome.IsPassable;
     }
 
     public Vector2 North => WorldPosition + new Vector2(0f, 0.5f);
@@ -84,7 +84,7 @@ public class WorldMapTile
 
     public override string ToString()
     {
-        string info = Location.ToString();
+        string info = Biome.ToString();
         if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
         return info;
     }

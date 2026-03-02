@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Companion : MonoBehaviour
+/*
+public abstract class Companion
 {
-    protected Game Game;
+
+    public Game Game { get; private set; }
+    public CompanionDef Def { get; private set; }
     public abstract string Name { get; }
     public List<StatusEffect> StatusEffects = new List<StatusEffect>();
 
@@ -30,4 +33,13 @@ public abstract class Companion : MonoBehaviour
     {
         return table.Union(Game.CurrentLocation.LootTable);
     }
+
+    #region Getters
+
+    public string Label => Def.Label;
+    public string LabelCap => Label.CapitalizeFirst();
+    public string Description => Def.Description;
+
+    #endregion
 }
+*/

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 public class Dog : Companion
 {
     public override string Name => "Dog";
@@ -21,10 +22,11 @@ public class Dog : Companion
         {
             Item foundItem = GetLocationLootTable(FindItemTable).AddItemToInventory();
 
-            morningReport.NightEvents.Add("Your dog found a " + foundItem.Name + ".");
+            morningReport.NightEvents.Add("Your dog found a " + foundItem.LabelCapWord + ".");
         }
     }
 
     protected override void OnInit() { }
     public override void UpdateStatusEffects() { }
 }
+*/

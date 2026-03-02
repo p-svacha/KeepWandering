@@ -20,27 +20,31 @@ public class UI_EscapeMenu : MonoBehaviour
 
         // Add item
         List<Dropdown.OptionData> itemOptions = new List<Dropdown.OptionData>();
-        foreach (Item item in game.ItemPrefabs)
-            itemOptions.Add(new Dropdown.OptionData(item.Name));
+        foreach (ItemDef itemDef in DefDatabase<ItemDef>.AllDefs)
+        {
+            itemOptions.Add(new Dropdown.OptionData(itemDef.DefName));
+        }
         AddItemDropdown.options = itemOptions;
         AddItemButton.onClick.AddListener(AddItem);
 
         // Force event
         List<Dropdown.OptionData> eventOptions = new List<Dropdown.OptionData>();
         eventOptions.Add(new Dropdown.OptionData("No Force"));
-        foreach(Event encounter in Game.EventManager.DummyEvents.Values)
-            eventOptions.Add(new Dropdown.OptionData(encounter.ToString()));
+        foreach (EncounterDef encounterDef in DefDatabase<EncounterDef>.AllDefs)
+        {
+            eventOptions.Add(new Dropdown.OptionData(encounterDef.DefName));
+        }
         ForceEventDropdown.options = eventOptions;
-        ForceEventDropdown.onValueChanged.AddListener(ForceEvent);
+        ForceEventDropdown.onValueChanged.AddListener(ForceEncounter);
     }
 
     private void AddItem()
     {
-        Game.AddItemToInventory(Game.GetItemInstance(Game.ItemPrefabs[AddItemDropdown.value].Type));
+        Game.AddNewItemToInventory(DefDatabase<ItemDef>.AllDefs[AddItemDropdown.value]);
     }
 
-    private void ForceEvent(int value)
+    private void ForceEncounter(int value)
     {
-        Game.EventManager.ForceEvent(value);
+        Game.EncounterManager.ForceEncounter(value == 0 ? null : DefDatabase<EncounterDef>.AllDefs[value - 1]);
     }
 }

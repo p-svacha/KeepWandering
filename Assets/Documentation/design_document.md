@@ -31,12 +31,14 @@ The player character is what the player controls and represents them in the game
 
 ## Stats
 The player has a fixed set of stats that have an integer value. The default value is 0. The stats act as a direct modifier to the difficulty of encounter options of that type. The stats are:
-	- Strength: Affects physical options, such as fighting, carrying heavy items, breaking things etc.
-	- Dexterity: Affects dexterous options, such as sneaking, picking locks, disarming traps etc.
-	- Intelligence: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
-	- Charisma: Affects social options, such as persuading, intimidating, negotiating etc.
-	- Speed: Affects options that require quick reactions, such as dodging, running away, etc.
-	- Morale: Affects all options, as a general representation of the player's mental state. Morale can be affected by various things, such as hunger, thirst, injuries, companions, quests etc. High morale can give a bonus to all options, while low morale can give a penalty to all options.
+
+- Combat: Affects combat options, such as fighting, defending, using weapons etc.
+- Strength: Affects physical options, such as fighting, carrying heavy items, breaking things etc.
+- Dexterity: Affects dexterous options, such as sneaking, picking locks, disarming traps etc.
+- Intellect: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
+- Charisma: Affects social options, such as persuading, intimidating, negotiating etc.
+- Agility: Affects options that require quick reactions, such as dodging, running away, etc.
+- Morale: Affects all options, as a general representation of the player's mental state. Morale can be affected by various things, such as hunger, thirst, injuries, companions, quests etc. High morale can give a bonus to all options, while low morale can give a penalty to all options.
 
 Stat Values can both be temporarily and permanently affected.
 
@@ -99,10 +101,11 @@ There is a limit of how much the player can carry, but how that limit is impleme
 ## Gaining Items
 The player starts with 4 items in the cart: 1 random food item, 1 random drink item and 1 random medical item, and 1 random miscellaneous item.
 The main ways of gaining items are:
-	- During encounters.
-	- Gaining items as a reward for completing quests.
-	- Companions can find items during the night, which are added to the cart and shown in the morning as a night event.
-	- Biome encounters often have options to search the area for items, which can add items to the cart.
+
+- During encounters.
+- Gaining items as a reward for completing quests.
+- Companions can find items during the night, which are added to the cart and shown in the morning as a night event.
+- Biome encounters often have options to search the area for items, which can add items to the cart.
 
 
 # Companions
@@ -149,9 +152,10 @@ Quests usually require the player to go to a specific tile on the world map. Whe
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
 
 There are three types of encounters:
-	- Location encounters: These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
-	- Biome encounters: These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.
-	- Night encounters: These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
+
+- Location encounters: These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
+- Biome encounters: These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.
+- Night encounters: These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
 
 During encounters, free item use is restricted (i.e. for eating / bandaging). Items can only be used for encounter step options.
 At the end of an encounter, after it ends, the player can freely use items in their cart (i.e. to eat / drink / heal injuries etc.) again. After that, the player can choose to end the current time of day and transition to the next one.
@@ -160,15 +164,37 @@ Encounters only ever take place within a single time of day.
 
 ## Steps
 Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounters often have branching paths, with the path taken depending on the options chosen by the player and the rolled outcome of that option.
+
+A step is considered the final step of an encounter if that step has no options defined. When reaching such a step, the encounter is considered to be ended, meaning the player can use items again and choose to transition to the next time of day.
  
 ## Options
-Each step has a set of options that the player can choose from. 
- 
+Each step (except final steps) has a set of options that the player can choose from.
+
 ### Option Requirements
-Some options may have item requirements where the player has to drag a specific item or an item with a specific tag into the slot for that option.
+Some options may have item requirements where the player has to drag a specific item or an item with a specific tag into the slot in order to be able to choose that option. Both Skillcheck and FixedOutcome options can have item requirements.
+
+### Option Types
+On a technical level, options fall into one of two categories: "Skillchecks" or "FixedOutcome"
+
+#### FixedOutcome options
+FixedOutcome options have a fixed outcome, meaning on a technical level, that choosing the options always calls the same function. That function can still have custom logic and random elements, but the outcome is always determined by that function. They are usually used for very simple options like ignoring/skipping something, or for options with special outcomes that don't fit into the classic success/partial success/failure outcome structure of a skill check.
+
+#### Skillcheck options
+Skillcheck options follow a classic, standardized RPG style skillcheck structure, where the option has a calculated difficulty value and a rolled outcome that is determined by the difficulty value and a random roll, where the difficulty can be affected by a variety of modifiers. They have different possible success levels (usually "success", "partial success", "failure"), with each of these calling a different function that determines the outcome of that option.
+
+##### Skill Check Difficulty Calculation
+Skillcheck options have a fixed base difficulty value (0-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
+The most common types of modifiers are (in order of importance):
+
+- Player stats: Most options have a specific stat (or multiple) associated with them. The player's value in that stat is reduced from the difficulty value.
+- Item slots: Some options have item slots that the player can fill with items from their cart. A slot either requires a specific item or an item with a specific tag. If the player fills the slot with a valid item, the difficulty value is reduced by a fixed amount. Depending on the option, the item may have a chance to be consumed on use, which would remove the item from the player's cart.
+- Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
+- Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
+- Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
+- Time of day: Some options have time of day modifiers, where certain times of day can increase or decrease the difficulty value.
  
-### Option Outcome Calculation
-Each option has a rolled outcome, where the player rolls a random number from 0 to 100.
+##### Skill Check Outcome Calculation
+Skillcheck options have a rolled outcome, where the player rolls a random number from 0 to 100.
 Option outcomes are usually split into 3 categories: success, partial success and failure. An option also has a calculated "Difficulty" value (0-100), which determines the chances for each outcome.
 The calculation for the outcome is as follows:
  - If the rolled number is greater than the Difficulty value, the outcome is a success.
@@ -177,24 +203,15 @@ The calculation for the outcome is as follows:
 
 ### Option Outcomes
 There are many things that can happen as a result of an option outcome. The most common are:
-	- Next step: The encounter progresses to a different step.
-	- Encouter ends: The encounter can end.
-	- Stat changes: The player's stats can increase or decrease.
-	- Item changes: The player can gain or lose items.
-	- Health changes: The player's health can change (gain injuries / tend injuries / heal infections / heal poisoning etc.)
-	- Companion changes: The player can gain or lose companions.
-	- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest.
-	- Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
 
-### Difficulty Calculation
-Each option has a fixed base difficulty value (0-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
-The most common types of modifiers are (in order of importance):
-	- Player stats: Most options have a specific stat (or multiple) associated with them. The player's value in that stat is reduced from the difficulty value.
-	- Item slots: Some options have item slots that the player can fill with items from their cart. A slot either requires a specific item or an item with a specific tag. If the player fills the slot with a valid item, the difficulty value is reduced by a fixed amount. Depending on the option, the item may have a chance to be consumed on use, which would remove the item from the player's cart.
-	- Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
-	- Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
-	- Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
-	- Time of day: Some options have time of day modifiers, where certain times of day can increase or decrease the difficulty value.
+- Next step: The encounter progresses to a different step.
+- Encouter ends: The encounter can end.
+- Stat changes: The player's stats can increase or decrease.
+- Item changes: The player can gain or lose items.
+- Health changes: The player's health can change (gain injuries / tend injuries / heal infections / heal poisoning etc.)
+- Companion changes: The player can gain or lose companions.
+- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest.
+- Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
 
 
 # Gameplay Loop
@@ -209,9 +226,10 @@ All time of day transitions are presented as a fade to black, and then fade back
 ## Morning
 The day starts in the morning on the world map tile of the current location. There is no encounter in the morning, the player can freely use items in their cart (i.e. to eat / drink). If any night events happened during the night, they are shown to the player as text at the start of the morning.
 In the morning, the player is presented with 3 options:
-	- Travel to an adjacent world tile: This shows the world map with the adjacent world map tiles that the player can move to being highlighted. Choosing one of the tiles will end the morning and transition to the afternoon on the selected tile.
-	- Stay on the current tile: This simply ends the morning and transitions to the afternoon on the same tile, presenting the player with the same Location Encounter as the day before, in the same state as they left it.
-	- Rest: The game transitions into the afternoon, but without any encounter. When resting, many injuries have a chance to heal or get better. When resting, events can also happen during the transition of morning -> afternoon like companions finding items.
+
+- Travel to an adjacent world tile: This shows the world map with the adjacent world map tiles that the player can move to being highlighted. Choosing one of the tiles will end the morning and transition to the afternoon on the selected tile.
+- Stay on the current tile: This simply ends the morning and transitions to the afternoon on the same tile, presenting the player with the same Location Encounter as the day before, in the same state as they left it.
+- Rest: Skips the afternoon and transitions the game into the evening. When resting, many injuries have a chance to heal or get better. When resting, events can also happen during the transition of morning -> evening like companions finding items.
 
 
 ## Afternoon

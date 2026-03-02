@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class E006_WoodsBunker : Event
+/*
+public class E006_WoodsBunker : Encounter
 {
     // Static
-    public override int Id => 6;
+    public override int DefName => 6;
     protected override float BaseProbability => 2f;
 
     public int RequiredFood;
@@ -14,7 +15,7 @@ public class E006_WoodsBunker : Event
 
     // Instance
     public E006_WoodsBunker(Game game) : base(game) { }
-    public override Event GetEventInstance => new E006_WoodsBunker(Game);
+    public override Encounter GetEventInstance => new E006_WoodsBunker(Game);
 
     // Base
     public override float GetEventProbability()
@@ -32,14 +33,14 @@ public class E006_WoodsBunker : Event
         RequiredFood = Random.Range(1, 2);
         RequiredWater = Random.Range(1, 2);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         string eventText = "You come across a secret tunnel entry that seems like it will lead to the outside of the quarantine zone.";
         if (RequiredFood > 0 || RequiredWater > 0) eventText += " A voice from inside assures you that they will let you through if you give them " + RequiredFood + " food and " + RequiredWater + " water.";
         return GetInitialStep(eventText);
     }
 
-    private EventStep GetInitialStep(string eventText)
+    private EncounterStep GetInitialStep(string eventText)
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -71,9 +72,9 @@ public class E006_WoodsBunker : Event
         }
 
         // Event
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
-    private EventStep EnterBunker()
+    private EncounterStep EnterBunker()
     {
         // Get position of other side of the tunnel
         WorldMapTile targetTile = null;
@@ -91,22 +92,23 @@ public class E006_WoodsBunker : Event
         Game.CheckGameOver();
         return null;
     }
-    private EventStep Continue()
+    private EncounterStep Continue()
     {
-        return new EventStep("You walk past the bunker.");
+        return new EncounterStep("You walk past the bunker.");
     }
-    private EventStep GiveFood(Item item)
+    private EncounterStep GiveFood(Item item)
     {
         Game.DestroyOwnedItem(item);
         RequiredFood--;
-        EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
+        EncounterStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
         return nextStep;
     }
-    private EventStep GiveWater(Item item)
+    private EncounterStep GiveWater(Item item)
     {
         Game.DestroyOwnedItem(item);
         RequiredWater--;
-        EventStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
+        EncounterStep nextStep = GetInitialStep("You gave the " + item.Name + " to the bunker.");
         return nextStep;
     }
 }
+*/

@@ -12,16 +12,17 @@ public class UI_HealthReport : MonoBehaviour
     [Header("Prefabs")]
     public UI_StatusEffect StatusEffectPrefab;
 
-    public void Init(PlayerCharacter Player)
+    public void Init(PlayerCharacter player)
     {
         TitleText.text = "Health Report (You)";
-        foreach(StatusEffect statusEffect in Player.StatusEffects)
+        foreach (HealthCondition condition in player.HealthConditions)
         {
             UI_StatusEffect display = Instantiate(StatusEffectPrefab, transform);
-            display.Init(statusEffect);
+            display.Init(condition);
         }
     }
 
+    /*
     public void Init(Companion companion)
     {
         TitleText.text = "Health Report (" + companion.name + ")";
@@ -31,4 +32,5 @@ public class UI_HealthReport : MonoBehaviour
             display.Init(statusEffect);
         }
     }
+    */
 }

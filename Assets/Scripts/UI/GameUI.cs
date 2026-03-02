@@ -7,6 +7,8 @@ using System.Linq;
 
 public class GameUI : MonoBehaviour
 {
+    public static GameUI Instance;
+
     public Game Game { get; private set; }
 
     [Header("Day Panel")]
@@ -25,10 +27,7 @@ public class GameUI : MonoBehaviour
     public UI_EventDisplay EventStepDisplay;
 
     [Header("Stat Display")]
-    public UI_Stat FightingStat;
-    public UI_Stat MovingStat;
-    public UI_Stat DexterityStat;
-    public UI_Stat CharismaStat;
+    public UI_StatPanel StatPanel;
 
     [Header("Mission Display")]
     public UI_Missions MissionsDisplay;
@@ -55,11 +54,15 @@ public class GameUI : MonoBehaviour
     private float CurrentTransitionTime;
     private BlackTransitionState TransitionState;
 
+    /// <summary>
+    /// Called once when the program starts.
+    /// </summary>
     public void Init(Game game)
     {
+        Instance = this;
         Game = game;
 
-        InitStats();
+        StatPanel.Init(Game);
         EscapeMenu.Init(Game);
 
         BlackTransitionText.text = "Day " + Game.Day;
@@ -121,41 +124,18 @@ public class GameUI : MonoBehaviour
 
     #region Stats
 
-    private UI_Stat GetStatDisplay(StatId id)
+    public void RefreshStats()
     {
-        return id switch
-        {
-            StatId.Moving => MovingStat,
-            StatId.Fighting => FightingStat,
-            StatId.Dexterity => DexterityStat,
-            StatId.Charisma => CharismaStat,
-            _ => throw new System.Exception("Stat " + id.ToString() + " not handled")
-        };
+        StatPanel.Refresh();
     }
 
-    private void InitStats()
+    public void HightlightStat(StatDef stat)
     {
-        FightingStat.Init(Game.Stats[StatId.Fighting]);
-        MovingStat.Init(Game.Stats[StatId.Moving]);
-        DexterityStat.Init(Game.Stats[StatId.Dexterity]);
-        CharismaStat.Init(Game.Stats[StatId.Charisma]);
+        StatPanel.HightlightStat(stat);
     }
-
-    public void UpdateStats()
+    public void UnhighlightStat(StatDef stat)
     {
-        FightingStat.UpdateStat();
-        MovingStat.UpdateStat();
-        DexterityStat.UpdateStat();
-        CharismaStat.UpdateStat();
-    }
-
-    public void HightlightStat(StatId id)
-    {
-        GetStatDisplay(id).Highlight();
-    }
-    public void UnhighlightStat(StatId id)
-    {
-        GetStatDisplay(id).Unhighlight();
+        StatPanel.UnhighlightStat(stat);
     }
 
     #endregion
@@ -172,11 +152,13 @@ public class GameUI : MonoBehaviour
         playerHealthReport.Init(Game.Player);
 
         // Display companion health reports
+        /*
         foreach(Companion companion in Game.Companions)
         {
             UI_HealthReport companionHealthReport = Instantiate(HealthReportPrefab, HealthReportContainer.transform);
             companionHealthReport.Init(companion);
         }
+        */
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
     }

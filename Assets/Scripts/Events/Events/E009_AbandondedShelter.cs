@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class E009_AbandondedShelter : Event
+/*
+public class E009_AbandondedShelter : Encounter
 {
     // Static
-    public override int Id => 9;
+    public override int DefName => 9;
     protected override float BaseProbability => 5f;
     protected override Dictionary<LocationType, float> LocationProbabilityTable => new Dictionary<LocationType, float>()
     {
@@ -34,7 +35,7 @@ public class E009_AbandondedShelter : Event
     // Instance
     private bool IsTrapTriggered;
     public E009_AbandondedShelter(Game game) : base(game) { }
-    public override Event GetEventInstance => new E009_AbandondedShelter(Game);
+    public override Encounter GetEventInstance => new E009_AbandondedShelter(Game);
 
     // Base
     protected override void OnEventStart()
@@ -43,7 +44,7 @@ public class E009_AbandondedShelter : Event
         ShowEventSprite(ResourceManager_Old.Singleton.E009_Shelter);
         ShowEventSprite(ResourceManager_Old.Singleton.E009_TrapOpen);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         // Options
         List<EventDialogueOption> dialogueOptions = new List<EventDialogueOption>();
@@ -60,17 +61,17 @@ public class E009_AbandondedShelter : Event
 
         // Event
         string eventText = "You stumble upon an abandoned shelter. It looks like you could scavenge it for supplies, but entering won't be easy.";
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
 
     // Steps
-    private EventStep Ignore()
+    private EncounterStep Ignore()
     {
-        return new EventStep("You decide it's better to leave everything as it is and keep wandering.");
+        return new EncounterStep("You decide it's better to leave everything as it is and keep wandering.");
     }
 
 
-    private EventStep EnterWindow()
+    private EncounterStep EnterWindow()
     {
         int numCuts = HelperFunctions.GetWeightedRandomElement(WindowCutsTable);
         if (numCuts == 0)
@@ -88,7 +89,7 @@ public class E009_AbandondedShelter : Event
         }
     }
 
-    private EventStep EnterDoor()
+    private EncounterStep EnterDoor()
     {
         if (Random.value < TRIGGER_TRAP_CHANCE)
         {
@@ -104,7 +105,7 @@ public class E009_AbandondedShelter : Event
         }
     }
 
-    private EventStep GetLeaveShelterStep(string text)
+    private EncounterStep GetLeaveShelterStep(string text)
     {
         // Add items from shelter
         List<Item> items = GetLocationLootTable(ItemTable).AddItemsToInventory(MIN_ITEMS, MAX_ITEMS);
@@ -124,10 +125,10 @@ public class E009_AbandondedShelter : Event
 
         // Event
         text += "\nHow would you like to leave the shelter?";
-        return new EventStep(text, dialogueOptions, itemOptions);
+        return new EncounterStep(text, dialogueOptions, itemOptions);
     }
 
-    private EventStep LeaveWindow()
+    private EncounterStep LeaveWindow()
     {
         // Show character
         ResourceManager_Old.Singleton.PlayerCharacter.gameObject.SetActive(true);
@@ -136,7 +137,7 @@ public class E009_AbandondedShelter : Event
         if (numCuts == 0)
         {
             string text = "You manage to leave through the window unscathed and are ready to move on.";
-            return new EventStep(text);
+            return new EncounterStep(text);
         }
         else
         {
@@ -144,15 +145,15 @@ public class E009_AbandondedShelter : Event
 
             string twiceText = numCuts == 2 ? "twice " : "";
             string text = "You leave the shelter but cut yourself " + twiceText + "on the broken window. You are ready to move on.";
-            return new EventStep(text);
+            return new EncounterStep(text);
         }
     }
-    private EventStep LeaveDoor()
+    private EncounterStep LeaveDoor()
     {
         // Show character
         ResourceManager_Old.Singleton.PlayerCharacter.gameObject.SetActive(true);
 
-        if (IsTrapTriggered) return new EventStep("You walk past the already triggered trap and move on.");
+        if (IsTrapTriggered) return new EncounterStep("You walk past the already triggered trap and move on.");
         else
         {
             if (Random.value < TRIGGER_TRAP_CHANCE)
@@ -160,12 +161,12 @@ public class E009_AbandondedShelter : Event
                 TriggerTrap();
 
                 string text = "You are not careful enough and step right into the trap. It rips your leg right off. In awful pain you move on.";
-                return new EventStep(text);
+                return new EncounterStep(text);
             }
             else
             {
                 string text = "You elegantly avoid the bear trap in front of the door and are ready to move on.";
-                return new EventStep(text);
+                return new EncounterStep(text);
             }
         }
     }
@@ -184,3 +185,4 @@ public class E009_AbandondedShelter : Event
         ShowEventSprite(ResourceManager_Old.Singleton.E009_TrapClosed);
     }
 }
+*/

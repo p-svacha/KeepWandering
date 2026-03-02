@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 public class Parrot : Companion
 {
     public override string Name => "Parrot";
@@ -59,3 +60,4 @@ public class Parrot : Companion
         else if (Nutrition <= 3f) StatusEffects.Add(SE_Hungry);
     }
 }
+*/

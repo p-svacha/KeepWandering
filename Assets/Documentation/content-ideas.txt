@@ -1,0 +1,6 @@
+Crate Encounter: Option to try again when failing
+abandonded camp
+abandonded car
+bandits (basic fight or flee)
+item: apple
+exhaustion unique healhcon

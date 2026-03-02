@@ -32,7 +32,7 @@ public class UI_ContextMenu : MonoBehaviour
     public void Show(Item item)
     {
         CurrentItem = item;
-        Show(item.Name, item.GetInteractionOptions());
+        Show(item.LabelCapWord, item.GetInteractionOptions());
         UpdatePosition(item);
     }
 
@@ -67,7 +67,7 @@ public class UI_ContextMenu : MonoBehaviour
 
     public void UpdatePosition(Item item)
     {
-        transform.position = item.transform.position + new Vector3(0.1f, -0.1f, 0f);
+        transform.position = item.Renderer.transform.position + new Vector3(0.1f, -0.1f, 0f);
     }
 
     public void UpdatePositionAtCursor()

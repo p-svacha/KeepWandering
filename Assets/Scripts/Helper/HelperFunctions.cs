@@ -103,21 +103,10 @@ public static class HelperFunctions
 
     #region String
 
-    public static string GetEnumDescription<T>(this T source)
-    {
-        FieldInfo fi = source.GetType().GetField(source.ToString());
-
-        DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(
-            typeof(DescriptionAttribute), false);
-
-        if (attributes != null && attributes.Length > 0) return attributes[0].Description;
-        else return source.ToString();
-    }
-
     public static string GetItemListAsString(List<Item> items)
     {
         string s = "";
-        foreach (Item item in items) s += " " + item.Name + ",";
+        foreach (Item item in items) s += " " + item.LabelCapWord + ",";
         s = s.TrimStart(' ');
         s = s.TrimEnd(',');
         return s;

@@ -48,7 +48,7 @@ public class UI_Tooltip : MonoBehaviour
 
         CurrentItem = item;
         UpdatePosition(CurrentItem);
-        TitleText.text = item.Name;
+        TitleText.text = item.LabelCapWord;
         DescriptionText.text = item.Description;
     }
 
@@ -89,7 +89,7 @@ public class UI_Tooltip : MonoBehaviour
 
     public void UpdatePosition(Item item)
     {
-        transform.position = item.transform.position + new Vector3(0.1f, -0.1f, 0f);
+        transform.position = item.Renderer.transform.position + new Vector3(0.1f, -0.1f, 0f);
     }
 
     public void UpdatePositionAtUi(GameObject uiObject)
@@ -102,10 +102,10 @@ public class UI_Tooltip : MonoBehaviour
         Vector2 tooltipPosition = bottomLeftCorner;
 
         // Make sure full tooltip is on screen
-        Vector2 positionScreen = Game.Singleton.MainCamera.WorldToScreenPoint(tooltipPosition);
-        Vector2 tooltipEdge = Game.Singleton.MainCamera.ScreenToWorldPoint(new Vector2(positionScreen.x + GetComponent<RectTransform>().rect.width, positionScreen.y + GetComponent<RectTransform>().rect.height));
+        Vector2 positionScreen = Game.Instance.MainCamera.WorldToScreenPoint(tooltipPosition);
+        Vector2 tooltipEdge = Game.Instance.MainCamera.ScreenToWorldPoint(new Vector2(positionScreen.x + GetComponent<RectTransform>().rect.width, positionScreen.y + GetComponent<RectTransform>().rect.height));
         Vector2 tooltipDimensions = tooltipEdge - tooltipPosition;
-        Vector2 screenDimensions = Game.Singleton.MainCamera.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
+        Vector2 screenDimensions = Game.Instance.MainCamera.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
 
         if (tooltipEdge.x > screenDimensions.x) tooltipPosition.x = screenDimensions.x - tooltipDimensions.x - SCREEN_EDGE_OFFSET;
         //if (position.y - tooltipDimensions.y < 0) position.y = tooltipDimensions.y + SCREEN_EDGE_OFFSET;

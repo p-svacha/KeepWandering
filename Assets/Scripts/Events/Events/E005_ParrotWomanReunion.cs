@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class E005_ParrotWomanReunion : Event
+/*
+public class E005_ParrotWomanReunion : Encounter
 {
     // Static
-    public override int Id => 5;
+    public override int DefName => 5;
     private const int MinDaysForReunion = 3;
 
     private const int NUM_REWARDS = 3;
@@ -19,22 +20,22 @@ public class E005_ParrotWomanReunion : Event
 
     // Instance
     public E005_ParrotWomanReunion(Game game) : base(game) { }
-    public override Event GetEventInstance => new E005_ParrotWomanReunion(Game);
+    public override Encounter GetEventInstance => new E005_ParrotWomanReunion(Game);
 
     // Base
     public override float GetEventProbability()
     {
         if (HasOccuredAlready) return 0f;
-        if (!Game.EventManager.HasEncounteredEvent(eventId: 004) || Game.EventManager.DaysSinceLastEventOccurence(eventId: 004) < MinDaysForReunion || !E004_ParrotWoman.HasAcceptedParrot) return 0f;
-        if (Game.CurrentPosition.Location != E004_ParrotWoman.EncounterLocation) return 0f;
-        else return 1f * (Game.EventManager.DaysSinceLastEventOccurence(eventId: 004) - MinDaysForReunion + 1);
+        if (!Game.EncounterManager.HasEncounteredEvent(eventId: 004) || Game.EncounterManager.DaysSinceLastEventOccurence(eventId: 004) < MinDaysForReunion || !Encounter_ParrotWoman.HasAcceptedParrot) return 0f;
+        if (Game.CurrentPosition.Location != Encounter_ParrotWoman.EncounterLocation) return 0f;
+        else return 1f * (Game.EncounterManager.DaysSinceLastEventOccurence(eventId: 004) - MinDaysForReunion + 1);
     }
     protected override void OnEventStart()
     {
         // Sprite
         ShowEventSprite(ResourceManager_Old.Singleton.E004_Woman);
     }
-    protected override EventStep GetInitialStep()
+    protected override EncounterStep GetInitialStep()
     {
         // Options
         string eventText = "";
@@ -43,7 +44,7 @@ public class E005_ParrotWomanReunion : Event
 
         if (Game.Player.HasParrot)
         {
-            eventText = "You encounter " + E004_ParrotWoman.WomanName + " again and she's overcome with joy to see that her parrot is doing well.";
+            eventText = "You encounter " + Encounter_ParrotWoman.WomanName + " again and she's overcome with joy to see that her parrot is doing well.";
 
             // Dialogue Option - Return parrot
             dialogueOptions.Add(new EventDialogueOption("Return the parrot", ReturnParrot));
@@ -51,32 +52,33 @@ public class E005_ParrotWomanReunion : Event
 
         else
         {
-            eventText = "You encounter " + E004_ParrotWoman.WomanName + ". Upon realizing that her parrot is gone, she just stares into the void and doesn't interact with you anymore.";
+            eventText = "You encounter " + Encounter_ParrotWoman.WomanName + ". Upon realizing that her parrot is gone, she just stares into the void and doesn't interact with you anymore.";
 
             // Dialogue Option - Continue
             dialogueOptions.Add(new EventDialogueOption("Continue", Continue));
         }
 
-        return new EventStep(eventText, dialogueOptions, itemOptions);
+        return new EncounterStep(eventText, dialogueOptions, itemOptions);
     }
 
-    private EventStep ReturnParrot()
+    private EncounterStep ReturnParrot()
     {
         Game.RemoveParrot();
         ShowEventSprite(ResourceManager_Old.Singleton.E004_Parrot);
         Game.RemoveMission(MissionId.E004);
-        string text = E004_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
+        string text = Encounter_ParrotWoman.WomanName + " looks happy to be reunited with her parrot. As a thank you she hands you several items.";
 
         // Get reward
         GetLocationLootTable(RewardTable).AddItemsToInventory(NUM_REWARDS);
 
-        return new EventStep(text);
+        return new EncounterStep(text);
     }
-    private EventStep Continue()
+    private EncounterStep Continue()
     {
         string text = "You tell her you're sorry but there's nothing more you can do so you continue your journey.";
-        return new EventStep(text);
+        return new EncounterStep(text);
     }
 
 
 }
+*/

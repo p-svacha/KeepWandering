@@ -15,14 +15,14 @@ public class UI_StatusEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     private bool IsHovering;
     private float CurrentHoverTime;
 
-    public void Init(StatusEffect statusEffect)
+    public void Init(HealthCondition healthCondition)
     {
-        statusEffect.UI = this;
+        healthCondition.UiDisplayElement = this;
 
-        StatusEffectText.text = statusEffect.Name;
-        StatusEffectText.color = statusEffect.TextColor;
-        DescriptionText.text = statusEffect.Description;
-        BackgroundImage.color = statusEffect.BackgroundColor;
+        StatusEffectText.text = healthCondition.GetReportLabel();
+        StatusEffectText.color = healthCondition.GetReportTextColor();
+        DescriptionText.text = healthCondition.GetReportDescription();
+        BackgroundImage.color = healthCondition.GetReportBackgroundColor();
         LayoutRebuilder.ForceRebuildLayoutImmediate(BackgroundImage.GetComponent<RectTransform>());
     }
 

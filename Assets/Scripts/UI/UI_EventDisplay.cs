@@ -15,11 +15,11 @@ public class UI_EventDisplay : MonoBehaviour
     public GameObject OutcomeNotesContainer;
 
     [Header("Prefabs")]
-    public UI_EventDialogueOption EventOptionPrefab;
+    public UI_EncounterStepOption EventOptionPrefab;
     public UI_EventOutcomeNote OutcomeNotePrefab;
     
 
-    public void Init(EventStep step) 
+    public void Init(EncounterStep step) 
     {
         Clear();
         EventText.text = step.Text;
@@ -27,15 +27,15 @@ public class UI_EventDisplay : MonoBehaviour
         // Dialogue Options
         if (step.IsFinalStep)
         {
-            EventDialogueOption endDayOption = new EventDialogueOption("Continue journey", EndEvent);
-            UI_EventDialogueOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+            FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", EndEvent);
+            UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(Game, endDayOption);
         }
         else
         {
-            foreach (EventDialogueOption option in step.EventDialogueOptions)
+            foreach (EncounterStepOption option in step.Options)
             {
-                UI_EventDialogueOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+                UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
                 optionDisplay.Init(Game, option);
             }
         }
@@ -51,8 +51,8 @@ public class UI_EventDisplay : MonoBehaviour
         Dictionary<Item, int> groupedAddedItems = new Dictionary<Item, int>();
         foreach (Item item in Game.ItemsAddedSinceLastStep)
         {
-            if (!groupedAddedItems.Any(x => x.Key.Type == item.Type)) groupedAddedItems.Add(item, 1);
-            else groupedAddedItems[groupedAddedItems.First(x => x.Key.Type == item.Type).Key]++;
+            if (!groupedAddedItems.Any(x => x.Key.Def == item.Def)) groupedAddedItems.Add(item, 1);
+            else groupedAddedItems[groupedAddedItems.First(x => x.Key.Def == item.Def).Key]++;
         }
         foreach (KeyValuePair<Item, int> item in groupedAddedItems)
         {
@@ -64,8 +64,8 @@ public class UI_EventDisplay : MonoBehaviour
         Dictionary<Item, int> groupedRemovedItems = new Dictionary<Item, int>();
         foreach (Item item in Game.ItemsRemovedSinceLastStep)
         {
-            if (!groupedRemovedItems.Any(x => x.Key.Type == item.Type)) groupedRemovedItems.Add(item, 1);
-            else groupedRemovedItems[groupedRemovedItems.First(x => x.Key.Type == item.Type).Key]++;
+            if (!groupedRemovedItems.Any(x => x.Key.Def == item.Def)) groupedRemovedItems.Add(item, 1);
+            else groupedRemovedItems[groupedRemovedItems.First(x => x.Key.Def == item.Def).Key]++;
         }
         foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
         {
@@ -74,11 +74,11 @@ public class UI_EventDisplay : MonoBehaviour
         }
 
         // Added injuries
-        Dictionary<Injury, int> groupedInjuries = new Dictionary<Injury, int>();
-        foreach (Injury injury in Game.InjuriesAddedSinceLastStep)
+        Dictionary<Wound, int> groupedInjuries = new Dictionary<Wound, int>();
+        foreach (Wound wound in Game.InjuriesAddedSinceLastStep)
         {
-            if (!groupedInjuries.Any(x => x.Key.Type == injury.Type)) groupedInjuries.Add(injury, 1);
-            else groupedInjuries[groupedInjuries.First(x => x.Key.Type == injury.Type).Key]++;
+            if (!groupedInjuries.Any(x => x.Key.Def == wound.Def)) groupedInjuries.Add(wound, 1);
+            else groupedInjuries[groupedInjuries.First(x => x.Key.Def == wound.Def).Key]++;
         }
         foreach (var group in groupedInjuries)
         {
@@ -87,7 +87,7 @@ public class UI_EventDisplay : MonoBehaviour
         }
     }
 
-    private EventStep EndEvent()
+    private EncounterStep EndEvent()
     {
         Game.EndAfternoonEvent();
         return null;
