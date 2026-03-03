@@ -29,12 +29,20 @@ public class PlayerCharacter
     public Dictionary<HealthConditionDef, HealthCondition> PermanentConditions;
     public List<HealthCondition> HealthConditions = new List<HealthCondition>();
 
+    // Stats
+    public Dictionary<StatDef, Stat> Stats { get; private set; }
+
+    // Companions
     public bool HasDog;
     public bool HasParrot;
 
     public PlayerCharacter(Game game)
     {
         Game = game;
+
+        // Init stats
+        Stats = new Dictionary<StatDef, Stat>();
+        foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) Stats.Add(stat, new Stat(Game, stat));
 
         // Add instance of each permanent health condition
         PermanentConditions = new Dictionary<HealthConditionDef, HealthCondition>();
@@ -123,6 +131,12 @@ public class PlayerCharacter
 
     #region Getters
 
+    // Stats
+    public int GetStatValue(StatDef statDef) => Stats[statDef].GetValue();
+    public int Morale => GetStatValue(StatDefOf.Morale);
+
+
+    // Health conditions
     public List<HealthCondition> ActiveHealthConditions => HealthConditions.Where(hc => hc.IsActive).ToList();
 
     // Permanent conditions

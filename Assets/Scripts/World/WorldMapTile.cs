@@ -29,6 +29,12 @@ public class WorldMapTile
         Biome = biome;
     }
 
+    public void SetEncounter(LocationEncounter encounter)
+    {
+        Encounter = encounter;
+        // todo: draw on world map
+    }
+
     public void SetMission(Mission mission)
     {
         Mission = mission;

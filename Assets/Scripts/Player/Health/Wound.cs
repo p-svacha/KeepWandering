@@ -96,11 +96,6 @@ public abstract class Wound : HealthCondition
         OriginDay = game.Day;
     }
 
-    public void UpdateStatusEffect()
-    {
-
-    }
-
     public void SetSprites()
     {
         InjuryRenderer.gameObject.SetActive(IsActive);

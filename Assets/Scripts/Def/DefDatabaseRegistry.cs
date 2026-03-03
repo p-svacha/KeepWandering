@@ -24,6 +24,7 @@ public static class DefDatabaseRegistry
     {
         ClearAllDatabases();
 
+        DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
         DefDatabase<HealthConditionDef>.AddDefs(HealthConditionDefs.Defs);
         DefDatabase<CompanionDef>.AddDefs(CompanionDefs.Defs);

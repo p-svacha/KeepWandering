@@ -1,4 +1,4 @@
-Crate Encounter: Option to try again when failing
+Crate Encounter: spy items in crate
 abandonded camp
 abandonded car
 bandits (basic fight or flee)

@@ -49,6 +49,13 @@ public static class StatDefs
 
         new StatDef()
         {
+            DefName = "Perception",
+            Label = "perception",
+            Description = "Affects awareness of surroundings, such as noticing hidden threats, finding hidden items, tracking etc.",
+        },
+
+        new StatDef()
+        {
             DefName = "Morale",
             Label = "morale",
             Description = "Your general mental state. Acts as a small offset to all skill checks.",

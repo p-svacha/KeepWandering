@@ -10,7 +10,7 @@ public class EncounterManager
     private Game Game;
 
     // Forced (dev mode)
-    private EncounterDef ForcedEncounter;
+    private EncounterDef ForcedLocationEncounter;
 
     public EncounterManager(Game game)
     {
@@ -60,14 +60,14 @@ public class EncounterManager
     /// <summary>
     /// Choses and returns a new encounter for a tile that the player first steps on.
     /// </summary>
-    public Encounter GenerateLocationEncounter(WorldMapTile tile)
+    public LocationEncounter GenerateLocationEncounter(WorldMapTile tile)
     {
         // Forced encounter (dev mode)
-        if (ForcedEncounter != null)
+        if (ForcedLocationEncounter != null)
         {
-            Encounter forcedEncounterInstance = GenerateEncounter(ForcedEncounter);
-            ForcedEncounter = null;
-            return forcedEncounterInstance;
+            LocationEncounter forcedLocationEncounter = GenerateEncounter(ForcedLocationEncounter) as LocationEncounter;
+            ForcedLocationEncounter = null;
+            return forcedLocationEncounter;
         }
 
         // Create a weighted table with the probabilities of each event and chose one
@@ -79,11 +79,11 @@ public class EncounterManager
         EncounterDef chosenEncounterDef = HelperFunctions.GetWeightedRandomElement(eventTable);
 
         // Instantiate the encounter
-        return GenerateEncounter(chosenEncounterDef);
+        return GenerateEncounter(chosenEncounterDef) as LocationEncounter;
     }
 
     public void ForceEncounter(EncounterDef encounterDef)
     {
-        ForcedEncounter = encounterDef;
+        ForcedLocationEncounter = encounterDef;
     }
 }

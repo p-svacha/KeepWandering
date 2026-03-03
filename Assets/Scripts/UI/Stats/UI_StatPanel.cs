@@ -20,7 +20,7 @@ public class UI_StatPanel : MonoBehaviour
 
         StatDisplays = new Dictionary<StatDef, UI_Stat>();
         UI_StatRow currentRow = null;
-        List<Stat> playerStats = game.PlayerStats.Values.ToList();
+        List<Stat> playerStats = game.Player.Stats.Values.ToList();
         for (int i = 0; i < playerStats.Count; i += STATS_PER_ROW)
         {
             if (i % STATS_PER_ROW == 0)
@@ -29,6 +29,9 @@ public class UI_StatPanel : MonoBehaviour
                 Stat rowStat1 = playerStats[i];
                 Stat rowStat2 = (i + 1 < playerStats.Count) ? playerStats[i + 1] : null;
                 currentRow.Init(rowStat1, rowStat2);
+
+                StatDisplays.Add(rowStat1.Def, currentRow.LeftStat);
+                if (rowStat2 != null) StatDisplays.Add(rowStat2.Def, currentRow.RightStat);
             }
         }
     }

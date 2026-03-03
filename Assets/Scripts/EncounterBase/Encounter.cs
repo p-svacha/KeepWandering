@@ -8,8 +8,9 @@ public abstract class Encounter
 {
     public Game Game { get; private set; }
     public EncounterDef Def { get; private set; }
-    public EncounterStep InitialStep { get; private set; }
     public Mission Mission { get; private set; }
+    public int NumVisits { get; private set; }
+    protected bool IsFirstVisit => NumVisits == 1;
 
     // During encounter
     private List<GameObject> EventSprites = new List<GameObject>();
@@ -19,6 +20,8 @@ public abstract class Encounter
     {
         Game = game;
         Def = def;
+        NumVisits = 0;
+        OnInitialize();
     }
 
     /// <summary>
@@ -29,14 +32,12 @@ public abstract class Encounter
         return table.Union(Game.CurrentPosition.Biome.LootTable);
     }
 
-    /// <summary>
-    /// Initializes and starts the event, making it visible on screen and playable.
-    /// </summary>
-    public void StartEncounter()
+    public EncounterStep StartEncounter()
     {
-        OnEventStart();
-        InitialStep = GetInitialStep();
+        NumVisits++;
+        return OnStart();
     }
+
     public void SetMission(Mission mission)
     {
         Mission = mission;
@@ -44,14 +45,19 @@ public abstract class Encounter
 
 
     /// <summary>
-    /// Initializes the event by setting up all attributes, setting relevant sprites and items etc.
+    /// Called exactly once when the encounter is first created, regardless if the player is there or the encounter is starting or not. Used to set up all initial randomized values (like items, etc.).
     /// </summary>
-    protected abstract void OnEventStart();
+    protected abstract void OnInitialize();
 
     /// <summary>
-    /// Sets the first EventStep that appears when the event begins.
+    /// Called whenever this encounter starts, returning the initial step of the encounter. For location events that player can come back to, this is called every time the player enters the location, not just the first time. For encounters that are only played once, this is called after InitializeEncounter.
     /// </summary>
-    protected abstract EncounterStep GetInitialStep();
+    protected abstract EncounterStep OnStart();
+
+    /// <summary>
+    /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying leftover items.
+    /// </summary>
+    protected virtual void OnEnd() { }
 
     /// <summary>
     /// Makes a gameobject belonging to this event visible. The gameobject will be hidden when the event ends.
@@ -81,11 +87,8 @@ public abstract class Encounter
     {
         foreach (GameObject sprite in EventSprites) sprite.gameObject.SetActive(false);
         EventSprites.Clear();
-        OnEventEnd();
+        OnEnd();
     }
 
-    /// <summary>
-    /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying leftover items.
-    /// </summary>
-    protected virtual void OnEventEnd() { }
+   
 }

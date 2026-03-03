@@ -34,6 +34,11 @@ public class ItemRenderer : MonoBehaviour
     {
         transform.rotation = Quaternion.Euler(0, 0, angle);
     }
+    public void SetRandomRotation()
+    {
+        float angle = Random.Range(0f, 360f);
+        SetRotation(angle);
+    }
 
     /// <summary>
     /// Makes the item glow with the specified color. If forced, the unhighlight must removeForce to remove the glow.

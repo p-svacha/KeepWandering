@@ -40,6 +40,11 @@ public class Item
         wound.SetHightlighted(false);
     }
 
+    public void Show() => Renderer.Show();
+    public void Hide() => Renderer.Hide();
+    public void Freeze() => Renderer.Freeze();
+    public void Unfreeze() => Renderer.Unfreeze();
+
 
     #region Getters
     // General

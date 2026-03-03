@@ -7,17 +7,23 @@ using UnityEngine.EventSystems;
 
 public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    private UI_EncounterDisplay EncounterDisplay;
+    private Game Game => EncounterDisplay.Game;
     private EncounterStepOption Option;
 
     [Header("Elements")]
     public TextMeshProUGUI EventOptionText;
     public Button OptionButton;
+    public GameObject SkillCheckIndicator;
 
-    public void Init(Game game, EncounterStepOption option)
+    public void Init(UI_EncounterDisplay encounterDisplay, EncounterStepOption option)
     {
+        EncounterDisplay = encounterDisplay;
         Option = option;
+
         EventOptionText.text = option.Text;
-        OptionButton.onClick.AddListener(() => ChoseOption(game, option));
+        OptionButton.onClick.AddListener(() => ChoseOption(Game, option));
+        SkillCheckIndicator.SetActive(option is SkillCheckOption);
     }
 
     private void ChoseOption(Game game, EncounterStepOption option)
@@ -33,17 +39,12 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (Option is SkillCheckOption skillCheckOption)
-        {
-            foreach(StatDef stat in skillCheckOption.AssociatedStats.Keys) GameUI.Instance.HightlightStat(stat);
-        }
+        EncounterDisplay.OnOptionHovered(Option);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (Option is SkillCheckOption skillCheckOption)
-        {
-            foreach (StatDef stat in skillCheckOption.AssociatedStats.Keys) GameUI.Instance.UnhighlightStat(stat);
-        }
+        EncounterDisplay.OnOptionUnhovered();
+        
     }
 }

@@ -13,6 +13,7 @@ public class UI_EncounterDisplay : MonoBehaviour
     public TextMeshProUGUI EventText;
     public GameObject EventOptionContainer;
     public GameObject OutcomeNotesContainer;
+    public UI_OptionDetails OptionDetailsPanel;
 
     [Header("Prefabs")]
     public UI_EncounterStepOption EventOptionPrefab;
@@ -29,21 +30,57 @@ public class UI_EncounterDisplay : MonoBehaviour
         {
             FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", EndEvent);
             UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
-            optionDisplay.Init(Game, endDayOption);
+            optionDisplay.Init(this, endDayOption);
         }
         else
         {
             foreach (EncounterStepOption option in step.Options)
             {
                 UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
-                optionDisplay.Init(Game, option);
+                optionDisplay.Init(this, option);
             }
         }
 
+        HideOptionDetails();
         InitEventStepOutcomeNotes();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
+
+    private EncounterStep EndEvent()
+    {
+        Game.EndAfternoonEvent();
+        return null;
+    }
+
+    public void OnOptionHovered(EncounterStepOption option)
+    {
+        if (option is SkillCheckOption skillCheckOption)
+        {
+            // Highlight associated stats
+            foreach (StatDef stat in skillCheckOption.RelevantStats.Keys) GameUI.Instance.HightlightStat(stat);
+
+            // Show option details
+            ShowOptionDetails(skillCheckOption);
+        }
+    }
+
+    public void OnOptionUnhovered()
+    {
+        // Unhighlight all stats
+        GameUI.Instance.UnhighlightAllStats();
+
+        // Hide option details
+        HideOptionDetails();
+    }
+
+    private void Clear()
+    {
+        HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
+        HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
+    }
+
+    #region Outcome Notes
 
     private void InitEventStepOutcomeNotes()
     {
@@ -87,15 +124,19 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
     }
 
-    private EncounterStep EndEvent()
+    #endregion
+
+    #region Option Details
+
+    public void ShowOptionDetails(SkillCheckOption option)
     {
-        Game.EndAfternoonEvent();
-        return null;
+        OptionDetailsPanel.gameObject.SetActive(true);
+        OptionDetailsPanel.ShowDetailsFor(option);
     }
 
-    private void Clear()
+    public void HideOptionDetails()
     {
-        HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
-        HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
+        OptionDetailsPanel.gameObject.SetActive(false);
     }
+    #endregion
 }

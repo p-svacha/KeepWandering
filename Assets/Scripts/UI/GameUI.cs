@@ -137,6 +137,7 @@ public class GameUI : MonoBehaviour
     {
         StatPanel.UnhighlightStat(stat);
     }
+    public void UnhighlightAllStats() => StatPanel.UnhighlightAll();
 
     #endregion
 

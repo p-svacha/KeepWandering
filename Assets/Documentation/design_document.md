@@ -38,6 +38,7 @@ The player has a fixed set of stats that have an integer value. The default valu
 - Intellect: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
 - Charisma: Affects social options, such as persuading, intimidating, negotiating etc.
 - Agility: Affects options that require quick reactions, such as dodging, running away, etc.
+- Perception: Affects options that require noticing things, such as spotting hidden enemies, finding hidden items, noticing traps etc.
 - Morale: Affects all options, as a general representation of the player's mental state. Morale can be affected by various things, such as hunger, thirst, injuries, companions, quests etc. High morale can give a bonus to all options, while low morale can give a penalty to all options.
 
 Stat Values can both be temporarily and permanently affected.
@@ -180,11 +181,36 @@ On a technical level, options fall into one of two categories: "Skillchecks" or 
 FixedOutcome options have a fixed outcome, meaning on a technical level, that choosing the options always calls the same function. That function can still have custom logic and random elements, but the outcome is always determined by that function. They are usually used for very simple options like ignoring/skipping something, or for options with special outcomes that don't fit into the classic success/partial success/failure outcome structure of a skill check.
 
 #### Skillcheck options
-Skillcheck options follow a classic, standardized RPG style skillcheck structure, where the option has a calculated difficulty value and a rolled outcome that is determined by the difficulty value and a random roll, where the difficulty can be affected by a variety of modifiers. They have different possible success levels (usually "success", "partial success", "failure"), with each of these calling a different function that determines the outcome of that option.
+Skillcheck options follow a classic, standardized RPG style skillcheck structure, where the option has a calculated difficulty value and a rolled outcome that is determined by the difficulty value and a random roll, where the difficulty can be affected by a variety of modifiers. They have different possible success levels, with each of these calling a different function that determines the outcome of that option.
+
+##### Skill Check Outcomes
+Each skill check option has the possible outcomes:
+
+- Success: The player fully succeeds in the action they are trying to do.
+- Failure: The player fails in the action they are trying to do.
+
+Depending on the option, there may also be additional outcomes:
+
+- Partial success: The player partially succeeds in the action they are trying to do. This is usually a middle ground between success and failure, with an outcome that is better than failure but worse than success.
+- Critical success: The player critically succeeds in the action they are trying to do. This is usually a better version of success, with an outcome that is even better than success.
+- Critical failure: The player critically fails in the action they are trying to do. This is usually a worse version of failure, with an outcome that is even worse than failure.
+
+##### Skill Check Outcome Calculation
+Skillcheck options have a rolled outcome, where the player rolls a random number from 0 to 100. The outcome depends on the rolled number and the calculated difficulty value of the option:
+
+- If the rolled number is equal or greater than the difficulty value, the player succeeds.
+- If the rolled number is less than the difficulty value, the player fails.
+
+Additionally, if there are additional outcomes, they are calculated as follows:
+
+- In failure, if the rolled number greater than 50% of the difficulty value, the player partially succeeds instead of fails.
+- In failure, if the rolled number is less than 10% of the difficulty value, the player critically fails instead of fails.
+- In success, if the rolled number is in the top 10% of the range above the difficulty value, the player critically succeeds instead of succeeds. (for example, if the difficulty value is 70, and the rolled number is greater than 97, the player critically succeeds instead of just succeeds)
+
 
 ##### Skill Check Difficulty Calculation
-Skillcheck options have a fixed base difficulty value (0-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
-The most common types of modifiers are (in order of importance):
+Skillcheck options have a fixed base difficulty value (1-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
+The most common types of modifiers are (in rough order of importance):
 
 - Player stats: Most options have a specific stat (or multiple) associated with them. The player's value in that stat is reduced from the difficulty value.
 - Item slots: Some options have item slots that the player can fill with items from their cart. A slot either requires a specific item or an item with a specific tag. If the player fills the slot with a valid item, the difficulty value is reduced by a fixed amount. Depending on the option, the item may have a chance to be consumed on use, which would remove the item from the player's cart.
@@ -192,14 +218,6 @@ The most common types of modifiers are (in order of importance):
 - Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
 - Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
 - Time of day: Some options have time of day modifiers, where certain times of day can increase or decrease the difficulty value.
- 
-##### Skill Check Outcome Calculation
-Skillcheck options have a rolled outcome, where the player rolls a random number from 0 to 100.
-Option outcomes are usually split into 3 categories: success, partial success and failure. An option also has a calculated "Difficulty" value (0-100), which determines the chances for each outcome.
-The calculation for the outcome is as follows:
- - If the rolled number is greater than the Difficulty value, the outcome is a success.
- - Else if the rolled number is greater than 50% of Difficulty value, the outcome is a partial success.
- - Else the outcome is a failure.
 
 ### Option Outcomes
 There are many things that can happen as a result of an option outcome. The most common are:

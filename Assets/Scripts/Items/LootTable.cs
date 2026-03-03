@@ -61,15 +61,12 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         return new LootTable(newChances);
     }
 
-    public Item GetItem(bool hide = false)
+    public Item GetItem(bool hidden = false, bool frozen = true)
     {
         ItemDef type = HelperFunctions.GetWeightedRandomElement(Items);
         Item item = Game.Instance.CreateItem(type);
-        if (hide)
-        {
-            item.Renderer.Hide();
-            item.Renderer.SetPosition(-200, -200);
-        }
+        if (hidden) item.Renderer.Hide();
+        if (!frozen) item.Renderer.Unfreeze();
         return item;
     }
     public List<Item> GetItems(int amount, bool hide = false)

@@ -29,9 +29,6 @@ public class Game : MonoBehaviour
     public WorldMapTile TargetPosition { get; private set; } // Position the player is moving towards.
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
-    // Stats
-    public Dictionary<StatDef, Stat> PlayerStats { get; private set; }
-
     // Missions
     public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
 
@@ -87,14 +84,6 @@ public class Game : MonoBehaviour
         // Init events
         EncounterManager = new EncounterManager(this);
 
-        // Init stats
-        PlayerStats = new Dictionary<StatDef, Stat>();
-        foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) PlayerStats.Add(stat, new Stat(this, stat));
-
-        // Init UI
-        UI.Init(this);
-        UI.ContextMenu.Init(this);
-
         // Init player
         ItemIdCounter = 0;
         Player = new PlayerCharacter(this);
@@ -104,6 +93,10 @@ public class Game : MonoBehaviour
         AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Drink));
         AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Medical));
         AddNewItemToInventory(GetRandomItemDef());
+
+        // Init UI
+        UI.Init(this);
+        UI.ContextMenu.Init(this);
 
         SwitchState(GameState.InDayTransition);
     }
@@ -216,6 +209,8 @@ public class Game : MonoBehaviour
                 break;
         }
 
+        State = newState;
+
         switch (newState)
         {
             case GameState.InDayTransition:
@@ -254,8 +249,6 @@ public class Game : MonoBehaviour
                 UI.HoldBlackTransition(60f);
                 break;
         }
-
-        State = newState;
 
         if (State != GameState.GameOver) CheckGameOver();
     }
@@ -372,9 +365,16 @@ public class Game : MonoBehaviour
         // Options
         List<EncounterStepOption> options = new List<EncounterStepOption>();
 
-        options.Add(new FixedOutcomeOption("Move", OpenMap)); // Move
-        options.Add(new FixedOutcomeOption("Stay", Stay)); // Stay
-        options.Add(new FixedOutcomeOption("Rest", Rest)); // Rest
+        if (Day == 1)
+        {
+            options.Add(new FixedOutcomeOption("Start Journey", OpenMap)); // Move
+        }
+        else
+        {
+            options.Add(new FixedOutcomeOption("Move", OpenMap)); // Move
+            options.Add(new FixedOutcomeOption("Stay", Stay)); // Stay
+            options.Add(new FixedOutcomeOption("Rest", Rest)); // Rest
+        }
 
         EncounterStep morningEventStep = new EncounterStep(text, options);
         return morningEventStep;
@@ -455,14 +455,22 @@ public class Game : MonoBehaviour
         }
 
         // If the tile already has a location encounter set, just take that.
-        if (CurrentPosition.Encounter != null) CurrentEncounter = CurrentPosition.Encounter;
+        if (CurrentPosition.Encounter != null)
+        {
+            CurrentEncounter = CurrentPosition.Encounter;
+        }
 
         // Else generate a new one
-        CurrentEncounter = EncounterManager.GenerateLocationEncounter(CurrentPosition);
+        else
+        {
+            LocationEncounter newEncounter = EncounterManager.GenerateLocationEncounter(CurrentPosition);
+            CurrentPosition.SetEncounter(newEncounter);
+            CurrentEncounter = newEncounter;
+        }
 
         // Display the encounter
-        CurrentEncounter.StartEncounter();
-        DisplayEncounterStep(CurrentEncounter.InitialStep);
+        EncounterStep initialStep = CurrentEncounter.StartEncounter();
+        DisplayEncounterStep(initialStep);
 
         // Update status
         OnGameStateChanged();
@@ -539,11 +547,13 @@ public class Game : MonoBehaviour
 
     public void AddExistingItemToInventory(Item item)
     {
+        if (item.IsPlayerOwned) throw new System.Exception("Can't add item to inventory that is already player owned.");
+
         item.Renderer.Show();
         item.SetIsPlayerOwned(true);
 
         item.Renderer.SetPosition(Random.Range(-8f, -3f), Random.Range(2f, 4f));
-        item.Renderer.SetRotation(Random.Range(0f, 360f));
+        item.Renderer.SetRandomRotation();
         item.Renderer.Unfreeze();
 
         ItemsAddedSinceLastStep.Add(item);
@@ -722,6 +732,8 @@ public class Game : MonoBehaviour
 
     private void OnGameStateChanged()
     {
+        if (State == GameState.Initializing) return;
+
         UpdateHealthConditions();
         RefreshVisuals();
     }
