@@ -15,6 +15,7 @@ public abstract class HealthCondition
     {
         Player = player;
         Def = def;
+        OnInit();
     }
 
     protected void SetActiveStage(int stageIndex)
@@ -49,9 +50,9 @@ public abstract class HealthCondition
     public abstract string IsFatal();
 
     #region Getters
-    public string Label => ActiveStage.Label != "" ? ActiveStage.Label : Def.Label;
+    public string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
     public string LabelCapWord => Label.CapitalizeEachWord();
-    public string Description => ActiveStage.Description != "" ? ActiveStage.Description : Def.Description;
+    public string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
 
     public virtual string GetReportLabel() => LabelCapWord;
     public virtual string GetReportDescription() => Description;

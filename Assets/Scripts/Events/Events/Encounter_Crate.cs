@@ -5,16 +5,17 @@ public class Encounter_Crate : LocationEncounter
 {
     private const int TAKE_ITEM_BASE_DIFFICULTY = 40;
 
-    private static LootTable ItemTable = new LootTable(
-        new(ItemDefOf.Beans, 10),
-        new(ItemDefOf.WaterBottle, 10),
-        new(ItemDefOf.Bandage, 5),
-        new(ItemDefOf.Antibiotics, 5),
-        new(ItemDefOf.Bone, 3),
-        new(ItemDefOf.Knife, 3),
-        new(ItemDefOf.NutSnack, 10),
-        new(ItemDefOf.MedicalKit, 1)
-    );
+    private static LootTable ItemTable = new LootTable
+    {
+        { ItemDefOf.Beans, 10 },
+        { ItemDefOf.WaterBottle, 10 },
+        { ItemDefOf.Bandage, 5 },
+        { ItemDefOf.Antibiotics, 5 },
+        { ItemDefOf.Bone, 3 },
+        { ItemDefOf.Knife, 3 },
+        { ItemDefOf.NutSnack, 10 },
+        { ItemDefOf.MedicalKit, 1 }
+    };
 
     // Instance
     private Item CrateItem;

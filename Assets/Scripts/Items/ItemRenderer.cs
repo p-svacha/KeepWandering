@@ -17,6 +17,7 @@ public class ItemRenderer : MonoBehaviour
     {
         Item = item;
         SpriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer.material = ResourceManager.LoadMaterial("Materials/ItemMaterial");
         SpriteRenderer.sprite = item.Sprite;
         Rigidbody = gameObject.AddComponent<Rigidbody2D>();
         Collider = gameObject.AddComponent<PolygonCollider2D>();

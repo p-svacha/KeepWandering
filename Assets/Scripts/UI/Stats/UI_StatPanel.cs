@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class UI_StatPanel : MonoBehaviour
@@ -9,27 +10,26 @@ public class UI_StatPanel : MonoBehaviour
     public GameObject StatContainer;
 
     [Header("Prefabs")]
-    public GameObject RowPrefab;
-    public UI_Stat StatPrefab;
+    public UI_StatRow RowPrefab;
 
     private Dictionary<StatDef, UI_Stat> StatDisplays;
 
     public void Init(Game game)
     {
+        HelperFunctions.DestroyAllChildredImmediately(StatContainer, skipElements: 1);
+
         StatDisplays = new Dictionary<StatDef, UI_Stat>();
-        GameObject currentRow = null;
-        int statIndex = 0;
-        foreach (Stat stat in game.PlayerStats.Values)
+        UI_StatRow currentRow = null;
+        List<Stat> playerStats = game.PlayerStats.Values.ToList();
+        for (int i = 0; i < playerStats.Count; i += STATS_PER_ROW)
         {
-            if (statIndex % STATS_PER_ROW == 0)
+            if (i % STATS_PER_ROW == 0)
             {
                 currentRow = Instantiate(RowPrefab, StatContainer.transform);
+                Stat rowStat1 = playerStats[i];
+                Stat rowStat2 = (i + 1 < playerStats.Count) ? playerStats[i + 1] : null;
+                currentRow.Init(rowStat1, rowStat2);
             }
-
-            var statUI = Instantiate(StatPrefab, currentRow.transform);
-            statUI.Init(stat);
-            StatDisplays[stat.Def] = statUI;
-            statIndex++;
         }
     }
 

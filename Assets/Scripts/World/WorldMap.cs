@@ -240,7 +240,7 @@ public class WorldMap : MonoBehaviour
 
         // Create and draw quarantine zone
         QuarantineZone = new Area(this, "Quarantine Zone", quarantineZoneTiles);
-        QuarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/QuarantineZoneBorderMaterial"), 0.4f);
+        QuarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/FenceMaterial"), 0.4f);
     }
 
     /// <summary>

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UI_EventDisplay : MonoBehaviour
+public class UI_EncounterDisplay : MonoBehaviour
 {
     public Game Game;
 

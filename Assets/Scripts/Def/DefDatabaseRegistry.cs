@@ -32,6 +32,7 @@ public static class DefDatabaseRegistry
         DefDatabase<BiomeDef>.AddDefs(BiomeDefs.Defs);
         DefDatabase<EncounterDef>.AddDefs(EncounterDefs.Defs);
 
+        ValidateDefOfs();
         ResolveAllReferences();
         OnLoadingDone();
     }
@@ -109,6 +110,25 @@ public static class DefDatabaseRegistry
         }
 
         DefDumpUtility.DumpAllDefs();
+    }
+
+    /// <summary>
+    /// Checks that all static fields in all DefOf classes have been bound to a Def.
+    /// Throws an exception if any field is still null.
+    /// </summary>
+    private static void ValidateDefOfs()
+    {
+        foreach (Type defOfClass in GetAllDefOfClasses())
+        {
+            FieldInfo[] fields = defOfClass.GetFields(BindingFlags.Static | BindingFlags.Public);
+            foreach (FieldInfo field in fields)
+            {
+                if (field.GetValue(null) == null)
+                {
+                    throw new System.Exception($"DefOf field '{defOfClass.Name}.{field.Name}' of type {field.FieldType.Name} is not bound to any Def. Make sure a Def with DefName \"{field.Name}\" exists.");
+                }
+            }
+        }
     }
 
     /// <summary>

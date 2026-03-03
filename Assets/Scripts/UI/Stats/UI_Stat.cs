@@ -29,7 +29,7 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         LabelText.text = Stat.Def.LabelCapWord;
 
         // Value
-        ValueText.text = Stat.GetValue() + "%";
+        ValueText.text = Stat.GetValue().ToString();
         ValueText.color = Stat.GetValueColor();
 
         // Tooltip

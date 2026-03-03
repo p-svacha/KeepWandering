@@ -1,2 +1,356 @@
 ﻿=== SOURCE DEF LISTS ===
 
+--- CompanionDefs.cs ---
+    public static List<CompanionDef> Defs => new List<CompanionDef>()
+    {
+
+    };
+
+--- EncounterDefs.cs ---
+    public static List<EncounterDef> Defs => new List<EncounterDef>()
+    {
+        new EncounterDef()
+        {
+            DefName = "Crate",
+            DevNotes = "A crate lies before the player, containing a randomised visible player. The player can try to pry the item out, risking an injury in the process.",
+            EncounterClass = typeof(Encounter_Crate),
+            EncounterType = EncounterType.Location,
+            BaseProbability = 6,
+            Biomes = new Dictionary<BiomeDef, float>()
+            {
+                {BiomeDefOf.Farmland, 1.1f},
+                {BiomeDefOf.City, 0.2f},
+                {BiomeDefOf.Woods, 0.9f},
+            },
+        },
+    };
+
+--- ItemDefs.cs ---
+    public static List<ItemDef> Defs => new List<ItemDef>()
+    {
+        new ItemDef()
+        {
+            DefName = "Beans",
+            Label = "can of beans",
+            Description = "A can of beans that will provide a good amount of nutrition and a small amount of hydration.",
+            Tags = { ItemTagDefOf.Food },
+            IsEdible = true,
+            OnEatNutrition = 3f,
+            OnEatHydration = 1f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "WaterBottle",
+            Label = "bottle of water",
+            Description = "A full water bottle providing water for about 3 days.",
+            Tags = { ItemTagDefOf.Drink },
+            IsDrinkable = true,
+            OnDrinkHydration = 3f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Bandage",
+            Label = "bandage",
+            Description = "A simple bandage that can be used to tend wounds.",
+            Tags = { ItemTagDefOf.Medical },
+            CanTendWounds = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Antibiotics",
+            Label = "antibiotics",
+            Description = "A course of antibiotics that can be used to heal infections.",
+            Tags = { ItemTagDefOf.Medical },
+            CanHealInfections = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Bone",
+            Label = "bone",
+            Description = "A bone that can be used as a weapon or tool.",
+            Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs },
+        },
+
+        new ItemDef()
+        {
+            DefName = "Knife",
+            Label = "knife",
+            Description = "A sharp knife that can be used as a weapon or tool.",
+            Tags = { ItemTagDefOf.Weapon },
+        },
+
+        new ItemDef() {
+            DefName = "NutSnack",
+            Label = "nut snack",
+            Description = "A small bag of mixed nuts that will provide a small amount of nutrition and hydration.",
+            Tags = { ItemTagDefOf.Food },
+            IsEdible = true,
+            OnEatNutrition = 3f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "MedicalKit",
+            Label = "medical kit",
+            Description = "A medical kit that can be used to tend wounds and heal infections.",
+            Tags = { ItemTagDefOf.Medical },
+            CanTendWounds = true,
+            CanHealInfections = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Antidote",
+            Label = "antidote",
+            Description = "An antidote that can be used to heal poisoning.",
+            Tags = { ItemTagDefOf.Medical },
+            CanHealPoisoning = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Coin",
+            Label = "coin",
+            Description = "A coin often used as currency in trades.",
+        }
+    };
+
+--- ItemTagDefs.cs ---
+    public static List<ItemTagDef> Defs => new List<ItemTagDef>()
+    {
+        new ItemTagDef()
+        {
+            DefName = "Food",
+            Label = "Food",
+            Description = "Items that can be eaten to provide nutrition and/or hydration.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Drink",
+            Label = "Drink",
+            Description = "Items that can be drunk to provide hydration.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Medical",
+            Label = "Medical",
+            Description = "Items that can be used for medical purposes, such as tending wounds or healing infections.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Weapon",
+            Label = "Weapon",
+            Description = "Items that can be used as weapons to defend against threats.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "ForDogs",
+            Label = "For Dogs",
+            Description = "Items that are specifically for dogs, such as dog food or dog toys.",
+        }
+    };
+
+--- HealthConditionDefs.cs ---
+    public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
+    {
+        new HealthConditionDef()
+        {
+            DefName = "Hunger",
+            HealthConditionClass = typeof(HC_Hunger),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "hungry",
+                    Description = "Some food would be nice."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "very hungry",
+                    Description = "I don't think I can go much longer without food."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "starving",
+                    Description = "I need to eat something immediately!"
+                },
+            },
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "Thirst",
+            HealthConditionClass = typeof(HC_Thirst),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "thirsty",
+                    Description = "I could use a drink."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "very thirsty",
+                    Description = "I don't think I can go much longer without water."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "dehydrated",
+                    Description = "I need to drink something immediately!"
+                },
+            }
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "LegFracture",
+            HealthConditionClass = typeof(HC_LegFracture),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "leg sprain",
+                    Description = "My leg is sprained. I can still walk, but it's painful."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "leg fracture",
+                    Description = "My leg is fractured. My agility is severly reduced."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "broken leg",
+                    Description = "My leg is broken. I can't walk at all today."
+                }
+            }
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "ArmFracture",
+            HealthConditionClass = typeof(HC_ArmFracture),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "arm sprain",
+                    Description = "My arm is sprained. It hurts moving it."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "arm fracture",
+                    Description = "Oof ouch, my arms."
+                },
+                new HealthConditionStage()
+                {
+                    Label = "broken arm",
+                    Description = "My arm is broken."
+                }
+            }
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "BloodLoss",
+            HealthConditionClass = typeof(HC_BloodLoss),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "light blood loss",
+                    Description = "I've been bleeding a little.",
+                },
+                new HealthConditionStage()
+                {
+                    Label = "heavy blood loss",
+                    Description = "I've lost a lot of blood!",
+                },
+                new HealthConditionStage()
+                {
+                    Label = "critical blood loss",
+                    Description = "I'm losing blood very fast! I need to stop the bleeding immediately!",
+                },
+            }
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "Poison",
+            HealthConditionClass = typeof(HC_Poison),
+            IsPermanent = true,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "poisoned (minor)",
+                    Description = "I feel sick. I think I'm poisoned.",
+                },
+                new HealthConditionStage()
+                {
+                    Label = "poisoned (major)",
+                    Description = "I feel really sick. The poison is getting worse!",
+                },
+                new HealthConditionStage()
+                {
+                    Label = "poisoned (critical)",
+                    Description = "I feel awful. The poison is taking over my body! I need an antidote immediately!",
+                },
+            }
+        },
+
+        new HealthConditionDef()
+        {
+            DefName = "CutWound",
+            HealthConditionClass = typeof(HC_CutWound),
+            IsPermanent = false,
+        },
+         new HealthConditionDef()
+        {
+            DefName = "BruiseWound",
+            HealthConditionClass = typeof(HC_BruiseWound),
+            IsPermanent = false,
+         },
+    };
+
+--- BiomeDefs.cs ---
+    public static List<BiomeDef> Defs => new List<BiomeDef>()
+    {
+        new BiomeDef()
+        {
+            DefName = "Woods",
+            Label = "woods",
+            Description = "A place of many wild animals and plants.",
+        },
+
+        new BiomeDef()
+        {
+            DefName = "Farmland",
+            Label = "farmland",
+            Description = "A place of many crops and farm animals.",
+        },
+
+        new BiomeDef()
+        {
+            DefName = "City",
+            Label = "city",
+            Description = "A bustling urban area with many buildings and people.",
+        },
+
+        new BiomeDef()
+        {
+            DefName = "Lake",
+            Label = "lake",
+            Description = "A serene body of water surrounded by nature.",
+            IsPassable = false,
+        }
+    };
+

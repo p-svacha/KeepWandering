@@ -5,20 +5,27 @@ using UnityEngine;
 /// <summary>
 /// A loot table contains chances for different items and can be resolved to get random ones based on those chances.
 /// </summary>
-public class LootTable
+public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
 {
-    private Dictionary<ItemDef, float> Items;
+    private Dictionary<ItemDef, float> Items { get; init; }
 
-    public LootTable(params KeyValuePair<ItemDef, float>[] items)
+    public LootTable()
     {
         Items = new Dictionary<ItemDef, float>();
-        foreach (var kvp in items) Items.Add(kvp.Key, kvp.Value);
     }
 
     public LootTable(Dictionary<ItemDef, float> items)
     {
         Items = items;
     }
+
+    public void Add(ItemDef item, float weight)
+    {
+        Items.Add(item, weight);
+    }
+
+    public IEnumerator<KeyValuePair<ItemDef, float>> GetEnumerator() => Items.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Returns the union of two LootTables as a new LootTable that contains the added up chances of of all items.

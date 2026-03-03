@@ -24,7 +24,7 @@ public class GameUI : MonoBehaviour
     public UI_HealthReport HealthReportPrefab;
 
     [Header("Event Display")]
-    public UI_EventDisplay EventStepDisplay;
+    public UI_EncounterDisplay EventStepDisplay;
 
     [Header("Stat Display")]
     public UI_StatPanel StatPanel;

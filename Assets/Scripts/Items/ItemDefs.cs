@@ -66,8 +66,7 @@ public static class ItemDefs
             Description = "A small bag of mixed nuts that will provide a small amount of nutrition and hydration.",
             Tags = { ItemTagDefOf.Food },
             IsEdible = true,
-            OnEatNutrition = 1f,
-            OnEatHydration = 0.5f,
+            OnEatNutrition = 3f,
         },
 
         new ItemDef()

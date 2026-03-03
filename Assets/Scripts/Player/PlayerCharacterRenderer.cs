@@ -23,10 +23,9 @@ public class PlayerCharacterRenderer : MonoBehaviour
     public GameObject PoisonOverlay2;
     public GameObject PoisonOverlay3;
 
-    [Header("Colors")]
-    public Color HealthyColor;
-    public Color MinorBloodLossColor;
-    public Color MajorBloodLossColor;
+    private Color HealthyColor = Color.white;
+    private Color MinorBloodLossColor = new Color(1f, 0.8f, 0.8f);
+    private Color MajorBloodLossColor = new Color(1f, 0.6f, 0.6f);
 
     private void Awake()
     {

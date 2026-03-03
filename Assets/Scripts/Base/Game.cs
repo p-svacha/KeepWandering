@@ -1,17 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class Game : MonoBehaviour
 {
     public EncounterManager EncounterManager { get; private set; }
-    public GameObject EncounterContainer {  get; private set; }
-    public GameObject BiomeBackgroundContainer {  get; private set; }
+    public GameObject EncounterContainer { get; private set; }
+    public GameObject BiomeBackgroundContainer { get; private set; }
 
     // Game State
     public GameState State { get; private set; }
@@ -62,24 +58,16 @@ public class Game : MonoBehaviour
     // Debug
     public const bool DEBUG_RANDOM_CHOICES = true;
 
-    // Rules
-    private static LootTable StartItemTable = new LootTable(
-        new(ItemDefOf.Beans, 8),
-        new(ItemDefOf.WaterBottle, 8),
-        new(ItemDefOf.Bandage, 5),
-        new(ItemDefOf.Bone, 3),
-        new(ItemDefOf.Knife, 2),
-        new(ItemDefOf.Antibiotics, 2)
-    );
-
     #region Game Flow
 
     void Start()
     {
+        State = GameState.Initializing;
         Instance = this;
 
         EncounterContainer = GameObject.Find("Encounters");
         BiomeBackgroundContainer = GameObject.Find("BiomeBackgrounds");
+
         ResourceManager.ClearCache();
         DefDatabaseRegistry.InitDefs();
 
@@ -101,7 +89,7 @@ public class Game : MonoBehaviour
 
         // Init stats
         PlayerStats = new Dictionary<StatDef, Stat>();
-        foreach(StatDef stat in DefDatabase<StatDef>.AllDefs) PlayerStats.Add(stat, new Stat(this, stat));
+        foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) PlayerStats.Add(stat, new Stat(this, stat));
 
         // Init UI
         UI.Init(this);
@@ -111,9 +99,11 @@ public class Game : MonoBehaviour
         ItemIdCounter = 0;
         Player = new PlayerCharacter(this);
 
-        AddNewItemToInventory(ItemDefOf.Beans);
-        AddNewItemToInventory(ItemDefOf.WaterBottle);
-        StartItemTable.AddItemToInventory();
+        // Start with 1 food item, 1 drink item, 1 medical item and 1 random item in inventory
+        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Food));
+        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Drink));
+        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Medical));
+        AddNewItemToInventory(GetRandomItemDef());
 
         SwitchState(GameState.InDayTransition);
     }
@@ -130,58 +120,86 @@ public class Game : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M)) UI.ToggleWorldMap();
 
         // Update per state
-        switch (State) {
+        if (State == GameState.InGame)
+        {
+            UpdateHoveredItem();
 
-            case GameState.InGame:
-
-                // Update Hovered Elements
-                Vector2 mouseWorldPos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
-                RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-                if (hit.collider != null && hit.collider.GetComponent<Item>() != null)
+            // Click -> Interact
+            if (Input.GetMouseButtonDown(0) && !uiClick)
+            {
+                if (CurrentHoverItem != null)
                 {
-                    if (hit.collider.GetComponent<Item>() != CurrentHoverItem)
-                    {
-                        if (CurrentHoverItem != null) CurrentHoverItem.Renderer.Unhighlight();
-                        CurrentHoverItem = hit.collider.GetComponent<Item>();
-                        CurrentHoverItem.Renderer.Highlight(Color.white);
-                        CurrentHoverTime = 0f;
-
-                        UI.Tooltip.Hide();
-                    }
-                    else
-                    {
-                        CurrentHoverTime += Time.deltaTime;
-                        if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.ContextMenu.gameObject.activeSelf) 
-                            UI.Tooltip.Show(CurrentHoverItem);
-                    }
-                }
-                else
-                {
-                    if (CurrentHoverItem != null)
-                    {
-                        CurrentHoverItem.Renderer.Unhighlight();
-                        CurrentHoverItem = null;
-                        UI.Tooltip.Hide();
-                    }
+                    OnItemLeftClicked(CurrentHoverItem);
                 }
 
-                // Click -> Interact
-                if (Input.GetMouseButtonDown(0) && !uiClick)
+                else if (UI.ContextMenu.gameObject.activeSelf) // Clicked outside of item while context menu is open -> close context menu
                 {
-                    if (UI.ContextMenu.gameObject.activeSelf && (CurrentHoverItem == null || CurrentInteractionItem == CurrentHoverItem))
-                    {
-                        CurrentInteractionItem = null;
-                        UI.ContextMenu.Hide();
-                        CurrentHoverTime = 0f;
-                    }
-                    else if (CurrentHoverItem != null && CurrentHoverItem.CanInteract)
-                    {
-                        CurrentInteractionItem = CurrentHoverItem;
-                        UI.ContextMenu.Show(CurrentHoverItem);
-                        UI.Tooltip.Hide();
-                    }
+                    UI.ContextMenu.Hide();
+                    CurrentHoverTime = 0f;
+                    CurrentInteractionItem = null;
                 }
-                break;
+            }
+        }
+    }
+
+    private void OnItemLeftClicked(Item item)
+    {
+        // Get interaction options for item
+        List<InteractionOption> options = item.GetInteractionOptions();
+        Debug.Log($"Clicked on " + item.Label + " with " + options.Count + " interaction options.");
+
+        // If it has any, show context menu
+        if (options.Count > 0)
+        {
+            Debug.Log($"Show context menu for " + CurrentHoverItem.Label);
+            CurrentInteractionItem = CurrentHoverItem;
+            UI.ContextMenu.Show(CurrentHoverItem);
+            UI.Tooltip.Hide();
+        }
+    }
+
+    /// <summary>
+    /// Handles which item is currently hovered by the mouse and updates the visuals accordingly. Also handles showing the tooltip after hovering an item for a certain time.
+    /// </summary>
+    private void UpdateHoveredItem()
+    {
+        bool uiClick = EventSystem.current.IsPointerOverGameObject();
+        Item prevHoveredItem = CurrentHoverItem;
+        Item newHoveredItem = null;
+
+        Vector2 mouseWorldPos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+        if (hit.collider != null && hit.collider.GetComponent<ItemRenderer>() != null)
+        {
+            newHoveredItem = hit.collider.GetComponent<ItemRenderer>().Item;
+        }
+
+
+        if (newHoveredItem != prevHoveredItem) // Hovering a new item
+        {
+            // Disable highlight of previous item
+            if (prevHoveredItem != null) prevHoveredItem.Renderer.Unhighlight();
+
+            if (newHoveredItem != null)
+            {
+                newHoveredItem.Renderer.Highlight(Color.white); // Highlight new item
+                CurrentHoverTime = 0f; // Reset hover time for tooltip
+            }
+
+            // Hide tooltip
+            UI.Tooltip.Hide();
+
+            // Update current hovered item
+            CurrentHoverItem = newHoveredItem;
+        }
+        else // Still hovering the same item
+        {
+            if (CurrentHoverItem != null) // Update tooltip
+            {
+                CurrentHoverTime += Time.deltaTime;
+                if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.ContextMenu.gameObject.activeSelf)
+                    UI.Tooltip.Show(CurrentHoverItem);
+            }
         }
     }
 
@@ -198,7 +216,7 @@ public class Game : MonoBehaviour
                 break;
         }
 
-        switch(newState)
+        switch (newState)
         {
             case GameState.InDayTransition:
                 StartMorningEvent();
@@ -271,6 +289,8 @@ public class Game : MonoBehaviour
 
     public void CheckGameOver()
     {
+        if (State == GameState.Initializing) return;
+
         string gameOver = GetGameOverReason();
         if (gameOver != null)
         {
@@ -282,7 +302,7 @@ public class Game : MonoBehaviour
     private string GetGameOverReason()
     {
         // Lose
-        foreach(HealthCondition condition in Player.HealthConditions)
+        foreach (HealthCondition condition in Player.HealthConditions)
         {
             string deathReason = condition.IsFatal();
             if (deathReason != null && deathReason != "") return deathReason;
@@ -322,7 +342,7 @@ public class Game : MonoBehaviour
 
         // Enable destination selection of adjacent tiles
         WorldMap.CanSelectDestination = true;
-        foreach(WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMap.HighlightTileRed(nextPositionTarget);
+        foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMap.HighlightTileRed(nextPositionTarget);
     }
 
     /// <summary>
@@ -420,7 +440,7 @@ public class Game : MonoBehaviour
     }
 
     #endregion
-    
+
     #region Afternoon
 
     private void StartAfternoonEncounter()
@@ -507,6 +527,7 @@ public class Game : MonoBehaviour
     public Item CreateItem(ItemDef itemDef)
     {
         Item item = new Item(this, ItemIdCounter++, itemDef);
+        item.Renderer.Freeze();
         return item;
     }
 
@@ -536,7 +557,7 @@ public class Game : MonoBehaviour
     public List<Item> AddNewItemsToInventory(ItemDef itemDef, int amount)
     {
         List<Item> addedItems = new List<Item>();
-        for(int i = 0; i < amount; i++)
+        for (int i = 0; i < amount; i++)
         {
             Item item = CreateItem(itemDef);
             AddExistingItemToInventory(item);
@@ -546,8 +567,9 @@ public class Game : MonoBehaviour
     }
     public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
     {
-        if(showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
+        if (showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
+        item.SetIsPlayerOwned(false);
         DestroyItem(item);
 
         OnGameStateChanged();
@@ -558,7 +580,7 @@ public class Game : MonoBehaviour
     public List<Item> DestroyOwnedItems(ItemDef itemDef, int amount, bool showOnEventStepDisplay = true)
     {
         List<Item> destroyedItems = new List<Item>();
-        for(int i = 0; i < amount; i++)
+        for (int i = 0; i < amount; i++)
         {
             Item item = Inventory.First(x => x.Def == itemDef);
             DestroyOwnedItem(item, showOnEventStepDisplay);
@@ -620,7 +642,7 @@ public class Game : MonoBehaviour
 
     public void HealInfection(Wound wound, Item item)
     {
-        if(!item.Def.CanHealInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
+        if (!item.Def.CanHealInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
         wound.SetHightlighted(false);
         Player.HealInfection(wound);
@@ -697,7 +719,7 @@ public class Game : MonoBehaviour
     }
 
 
-    
+
     private void OnGameStateChanged()
     {
         UpdateHealthConditions();
@@ -739,7 +761,7 @@ public class Game : MonoBehaviour
     public static Game Instance;
 
     public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => DefDatabase<ItemDef>.AllDefs.Where(x => x.HasTag(tag)).ToList().RandomElement();
-    public ItemDef GetRandomItem() => DefDatabase<ItemDef>.AllDefs.RandomElement();
+    public ItemDef GetRandomItemDef() => DefDatabase<ItemDef>.AllDefs.RandomElement();
 
     #endregion
 

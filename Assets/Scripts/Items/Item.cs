@@ -42,12 +42,14 @@ public class Item
 
 
     #region Getters
+    // General
     public string Label => Def.Label;
     public string LabelCap => Label.CapitalizeFirst();
     public string LabelCapWord => Label.CapitalizeEachWord();
     public string Description => Def.Description;
     public Sprite Sprite => Def.Sprite;
 
+    // Interactions
     public bool CanInteract => GetInteractionOptions().Count > 0;
     public List<InteractionOption> GetInteractionOptions()
     {
@@ -55,25 +57,23 @@ public class Item
         if (!IsPlayerOwned) return options; // todo. allow interactions of non-player items (i.e. trader)
 
         // Options by item attributes (eat, drink, etc.)
-        if (Game.CurrentEventStep == null)
+        if (Def.IsEdible) options.Add(new InteractionOption("Eat", () => Game.EatItem(this)));
+        if (Def.IsDrinkable) options.Add(new InteractionOption("Drink", () => Game.DrinkItem(this)));
+        if (Def.CanTendWounds)
         {
-            if (Def.IsEdible) options.Add(new InteractionOption("Eat", () => Game.EatItem(this)));
-            if (Def.IsDrinkable) options.Add(new InteractionOption("Drink", () => Game.DrinkItem(this)));
-            if (Def.CanTendWounds)
+            foreach (Wound wound in Game.Player.TendableWounds)
             {
-                foreach (Wound wound in Game.Player.TendableWounds)
-                {
-                    options.Add(new InteractionOption($"Tend {wound.LabelCapWord}", () => Game.TendInjury(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
-                }
-            }
-            if (Def.CanHealInfections)
-            {
-                foreach (Wound wound in Game.Player.InfectedWounds)
-                {
-                    options.Add(new InteractionOption($"Heal {wound.LabelCapWord} Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
-                }
+                options.Add(new InteractionOption($"Tend {wound.LabelCapWord}", () => Game.TendInjury(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
+        if (Def.CanHealInfections)
+        {
+            foreach (Wound wound in Game.Player.InfectedWounds)
+            {
+                options.Add(new InteractionOption($"Heal {wound.LabelCapWord} Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+            }
+        }
+        
 
         /*
         // Item-specific options

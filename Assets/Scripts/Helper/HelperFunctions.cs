@@ -119,10 +119,10 @@ public static class HelperFunctions
     /// <summary>
     /// Destroys all children of a GameObject immediately.
     /// </summary>
-    public static void DestroyAllChildredImmediately(GameObject obj)
+    public static void DestroyAllChildredImmediately(GameObject obj, int skipElements = 0)
     {
         int numChildren = obj.transform.childCount;
-        for (int i = 0; i < numChildren; i++) GameObject.DestroyImmediate(obj.transform.GetChild(0).gameObject);
+        for (int i = skipElements; i < numChildren; i++) GameObject.DestroyImmediate(obj.transform.GetChild(skipElements).gameObject);
     }
 
     #endregion
