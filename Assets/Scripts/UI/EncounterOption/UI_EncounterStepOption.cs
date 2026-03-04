@@ -15,6 +15,10 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
     public TextMeshProUGUI EventOptionText;
     public Button OptionButton;
     public GameObject SkillCheckIndicator;
+    public GameObject ItemSlotContainer;
+
+    [Header("Prefabs")]
+    public UI_ItemSlot ItemSlotPrefab;
 
     public void Init(UI_EncounterDisplay encounterDisplay, EncounterStepOption option)
     {
@@ -24,6 +28,14 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         EventOptionText.text = option.Text;
         OptionButton.onClick.AddListener(() => ChoseOption(Game, option));
         SkillCheckIndicator.SetActive(option is SkillCheckOption);
+
+        // Item slots
+        HelperFunctions.DestroyAllChildredImmediately(ItemSlotContainer);
+        foreach(ItemSlot itemSlot in option.ItemSlots)
+        {
+            UI_ItemSlot uiItemSlot = Instantiate(ItemSlotPrefab, ItemSlotContainer.transform);
+            uiItemSlot.Init(EncounterDisplay, itemSlot);
+        }
     }
 
     private void ChoseOption(Game game, EncounterStepOption option)

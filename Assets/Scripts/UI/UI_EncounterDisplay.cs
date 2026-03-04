@@ -12,8 +12,11 @@ public class UI_EncounterDisplay : MonoBehaviour
     [Header("Elements")]
     public TextMeshProUGUI EventText;
     public GameObject EventOptionContainer;
+    public TextMeshProUGUI HoveredOptionDescriptionText;
+
     public GameObject OutcomeNotesContainer;
     public UI_OptionDetails OptionDetailsPanel;
+    public UI_ItemSlotDetailsBox ItemSlotDetailsBox;
 
     [Header("Prefabs")]
     public UI_EncounterStepOption EventOptionPrefab;
@@ -28,7 +31,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         // Dialogue Options
         if (step.IsFinalStep)
         {
-            FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", EndEvent);
+            FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", "Continue your day.", EndEvent);
             UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(this, endDayOption);
         }
@@ -42,6 +45,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
 
         HideOptionDetails();
+        HoveredOptionDescriptionText.gameObject.SetActive(false);
         InitEventStepOutcomeNotes();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
@@ -55,6 +59,11 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     public void OnOptionHovered(EncounterStepOption option)
     {
+        // Show description
+        HoveredOptionDescriptionText.gameObject.SetActive(true);
+        HoveredOptionDescriptionText.text = option.Description;
+
+        // Skill check stuff
         if (option is SkillCheckOption skillCheckOption)
         {
             // Highlight associated stats
@@ -67,11 +76,24 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     public void OnOptionUnhovered()
     {
+        // Hide description
+        HoveredOptionDescriptionText.gameObject.SetActive(false);
+
         // Unhighlight all stats
         GameUI.Instance.UnhighlightAllStats();
 
         // Hide option details
         HideOptionDetails();
+    }
+
+    public void OnItemSlotHovered(ItemSlot itemSlot)
+    {
+        ItemSlotDetailsBox.Show(itemSlot);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+    public void OnItemSlotUnhovered()
+    {
+        ItemSlotDetailsBox.Hide();
     }
 
     private void Clear()
@@ -137,6 +159,7 @@ public class UI_EncounterDisplay : MonoBehaviour
     public void HideOptionDetails()
     {
         OptionDetailsPanel.gameObject.SetActive(false);
+        ItemSlotDetailsBox.Hide();
     }
     #endregion
 }

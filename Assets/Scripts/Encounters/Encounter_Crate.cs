@@ -8,6 +8,7 @@ public class Encounter_Crate : LocationEncounter
 
     private const int TAKE_ITEM_BASE_DIFFICULTY = 30;
     private const int SMASH_CRATE_BASE_DIFFICULTY = 70;
+    private const int OPEN_CRATE_BASE_DIFFICULTY = 0;
 
     private static LootTable ItemTable = new LootTable
     {
@@ -71,29 +72,50 @@ public class Encounter_Crate : LocationEncounter
     private List<EncounterStepOption> GetOptions()
     {
         List<EncounterStepOption> options = new List<EncounterStepOption>();
-        if (!IsVisibleItemTaken) options.Add(CreateTakeItemOption()); // Take item
-        if (!IsSmashed) options.Add(CreateSmashCrateOption()); // Smash crate
-        options.Add(new FixedOutcomeOption($"Ignore", Ignore)); // Ignore
+        if (IsSmashed)
+        {
+            options.Add(new FixedOutcomeOption($"Move on", "There is nothing left to do.", () => EndEncounter("You move on."))); // Move on
+        }
+        else
+        {
+            options.Add(CreateSmashCrateOption()); // Smash crate
+            options.Add(CreateOpenCreateOption()); // Open crate
+            if (!IsVisibleItemTaken) options.Add(CreateTakeItemOption()); // Take item
+            options.Add(new FixedOutcomeOption($"Ignore", "Move on without taking anything.", () => EndEncounter("You didn't take the " + VisibleCrateItem.Label + "."))); // Ignore
+        }
         return options;
     }
 
     private SkillCheckOption CreateTakeItemOption()
     {
         string text = $"Take {VisibleCrateItem.Label}";
+        string description = $"Try to take the {VisibleCrateItem.Label} out of the crate.";
         int difficulty = TAKE_ITEM_BASE_DIFFICULTY;
         Dictionary<StatDef, float> relevantStats = new Dictionary<StatDef, float>()
         {
             { StatDefOf.Dexterity, 1f },
             { StatDefOf.Strength, 1f }
         };
-        return new SkillCheckOption(text, difficulty, TakeItem, relevantStats, canPartiallySucceed: true);
+        return new SkillCheckOption(text, description, difficulty, TakeItem, relevantStats, canPartiallySucceed: true);
     }
 
     private SkillCheckOption CreateSmashCrateOption()
     {
         string text = "Smash";
+        string description = "Try to smash the crate open to get all items out.";
         int difficulty = SMASH_CRATE_BASE_DIFFICULTY;
-        return new SkillCheckOption(text, difficulty, SmashCrate);
+        ItemSlot foodTestSlot = new ItemSlot(isRequired: false, itemTags: new List<ItemTagDef>() { ItemTagDefOf.Food }, defaultDifficultyReduction: 50);
+        List<ItemSlot> itemSlots = new List<ItemSlot>() { foodTestSlot };
+        return new SkillCheckOption(text, description, difficulty, SmashCrate, itemSlots: itemSlots);
+    }
+    private SkillCheckOption CreateOpenCreateOption()
+    {
+        string text = "Open";
+        string description = "Try to open the crate carefully to get all items out without damaging them.";
+        int difficulty = OPEN_CRATE_BASE_DIFFICULTY;
+        ItemSlot crowbarSlot = new ItemSlot(isRequired: true, specificItems: new List<ItemDef>() { ItemDefOf.Crowbar }, destructionChance: 0.5f);
+        List<ItemSlot> itemSlots = new List<ItemSlot>() { crowbarSlot };
+        return new SkillCheckOption(text, description, difficulty, OpenCrate, itemSlots: itemSlots);
     }
 
 
@@ -127,9 +149,8 @@ public class Encounter_Crate : LocationEncounter
     {
         return null;
     }
-
-    private EncounterStep Ignore()
+    private EncounterStep OpenCrate(OptionOutcomeDef outcome)
     {
-        return new EncounterStep("You didn't take the " + VisibleCrateItem.Label + ".");
+        return null;
     }
 }

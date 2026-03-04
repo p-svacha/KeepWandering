@@ -31,9 +31,15 @@ public static class ItemTagDefs
         },
         new ItemTagDef()
         {
+            DefName = "Tool",
+            Label = "Tool",
+            Description = "General tag for all kinds of items commonly used as tools of some kind.",
+        },
+        new ItemTagDef()
+        {
             DefName = "ForDogs",
             Label = "For Dogs",
             Description = "Items that are specifically for dogs, such as dog food or dog toys.",
-        }
+        },
     };
 }

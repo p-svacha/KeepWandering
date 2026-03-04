@@ -4,3 +4,4 @@ abandonded car
 bandits (basic fight or flee)
 item: apple
 exhaustion unique healhcon
+mouth rendering based on morale

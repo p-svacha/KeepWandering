@@ -165,7 +165,15 @@
             DefName = "Coin",
             Label = "coin",
             Description = "A coin often used as currency in trades.",
-        }
+        },
+
+        new ItemDef()
+        {
+            DefName = "Crowbar",
+            Label = "crowbar",
+            Description = "A sturdy crowbar that can be used as a tool for various purposes.",
+            Tags = { ItemTagDefOf.Tool },
+        },
     };
 
 --- ItemTagDefs.cs ---
@@ -197,10 +205,16 @@
         },
         new ItemTagDef()
         {
+            DefName = "Tool",
+            Label = "Tool",
+            Description = "General tag for all kinds of items commonly used as tools of some kind.",
+        },
+        new ItemTagDef()
+        {
             DefName = "ForDogs",
             Label = "For Dogs",
             Description = "Items that are specifically for dogs, such as dog food or dog toys.",
-        }
+        },
     };
 
 --- HealthConditionDefs.cs ---

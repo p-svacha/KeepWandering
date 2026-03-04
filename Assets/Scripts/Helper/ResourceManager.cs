@@ -19,6 +19,10 @@ public static class ResourceManager
     public static readonly Color Color_Text_VeryNegative = new Color(0.70f, 0.10f, 0.10f);
     public static readonly Color Color_Text_ExtremelyNegative = new Color(0.55f, 0.00f, 0.00f);
 
+    public static readonly Color Color_Button_Default = new Color(1f, 0.81f, 0f);
+    public static readonly Color Color_Button_Disabled = new Color(0.5f, 0.5f, 0.5f);
+    public static readonly Color Color_Item_Slot_Filled = new Color(0.59f, 0.1f, 0.47f);
+
     private static Dictionary<string, Material> CachedMaterials = new Dictionary<string, Material>();
     public static Material LoadMaterial(string resourcePath)
     {

@@ -93,6 +93,14 @@ public static class ItemDefs
             DefName = "Coin",
             Label = "coin",
             Description = "A coin often used as currency in trades.",
-        }
+        },
+
+        new ItemDef()
+        {
+            DefName = "Crowbar",
+            Label = "crowbar",
+            Description = "A sturdy crowbar that can be used as a tool for various purposes.",
+            Tags = { ItemTagDefOf.Tool },
+        },
     };
 }

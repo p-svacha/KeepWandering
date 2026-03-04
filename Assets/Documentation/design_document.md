@@ -48,49 +48,65 @@ Temporary modifiers may also be present for a specific duration based on things 
 
 Permanent modifiers are usually the result of specific encounter option outcomes, such as "gain 1 strength permanently". These modifiers are active for the rest of the game and can not be removed or expire. Permanent modifiers can also be the result of fulfilling quests, such as "fulfill quest X to gain 2 charisma permanently".
 
-## Health
-The health system tracks the player's physical and mental condition, including injuries, illnesses. Health is NOT tracked as a number or health bar, but rather as a collection of conditions that the player can have. Conditions can have severity levels and each condition has their own behaviours, effects and ways of treatment.
+Stats are capped at -20/20.
 
-The conditions are:
+## Health Conditions
+The health system tracks the player's physical and mental condition, including injuries, illnesses, wounds etc. Health is NOT tracked as a number or health bar, but rather as a collection of conditions that the player can have. Conditions can have severity levels and each condition has their own behaviours, effects and ways of treatment.
 
-### Hunger
+Health conditions often affect player stats, and can also have other effects such as affecting encounter options, causing night events, etc.
+Most causes of death are related to health conditions.
+
+Conditions are split into two main technical categories: Permanent and Temporary
+
+### Permanent Health Conditions
+Permanent health conditions describe conditions that are always present on the player. They are usually tracking some sort of hidden meter that increases or decreases based on the current game state, such as hunger, thirst, blood loss etc. These conditions usually have severity stages based on the value of the hidden meter, and each stage has its own effects on the player.
+Even though these conditions are technically "permanent", that does not mean they are always active. For example, if hunger is above a certain threshold, the condition is not active, therefore has no effect and is not shown to the player.
+
+Permanent health conditions are:
+
+#### Hunger
 The player has a hidden hunger meter that increases over time. Hunger conditions has the severity stages of "Hungry", "Very hungry" and "Starving". If the hunger meter reaches a limit, the player dies.
 Hunger affects strength.
 
-### Thirst
+#### Thirst
 The player has a hidden thirst meter that increases over time. Thirst conditions has the severity stages of "Thirsty", "Very thirsty" and "Dehydrated". If the thirst meter reaches a limit, the player dies.
 Thirst affects dexterity.
 
-### Cut injuries
-The player can have cut injuries. Cut injuries need to be tended.
-Tended cut injuries have a chance to fully heal each night.
-Untended cut injuries increase blood loss and have a chance to get infected each night.
-Infected cut injuries need to be treated with antibiotics, which heals the infection (but does not tend).
-Injuries that have been treated with antibiotics cannot infect again.
-Infections can worsen during the night, and eventually lead to death.
-
-### Bruise injuries
-The player can have bruise injuries. Bruise injuries need to be tended.
-Tended bruise injuries have a chance to fully heal each night.
-Untended bruise injuries have a chance to get infected each night.
-Infected cut injuries need to be treated with antibiotics, which heals the infection (but does not tend).
-Injuries that have been treated with antibiotics cannot infect again.
-Infections can worsen during the night, and eventually lead to death.
-
-### Blood loss
+#### Blood loss
 Blood loss is a hidden meter that increases with certain injuries, such as cut injuries. If the blood loss meter reaches a limit, the player dies.
 Blood loss affects strength, dexterity, and intelligence.
 
-### Broken legs
-The player can have broken legs, which harshly reduces speed stat.
-Broken legs need to be treated with splints, which reduces the negative effect on speed and gives a chance to heal the broken legs each night. If left untreated for too long, there is a chance that the broken legs get infected, which can eventually lead to death.
+#### Leg bones health
+Value between 0 and 1, active if below 1.
+Stages are "Strained", "Cracked" and "Broken".
+Affects agility.
+Heals naturally over time, but can also be healed faster with treatment.
+In the "Broken" stage, the player cannot move to different tiles on the world map in the morning.
 
-### Broken arms
-The player can have broken arms, which harshly reduces strength and dexterity stats.
-Broken arms need to be treated with splints, which reduces the negative effect on strength and dexterity and gives a chance to heal the broken arms each night. If left untreated for too long, there is a chance that the broken arms get infected, which can eventually lead to death.
+#### Arm bones health
+Value between 0 and 1, active if below 1.
+Stages are "Strained", "Cracked" and "Broken".
+Affects strength and dexterity.
+Heals naturally over time, but can also be healed faster with treatment.
 
-### Poisoning
-The player can be poisoned, which reduces charisma and has a chance to worsen each night, eventually leading to death. Poisoning can be immediately treated with antidotes, which gives a chance to heal the poisoning each night.
+### Temporary Health Conditions
+Temporary health conditions are conditions that can be gained and lost throughout the game. They usually represent injuries, illnesses, wounds etc. that the player can get during encounters, and can be treated and healed with items or by resting.
+
+#### Wounds
+Wounds are a special subcategory of temporary health conditions. They all share some logic regarding tending and infection.
+Wounds need to be tended with bandages. If left untended, they have a chance to get infected each night, increasing each day.
+If tended, they have a chance to heal each night, increasing each day.
+If infected, they need to be treated with antibiotics, which heals the infection but does not tend the wound. If left infected for too long, there is a chance that the infection worsens, eventually leading to death.
+Wounds that have been treated with antibiotics cannot infect again.
+
+##### Cut Wounds
+Untended cut wounds increase blood loss.
+
+##### Bruise Wounds
+If a bruise wound is gained, that will always also decrease bone health by a certain amount.
+
+#### Poisoning
+The player can be poisoned, which reduces charisma and has a chance to worsen each night, eventually leading to death. Poisoning can be treaded with antidotes, which will heal the poisoning instantly.
 
 
 # Inventory
@@ -117,9 +133,9 @@ When a companion dies, this usually has a big temporary negative effect on the p
 # World Map
 The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is determined when the player first steps on that tile. When returning back to that tile, the player will encounter the same encounter again, in the same state as they left it.
 
-## Danger Level
-Each tile has a danger level. That level is shown to the player. The danger level affects the likelyhood of bad night encounters happening during the night. Danger levels are "very safe", "safe", "caution", "danger" and "extreme danger".
-The calculation of the danger level is very simple. It starts at "safe" on each tile. AFTER each night, the danger level on the tile the player is on increases by 1 level.
+## Exposure
+Each tile has a persistent exposure level. That level is shown to the player. The exposure level affects the likelyhood of bad night encounters happening during the night. Exposure levels are "very safe", "safe", "caution", "danger" and "extreme danger".
+The calculation of the exposure level is very simple. It starts at "safe" on each tile. AFTER each night, the exposure level on the tile the player is on increases by 1 level.
 This mechanic is there to encourage the player to keep moving and exploring new tiles, instead of staying on the same tile and resting all the time.
 
 ## Biomes
@@ -151,6 +167,8 @@ Quests usually require the player to go to a specific tile on the world map. Whe
 
 # Encounters
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
+Different encounters can work in very different ways, with different numbers of steps, different options, and different outcomes. For example, one encounter can be a simple one-step encounter with only one option, while another encounter can be a complex multi-step encounter with many options at each step and various branching paths.
+First design priority of all encounters is to provide the player with interesting and meaningful choices.
 
 There are three types of encounters:
 
@@ -164,15 +182,22 @@ At the end of an encounter, after it ends, the player can freely use items in th
 Encounters only ever take place within a single time of day.
 
 ## Steps
-Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounters often have branching paths, with the path taken depending on the options chosen by the player and the rolled outcome of that option.
+Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounter steps and their options are often created dynamically based on the current game state, and more importantly, the current state of the encounter itself.
 
 A step is considered the final step of an encounter if that step has no options defined. When reaching such a step, the encounter is considered to be ended, meaning the player can use items again and choose to transition to the next time of day.
  
 ## Options
-Each step (except final steps) has a set of options that the player can choose from.
+Each step (except final steps) has a defined set of options that the player can choose from. What options are available and shown depends on the current encounter state.
+If the step is a final step, the options depend on the time of day, and not on the encounter itself. Usually it's just one option to end the current time of day and transition to the next one.
 
-### Option Requirements
-Some options may have item requirements where the player has to drag a specific item or an item with a specific tag into the slot in order to be able to choose that option. Both Skillcheck and FixedOutcome options can have item requirements.
+### Item Slots
+Each option can have any number of item slots, which are slots that the player can drag items from their cart into. 
+Each slot can have the following properties:
+
+- Allowed items: A list of specific items that are allowed in the slot. This can be a specific item, an item with a specific tag, or any combination thereof.
+- Required: If the slot is required, the player has to fill that slot with a valid item in order to be able to choose that option.
+- Consumption Chance: If the slot is filled with a valid item, there is a chance that the item gets consumed on use, which would remove the item from the player's cart.
+- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced by a fixed amount. There is a default difficulty modifiers, but specific items may override that with a custom value.
 
 ### Option Types
 On a technical level, options fall into one of two categories: "Skillchecks" or "FixedOutcome"
@@ -212,12 +237,15 @@ Additionally, if there are additional outcomes, they are calculated as follows:
 Skillcheck options have a fixed base difficulty value (1-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
 The most common types of modifiers are (in rough order of importance):
 
-- Player stats: Most options have a specific stat (or multiple) associated with them. The player's value in that stat is reduced from the difficulty value.
-- Item slots: Some options have item slots that the player can fill with items from their cart. A slot either requires a specific item or an item with a specific tag. If the player fills the slot with a valid item, the difficulty value is reduced by a fixed amount. Depending on the option, the item may have a chance to be consumed on use, which would remove the item from the player's cart.
+- Morale: The morale stat is applied as a modifier to all options with a factor of 1.
+- Player stats: Most options have a specific stat (or multiple) associated with them, each with a defined factor. The player's value in that stat multiplied by the factor is reduced from the difficulty value.
+- Item slots: Filled item slots can reduce the difficulty value based on their difficulty modifier property.
 - Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
 - Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
 - Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
 - Time of day: Some options have time of day modifiers, where certain times of day can increase or decrease the difficulty value.
+
+Difficulty is capped at 5 minimum and 200 maximum. This means that no matter how good the player is, there is always a small chance of failure, and at max difficulty the only possible outcomes are failure and critical failure.
 
 ### Option Outcomes
 There are many things that can happen as a result of an option outcome. The most common are:
@@ -229,7 +257,7 @@ There are many things that can happen as a result of an option outcome. The most
 - Health changes: The player's health can change (gain injuries / tend injuries / heal infections / heal poisoning etc.)
 - Companion changes: The player can gain or lose companions.
 - Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest.
-- Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
+- Exposure level changes: The exposure level of the current tile or other tiles can increase or decrease.
 
 
 # Gameplay Loop
@@ -259,8 +287,8 @@ In the evening, the player is presented with the Biome Encounter, that is fixed 
 
 ## Night
 Each night, it is randomly rolled if the player has any Night Encounters. These are special encounters that the player can not come back to on the world map later. Multiple night encounters may happen in a night.
-The likelihood of having a bad night encounter is based on the danger level of the tile the player is currently on, with higher danger levels increasing the chances of having bad night encountere.
-There is also the chance of neutral night encounters, that can happen randomly regardless of the danger level.
+The likelihood of having a bad night encounter is based on the exposure level of the tile the player is currently on, with higher exposure levels increasing the chances of having bad night encountere.
+There is also the chance of neutral night encounters, that can happen randomly regardless of the exposure level.
 
 If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
 

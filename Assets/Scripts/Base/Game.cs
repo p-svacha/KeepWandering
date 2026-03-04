@@ -367,13 +367,14 @@ public class Game : MonoBehaviour
 
         if (Day == 1)
         {
-            options.Add(new FixedOutcomeOption("Start Journey", OpenMap)); // Move
+            options.Add(new FixedOutcomeOption("Start Journey", "Open the map to choose your first location.", OpenMap)); // Move
         }
         else
         {
-            options.Add(new FixedOutcomeOption("Move", OpenMap)); // Move
-            options.Add(new FixedOutcomeOption("Stay", Stay)); // Stay
-            options.Add(new FixedOutcomeOption("Rest", Rest)); // Rest
+            string exposureAppendix = "\n\nThis will increase your exposure in this location, increasing the chance for attacks during the night!";
+            options.Add(new FixedOutcomeOption("Move", "Open the map to choose your next location.", OpenMap)); // Move
+            options.Add(new FixedOutcomeOption("Stay", "Stay in the current location to continue where you left off yesterday." + exposureAppendix, Stay)); // Stay
+            options.Add(new FixedOutcomeOption("Rest", "Rest and recover your energy. Skips the afternoon encounter and potentially heals some injuries." + exposureAppendix, Rest)); // Rest
         }
 
         EncounterStep morningEventStep = new EncounterStep(text, options);
@@ -491,7 +492,7 @@ public class Game : MonoBehaviour
         UI.DayTimeText.text = "Evening";
 
         // Clear previous encounter
-        if (CurrentEncounter != null) CurrentEncounter.EndEvent();
+        if (CurrentEncounter != null) CurrentEncounter.EndEncounter();
         CurrentEncounter = null;
 
         // Display evening event
@@ -509,7 +510,7 @@ public class Game : MonoBehaviour
         // Dialogue Options
         List<EncounterStepOption> options = new List<EncounterStepOption>();
 
-        FixedOutcomeOption sleepOtion = new FixedOutcomeOption("Sleep", Sleep);
+        FixedOutcomeOption sleepOtion = new FixedOutcomeOption("Sleep", "Go to sleep and hope for a calm night.", Sleep);
         options.Add(sleepOtion);
 
         EncounterStep eveningEventStep = new EncounterStep(text, options);

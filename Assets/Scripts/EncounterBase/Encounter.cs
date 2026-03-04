@@ -83,12 +83,16 @@ public abstract class Encounter
     /// <summary>
     /// Ends the event.
     /// </summary>
-    public void EndEvent()
+    public void EndEncounter()
     {
         foreach (GameObject sprite in EventSprites) sprite.gameObject.SetActive(false);
         EventSprites.Clear();
         OnEnd();
     }
 
-   
+    protected EncounterStep EndEncounter(string text)
+    {
+        return new EncounterStep(text);
+    }
+
 }

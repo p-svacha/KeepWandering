@@ -24,26 +24,15 @@ public class EncounterStep
     /// </summary>
     public void HighlightSlottableItems()
     {
+
         foreach (EncounterStepOption option in Options)
         {
-            // Required items (highlight in green)
-            foreach (ItemSlot slot in option.RequirementSlots)
+            foreach (ItemSlot slot in option.ItemSlots)
             {
-                foreach(Item item in slot.GetSlottableItems())
+                foreach (Item item in slot.GetSlottableItems())
                 {
+                    Color highlightColor = slot.IsRequired ? Color.green : Color.yellow;
                     item.Renderer.Highlight(Color.green, forced: true);
-                }
-            }
-
-            // Optional items (highlight in yellow)
-            if (option is SkillCheckOption skillCheckOption)
-            {
-                foreach(ItemSlot slot in skillCheckOption.ModifierItemSlots.Keys)
-                {
-                    foreach (Item slottableItem in slot.GetSlottableItems())
-                    {
-                        slottableItem.Renderer.Highlight(Color.yellow, forced: true);
-                    }
                 }
             }
         }

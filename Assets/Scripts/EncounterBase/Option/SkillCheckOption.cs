@@ -12,11 +12,6 @@ public class SkillCheckOption : EncounterStepOption
     public int BaseDifficulty { get; private set; }
 
     /// <summary>
-    /// List of item slots that can be optionally filled with items to reduce the difficulty of this option.
-    /// </summary>
-    public Dictionary<ItemSlot, int> ModifierItemSlots { get; private set; }
-
-    /// <summary>
     /// The stats that are relevant for performing this encounter step option, along with the modifier of how much it affects the difficulty of the encounter step option.
     /// </summary>
     public Dictionary<StatDef, float> RelevantStats { get; private set; }
@@ -32,19 +27,19 @@ public class SkillCheckOption : EncounterStepOption
 
     public SkillCheckOption(
         string text,
+        string description,
         int baseDifficulty,
         Func<OptionOutcomeDef, EncounterStep> actions,
         Dictionary<StatDef, float> relevantStats = null,
-        List<ItemSlot> requirementSlots = null,
+        List<ItemSlot> itemSlots = null,
         Dictionary<ItemSlot, int> modifierItemSlots = null,
         bool canPartiallySucceed = false,
         bool canCriticallySucceed = false,
         bool canCriticallyFail = false
-        ) : base(text, requirementSlots)
+        ) : base(text, description, itemSlots)
     {
         BaseDifficulty = baseDifficulty;
         Actions = actions;
-        ModifierItemSlots = modifierItemSlots ?? new Dictionary<ItemSlot, int>();
         RelevantStats = relevantStats ?? new Dictionary<StatDef, float>();
         CanPartiallySucceed = canPartiallySucceed;
         CanCriticallySucceed = canCriticallySucceed;

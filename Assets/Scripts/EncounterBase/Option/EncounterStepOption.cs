@@ -12,9 +12,14 @@ public abstract class EncounterStepOption
     public string Text { get; private set; }
 
     /// <summary>
-    /// The list of items need to be dragged to this option in order to be able to select it.
+    /// Description that gets displayer when the player hovers over the encounter step option in the UI. This should give some hints to the player about the consequences of selecting this option.
     /// </summary>
-    public List<ItemSlot> RequirementSlots { get; private set; }
+    public string Description { get; protected set; }
+
+    /// <summary>
+    /// The definition of all item slots that are part of this encounter step option. The player can drag items from their inventory into these slots to meet the requirements of the option and/or reduce the option difficulty.
+    /// </summary>
+    public List<ItemSlot> ItemSlots { get; private set; }
 
     /// <summary>
     /// Executes the logic of the encounter step option and returns the next encounter step to transition to.
@@ -22,9 +27,11 @@ public abstract class EncounterStepOption
     public abstract EncounterStep Execute();
 
     
-    public EncounterStepOption(string text, List<ItemSlot> requirementSlots = null)
+    public EncounterStepOption(string text, string description, List<ItemSlot> itemSlots = null)
     {
         Text = text;
-        RequirementSlots = requirementSlots ?? new List<ItemSlot>();
+        Description = description;
+        ItemSlots = itemSlots ?? new List<ItemSlot>();
+        foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);
     }
 }

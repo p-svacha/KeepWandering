@@ -1,0 +1,127 @@
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+{
+    public ItemSlot ItemSlot { get; private set; }
+    public UI_EncounterDisplay EncounterDisplay { get; private set; }
+
+    [Header("Elements")]
+    public Image Background;
+    public Image ItemIcon;
+    public TextMeshProUGUI ItemLabelText;
+
+    public Image IsRequiredIndicator;
+    public Image DifficultyModifierIndicator;
+    public TextMeshProUGUI DifficultyModifierText;
+    public Image DestroyedIndicator;
+    public TextMeshProUGUI DestroyedText;
+
+    private bool ShowRequiredIndicator => ItemSlot.IsRequired;
+    private bool ShowDifficultyModifierIndicator => ItemSlot.DefaultDifficultyReduction != 0;
+    private bool ShowDestroyedIndicator => ItemSlot.DestructionChance > 0f;
+
+    // Preview cycling
+    private const float CYCLE_INTERVAL = 1f;
+    private float CycleTimer;
+    private int PreviewIndex;
+    private List<ItemDef> SlottableItemDefs;
+
+    public void Init(UI_EncounterDisplay encounterDisplay, ItemSlot itemSlot)
+    {
+        EncounterDisplay = encounterDisplay;
+        ItemSlot = itemSlot;
+
+        // Show/Hide elements that never change
+        IsRequiredIndicator.gameObject.SetActive(ShowRequiredIndicator);
+        DifficultyModifierIndicator.gameObject.SetActive(ShowDifficultyModifierIndicator);
+        DestroyedIndicator.gameObject.SetActive(ShowDestroyedIndicator);
+
+        Refresh();
+
+        // Init cycling state for unfilled preview
+        SlottableItemDefs = ItemSlot.GetSlottableItemDefs();
+        PreviewIndex = 0;
+        CycleTimer = 0f;
+        if (!ItemSlot.IsFilled && SlottableItemDefs.Count > 0)
+        {
+            UpdatePreviewDisplay(SlottableItemDefs[0]);
+        }
+    }
+
+    private void Refresh()
+    {
+        // Filled
+        if (ItemSlot.IsFilled) SetFilledDisplay();
+
+        // Unfilled
+        else SetUnfilledDisplay();
+
+        // Item preview handled in update (changing item icon, modifier text, destruction chance text)
+    }
+
+    private void SetFilledDisplay()
+    {
+        Background.color = ResourceManager.Color_Item_Slot_Filled;
+        ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
+        ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
+        DifficultyModifierIndicator.color = new Color(0.32f, 0.78f, 0.32f);
+        DestroyedIndicator.color = new Color(0.78f, 0.37f, 0.32f);
+        UpdatePreviewDisplay(ItemSlot.FilledItem.Def);
+    }
+
+    private void SetUnfilledDisplay()
+    {
+        Background.color = Color.white;
+        // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
+        ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
+        Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
+        DifficultyModifierIndicator.color = greyedOutIndicatorColor;
+        DestroyedIndicator.color = greyedOutIndicatorColor;
+    }
+
+    private void Update()
+    {
+        if (ItemSlot.IsFilled) return;
+        if (SlottableItemDefs.Count == 0) return;
+
+        CycleTimer += Time.deltaTime;
+        if (CycleTimer >= CYCLE_INTERVAL)
+        {
+            CycleTimer -= CYCLE_INTERVAL;
+
+            PreviewIndex = (PreviewIndex + 1) % SlottableItemDefs.Count;
+            UpdatePreviewDisplay(SlottableItemDefs[PreviewIndex]);
+        }
+    }
+
+    private void UpdatePreviewDisplay(ItemDef itemDef)
+    {
+        ItemIcon.sprite = itemDef.Sprite;
+        ItemLabelText.text = itemDef.LabelCap;
+
+        if (ShowDifficultyModifierIndicator)
+        {
+            int reduction = ItemSlot.GetDifficultyReduction(itemDef);
+            DifficultyModifierText.text = "-" + reduction;
+        }
+        if (ShowDestroyedIndicator)
+        {
+            string text = ItemSlot.DestructionChance == 1f ? "X" : "X?";
+            DestroyedText.text = text;
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        EncounterDisplay.OnItemSlotHovered(ItemSlot);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        EncounterDisplay.OnItemSlotUnhovered();
+    }
+}
