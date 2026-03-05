@@ -9,6 +9,7 @@ using UnityEngine;
 public class PlayerCharacter
 {
     public Game Game { get; private set; }
+    public PlayerCharacterRenderer Renderer => PlayerCharacterRenderer.Instance;
 
     // Constants / Rules
     public const float BASE_NUTRITION_DROP_PER_DAY = 1f;
@@ -82,20 +83,18 @@ public class PlayerCharacter
     public void ModifyLegBoneHealth(float value) => LegFracture.ModifyBoneHealth(value);
     public void ModifyBloodAmount(float value) => BloodLoss.ModifyBloodAmount(value);
 
-    public HC_BruiseWound AddBruiseWound()
+    public Wound AddWound(HealthConditionDef woundDef)
     {
-        ModifyLegBoneHealth(-BRUISE_WOUND_BONE_DAMAGE);
-        HC_BruiseWound wound = (HC_BruiseWound)ApplyHealthCondition(HealthConditionDefOf.BruiseWound);
-        return wound;
-    }
-    public HC_CutWound AddCutWound()
-    {
-        HC_CutWound wound = (HC_CutWound)ApplyHealthCondition(HealthConditionDefOf.CutWound);
+        Wound wound = (Wound)ApplyHealthCondition(woundDef);
+        WoundRenderer renderer = Renderer.GetUnusedWoundRenderer(woundDef);
+        renderer.SetWound(wound);
+        wound.SetRenderer(renderer);
         return wound;
     }
 
-    public void RemoveInjury(Wound wound)
+    public void RemoveWound(Wound wound)
     {
+        wound.Renderer.SetWound(null);
         RemoveHealthCondition(wound);
     }
 
@@ -140,6 +139,7 @@ public class PlayerCharacter
     public List<HealthCondition> ActiveHealthConditions => HealthConditions.Where(hc => hc.IsActive).ToList();
 
     // Permanent conditions
+    public int GetHealthConditionAmount(HealthConditionDef def) => ActiveHealthConditions.Count(hc => hc.Def == def);
     public HC_Hunger Hunger => (HC_Hunger)PermanentConditions[HealthConditionDefOf.Hunger];
     public HC_Thirst Thirst => (HC_Thirst)PermanentConditions[HealthConditionDefOf.Thirst];
     public HC_BloodLoss BloodLoss => (HC_BloodLoss)PermanentConditions[HealthConditionDefOf.BloodLoss];
@@ -147,6 +147,7 @@ public class PlayerCharacter
     public HC_ArmFracture ArmFracture => (HC_ArmFracture)PermanentConditions[HealthConditionDefOf.ArmFracture];
     public HC_Poison Poison => (HC_Poison)PermanentConditions[HealthConditionDefOf.Poison];
 
+    // Wounds
     public List<Wound> Wounds => HealthConditions.Where(hc => hc.IsActive && hc is Wound w).Select(hc => (Wound)hc).ToList();
     public List<Wound> TendableWounds => Wounds.Where(w => !w.IsTended).ToList();
     public List<Wound> InfectedWounds => Wounds.Where(w => w.IsInfected).ToList();

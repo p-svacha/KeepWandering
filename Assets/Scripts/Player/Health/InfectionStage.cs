@@ -6,7 +6,7 @@ using UnityEngine;
 public enum InfectionStage
 {
     None,
-    [Description("Infected")] Minor,
-    [Description("Severely Infected")] Major,
+    Minor,
+    Major,
     Fatal
 }

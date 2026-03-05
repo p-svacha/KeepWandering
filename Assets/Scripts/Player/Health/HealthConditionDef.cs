@@ -20,4 +20,16 @@ public class HealthConditionDef : Def
     /// The severity stages of the health condition. If the health condition is active, exactly one stage will be active, and the stage will determine the effects of the health condition on the player.
     /// </summary>
     public List<HealthConditionStage> Stages { get; init; } = new List<HealthConditionStage>();
+
+    /// <summary>
+    /// The maximum amount of this health condition that can be active at the same time.
+    /// </summary>
+    public int MaxAmount { get; init; } = 1;
+
+    public override bool Validate()
+    {
+        if (IsPermanent && MaxAmount != 1) throw new System.Exception($"Permanent health condition {DefName} must have MaxAmount of 1.");
+
+        return base.Validate();
+    }
 }

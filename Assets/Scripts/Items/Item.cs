@@ -68,7 +68,7 @@ public class Item
         {
             foreach (Wound wound in Game.Player.TendableWounds)
             {
-                options.Add(new InteractionOption($"Tend {wound.LabelCapWord}", () => Game.TendInjury(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                options.Add(new InteractionOption($"Tend {wound.LabelCapWord}", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
         if (Def.CanHealInfections)

@@ -5,14 +5,11 @@ using UnityEngine.UI;
 
 public abstract class Wound : HealthCondition
 {
-    public abstract Sprite SpriteBase { get; }
-    public abstract Sprite SpriteInfectMinor { get; }
-    public abstract Sprite SpriteInfectMajor { get; }
-    public abstract Sprite SpriteTended { get; }
+    public Sprite SpriteBase => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Base");
+    public Sprite SpriteInfectMinor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMinor");
+    public Sprite SpriteInfectMajor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMajor");
+    public Sprite SpriteTended => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Tended");
 
-    [Header("Sprites")]
-    public SpriteRenderer InjuryRenderer;
-    public SpriteRenderer TendingRenderer;
 
     private int OriginDay;
     private int MinorInfectionDay;
@@ -27,6 +24,8 @@ public abstract class Wound : HealthCondition
     private const float FatalInfectChance = 0.5f; // Every day, this is the chance to die when having a major infection
 
     private const float HealChancePerDay = 0.25f; // Every daym the chance for a tended uninfected wound to heal gets higher by this value
+
+    public WoundRenderer Renderer { get; private set; }
 
     protected override void OnInit()
     {
@@ -72,10 +71,15 @@ public abstract class Wound : HealthCondition
             float infectionChance = ((game.Day) - TendDay) * HealChancePerDay;
             if (Random.value < infectionChance)
             {
-                Game.Instance.RemoveInjury(this);
+                Game.Instance.RemoveWound(this);
                 morningReport.NightEvents.Add($"Your {LabelCapWord} has fully healed.");
             }
         }
+    }
+
+    public void SetRenderer(WoundRenderer renderer)
+    {
+        Renderer = renderer;
     }
 
     public override string IsFatal()
@@ -96,30 +100,13 @@ public abstract class Wound : HealthCondition
         OriginDay = game.Day;
     }
 
-    public void SetSprites()
-    {
-        InjuryRenderer.gameObject.SetActive(IsActive);
-        InjuryRenderer.sprite = GetSprite();
-        TendingRenderer.gameObject.SetActive(IsActive && IsTended);
-        TendingRenderer.sprite = SpriteTended;
-    }
-
-    public Sprite GetSprite()
-    {
-        return InfectionStage switch
-        {
-            InfectionStage.None => SpriteBase,
-            InfectionStage.Minor => SpriteInfectMinor,
-            InfectionStage.Major => SpriteInfectMajor,
-            _ => throw new System.Exception("Infection stage " + InfectionStage.ToString() + " not handled.")
-        };
-    }
-
     public void SetHightlighted(bool value)
     {
         if (value) UiDisplayElement.BackgroundImage.color = Color.red;
         else UiDisplayElement.BackgroundImage.color = Color.clear;
     }
+
+    public void Render() => Renderer.Refresh();
 
     public override string GetReportLabel()
     {

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerCharacterRenderer : MonoBehaviour
@@ -27,9 +29,27 @@ public class PlayerCharacterRenderer : MonoBehaviour
     private Color MinorBloodLossColor = new Color(1f, 0.8f, 0.8f);
     private Color MajorBloodLossColor = new Color(1f, 0.6f, 0.6f);
 
+    [Header("Wounds")]
+    public GameObject BruiseWoundsContainer;
+    public GameObject CutWoundsContainer;
+    private Dictionary<HealthConditionDef, List<WoundRenderer>> WoundRenderers;
+
     private void Awake()
     {
         Instance = this;
+    }
+
+    public void Init()
+    {
+        WoundRenderers = new Dictionary<HealthConditionDef, List<WoundRenderer>>();
+        InitWoundRenderers(HealthConditionDefOf.Bruise, BruiseWoundsContainer);
+        InitWoundRenderers(HealthConditionDefOf.Cut, CutWoundsContainer);
+    }
+
+    private void InitWoundRenderers(HealthConditionDef woundDef, GameObject container)
+    {
+        List<WoundRenderer> renderers = container.GetComponentsInChildren<WoundRenderer>(true).ToList();
+        WoundRenderers.Add(woundDef, renderers);
     }
 
     /// <summary>
@@ -69,7 +89,21 @@ public class PlayerCharacterRenderer : MonoBehaviour
             else PoisonOverlay1.SetActive(true);
         }
 
-        foreach (Wound wound in Character.Wounds) wound.SetSprites();
+        // Wounds
+        foreach (var kvp in WoundRenderers)
+        {
+            HealthConditionDef wound = kvp.Key;
+            List<WoundRenderer> woundRenderers = kvp.Value;
+            foreach(WoundRenderer woundRenderer in woundRenderers)
+            {
+                woundRenderer.Refresh();
+            }
+        }
+    }
+
+    public WoundRenderer GetUnusedWoundRenderer(HealthConditionDef woundDef)
+    {
+        return WoundRenderers[woundDef].Where(wr => wr.Wound == null).ToList().RandomElement();
     }
 
     private void DisableAllSprites()

@@ -132,17 +132,17 @@ public class UI_EncounterDisplay : MonoBehaviour
             outcomeNote.Init(item.Key.Sprite, false, item.Value);
         }
 
-        // Added injuries
-        Dictionary<Wound, int> groupedInjuries = new Dictionary<Wound, int>();
-        foreach (Wound wound in Game.InjuriesAddedSinceLastStep)
+        // Added wounds
+        Dictionary<Wound, int> groupedWounds = new Dictionary<Wound, int>();
+        foreach (Wound wound in Game.WoundsAddedSinceLastStep)
         {
-            if (!groupedInjuries.Any(x => x.Key.Def == wound.Def)) groupedInjuries.Add(wound, 1);
-            else groupedInjuries[groupedInjuries.First(x => x.Key.Def == wound.Def).Key]++;
+            if (!groupedWounds.Any(x => x.Key.Def == wound.Def)) groupedWounds.Add(wound, 1);
+            else groupedWounds[groupedWounds.First(x => x.Key.Def == wound.Def).Key]++;
         }
-        foreach (var group in groupedInjuries)
+        foreach (var group in groupedWounds)
         {
             UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(group.Key.GetSprite(), true, group.Value);
+            outcomeNote.Init(group.Key.SpriteBase, true, group.Value);
         }
     }
 

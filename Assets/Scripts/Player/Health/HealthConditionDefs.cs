@@ -157,15 +157,19 @@ public static class HealthConditionDefs
 
         new HealthConditionDef()
         {
-            DefName = "CutWound",
+            DefName = "Cut",
+            Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             IsPermanent = false,
+            MaxAmount = 5,
         },
          new HealthConditionDef()
         {
-            DefName = "BruiseWound",
+            DefName = "Bruise",
+            Label = "bruise",
             HealthConditionClass = typeof(HC_BruiseWound),
             IsPermanent = false,
+            MaxAmount = 5,
          },
     };
 }

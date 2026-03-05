@@ -4,25 +4,30 @@ A point and click adventure game where the player has to survive and escape a qu
 # Game Presentation
 The game mainly happens on the same screen, which shows the player character and their cart with all their items on the left side, and the current encounter step on the right side.
 The top side of the screen shows the all UI information:
-	- On the left the day counter, button to show the world map and below the health report of the player (and companions).
-	- In the center the current encounter step's text and options.
-	- On the right the player's stats and current active quests.
+
+- On the left the day counter, button to show the world map and below the health report of the player (and companions).
+- In the center the current encounter step's text and options.
+- On the right the player's stats and current active quests.
+
 Everything is sprite based in an old-school flash art style, with a fixed side-view camera and no animations. Sprites change depending on the situtation.
 For example, the player should be rendered differently based on their health:
-	- If the player is hungry, the torso sprite is thinner.
-	- Cut injuries show as cuts on the head sprite (with different sprites for infection stages). If tended, shows a bandage sprite as overlay.
-	- Bruise injuries show as bruises on the head sprite (with different sprites for infection stages). If tended, shows a bandage sprite as overlay.
-	- Thirst shows as sweat drops on the head sprite.
-	- Poisoning shows as greenish tint on the head sprite.
-	- Blood loss shows as discoloring of torso sprite.
-	- Broken legs show as a broken leg sprite instead of the normal legs sprite.
-	- Broken arms show as a broken arm sprite instead of the normal arms sprite.
-	- etc.
+
+- If the player is hungry, the torso sprite is thinner.
+- Wounds show as sprites on the big head, with overlays for tending and infection.
+- Thirst shows as sweat drops on the head sprite.
+- Poisoning shows as greenish tint on the head sprite.
+- Blood loss shows as discoloring of torso sprite.
+- Broken legs show as a broken leg sprite instead of the normal legs sprite.
+- Broken arms show as a broken arm sprite instead of the normal arms sprite.
+- etc.
+
 The background is also a collection of sprites that change based on the current encounter step:
-	- The main background depends on the current biome.
-	- Sky sprites depend on the current weather and time of day.
-	- Some particle sprites can be added based on the current weather. For example, if it's raining, rain particle sprites can be added to the background.
-	- Additional background sprites can be added based on the current encounter step. For example, if the player is in a forest biome and the encounter step is "hiding in bushes", additional bush sprites can be added to the background to make it look like the player is hiding in bushes.
+
+- The main background depends on the current biome.
+- Sky sprites depend on the current weather and time of day.
+- Some particle sprites can be added based on the current weather. For example, if it's raining, rain particle sprites can be added to the background.
+- Additional background sprites can be added based on the current encounter step. For example, if the player is in a forest biome and the encounter step is "hiding in bushes", additional bush sprites can be added to the background to make it look like the player is hiding in bushes.
+
 And of course each encounter step has its own unique sprites showing the current state of the encounter.
 
 

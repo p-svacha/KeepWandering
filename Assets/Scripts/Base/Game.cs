@@ -20,7 +20,7 @@ public class Game : MonoBehaviour
     // Event Step Outcome
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
-    public List<Wound> InjuriesAddedSinceLastStep = new List<Wound>();
+    public List<Wound> WoundsAddedSinceLastStep = new List<Wound>();
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -85,6 +85,7 @@ public class Game : MonoBehaviour
         EncounterManager = new EncounterManager(this);
 
         // Init player
+        PlayerCharacterRenderer.Instance.Init();
         ItemIdCounter = 0;
         Player = new PlayerCharacter(this);
 
@@ -269,7 +270,7 @@ public class Game : MonoBehaviour
         // Clear event step outcome
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
-        InjuriesAddedSinceLastStep.Clear();
+        WoundsAddedSinceLastStep.Clear();
     }
 
     public void ForceUnhighlightAllInventoryItems()
@@ -623,20 +624,29 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
-    public void AddBruiseWound()
+    public void AddBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
+    public void AddCutWound() => AddWound(HealthConditionDefOf.Cut);
+    private void AddWound(HealthConditionDef woundDef)
     {
-        Wound injury = Player.AddBruiseWound();
-        InjuriesAddedSinceLastStep.Add(injury);
-        OnGameStateChanged();
-    }
-    public void AddCutWound()
-    {
-        Wound injury = Player.AddCutWound();
-        InjuriesAddedSinceLastStep.Add(injury);
+        // Validate
+        if(!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
+
+        // Check maximum
+        int max = woundDef.MaxAmount;
+        int current = Player.GetHealthConditionAmount(woundDef);
+        if (current > max)
+        {
+            Debug.Log($"Can't add wound {woundDef.Label} because player already has maximum amount ({max}).");
+            return;
+        }
+
+        // Apply
+        Wound newWound = Player.AddWound(woundDef);
+        WoundsAddedSinceLastStep.Add(newWound);
         OnGameStateChanged();
     }
 
-    public void TendInjury(Wound wound, Item item)
+    public void TendWound(Wound wound, Item item)
     {
         if (!item.Def.CanTendWounds) Debug.LogWarning($"Tending wound with an item that can't tend wounds! {item.Label}");
         if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
@@ -646,9 +656,9 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
-    public void RemoveInjury(Wound injury)
+    public void RemoveWound(Wound wound)
     {
-        Player.RemoveInjury(injury);
+        Player.RemoveWound(wound);
     }
 
     public void HealInfection(Wound wound, Item item)
