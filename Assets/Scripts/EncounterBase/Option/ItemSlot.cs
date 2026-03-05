@@ -43,7 +43,7 @@ public class ItemSlot
     /// <summary>
     /// How much the option difficulty will be reduced if the slot is filled and the option is selected.
     /// </summary>
-    public int DefaultDifficultyReduction { get; init; }
+    public int DifficultyReduction { get; init; }
 
     /// <summary>
     /// Specific items that reduce the option difficulty by an amount that overrides the default difficulty reduction if dragged into this slot.
@@ -57,7 +57,7 @@ public class ItemSlot
         SpecificItems = specificItems ?? new List<ItemDef>();
         ItemTags = itemTags ?? new List<ItemTagDef>();
         DestructionChance = destructionChance;
-        DefaultDifficultyReduction = defaultDifficultyReduction;
+        DifficultyReduction = defaultDifficultyReduction;
         DifficultyReductionOverrides = difficultyReductionOverrides ?? new Dictionary<ItemDef, int>();
 
         // Validate
@@ -118,7 +118,7 @@ public class ItemSlot
         }
         else
         {
-            return DefaultDifficultyReduction;
+            return DifficultyReduction;
         }
     }
 

@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class Stat
 {
-    private const int BASE_VALUE = 0;
-
     protected Game Game;
     public PlayerCharacter Player {  get; private set; }
     public StatDef Def { get; private set; }
 
     public string Label => Def.Label;
     public string Description => Def.Description;
+
+    public int BaseValue {  get; private set; }
 
     public Stat(Game game, PlayerCharacter player, StatDef def)
     {
@@ -22,17 +22,14 @@ public class Stat
 
     public int GetValue()
     {
-        int value = BASE_VALUE;
+        int value = BaseValue;
         foreach(StatModifier mod in GetModifiers()) value += mod.Value;
         return value;
     }
 
-    /// <summary>
-    /// Returns the deviation of the stat value from the base value.
-    /// </summary>
-    public int GetRelativeValue()
+    public void ModifyBaseValue(int amount)
     {
-        return GetValue() - BASE_VALUE;
+        BaseValue += amount;
     }
 
     public List<StatModifier> GetModifiers()

@@ -129,9 +129,9 @@ public class GameUI : MonoBehaviour
         StatPanel.Refresh();
     }
 
-    public void HightlightStat(StatDef stat)
+    public void HightlightStat(StatDef stat, Color color)
     {
-        StatPanel.HightlightStat(stat);
+        StatPanel.HightlightStat(stat, color);
     }
     public void UnhighlightStat(StatDef stat)
     {

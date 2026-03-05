@@ -32,7 +32,7 @@ public class ItemRenderer : MonoBehaviour
         SetSortingOrder(1000);
         Rigidbody = gameObject.AddComponent<Rigidbody2D>();
         Collider = gameObject.AddComponent<PolygonCollider2D>();
-        ScaleCollider(Collider, 0.9f);
+        ScaleCollider(Collider, 0.875f);
     }
 
     private void ScaleCollider(PolygonCollider2D collider, float scale)

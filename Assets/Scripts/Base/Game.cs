@@ -12,15 +12,19 @@ public class Game : MonoBehaviour
     // Game State
     public GameState State { get; private set; }
     public int Day { get; private set; }
+    public TimeOfDayDef TimeOfDay { get; private set; }
     public int ItemIdCounter { get; private set; }
     public MorningReport LatestMorningReport { get; private set; }
     public Encounter CurrentEncounter;
     public EncounterStep CurrentEventStep;
 
-    // Event Step Outcome
+    // Encounter Step Outcome
+    public List<Item> ItemsUsedInOption = new List<Item>();
+
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
     public List<Wound> WoundsAddedSinceLastStep = new List<Wound>();
+    public Dictionary<StatDef, int> StatChangesSinceLastStep = new Dictionary<StatDef, int>();
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -98,8 +102,15 @@ public class Game : MonoBehaviour
         // Init UI
         UI.Init(this);
         UI.ContextMenu.Init(this);
+        HideAllEncounterSprites();
 
         SwitchState(GameState.InDayTransition);
+    }
+
+    public void SetTimeOfDay(TimeOfDayDef timeOfDay)
+    {
+        TimeOfDay = timeOfDay;
+        UI.DayTimeText.text = timeOfDay.LabelCapWord;
     }
 
     // Update is called once per frame
@@ -160,6 +171,10 @@ public class Game : MonoBehaviour
 
     private void OnItemRightClicked(Item item)
     {
+        // Check if interactions are currently allowed
+        bool canInteract = (TimeOfDay == TimeOfDayDefOf.Morning || CurrentEventStep.IsFinalStep);
+        if (!canInteract) return;
+
         // Get interaction options for item
         List<InteractionOption> options = item.GetInteractionOptions();
         Debug.Log($"Clicked on " + item.Label + " with " + options.Count + " interaction options.");
@@ -277,6 +292,13 @@ public class Game : MonoBehaviour
         if (State != GameState.GameOver) CheckGameOver();
     }
 
+    public void HideAllEncounterSprites()
+    {
+        foreach (SpriteRenderer sprite in EncounterContainer.GetComponentsInChildren<SpriteRenderer>())
+        {
+            sprite.gameObject.SetActive(false);
+        }
+    }
     public void DisplayEncounterStep(EncounterStep step, OptionOutcomeDef prevOutcome = null)
     {
         // Validate and initialize options
@@ -309,6 +331,7 @@ public class Game : MonoBehaviour
     public void SelectEncounterOption(EncounterOption selectedOption)
     {
         UI.StatPanel.UnhighlightAll();
+        ItemsUsedInOption.Clear();
 
         // Empty slots of all non-selected options - return items to cart
         foreach (EncounterOption option in CurrentEventStep.Options)
@@ -337,6 +360,7 @@ public class Game : MonoBehaviour
                 // Item survives - return to cart
                 item.Show();
                 DropItemIntoCart(item);
+                ItemsUsedInOption.Add(item);
             }
         }
 
@@ -385,7 +409,7 @@ public class Game : MonoBehaviour
 
     private void StartMorningEvent()
     {
-        UI.DayTimeText.text = "Morning";
+        SetTimeOfDay(TimeOfDayDefOf.Morning);
 
         LatestMorningReport = new MorningReport(Day);
 
@@ -449,7 +473,7 @@ public class Game : MonoBehaviour
         }
         else
         {
-            string exposureAppendix = "\n\nThis will increase your exposure in this location, increasing the chance for attacks during the night!";
+            string exposureAppendix = ResourceManager.WarningText("\nThis will increase your exposure in this location, increasing the chance for attacks during the night!");
 
             options.Add(new FixedOutcomeOption()
             {
@@ -540,7 +564,7 @@ public class Game : MonoBehaviour
 
     private void StartAfternoonEncounter()
     {
-        UI.DayTimeText.text = "Afternoon";
+        SetTimeOfDay(TimeOfDayDefOf.Afternoon);
 
         // Move to selected target position
         if (DayAction == DayAction.Move)
@@ -571,7 +595,7 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
-    public void EndAfternoonEvent()
+    public void EndAfternoonEncounter()
     {
         UI.CloseAllWindows();
         SwitchState(GameState.EndEventTransitionIn);
@@ -583,7 +607,7 @@ public class Game : MonoBehaviour
 
     private void StartEveningEncounter()
     {
-        UI.DayTimeText.text = "Evening";
+        SetTimeOfDay(TimeOfDayDefOf.Evening);
 
         // Clear previous encounter
         if (CurrentEncounter != null) CurrentEncounter.EndEncounter();
@@ -730,6 +754,25 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void ModifyStatBaseValue(StatDef stat, int value)
+    {
+        if (value == 0) return;
+
+        Player.Stats[stat].ModifyBaseValue(value);
+        StatChangesSinceLastStep.Increment(stat, value);
+
+        OnGameStateChanged();
+    }
+
+    public void ApplyBruiseDamage() // Adds a bruise wound and some damage to either arm or leg bone health
+    {
+        AddBruiseWound();
+
+        float damage = Random.Range(0.1f, 0.2f);
+
+        if(Random.value < 0.5f) Player.ModifyArmBoneHealth(-damage);
+        else Player.ModifyLegBoneHealth(-damage);
+    }
     public void AddBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
     public void AddCutWound() => AddWound(HealthConditionDefOf.Cut);
     private void AddWound(HealthConditionDef woundDef)
@@ -765,6 +808,7 @@ public class Game : MonoBehaviour
     public void RemoveWound(Wound wound)
     {
         Player.RemoveWound(wound);
+        OnGameStateChanged();
     }
 
     public void HealInfection(Wound wound, Item item)

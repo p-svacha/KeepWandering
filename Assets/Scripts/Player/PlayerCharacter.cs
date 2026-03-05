@@ -82,6 +82,7 @@ public class PlayerCharacter
     public void ModifyNutrition(float value) => Hunger.ModifyNutrition(value);
     public void ModifyHydration(float value) => Thirst.ModifyHydration(value);
     public void ModifyLegBoneHealth(float value) => LegFracture.ModifyBoneHealth(value);
+    public void ModifyArmBoneHealth(float value) => ArmFracture.ModifyBoneHealth(value);
     public void ModifyBloodAmount(float value) => BloodLoss.ModifyBloodAmount(value);
 
     public Wound AddWound(HealthConditionDef woundDef)

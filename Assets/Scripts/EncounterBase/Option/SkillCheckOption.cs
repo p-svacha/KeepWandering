@@ -13,7 +13,7 @@ public class SkillCheckOption : EncounterOption
     /// <summary>
     /// Base difficulty of the encounter step option, before any modifiers apply.
     /// </summary>
-    public int BaseDifficulty { get; init; }
+    public int Difficulty { get; init; }
 
     /// <summary>
     /// The stats that are relevant for performing this encounter step option, along with the modifier of how much it affects the difficulty of the encounter step option.
@@ -23,7 +23,7 @@ public class SkillCheckOption : EncounterOption
     /// <summary>
     /// Function that gets executed when choosing this option. Function must return the next step in the encounter. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
     /// </summary>
-    public Func<OptionOutcomeDef, EncounterStep> Actions { get; init; }
+    public Func<OptionOutcomeDef, EncounterStep> Action { get; init; }
 
     public bool CanPartiallySucceed { get; init; } = true;
     public bool CanCriticallySucceed { get; init; } = true;
@@ -34,15 +34,15 @@ public class SkillCheckOption : EncounterOption
         base.Init();
 
         // Validate
-        if (Actions == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
-        if (BaseDifficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
+        if (Action == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
+        if (Difficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
     }
 
 
     public override EncounterStep Execute(out OptionOutcomeDef outcome)
     {
         outcome = RollOutcome();
-        return Actions.Invoke(outcome);
+        return Action.Invoke(outcome);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class SkillCheckOption : EncounterOption
     /// </summary>
     public int GetDifficultyValue()
     {
-        int difficulty = BaseDifficulty;
+        int difficulty = Difficulty;
 
         foreach (var modifier in GetDifficultyModifiers()) difficulty += modifier.Value;
 
@@ -87,7 +87,7 @@ public class SkillCheckOption : EncounterOption
         }
 
         // Clamp modifier (value can't go below 5 or above 200)
-        int difficultySoFar = BaseDifficulty + modifiers.Values.Sum();
+        int difficultySoFar = Difficulty + modifiers.Values.Sum();
         if (difficultySoFar < MIN_DIFFICULTY)
         {
             modifiers.Add($"Limit ({MIN_DIFFICULTY})", MIN_DIFFICULTY - difficultySoFar);
@@ -209,16 +209,5 @@ public class SkillCheckOption : EncounterOption
         outcomes.Sort((a, b) => b.Outcome.SuccessLevel.CompareTo(a.Outcome.SuccessLevel));
 
         return outcomes;
-    }
-
-
-    public void OnHoverStart()
-    {
-        foreach (StatDef stat in RelevantStats.Keys) Game.Instance.UI.HightlightStat(stat);
-    }
-
-    public void OnHoverEnd()
-    {
-        foreach (StatDef stat in RelevantStats.Keys) Game.Instance.UI.UnhighlightStat(stat);
     }
 }

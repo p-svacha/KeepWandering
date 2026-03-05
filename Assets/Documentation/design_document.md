@@ -44,7 +44,7 @@ The player has a fixed set of stats that have an integer value. The default valu
 - Combat: Affects combat options, such as fighting, defending, using weapons etc.
 - Strength: Affects physical options, such as fighting, carrying heavy items, breaking things etc.
 - Dexterity: Affects dexterous options, such as sneaking, picking locks, disarming traps etc.
-- Intellect: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
+- Intelligence: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
 - Charisma: Affects social options, such as persuading, intimidating, negotiating etc.
 - Agility: Affects options that require quick reactions, such as dodging, running away, etc.
 - Perception: Affects options that require noticing things, such as spotting hidden enemies, finding hidden items, noticing traps etc.
@@ -52,10 +52,9 @@ The player has a fixed set of stats that have an integer value. The default valu
 
 Stat Values can both be temporarily and permanently affected.
 
-Temporary modifiers may be bound to a condition, and are active, such as long as that condition is present (i.e. health conditions, companions, weather, biome, time of day).
-Temporary modifiers may also be present for a specific duration based on things like an encounter option outcome, companion death, night event, etc. These modifiers are active for a specific amount of time (i.e. 3 days) and then expire.
+Temporary modifiers are bound to a condition, and are active, such as long as that condition is present (i.e. health conditions, companions, weather, biome, time of day).
 
-Permanent modifiers are usually the result of specific encounter option outcomes, such as "gain 1 strength permanently". These modifiers are active for the rest of the game and can not be removed or expire. Permanent modifiers can also be the result of fulfilling quests, such as "fulfill quest X to gain 2 charisma permanently".
+Permanent modifiers are usually the result of specific encounter option outcomes, such as "gain 1 strength permanently". These modifiers are active for the rest of the game and can not be removed or expire. Permanent modifiers can also be the result of fulfilling quests, such as "fulfill quest X to gain 2 charisma permanently". On a technical level, and also communicated in-game, these permanent modifiers simply change the base value of the stat, which is 0 at the start of the game.
 
 Stats are capped at -20/20.
 
@@ -74,26 +73,30 @@ Even though these conditions are technically "permanent", that does not mean the
 Permanent health conditions are:
 
 #### Hunger
-The player has a hidden hunger meter that increases over time. Hunger conditions has the severity stages of "Hungry", "Very hungry" and "Starving". If the hunger meter reaches a limit, the player dies.
-Affects morale, strength, intellect.
+Increases every night.
+Stages are "Hungry", "Very hungry" and "Starving". If the hunger meter reaches a limit, the player dies.
+Affects morale, strength, intelligence.
+Lethal
 
 #### Thirst
-The player has a hidden thirst meter that increases over time. Thirst conditions has the severity stages of "Thirsty", "Very thirsty" and "Dehydrated". If the thirst meter reaches a limit, the player dies.
+Increases every night.
+Stages are "Thirsty", "Very thirsty" and "Dehydrated". If the thirst meter reaches a limit, the player dies.
 Affects dexterity, agility, perception.
+Lethal
 
 #### Blood loss
-Blood loss is a hidden meter that increases with certain injuries, such as cut injuries. If the blood loss meter reaches a limit, the player dies.
+Increases each night for each untended cut wound.
+Heals naturally over time.
 Affects combat, strength, agility.
+Lethal
 
 #### Leg bones health
-Value between 0 and 1, active if below 1.
 Stages are "Strained", "Cracked" and "Broken".
 Affects agility, combat.
 Heals naturally over time, but can also be healed faster with treatment.
 In the "Broken" stage, the player cannot move to different tiles on the world map in the morning.
 
 #### Arm bones health
-Value between 0 and 1, active if below 1.
 Stages are "Strained", "Cracked" and "Broken".
 Affects combat, strength, dexterity.
 Heals naturally over time, but can also be healed faster with treatment.

@@ -25,6 +25,14 @@ public static class ResourceManager
 
     public static readonly Color Color_Panel_Highlighted = new Color(1f, 0.91f, 0.53f);
 
+    public static readonly Color Color_Highlight_LowImpact = new Color(1f, 1f, 0f);
+    public static readonly Color Color_Highlight_MediumImpact = new Color(1f, 0.7f, 0f);
+    public static readonly Color Color_Highlight_HighImpact = new Color(1f, 0.45f, 0f);
+    public static readonly Color Color_Highlight_UltimateImpact = new Color(1f, 0f, 0f);
+
+    public static readonly Color Color_Text_Warning = new Color(0.8f, 0.2f, 0.2f);
+    public static string WarningText(string text) => $"<color=#{ColorUtility.ToHtmlStringRGB(Color_Text_Warning)}>{text}</color>";
+
     private static Dictionary<string, Material> CachedMaterials = new Dictionary<string, Material>();
     public static Material LoadMaterial(string resourcePath)
     {

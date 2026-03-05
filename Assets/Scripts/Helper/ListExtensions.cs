@@ -111,4 +111,29 @@ public static class ListExtensions
 
         return sb.ToString();
     }
+
+    /// <summary>
+    /// Returns a natural language enumeration of the list's elements.
+    /// Empty list returns "nothing". One element returns its ToString().
+    /// Two elements returns "item1 and item2". Three or more returns "item1, item2 and item3".
+    /// </summary>
+    public static string ToNaturalLanguage<T>(this List<T> list)
+    {
+        if (list == null)
+            throw new ArgumentNullException(nameof(list), "The list cannot be null.");
+
+        if (list.Count == 0) return "nothing";
+        if (list.Count == 1) return list[0].ToString();
+        if (list.Count == 2) return $"{list[0]} and {list[1]}";
+
+        var sb = new StringBuilder();
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (i == list.Count - 1)
+                sb.Append($"and {list[i]}");
+            else
+                sb.Append($"{list[i]}, ");
+        }
+        return sb.ToString();
+    }
 }

@@ -25,7 +25,7 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Strength, -2 },
                         { StatDefOf.Morale, -2 },
-                        { StatDefOf.Intellect, -2 },
+                        { StatDefOf.Intelligence, -2 },
                     },
                 },
                 new HealthConditionStage()
@@ -36,7 +36,7 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Strength, -5 },
                         { StatDefOf.Morale, -5 },
-                        { StatDefOf.Intellect, -5 },
+                        { StatDefOf.Intelligence, -5 },
                     },
                 },
             },

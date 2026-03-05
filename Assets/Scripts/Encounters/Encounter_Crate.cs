@@ -1,14 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Encounter_Crate : LocationEncounter
 {
     private const int MIN_INVISIBLE_CRATE_ITEMS = 0;
     private const int MAX_INVISIBLE_CRATE_ITEMS = 2;
-
-    private const int TAKE_ITEM_BASE_DIFFICULTY = 30;
-    private const int SMASH_CRATE_BASE_DIFFICULTY = 70;
-    private const int OPEN_CRATE_BASE_DIFFICULTY = 0;
 
     private static LootTable ItemTable = new LootTable
     {
@@ -25,16 +22,21 @@ public class Encounter_Crate : LocationEncounter
     // State
     private Item VisibleCrateItem;
     private List<Item> InvisibleCrateItems;
-    private bool IsVisibleItemTaken;
+
+    private bool IsVisibleItemGone;
+    private bool IsOpened;
     private bool IsSmashed;
+    private bool AllItemsGone;
+    private bool AreItemsInsideKnown;
+    private bool HasPeeked;
 
     // Base
     protected override void OnInitialize()
     {
         // Visible crate item
         VisibleCrateItem = GetBiomeLootTable(ItemTable).GetItem();
-        VisibleCrateItem.Renderer.SetPosition(6f, 0f);
-        VisibleCrateItem.Renderer.SetRotation(-30f);
+        VisibleCrateItem.Renderer.SetPosition(7.5f, -2.5f);
+        VisibleCrateItem.Renderer.SetRandomRotation();
         VisibleCrateItem.Renderer.SetSortingOrder(0);
 
         // Invisible crate items
@@ -47,33 +49,56 @@ public class Encounter_Crate : LocationEncounter
             item.Renderer.SetRandomRotation();
             InvisibleCrateItems.Add(item);
         }
-
-        // Initial state
-        IsSmashed = false;
     }
 
     protected override EncounterStep OnStart()
     {
         // Sprites
-        if (!IsVisibleItemTaken) VisibleCrateItem.Show();
-        ShowEventSprite("Crate");
+        if (!IsVisibleItemGone) VisibleCrateItem.Show();
 
         string text;
-        if (IsFirstVisit) text = $"You stumble upon a crate with a {VisibleCrateItem.Label} stuck in it. It looks like there could be more stuff inside.";
-        else text = $"You are back at the crate.";
+        if (IsFirstVisit) text = $"You come across a locked wooden crate. You can see a {VisibleCrateItem.Label} inside through a small hole. Maybe there are more items hidden within.";
+        else text = $"You are back at the {(IsSmashed || IsOpened ? "looted" : "locked wooden")} crate.";
 
-        return new EncounterStep(text, GetOptions());
+        return GetNextEncounterStep(text);
     }
 
     protected override void OnEnd()
     {
-        if (!IsVisibleItemTaken) VisibleCrateItem.Hide();
+        if (!IsVisibleItemGone) VisibleCrateItem.Hide();
+    }
+
+    private void TakeVisibleItem()
+    {
+        if (IsVisibleItemGone) return;
+
+        Game.AddExistingItemToInventory(VisibleCrateItem);
+        IsVisibleItemGone = true;
+    }
+    private void TakeAllInvisibleItems()
+    {
+        if (AllItemsGone) return;
+
+        foreach (var item in InvisibleCrateItems) Game.AddExistingItemToInventory(item);
+        InvisibleCrateItems.Clear();
+        AreItemsInsideKnown = true;
+        AllItemsGone = true;
+    }
+
+    private EncounterStep GetNextEncounterStep(string text)
+    {
+        // Sprites
+        SetEncounterSpriteVisibility("Crate_Destroyed", IsSmashed);
+        SetEncounterSpriteVisibility("Crate_Open", IsOpened);
+        SetEncounterSpriteVisibility("Crate", !IsSmashed && !IsOpened);
+
+        return new EncounterStep(text, GetOptions());
     }
 
     private List<EncounterOption> GetOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
-        if (IsSmashed)
+        if (AllItemsGone)
         {
             options.Add(new FixedOutcomeOption()
             {
@@ -84,111 +109,238 @@ public class Encounter_Crate : LocationEncounter
         }
         else
         {
+            if (!IsVisibleItemGone) options.Add(CreateTakeItemOption()); // Take item
+            options.Add(CreateOpenCrateOption()); // Open crate
             options.Add(CreateSmashCrateOption()); // Smash crate
-            options.Add(CreateOpenCreateOption()); // Open crate
-            if (!IsVisibleItemTaken) options.Add(CreateTakeItemOption()); // Take item
+            if (!AreItemsInsideKnown && !HasPeeked) options.Add(CreatePeekOption()); // Peek inside
 
             // Ignore
             options.Add(new FixedOutcomeOption()
             {
-                Text = "Ignore",
-                Description = "Move on without taking anything.",
-                Action = () => EndEncounter("You didn't take the " + VisibleCrateItem.Label + ".")
+                Text = "Move on",
+                Action = () => EndEncounter("You move on.")
             });
         }
         return options;
     }
 
-    private SkillCheckOption CreateTakeItemOption()
+    private EncounterOption CreateTakeItemOption()
     {
         return new SkillCheckOption()
         {
             Text = $"Take {VisibleCrateItem.Label}",
-            Description = $"Try to take the {VisibleCrateItem.Label} out of the crate.",
-            BaseDifficulty = TAKE_ITEM_BASE_DIFFICULTY,
+            Description = $"Try to squeeze the {VisibleCrateItem.Label} through the hole.",
+            Difficulty = 50,
+            CanCriticallyFail = false,
             RelevantStats = new Dictionary<StatDef, float>()
             {
-                { StatDefOf.Dexterity, 1f },
-                { StatDefOf.Strength, 1f }
+                { StatDefOf.Dexterity, 2f },
+                { StatDefOf.Strength, 1f },
+                { StatDefOf.Perception, 1f },
             },
-            Actions = TakeItem,
+            Action = TakeItem,
         };
     }
+    private EncounterStep TakeItem(OptionOutcomeDef outcome)
+    {
+        string text = "";
 
-    private SkillCheckOption CreateSmashCrateOption()
+        if (outcome == OptionOutcomeDefOf.CriticalSuccess) // Take all items
+        {
+            text = $"You successfully maneuver the {VisibleCrateItem.Label} through the hole.";
+            TakeVisibleItem();
+
+            TakeAllInvisibleItems();
+            if (InvisibleCrateItems.Count > 0)
+            {
+                string itemText = $"{InvisibleCrateItems[0].Label}";
+                foreach (var item in InvisibleCrateItems.Skip(1)) itemText += $" and {item.Label}";
+                text += $" You also manage to take out the {itemText}.";
+            }
+            else
+            {
+                text += " You also manage to see that there are no more items in the crate.";
+            }
+        }
+
+        if (outcome == OptionOutcomeDefOf.Success)
+        {
+            text = $"You successfully maneuver the {VisibleCrateItem.Label} through the hole.";
+            TakeVisibleItem();
+        }
+
+        if (outcome == OptionOutcomeDefOf.PartialSuccess)
+        {
+            text = $"You manage to get the {VisibleCrateItem.Label} through the hole, but scratch yourself in the process.";
+            TakeVisibleItem();
+            Game.AddCutWound();
+        }
+
+        if (outcome == OptionOutcomeDefOf.Failure)
+        {
+            text = $"You fail to get the {VisibleCrateItem.Label} through the hole and hurt yourself in the process.";
+            Game.AddCutWound();
+        }
+
+        return GetNextEncounterStep(text);
+    }
+
+    private EncounterOption CreateSmashCrateOption()
     {
         return new SkillCheckOption()
         {
             Text = "Smash",
-            Description = "Try to smash the crate open to get all items out.",
-            BaseDifficulty = SMASH_CRATE_BASE_DIFFICULTY,
+            Description = "Try to destroy the crate to get its content. This might destroy some items inside.",
+            Difficulty = 70,
             RelevantStats = new Dictionary<StatDef, float>()
             {
-                { StatDefOf.Strength, 1f }
+                { StatDefOf.Strength, 3f }
             },
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Food },
-                    DefaultDifficultyReduction = 50
+                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Weapon },
+                    DifficultyReduction = 50,
+                    DestructionChance = 0.5f,
                 }
             },
-            Actions = TakeItem,
+            Action = SmashCrate,
         };
     }
-    private FixedOutcomeOption CreateOpenCreateOption()
+    private EncounterStep SmashCrate(OptionOutcomeDef outcome)
     {
-        return new FixedOutcomeOption()
+        string text = "";
+
+        if (outcome.SuccessLevel >= SuccessLevel.Success)
         {
-            Text = "Open",
-            Description = "Try to open the crate carefully to get all items out without damaging them.",
+            text = "You smash the crate open, without damaging any of its content.";
+            TakeVisibleItem();
+            TakeAllInvisibleItems();
+            IsSmashed = true;
+
+            if (outcome == OptionOutcomeDefOf.CriticalSuccess)
+            {
+                text += " The act of destruction has permanently increased your strength.";
+                Game.ModifyStatBaseValue(StatDefOf.Strength, 1);
+            }
+        }
+        if (outcome == OptionOutcomeDefOf.PartialSuccess)
+        {
+            text = "You successfully smash the crate into pieces, unfortunately including all of its content.";
+            if (!IsVisibleItemGone)
+            {
+                Game.DestroyItem(VisibleCrateItem);
+                IsVisibleItemGone = true;
+            }
+            IsSmashed = true;
+
+            foreach (var item in InvisibleCrateItems) Game.DestroyItem(item);
+            InvisibleCrateItems.Clear();
+            AllItemsGone = true;
+            AreItemsInsideKnown = true;
+        }
+        if (outcome == OptionOutcomeDefOf.Failure)
+        {
+            text = "You fail to smash the crate open, and hurt yourself in the process.";
+            Game.AddCutWound();
+        }
+        if (outcome == OptionOutcomeDefOf.CriticalFailure)
+        {
+            text = "You fail to smash the crate open, and cut yourself. You feel weak, your morale decreases.";
+            Game.AddCutWound();
+            Game.ModifyStatBaseValue(StatDefOf.Morale, -1);
+        }
+
+        return GetNextEncounterStep(text);
+    }
+
+
+    private EncounterOption CreateOpenCrateOption()
+    {
+        return new SkillCheckOption()
+        {
+            Text = "Pry Open",
+            Description = "Pry open the crate using a crowbar.",
+            Difficulty = 20,
+            CanCriticallySucceed = false,
+            CanCriticallyFail = false,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
                 {
                     IsRequired = true,
                     SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
-                    DestructionChance = 0.5f
                 }
             },
             Action = OpenCrate,
         };
     }
-
-
-    private EncounterStep TakeItem(OptionOutcomeDef outcome)
+    private EncounterStep OpenCrate(OptionOutcomeDef outcome)
     {
         string text = "";
 
+        if (outcome == OptionOutcomeDefOf.Success)
+        {
+            text = "You pry open the crate using the crowbar and take everything inside.";
+            TakeVisibleItem();
+            TakeAllInvisibleItems();
+            IsOpened = true;
+        }
+        if (outcome == OptionOutcomeDefOf.PartialSuccess)
+        {
+            text = "You manage to pry open the crate using the crowbar. The crowbar breaks in the process.";
+            TakeVisibleItem();
+            TakeAllInvisibleItems();
+            IsOpened = true;
+            Game.DestroyOwnedItem(Game.ItemsUsedInOption[0]);
+        }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
-            text += $"The {VisibleCrateItem.Label} is too difficult to take out of the crate. You cut yourself on a loose nail why trying to get it out.";
+            text = "You fail to pry open the crate using the crowbar. The crowbar breaks in the process.";
+            Game.DestroyOwnedItem(Game.ItemsUsedInOption[0]);
+        }
+
+        return GetNextEncounterStep(text);
+    }
+
+    private EncounterOption CreatePeekOption()
+    {
+        return new SkillCheckOption()
+        {
+            Text = "Peek inside",
+            Description = "Try to peek inside the crate to see if there are more items hidden within.",
+            Difficulty = 30,
+            CanCriticallySucceed = false,
+            CanPartiallySucceed = false,
+            RelevantStats = new Dictionary<StatDef, float>()
+            {
+                { StatDefOf.Perception, 3f },
+            },
+            Action = Peek,
+        };
+    }
+    private EncounterStep Peek(OptionOutcomeDef outcome)
+    {
+        string text = "";
+
+        HasPeeked = true;
+        if (outcome == OptionOutcomeDefOf.Success)
+        {
+            text = $"You manage to identify that there's {InvisibleCrateItems.ToNaturalLanguage()} else inside the crate.";
+            AreItemsInsideKnown = true;
+        }
+        if (outcome == OptionOutcomeDefOf.Failure)
+        {
+            text = "You fail to spot anything.";
+        }
+        if (outcome == OptionOutcomeDefOf.CriticalFailure)
+        {
+            text = "While peeking through the whole, something bit you!";
             Game.AddCutWound();
         }
 
-        else // (Partial) Success
-        {
-            Game.AddExistingItemToInventory(VisibleCrateItem);
-            IsVisibleItemTaken = true;
-
-            text = "You reach into the crate and take out the " + VisibleCrateItem.Label + ".";
-            if (outcome == OptionOutcomeDefOf.PartialSuccess)
-            {
-                Game.AddCutWound();
-                text += " Upon taking out your hand you scratch yourself on a loose nail.";
-            }
-        }
-
-        return new EncounterStep(text);
+        return GetNextEncounterStep(text);
     }
 
-    private EncounterStep SmashCrate(OptionOutcomeDef outcome)
-    {
-        return null;
-    }
-    private EncounterStep OpenCrate()
-    {
-        return null;
-    }
 }

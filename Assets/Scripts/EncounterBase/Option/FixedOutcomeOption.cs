@@ -16,7 +16,7 @@ public class FixedOutcomeOption : EncounterOption
 
         // Validate
         if (Action == null) throw new System.Exception("Action function cannot be null for FixedOutcomeOption.");
-        if (ItemSlots.Any(slot => slot.DefaultDifficultyReduction != 0))
+        if (ItemSlots.Any(slot => slot.DifficultyReduction != 0))
             throw new System.Exception("FixedOutcomeOption cannot have item slots with difficulty reduction, since it does not involve any checks. All item slots must have a default difficulty reduction of 0.");
         if (ItemSlots.Any(slot => slot.DifficultyReductionOverrides.Count > 0))
             throw new System.Exception("FixedOutcomeOption cannot have item slots with difficulty reduction overrides, since it does not involve any checks. All item slots must have no difficulty reduction overrides.");

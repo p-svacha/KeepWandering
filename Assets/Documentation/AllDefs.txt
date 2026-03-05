@@ -1,5 +1,34 @@
 ﻿=== SOURCE DEF LISTS ===
 
+--- TimeOfDayDefs.cs ---
+    public static List<TimeOfDayDef> Defs => new List<TimeOfDayDef>()
+    {
+        new TimeOfDayDef()
+        {
+            DefName = "Morning",
+            Label = "Morning",
+            Description = "In the morning, the player can choose their action for the day. Move, Stay or Rest. They can use items freely.",
+        },
+        new TimeOfDayDef()
+        {
+            DefName = "Afternoon",
+            Label = "Afternoon",
+            Description = "In the afternoon, the player encounters the Location Encounter of the world tile they are currently on. They can only use items when the encounter is over before moving on, except for encounter options.",
+        },
+        new TimeOfDayDef()
+        {
+            DefName = "Evening",
+            Label = "Evening",
+            Description = "In the evening, the player encounters the Biome Encounter based on the biome they are in. They can only use items when the encounter is over before moving on, except for encounter options.",
+        },
+        new TimeOfDayDef()
+        {
+            DefName = "Night",
+            Label = "Night",
+            Description = "The night only comes if there is one or more Night Encounters. The player can only use items when the encounter is over before moving on, except for encounter options.",
+        }
+    };
+
 --- CompanionDefs.cs ---
     public static List<CompanionDef> Defs => new List<CompanionDef>()
     {
@@ -34,7 +63,7 @@
             Label = "Critical Success",
             Description = "The player critically succeeds in the action they are trying to do. This is usually a better version of success, with an outcome that is even better than success.",
             Color = new Color(0.24f, 0.57f, 0f),
-            SuccessLevel = 5,
+            SuccessLevel = SuccessLevel.CriticalSuccess,
             IsSuccess = true,
         },
 
@@ -44,7 +73,7 @@
             Label = "Success",
             Description = "The player fully succeeds in the action they are trying to do.",
             Color = new Color(0.54f, 1f, 0.21f),
-            SuccessLevel = 4,
+            SuccessLevel = SuccessLevel.Success,
             IsSuccess = true,
         },
 
@@ -54,7 +83,7 @@
             Label = "Partial Success",
             Description = "The player partially succeeds in the action they are trying to do. This is usually a middle ground between success and failure, with an outcome that is better than failure but worse than success.",
             Color = new Color(1f, 0.96f, 0f),
-            SuccessLevel = 3,
+            SuccessLevel = SuccessLevel.PartialSuccess,
             IsSuccess = true,
         },
 
@@ -64,7 +93,7 @@
             Label = "Failure",
             Description = "The player fails in the action they are trying to do.",
             Color = new Color(1f, 0.36f, 0f),
-            SuccessLevel = 2,
+            SuccessLevel = SuccessLevel.Failure,
             IsSuccess = false,
         },
 
@@ -74,7 +103,7 @@
             Label = "Critical Failure",
             Description = "The player critically fails in the action they are trying to do. This is usually a worse version of failure, with an outcome that is even worse than failure.",
             Color = new Color(0.67f, 0.03f, 0f),
-            SuccessLevel = 1,
+            SuccessLevel = SuccessLevel.CriticalFailure,
             IsSuccess = false,
         }
     };
@@ -245,7 +274,7 @@
                     {
                         { StatDefOf.Strength, -2 },
                         { StatDefOf.Morale, -2 },
-                        { StatDefOf.Intellect, -2 },
+                        { StatDefOf.Intelligence, -2 },
                     },
                 },
                 new HealthConditionStage()
@@ -256,7 +285,7 @@
                     {
                         { StatDefOf.Strength, -5 },
                         { StatDefOf.Morale, -5 },
-                        { StatDefOf.Intellect, -5 },
+                        { StatDefOf.Intelligence, -5 },
                     },
                 },
             },

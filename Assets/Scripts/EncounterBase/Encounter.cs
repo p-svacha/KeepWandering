@@ -63,13 +63,24 @@ public abstract class Encounter
     /// Makes a gameobject belonging to this event visible. The gameobject will be hidden when the event ends.
     /// <br/>In the Unity hierarchy, the GameObject needs to be placed in GameScreen/Encounters/{EncounterDefName}/{spriteName}.
     /// </summary>
-    protected void ShowEventSprite(string spriteName)
+    protected void ShowEncounterSprite(string spriteName)
     {
         GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
         spriteObj.gameObject.SetActive(true);
 
         EventSprites.Add(spriteObj);
     }
+    protected void HideEncounterSprite(string spriteName)
+    {
+        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
+        spriteObj.gameObject.SetActive(false);
+        EventSprites.Remove(spriteObj);
+    }
+    protected void SetEncounterSpriteVisibility(string spriteName, bool show)
+    {
+        if (show) ShowEncounterSprite(spriteName);
+        else HideEncounterSprite(spriteName);
+    } 
 
     /// <summary>
     /// Makes a gameobject belonging to this event invisible.

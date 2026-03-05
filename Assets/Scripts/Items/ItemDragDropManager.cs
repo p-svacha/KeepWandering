@@ -191,7 +191,7 @@ public static class ItemDragDropManager
         if (UI_EncounterDisplay.Instance == null) return;
 
         // Get all option displays (including fixed outcome options not in the dictionary)
-        UI_EncounterStepOption[] allOptionDisplays = UI_EncounterDisplay.Instance.EventOptionContainer.GetComponentsInChildren<UI_EncounterStepOption>();
+        UI_EncounterStepOption[] allOptionDisplays = UI_EncounterDisplay.Instance.EncounterOptionContainer.GetComponentsInChildren<UI_EncounterStepOption>();
 
         foreach (UI_EncounterStepOption optionDisplay in allOptionDisplays)
         {

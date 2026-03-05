@@ -51,9 +51,9 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
             }
         }
         // Difficulty modifier
-        if (Slot.DefaultDifficultyReduction != 0 && !Slot.HasCustomDifficultyReductions)
+        if (Slot.DifficultyReduction != 0 && !Slot.HasCustomDifficultyReductions)
         {
-            DifficultyModifierText.text = $"Difficulty Modifier: -{Slot.DefaultDifficultyReduction}";
+            DifficultyModifierText.text = $"Difficulty Modifier: -{Slot.DifficultyReduction}";
             DifficultyModifierText.gameObject.SetActive(true);
         }
         else DifficultyModifierText.gameObject.SetActive(false);

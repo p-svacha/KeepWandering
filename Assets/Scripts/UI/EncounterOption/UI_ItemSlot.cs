@@ -21,7 +21,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public TextMeshProUGUI DestroyedText;
 
     private bool ShowRequiredIndicator => ItemSlot.IsRequired;
-    private bool ShowDifficultyModifierIndicator => ItemSlot.DefaultDifficultyReduction != 0;
+    private bool ShowDifficultyModifierIndicator => ItemSlot.DifficultyReduction != 0;
     private bool ShowDestroyedIndicator => ItemSlot.DestructionChance > 0f;
 
     // Preview cycling

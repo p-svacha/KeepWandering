@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Net.Sockets;
 
 public class UI_EncounterDisplay : MonoBehaviour
 {
@@ -11,8 +12,8 @@ public class UI_EncounterDisplay : MonoBehaviour
     public static UI_EncounterDisplay Instance;
 
     [Header("Elements")]
-    public TextMeshProUGUI EventText;
-    public GameObject EventOptionContainer;
+    public TextMeshProUGUI EncounterText;
+    public GameObject EncounterOptionContainer;
     public TextMeshProUGUI HoveredOptionDescriptionText;
 
     public GameObject PreviousOutcomeContainer;
@@ -23,10 +24,13 @@ public class UI_EncounterDisplay : MonoBehaviour
     public UI_ItemSlotDetailsBox ItemSlotDetailsBox;
 
     [Header("Prefabs")]
-    public UI_EncounterStepOption EventOptionPrefab;
-    public UI_EventOutcomeNote OutcomeNotePrefab;
+    public UI_EncounterStepOption EncounterOptionPrefab;
+    public UI_EncounterOutcomeNote OutcomeNotePrefab;
 
     public Dictionary<EncounterOption, UI_EncounterStepOption> OptionDisplays;
+
+    private Coroutine OutcomeAnimCoroutine;
+    private Material OutcomeFlashMaterial;
 
     private void Awake()
     {
@@ -42,18 +46,23 @@ public class UI_EncounterDisplay : MonoBehaviour
         {
             PreviousOutcomeContainer.SetActive(true);
             PreviousOutcomeImage.sprite = ResourceManager.LoadSprite($"UiSprites/Outcome/Outcome_{prevOutcome.DefName}");
+
+            // Animated pop-in with random rotation
+            float targetAngle = Random.Range(-25f, 25f);
+            if (OutcomeAnimCoroutine != null) StopCoroutine(OutcomeAnimCoroutine);
+            OutcomeAnimCoroutine = StartCoroutine(AnimatePreviousOutcome(targetAngle));
         }
         else PreviousOutcomeContainer.SetActive(false);
 
         // Text
-        EventText.text = step.Text;
+        EncounterText.text = step.Text;
 
         // Dialogue Options
         OptionDisplays = new Dictionary<EncounterOption, UI_EncounterStepOption>();
         if (step.IsFinalStep)
         {
-            FixedOutcomeOption endDayOption = new FixedOutcomeOption() { Text = "Continue journey", Description = "Continue your day.", Action = EndEvent };
-            UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+            FixedOutcomeOption endDayOption = new FixedOutcomeOption() { Text = "Continue journey", Description = "Continue your day.", Action = EndEncounter };
+            UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
             optionDisplay.Init(this, endDayOption);
             OptionDisplays.Add(endDayOption, optionDisplay);
         }
@@ -61,7 +70,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         {
             foreach (EncounterOption option in step.Options)
             {
-                UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
+                UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
                 optionDisplay.Init(this, option);
                 OptionDisplays.Add(option, optionDisplay);
             }
@@ -69,32 +78,55 @@ public class UI_EncounterDisplay : MonoBehaviour
 
         HideOptionDetails();
         HoveredOptionDescriptionText.gameObject.SetActive(false);
-        InitEventStepOutcomeNotes();
+        InitEncounterStepOutcomeNotes();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
-    private EncounterStep EndEvent()
+    private EncounterStep EndEncounter()
     {
-        Game.EndAfternoonEvent();
+        Game.EndAfternoonEncounter();
         return null;
     }
 
     public void OnOptionHovered(EncounterOption option)
     {
         // Show description
-        HoveredOptionDescriptionText.gameObject.SetActive(true);
-        HoveredOptionDescriptionText.text = option.Description;
+        ShowOptionDescription(option);
 
         // Skill check stuff
         if (option is SkillCheckOption skillCheckOption)
         {
             // Highlight associated stats
-            foreach (StatDef stat in skillCheckOption.RelevantStats.Keys) GameUI.Instance.HightlightStat(stat);
-            GameUI.Instance.HightlightStat(StatDefOf.Morale); // Morale is always relevant for skill checks
+            foreach (var kvp in skillCheckOption.RelevantStats)
+            {
+                StatDef stat = kvp.Key;
+                float factor = kvp.Value;
 
+                Color highlightColor;
+                if (factor <= 1f) highlightColor = ResourceManager.Color_Highlight_LowImpact;
+                else if (factor <= 2) highlightColor = ResourceManager.Color_Highlight_MediumImpact;
+                else if (factor <= 3) highlightColor = ResourceManager.Color_Highlight_HighImpact;
+                else highlightColor = ResourceManager.Color_Highlight_UltimateImpact;
+
+                GameUI.Instance.HightlightStat(stat, highlightColor);
+            }
+
+            // Highlight morale
+            GameUI.Instance.HightlightStat(StatDefOf.Morale, ResourceManager.Color_Highlight_LowImpact); // Morale is always relevant for skill checks
             // Show option details
             ShowOptionDetails(skillCheckOption);
+        }
+    }
+
+    private void ShowOptionDescription(EncounterOption option)
+    {
+        string descriptionText = option.Description;
+        if (!option.CanSelect()) descriptionText += "\n" + ResourceManager.WarningText("Missing required item.");
+        if (descriptionText != "")
+        {
+            HoveredOptionDescriptionText.gameObject.SetActive(true);
+            HoveredOptionDescriptionText.text = descriptionText;
         }
     }
 
@@ -123,13 +155,28 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     private void Clear()
     {
-        HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
+        if (OutcomeAnimCoroutine != null)
+        {
+            StopCoroutine(OutcomeAnimCoroutine);
+            OutcomeAnimCoroutine = null;
+            PreviousOutcomeImage.transform.localScale = Vector3.one;
+            PreviousOutcomeImage.material = null;
+            if (OutcomeFlashMaterial != null)
+            {
+                Destroy(OutcomeFlashMaterial);
+                OutcomeFlashMaterial = null;
+            }
+        }
+        HelperFunctions.DestroyAllChildredImmediately(EncounterOptionContainer);
         HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
     }
 
     public void RefreshOption(EncounterOption option)
     {
         OptionDisplays[option].Resfresh();
+
+        // Option description
+        ShowOptionDescription(option);
 
         // Option details
         if (OptionDetailsPanel.gameObject.activeSelf) OptionDetailsPanel.Refresh();
@@ -140,7 +187,7 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     #region Outcome Notes
 
-    private void InitEventStepOutcomeNotes()
+    private void InitEncounterStepOutcomeNotes()
     {
         // Added items
         Dictionary<Item, int> groupedAddedItems = new Dictionary<Item, int>();
@@ -151,7 +198,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         foreach (KeyValuePair<Item, int> item in groupedAddedItems)
         {
-            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             outcomeNote.Init(item.Key.Sprite, true, item.Value);
         }
 
@@ -164,7 +211,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
         {
-            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             outcomeNote.Init(item.Key.Sprite, false, item.Value);
         }
 
@@ -177,12 +224,20 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         foreach (var group in groupedWounds)
         {
-            UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             outcomeNote.Init(group.Key.SpriteBase, true, group.Value);
         }
 
+        // Stat changes
+        foreach(var statChange in Game.StatChangesSinceLastStep)
+        {
+            if(statChange.Value == 0) continue;
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(statChange.Key, statChange.Value);
+        }
+
         // Add slight rotation to all notes
-        foreach(UI_EventOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EventOutcomeNote>())
+        foreach(UI_EncounterOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EncounterOutcomeNote>())
         {
             note.transform.rotation = Quaternion.Euler(0, 0, Random.Range(-10f, 10f));
         }
@@ -204,5 +259,60 @@ public class UI_EncounterDisplay : MonoBehaviour
         OptionDetailsPanel.gameObject.SetActive(false);
         ItemSlotDetailsBox.Hide();
     }
+    #endregion
+
+    #region Previous Outcome Animation
+
+    private IEnumerator AnimatePreviousOutcome(float targetAngle)
+    {
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        // Set up flash material
+        OutcomeFlashMaterial = new Material(Shader.Find("UI/FlashSprite"));
+        PreviousOutcomeImage.material = OutcomeFlashMaterial;
+
+        // Start scaled down
+        PreviousOutcomeImage.transform.localScale = Vector3.zero;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            // Elastic overshoot scale
+            float scale = EaseOutElastic(t);
+            PreviousOutcomeImage.transform.localScale = Vector3.one * scale;
+
+            // Dampened rotation wobble
+            float damping = (1f - t) * (1f - t);
+            float wobble = Mathf.Sin(t * Mathf.PI * 5f) * damping * 20f;
+            PreviousOutcomeImage.transform.rotation = Quaternion.Euler(0, 0, targetAngle + wobble);
+
+            // White flash that fades quickly in the first third
+            float flash = Mathf.Clamp01(1f - t * 3f);
+            OutcomeFlashMaterial.SetFloat("_FlashAmount", flash * flash);
+
+            yield return null;
+        }
+
+        // Ensure exact final state
+        PreviousOutcomeImage.transform.localScale = Vector3.one;
+        PreviousOutcomeImage.transform.rotation = Quaternion.Euler(0, 0, targetAngle);
+        PreviousOutcomeImage.material = null;
+        Destroy(OutcomeFlashMaterial);
+        OutcomeFlashMaterial = null;
+        OutcomeAnimCoroutine = null;
+    }
+
+    private float EaseOutElastic(float t)
+    {
+        if (t <= 0f) return 0f;
+        if (t >= 1f) return 1f;
+        float p = 0.3f;
+        float s = p / 4f;
+        return Mathf.Pow(2f, -10f * t) * Mathf.Sin((t - s) * (2f * Mathf.PI) / p) + 1f;
+    }
+
     #endregion
 }

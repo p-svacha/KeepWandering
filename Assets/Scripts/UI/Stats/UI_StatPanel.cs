@@ -41,9 +41,9 @@ public class UI_StatPanel : MonoBehaviour
         foreach (UI_Stat stat in StatDisplays.Values) stat.Refresh();
     }
 
-    public void HightlightStat(StatDef stat)
+    public void HightlightStat(StatDef stat, Color color)
     {
-        StatDisplays[stat].Highlight();
+        StatDisplays[stat].Highlight(color);
     }
     public void UnhighlightStat(StatDef stat)
     {

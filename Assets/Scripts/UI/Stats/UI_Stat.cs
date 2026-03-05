@@ -42,9 +42,9 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
     }
 
-    public void Highlight()
+    public void Highlight(Color color)
     {
-        HighlightImage.color = Color.white;
+        HighlightImage.color = color;
     }
     public void Unhighlight()
     {

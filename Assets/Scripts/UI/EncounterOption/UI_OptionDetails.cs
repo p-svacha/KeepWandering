@@ -59,7 +59,7 @@ public class UI_OptionDetails : MonoBehaviour
 
         // Base difficulty
         UI_LabelValueRow baseValueLabel = Instantiate(DifficultyModifierPrefab, DifficultyModifiersContainer.transform);
-        baseValueLabel.Init("Base Difficulty", CurrentOption.BaseDifficulty.ToString());
+        baseValueLabel.Init("Base Difficulty", CurrentOption.Difficulty.ToString());
         baseValueLabel.SetBold(true);
 
         // Modifiers

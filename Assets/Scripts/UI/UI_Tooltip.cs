@@ -63,8 +63,6 @@ public class UI_Tooltip : MonoBehaviour
     {
         Debug.Log($"Showing tooltip for stat {statDisplay.Stat.Label}");
 
-        if (statDisplay.Stat.GetModifiers().Count == 0) return;
-
         Reset();
         gameObject.SetActive(true);
         TitleText.gameObject.SetActive(false);
@@ -72,7 +70,12 @@ public class UI_Tooltip : MonoBehaviour
 
         UpdatePositionAtUi(statDisplay.gameObject);
 
-        foreach(StatModifier mod in statDisplay.Stat.GetModifiers())
+        // Base value
+        UI_StatModifier baseValueRow = Instantiate(StatModifierPrefab, Container.transform);
+        baseValueRow.InitBaseValue(statDisplay.Stat);
+
+        // Modifiers
+        foreach (StatModifier mod in statDisplay.Stat.GetModifiers())
         {
             UI_StatModifier modDisplay = Instantiate(StatModifierPrefab, Container.transform);
             modDisplay.Init(mod);

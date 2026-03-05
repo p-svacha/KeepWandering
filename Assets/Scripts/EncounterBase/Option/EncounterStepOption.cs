@@ -12,7 +12,7 @@ public abstract class EncounterOption
     /// <summary>
     /// Description that gets displayer when the player hovers over the encounter step option in the UI. This should give some hints to the player about the consequences of selecting this option.
     /// </summary>
-    public string Description { get; init; }
+    public string Description { get; init; } = "";
 
     /// <summary>
     /// The definition of all item slots that are part of this encounter step option. The player can drag items from their inventory into these slots to meet the requirements of the option and/or reduce the option difficulty.

@@ -48,6 +48,7 @@ public class Item
 
     #region Getters
     // General
+    public override string ToString() => Label;
     public string Label => Def.Label;
     public string LabelCap => Label.CapitalizeFirst();
     public string LabelCapWord => Label.CapitalizeEachWord();

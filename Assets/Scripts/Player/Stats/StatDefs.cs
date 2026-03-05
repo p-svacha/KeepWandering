@@ -28,7 +28,7 @@ public static class StatDefs
 
         new StatDef()
         {
-            DefName = "Intellect",
+            DefName = "Intelligence",
             Label = "intellect",
             Description = "Affects mental options, such as crafting, repairing, using complex items etc.",
         },
