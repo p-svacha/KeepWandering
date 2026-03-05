@@ -9,7 +9,7 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 {
     private UI_EncounterDisplay EncounterDisplay;
     private Game Game => EncounterDisplay.Game;
-    private EncounterStepOption Option;
+    private EncounterOption Option;
 
     [Header("Elements")]
     public TextMeshProUGUI EventOptionText;
@@ -22,7 +22,7 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public List<UI_ItemSlot> ItemSlotDisplays;
 
-    public void Init(UI_EncounterDisplay encounterDisplay, EncounterStepOption option)
+    public void Init(UI_EncounterDisplay encounterDisplay, EncounterOption option)
     {
         EncounterDisplay = encounterDisplay;
         Option = option;
@@ -56,7 +56,7 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         SkillCheckIndicator.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled;
     }
 
-    private void ChoseOption(Game game, EncounterStepOption option)
+    private void ChoseOption(Game game, EncounterOption option)
     {
         if (game.State == GameState.InGame)
         {

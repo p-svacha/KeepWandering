@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public abstract class EncounterStepOption
+public abstract class EncounterOption
 {
     public abstract EncounterStepOptionType Type { get; }
 
@@ -22,10 +22,10 @@ public abstract class EncounterStepOption
     /// <summary>
     /// Executes the logic of the encounter step option and returns the next encounter step to transition to.
     /// </summary>
-    public abstract EncounterStep Execute();
+    public abstract EncounterStep Execute(out OptionOutcomeDef outcome);
 
 
-    public EncounterStepOption(string text, string description, List<ItemSlot> itemSlots = null)
+    public EncounterOption(string text, string description, List<ItemSlot> itemSlots = null)
     {
         Text = text;
         Description = description;

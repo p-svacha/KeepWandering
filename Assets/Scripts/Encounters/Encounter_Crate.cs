@@ -70,9 +70,9 @@ public class Encounter_Crate : LocationEncounter
         if (!IsVisibleItemTaken) VisibleCrateItem.Hide();
     }
 
-    private List<EncounterStepOption> GetOptions()
+    private List<EncounterOption> GetOptions()
     {
-        List<EncounterStepOption> options = new List<EncounterStepOption>();
+        List<EncounterOption> options = new List<EncounterOption>();
         if (IsSmashed)
         {
             options.Add(new FixedOutcomeOption($"Move on", "There is nothing left to do.", () => EndEncounter("You move on."))); // Move on

@@ -1,13 +1,3 @@
-(/) add checks that options with item requirements can't be selected if not fulfilled (disabled and grey)
-- implement drag and dropping of items
-- implement dragging items into UI item slots
-- validate filled item slot UI
-- validate applied difficulty modifiers
-- implement removing items from encounter option item slots
-- give back item after using option
-
-- implement feedback for which outcome has been rolled on an option (simple overlay on next step, with sound)
-
 - finish crate event (dynamic options on each step (GetOptions()), crowbar for smash option, new spy option to items inside)
 
 - show morale stat in own UI element (bigger than other stats)
@@ -25,6 +15,7 @@
 - make health condition text a little bigger
 - make infection stages to defs. use that label and description for the dynamic wound report label and description
 - simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
+- sound
 
 - auto resize item polygon colliders to be a bit smaller
 

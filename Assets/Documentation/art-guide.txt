@@ -1,0 +1,24 @@
+UI:
+use photoshop brush type: KYLE Ultimate Charcoal Pencil 25px Med2 
+with very slight color dynamics (6% brightness jitter, 3% hue jitter) and a low flow (0%)
+
+ITEM SPRITES:
+
+Setup:
+Make 256x256 canvas in Photoshop. draw into it according to item size, small items like coin are 40x40, bigger ones like medkit 150x170. does not have to be square.
+
+Drawing:
+Make 2 layers: Outlines in front and Fill in back.
+
+OUTLINE
+For outlines, use black color, 12px, 100% hardness
+100% opacity, and 100% flow.
+Activate pen pressure for size.
+
+FILL
+same brush settings as outline with any size as needed.
+Fill does not have to be perfectly inside outline, some overflow or gaps adds to the style.
+Color choice is free.
+
+Export:
+When done, Image > Trim > Transparent Pixels, then export as png. place in Assets/Sprites/Items and add to ItemDef in code. Name must match the DefName in ItemDef.

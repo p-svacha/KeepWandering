@@ -6,12 +6,12 @@ public class EncounterStep
 {
     public string Text;
 
-    public List<EncounterStepOption> Options;
+    public List<EncounterOption> Options;
 
-    public EncounterStep(string text, List<EncounterStepOption> options = null)
+    public EncounterStep(string text, List<EncounterOption> options = null)
     {
         Text = text;
-        Options = options ?? new List<EncounterStepOption>();
+        Options = options ?? new List<EncounterOption>();
     }
 
     /// <summary>
@@ -25,7 +25,7 @@ public class EncounterStep
     public void HighlightSlottableItems()
     {
 
-        foreach (EncounterStepOption option in Options)
+        foreach (EncounterOption option in Options)
         {
             foreach (ItemSlot slot in option.ItemSlots)
             {

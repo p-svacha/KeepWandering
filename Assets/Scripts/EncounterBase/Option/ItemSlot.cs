@@ -12,7 +12,7 @@ public class ItemSlot
     /// <summary>
     /// The option this slot belongs to.
     /// </summary>
-    public EncounterStepOption Option { get; private set; }
+    public EncounterOption Option { get; private set; }
 
     /// <summary>
     /// The item that is currently dragged into this slot. This is null if the slot is currently empty.
@@ -68,7 +68,7 @@ public class ItemSlot
         }
     }
 
-    public void SetOption(EncounterStepOption option)
+    public void SetOption(EncounterOption option)
     {
         Option = option;
     }

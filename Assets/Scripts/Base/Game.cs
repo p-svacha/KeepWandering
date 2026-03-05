@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEditor.Progress;
 
 public class Game : MonoBehaviour
 {
@@ -278,7 +277,7 @@ public class Game : MonoBehaviour
         if (State != GameState.GameOver) CheckGameOver();
     }
 
-    public void DisplayEncounterStep(EncounterStep step)
+    public void DisplayEncounterStep(EncounterStep step, OptionOutcomeDef prevOutcome = null)
     {
         // Unhighlight from previous step
         ForceUnhighlightAllInventoryItems();
@@ -287,7 +286,7 @@ public class Game : MonoBehaviour
         CurrentEventStep = step;
         if (step != null)
         {
-            UI.EventStepDisplay.Init(step);
+            UI.EventStepDisplay.Init(step, prevOutcome);
             step.HighlightSlottableItems();
         }
 
@@ -301,12 +300,12 @@ public class Game : MonoBehaviour
     /// Called when the player selects an encounter step option. Handles slot item resolution for all options,
     /// then executes the selected option and displays the next step.
     /// </summary>
-    public void SelectEncounterOption(EncounterStepOption selectedOption)
+    public void SelectEncounterOption(EncounterOption selectedOption)
     {
         UI.StatPanel.UnhighlightAll();
 
         // Empty slots of all non-selected options - return items to cart
-        foreach (EncounterStepOption option in CurrentEventStep.Options)
+        foreach (EncounterOption option in CurrentEventStep.Options)
         {
             if (option == selectedOption) continue;
             foreach (ItemSlot slot in option.ItemSlots)
@@ -336,8 +335,9 @@ public class Game : MonoBehaviour
         }
 
         // Execute the option
-        EncounterStep nextEventStep = selectedOption.Execute();
-        if (nextEventStep != null) DisplayEncounterStep(nextEventStep);
+        EncounterStep nextEventStep = selectedOption.Execute(out OptionOutcomeDef outcome);
+        if (nextEventStep == null) throw new System.Exception("Selected option " + selectedOption.Text + " returned null as next event step!");
+        DisplayEncounterStep(nextEventStep, outcome);
     }
 
     public void ForceUnhighlightAllInventoryItems()
@@ -431,7 +431,7 @@ public class Game : MonoBehaviour
 
 
         // Options
-        List<EncounterStepOption> options = new List<EncounterStepOption>();
+        List<EncounterOption> options = new List<EncounterOption>();
 
         if (Day == 1)
         {
@@ -576,7 +576,7 @@ public class Game : MonoBehaviour
         string text = $"How would you like to spend your evening in the {CurrentPosition.Biome.Label}?";
 
         // Dialogue Options
-        List<EncounterStepOption> options = new List<EncounterStepOption>();
+        List<EncounterOption> options = new List<EncounterOption>();
 
         FixedOutcomeOption sleepOtion = new FixedOutcomeOption("Sleep", "Go to sleep and hope for a calm night.", Sleep);
         options.Add(sleepOtion);
@@ -704,7 +704,7 @@ public class Game : MonoBehaviour
     private void AddWound(HealthConditionDef woundDef)
     {
         // Validate
-        if(!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
+        if (!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
 
         // Check maximum
         int max = woundDef.MaxAmount;

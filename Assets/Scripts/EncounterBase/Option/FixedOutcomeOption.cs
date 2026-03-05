@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class FixedOutcomeOption : EncounterStepOption
+public class FixedOutcomeOption : EncounterOption
 {
     public override EncounterStepOptionType Type => EncounterStepOptionType.FixedOutcome;
 
@@ -21,8 +21,9 @@ public class FixedOutcomeOption : EncounterStepOption
             throw new System.Exception("FixedOutcomeOption cannot have item slots with difficulty reduction overrides, since it does not involve any checks. All item slots must have no difficulty reduction overrides.");
     }
 
-    public override EncounterStep Execute()
+    public override EncounterStep Execute(out OptionOutcomeDef outcome)
     {
+        outcome = null;
         return Action.Invoke();
     }
 }

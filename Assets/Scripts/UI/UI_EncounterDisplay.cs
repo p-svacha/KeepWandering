@@ -15,6 +15,9 @@ public class UI_EncounterDisplay : MonoBehaviour
     public GameObject EventOptionContainer;
     public TextMeshProUGUI HoveredOptionDescriptionText;
 
+    public GameObject PreviousOutcomeContainer;
+    public Image PreviousOutcomeImage;
+
     public GameObject OutcomeNotesContainer;
     public UI_OptionDetails OptionDetailsPanel;
     public UI_ItemSlotDetailsBox ItemSlotDetailsBox;
@@ -23,20 +26,30 @@ public class UI_EncounterDisplay : MonoBehaviour
     public UI_EncounterStepOption EventOptionPrefab;
     public UI_EventOutcomeNote OutcomeNotePrefab;
 
-    public Dictionary<EncounterStepOption, UI_EncounterStepOption> OptionDisplays;
+    public Dictionary<EncounterOption, UI_EncounterStepOption> OptionDisplays;
 
     private void Awake()
     {
         Instance = this;
     }
 
-    public void Init(EncounterStep step) 
+    public void Init(EncounterStep step, OptionOutcomeDef prevOutcome = null) 
     {
         Clear();
+
+        // Previous outcome
+        if (prevOutcome != null)
+        {
+            PreviousOutcomeContainer.SetActive(true);
+            PreviousOutcomeImage.sprite = ResourceManager.LoadSprite($"UiSprites/Outcome/Outcome_{prevOutcome.DefName}");
+        }
+        else PreviousOutcomeContainer.SetActive(false);
+
+        // Text
         EventText.text = step.Text;
 
         // Dialogue Options
-        OptionDisplays = new Dictionary<EncounterStepOption, UI_EncounterStepOption>();
+        OptionDisplays = new Dictionary<EncounterOption, UI_EncounterStepOption>();
         if (step.IsFinalStep)
         {
             FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", "Continue your day.", EndEvent);
@@ -46,7 +59,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         else
         {
-            foreach (EncounterStepOption option in step.Options)
+            foreach (EncounterOption option in step.Options)
             {
                 UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
                 optionDisplay.Init(this, option);
@@ -67,7 +80,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         return null;
     }
 
-    public void OnOptionHovered(EncounterStepOption option)
+    public void OnOptionHovered(EncounterOption option)
     {
         // Show description
         HoveredOptionDescriptionText.gameObject.SetActive(true);
@@ -113,7 +126,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
     }
 
-    public void RefreshOption(EncounterStepOption option)
+    public void RefreshOption(EncounterOption option)
     {
         OptionDisplays[option].Resfresh();
 

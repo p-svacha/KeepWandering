@@ -1,3 +1,0 @@
-UI:
-use photoshop brush type: KYLE Ultimate Charcoal Pencil 25px Med2 
-with very slight color dynamics (6% brightness jitter, 3% hue jitter) and a low flow (0%)

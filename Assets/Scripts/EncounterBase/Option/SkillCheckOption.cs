@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillCheckOption : EncounterStepOption
+public class SkillCheckOption : EncounterOption
 {
     public override EncounterStepOptionType Type => EncounterStepOptionType.SkillCheck;
 
@@ -46,9 +46,9 @@ public class SkillCheckOption : EncounterStepOption
         CanCriticallyFail = canCriticallyFail;
     }
 
-    public override EncounterStep Execute()
+    public override EncounterStep Execute(out OptionOutcomeDef outcome)
     {
-        OptionOutcomeDef outcome = RollOutcome();
+        outcome = RollOutcome();
         return Actions.Invoke(outcome);
     }
 
