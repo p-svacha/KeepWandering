@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class UI_ItemSlotDetailsBox : MonoBehaviour
 {
+    public ItemSlot Slot { get; private set; }
+
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
     public GameObject AcceptedItemsContainer;
@@ -15,20 +17,31 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
 
     public void Show(ItemSlot itemSlot)
     {
+        Slot = itemSlot;
         gameObject.SetActive(true);
 
-        TitleText.text = $"Item Slot ({(itemSlot.IsRequired ? "REQUIRED" : "OPTIONAL")})";
+        Refresh();
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Refresh()
+    {
+        TitleText.text = $"Item Slot ({(Slot.IsRequired ? "REQUIRED" : "OPTIONAL")})";
 
         // Accepted items
         HelperFunctions.DestroyAllChildredImmediately(AcceptedItemsContainer);
-        foreach (ItemDef itemDef in itemSlot.GetSlottableItemDefs())
+        foreach (ItemDef itemDef in Slot.GetSlottableItemDefs())
         {
             GameObject column = Instantiate(AcceptedItemColumnPrefab, AcceptedItemsContainer.transform);
             column.GetComponentInChildren<Image>().sprite = itemDef.Sprite;
             TextMeshProUGUI difficultyReductionText = column.GetComponentInChildren<TextMeshProUGUI>();
-            if (itemSlot.HasCustomDifficultyReductions)
+            if (Slot.HasCustomDifficultyReductions)
             {
-                difficultyReductionText.text = itemSlot.GetDifficultyReduction(itemDef).ToString();
+                difficultyReductionText.text = Slot.GetDifficultyReduction(itemDef).ToString();
             }
             else
             {
@@ -38,24 +51,19 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
             }
         }
         // Difficulty modifier
-        if (itemSlot.DefaultDifficultyReduction != 0 && !itemSlot.HasCustomDifficultyReductions)
+        if (Slot.DefaultDifficultyReduction != 0 && !Slot.HasCustomDifficultyReductions)
         {
-            DifficultyModifierText.text = $"Difficulty Modifier: {itemSlot.DefaultDifficultyReduction}";
+            DifficultyModifierText.text = $"Difficulty Modifier: -{Slot.DefaultDifficultyReduction}";
             DifficultyModifierText.gameObject.SetActive(true);
         }
         else DifficultyModifierText.gameObject.SetActive(false);
 
         // Destruction chance
-        if (itemSlot.DestructionChance > 0f)
+        if (Slot.DestructionChance > 0f)
         {
-            DestructionChanceText.text = $"Destruction Chance: {itemSlot.DestructionChance * 100f:0}%";
+            DestructionChanceText.text = $"Chance to Break: {Slot.DestructionChance * 100f:0}%";
             DestructionChanceText.gameObject.SetActive(true);
         }
         else DestructionChanceText.gameObject.SetActive(false);
-    }
-
-    public void Hide()
-    {
-        gameObject.SetActive(false);
     }
 }

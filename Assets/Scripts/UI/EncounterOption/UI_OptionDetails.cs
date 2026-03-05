@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class UI_OptionDetails : MonoBehaviour
 {
+    public SkillCheckOption CurrentOption { get; private set; }
+
     [Header("Outcome Panel")]
     public GameObject OutcomeBarContainer;
     public GameObject OutcomeLabelContainer;
@@ -21,11 +23,17 @@ public class UI_OptionDetails : MonoBehaviour
 
     public void ShowDetailsFor(SkillCheckOption option)
     {
-        List<SkillCheckOutcomeChance> outcomes = option.GetOutcomeChances();
+        CurrentOption = option;
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        List<SkillCheckOutcomeChance> outcomes = CurrentOption.GetOutcomeChances();
 
         // Outcome bar
         HelperFunctions.DestroyAllChildredImmediately(OutcomeBarContainer);
-        foreach(SkillCheckOutcomeChance outcome in outcomes)
+        foreach (SkillCheckOutcomeChance outcome in outcomes)
         {
             Image barSegment = Instantiate(BarSegmentPrefab, OutcomeBarContainer.transform);
             barSegment.color = outcome.Outcome.Color;
@@ -35,7 +43,7 @@ public class UI_OptionDetails : MonoBehaviour
 
         // Outcome bar labels
         HelperFunctions.DestroyAllChildredImmediately(OutcomeLabelContainer);
-        foreach(SkillCheckOutcomeChance outcome in outcomes)
+        foreach (SkillCheckOutcomeChance outcome in outcomes)
         {
             UI_LabelValueRow label = Instantiate(BarLabelPrefab, OutcomeLabelContainer.transform);
             label.Init(outcome.Label, $"{outcome.Chance * 100f:0}%");
@@ -44,18 +52,18 @@ public class UI_OptionDetails : MonoBehaviour
         }
 
         // Difficulty
-        DifficultyValueText.text = option.GetDifficultyValue().ToString();
+        DifficultyValueText.text = CurrentOption.GetDifficultyValue().ToString();
 
         // Modifier section
         HelperFunctions.DestroyAllChildredImmediately(DifficultyModifiersContainer);
 
         // Base difficulty
         UI_LabelValueRow baseValueLabel = Instantiate(DifficultyModifierPrefab, DifficultyModifiersContainer.transform);
-        baseValueLabel.Init("Base Difficulty", option.BaseDifficulty.ToString());
+        baseValueLabel.Init("Base Difficulty", CurrentOption.BaseDifficulty.ToString());
         baseValueLabel.SetBold(true);
 
         // Modifiers
-        foreach (KeyValuePair<string, int> modifier in option.GetDifficultyModifiers())
+        foreach (KeyValuePair<string, int> modifier in CurrentOption.GetDifficultyModifiers())
         {
             UI_LabelValueRow label = Instantiate(DifficultyModifierPrefab, DifficultyModifiersContainer.transform);
             string labelText = modifier.Key;

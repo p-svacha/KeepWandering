@@ -376,6 +376,7 @@
             Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             IsPermanent = false,
+            MaxAmount = 5,
         },
          new HealthConditionDef()
         {
@@ -383,6 +384,7 @@
             Label = "bruise",
             HealthConditionClass = typeof(HC_BruiseWound),
             IsPermanent = false,
+            MaxAmount = 5,
          },
     };
 

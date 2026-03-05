@@ -83,6 +83,16 @@ public class SkillCheckOption : EncounterStepOption
         int moraleValue = Game.Instance.Player.Morale;
         if (moraleValue != 0) modifiers.Add("Morale", moraleValue);
 
+        // Item slots
+        foreach (ItemSlot slot in ItemSlots)
+        {
+            if (slot.IsFilled)
+            {
+                int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
+                if (modifierAmount != 0) modifiers.Add($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount);
+            }
+        }
+
         return modifiers;
     }
 

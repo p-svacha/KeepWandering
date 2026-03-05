@@ -8,6 +8,7 @@ using TMPro;
 public class UI_EncounterDisplay : MonoBehaviour
 {
     public Game Game;
+    public static UI_EncounterDisplay Instance;
 
     [Header("Elements")]
     public TextMeshProUGUI EventText;
@@ -21,7 +22,13 @@ public class UI_EncounterDisplay : MonoBehaviour
     [Header("Prefabs")]
     public UI_EncounterStepOption EventOptionPrefab;
     public UI_EventOutcomeNote OutcomeNotePrefab;
-    
+
+    public Dictionary<EncounterStepOption, UI_EncounterStepOption> OptionDisplays;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public void Init(EncounterStep step) 
     {
@@ -29,11 +36,13 @@ public class UI_EncounterDisplay : MonoBehaviour
         EventText.text = step.Text;
 
         // Dialogue Options
+        OptionDisplays = new Dictionary<EncounterStepOption, UI_EncounterStepOption>();
         if (step.IsFinalStep)
         {
             FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", "Continue your day.", EndEvent);
             UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(this, endDayOption);
+            OptionDisplays.Add(endDayOption, optionDisplay);
         }
         else
         {
@@ -41,6 +50,7 @@ public class UI_EncounterDisplay : MonoBehaviour
             {
                 UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
                 optionDisplay.Init(this, option);
+                OptionDisplays.Add(option, optionDisplay);
             }
         }
 
@@ -89,6 +99,7 @@ public class UI_EncounterDisplay : MonoBehaviour
     public void OnItemSlotHovered(ItemSlot itemSlot)
     {
         ItemSlotDetailsBox.Show(itemSlot);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ItemSlotDetailsBox.GetComponent<RectTransform>());
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
     public void OnItemSlotUnhovered()
@@ -100,6 +111,17 @@ public class UI_EncounterDisplay : MonoBehaviour
     {
         HelperFunctions.DestroyAllChildredImmediately(EventOptionContainer);
         HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
+    }
+
+    public void RefreshOption(EncounterStepOption option)
+    {
+        OptionDisplays[option].Resfresh();
+
+        // Option details
+        if (OptionDetailsPanel.gameObject.activeSelf) OptionDetailsPanel.Refresh();
+
+        // Item slot
+        if (ItemSlotDetailsBox.gameObject.activeSelf) ItemSlotDetailsBox.Refresh();
     }
 
     #region Outcome Notes

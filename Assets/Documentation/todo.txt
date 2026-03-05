@@ -1,17 +1,22 @@
-- add checks that options with item requirements can't be selected if not fulfilled (disabled and grey)
+(/) add checks that options with item requirements can't be selected if not fulfilled (disabled and grey)
 - implement drag and dropping of items
 - implement dragging items into UI item slots
 - validate filled item slot UI
 - validate applied difficulty modifiers
 - implement removing items from encounter option item slots
+- give back item after using option
+
+- implement feedback for which outcome has been rolled on an option (simple overlay on next step, with sound)
+
 - finish crate event (dynamic options on each step (GetOptions()), crowbar for smash option, new spy option to items inside)
-- implement visual feedback for which outcome has been rolled on an option (big short animation of "Success" or "Partial Success" in comic style in center of screen, with sound effect depending on outcome)
+
 - show morale stat in own UI element (bigger than other stats)
 - evening/biome encounters
 - add some random slight rotation to outcome notes
 - location encounter markers on world map
 - exposure mechanic
-- min difficulty of 5 for skill checks
+- red text for exposure warning in rest and stay option
+- min difficulty of 5 for skill checks, max 200
 - draw new background for farmland
 - make poisoning a temporary condition
 - health conditions affecting stats
@@ -19,3 +24,16 @@
 - fix health condition text color
 - make health condition text a little bigger
 - make infection stages to defs. use that label and description for the dynamic wound report label and description
+- simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
+
+- auto resize item polygon colliders to be a bit smaller
+
+- biome loot tables
+- biome encounters
+
+- port missions to questdefs
+- make first real way to win the game
+
+- Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.
+- Dragging items onto SpriteRenderers on the player. I.e. I might wanna add that dragging a bandage on a wound sprite on the player tends it (as if selecting "tend" in the context menu)
+- So it should be easily doable to highlight sprite rendereds as well (potential targets) while dragging something

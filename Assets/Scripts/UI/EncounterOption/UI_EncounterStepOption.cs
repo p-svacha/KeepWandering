@@ -20,6 +20,8 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
     [Header("Prefabs")]
     public UI_ItemSlot ItemSlotPrefab;
 
+    public List<UI_ItemSlot> ItemSlotDisplays;
+
     public void Init(UI_EncounterDisplay encounterDisplay, EncounterStepOption option)
     {
         EncounterDisplay = encounterDisplay;
@@ -30,33 +32,56 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         SkillCheckIndicator.SetActive(option is SkillCheckOption);
 
         // Item slots
+        ItemSlotDisplays = new List<UI_ItemSlot>();
         HelperFunctions.DestroyAllChildredImmediately(ItemSlotContainer);
-        foreach(ItemSlot itemSlot in option.ItemSlots)
+        foreach (ItemSlot itemSlot in option.ItemSlots)
         {
-            UI_ItemSlot uiItemSlot = Instantiate(ItemSlotPrefab, ItemSlotContainer.transform);
-            uiItemSlot.Init(EncounterDisplay, itemSlot);
+            UI_ItemSlot itemSlotDisplay = Instantiate(ItemSlotPrefab, ItemSlotContainer.transform);
+            itemSlotDisplay.Init(EncounterDisplay, itemSlot);
+            ItemSlotDisplays.Add(itemSlotDisplay);
         }
+
+        Resfresh();
+    }
+
+    public void Resfresh()
+    {
+        // Slots
+        foreach (UI_ItemSlot itemSlot in ItemSlotDisplays) itemSlot.Refresh();
+
+        // Interactibility
+        bool canSelect = Option.CanSelect();
+        OptionButton.interactable = canSelect;
+        OptionButton.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled;
+        SkillCheckIndicator.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled;
     }
 
     private void ChoseOption(Game game, EncounterStepOption option)
     {
-        game.UI.StatPanel.UnhighlightAll();
-
         if (game.State == GameState.InGame)
         {
-            EncounterStep nextEventStep = option.Execute();
-            if(nextEventStep != null) game.DisplayEncounterStep(nextEventStep);
+            game.SelectEncounterOption(option);
         }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        ItemDragDropManager.HoveredOptionDisplay = this;
         EncounterDisplay.OnOptionHovered(Option);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (ItemDragDropManager.HoveredOptionDisplay == this)
+            ItemDragDropManager.HoveredOptionDisplay = null;
         EncounterDisplay.OnOptionUnhovered();
-        
+    }
+
+    public void SetDragGreyedOut(bool greyedOut)
+    {
+        bool canSelect = Option.CanSelect();
+        OptionButton.GetComponent<Image>().color = greyedOut ? ResourceManager.Color_Button_Disabled : (canSelect ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled);
+        SkillCheckIndicator.GetComponent<Image>().color = greyedOut ? ResourceManager.Color_Button_Disabled : (canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled);
+        OptionButton.interactable = !greyedOut && canSelect;
     }
 }

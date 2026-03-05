@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public ItemSlot ItemSlot { get; private set; }
     public UI_EncounterDisplay EncounterDisplay { get; private set; }
@@ -52,7 +52,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
     }
 
-    private void Refresh()
+    public void Refresh()
     {
         // Filled
         if (ItemSlot.IsFilled) SetFilledDisplay();
@@ -68,6 +68,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Background.color = ResourceManager.Color_Item_Slot_Filled;
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
+        ItemIcon.color = Color.white;
         DifficultyModifierIndicator.color = new Color(0.32f, 0.78f, 0.32f);
         DestroyedIndicator.color = new Color(0.78f, 0.37f, 0.32f);
         UpdatePreviewDisplay(ItemSlot.FilledItem.Def);
@@ -78,6 +79,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Background.color = Color.white;
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
+        ItemIcon.color = new Color(1f, 1f, 1f, 0.3f);
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
         DifficultyModifierIndicator.color = greyedOutIndicatorColor;
         DestroyedIndicator.color = greyedOutIndicatorColor;
@@ -115,13 +117,40 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right && ItemSlot.IsFilled)
+        {
+            ItemSlot.Empty();
+        }
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
+        ItemDragDropManager.HoveredItemSlot = this;
         EncounterDisplay.OnItemSlotHovered(ItemSlot);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (ItemDragDropManager.HoveredItemSlot == this)
+            ItemDragDropManager.HoveredItemSlot = null;
         EncounterDisplay.OnItemSlotUnhovered();
+    }
+
+    public void SetDragGreyedOut(bool greyedOut)
+    {
+        if (greyedOut)
+            Background.color = ResourceManager.Color_Button_Disabled;
+        else
+            Refresh();
+    }
+
+    public void SetDragHighlighted(bool highlighted)
+    {
+        if (highlighted)
+            Background.color = ResourceManager.Color_Button_Default;
+        else
+            Refresh();
     }
 }

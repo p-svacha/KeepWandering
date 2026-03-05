@@ -3,5 +3,6 @@ abandonded camp
 abandonded car
 bandits (basic fight or flee)
 item: apple
-exhaustion unique healhcon
+exhaustion unique healhcondition
+	(removed when going to sleep, reduced all stats by 5, used to avoid spamming options in encounters)
 mouth rendering based on morale

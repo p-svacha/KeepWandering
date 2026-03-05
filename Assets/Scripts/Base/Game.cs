@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEditor.Progress;
 
 public class Game : MonoBehaviour
 {
@@ -116,27 +117,49 @@ public class Game : MonoBehaviour
         // Update per state
         if (State == GameState.InGame)
         {
-            UpdateHoveredItem();
+            ItemDragDropManager.Update();
 
-            // Click -> Interact
-            if (Input.GetMouseButtonDown(0) && !uiClick)
+            if (!ItemDragDropManager.IsDragging)
             {
-                if (CurrentHoverItem != null)
+                UpdateHoveredItem();
+
+                // Left Click -> Start Drag
+                if (Input.GetMouseButtonDown(0) && !uiClick)
                 {
-                    OnItemLeftClicked(CurrentHoverItem);
+                    if (CurrentHoverItem != null && ItemDragDropManager.CanDragItem(CurrentHoverItem))
+                    {
+                        ItemDragDropManager.StartDrag(CurrentHoverItem);
+                        CurrentHoverItem.Renderer.Unhighlight();
+                        CurrentHoverItem = null;
+                        UI.Tooltip.Hide();
+                    }
+                    else if (UI.ContextMenu.gameObject.activeSelf)
+                    {
+                        UI.ContextMenu.Hide();
+                        CurrentHoverTime = 0f;
+                        CurrentInteractionItem = null;
+                    }
                 }
 
-                else if (UI.ContextMenu.gameObject.activeSelf) // Clicked outside of item while context menu is open -> close context menu
+                // Right Click -> Context Menu
+                if (Input.GetMouseButtonDown(1) && !uiClick)
                 {
-                    UI.ContextMenu.Hide();
-                    CurrentHoverTime = 0f;
-                    CurrentInteractionItem = null;
+                    if (CurrentHoverItem != null)
+                    {
+                        OnItemRightClicked(CurrentHoverItem);
+                    }
+                    else if (UI.ContextMenu.gameObject.activeSelf)
+                    {
+                        UI.ContextMenu.Hide();
+                        CurrentHoverTime = 0f;
+                        CurrentInteractionItem = null;
+                    }
                 }
             }
         }
     }
 
-    private void OnItemLeftClicked(Item item)
+    private void OnItemRightClicked(Item item)
     {
         // Get interaction options for item
         List<InteractionOption> options = item.GetInteractionOptions();
@@ -207,6 +230,7 @@ public class Game : MonoBehaviour
             case GameState.InGame:
                 UI.Tooltip.Hide();
                 UI.ContextMenu.Hide();
+                ItemDragDropManager.CancelDrag();
                 break;
         }
 
@@ -271,6 +295,49 @@ public class Game : MonoBehaviour
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
         WoundsAddedSinceLastStep.Clear();
+    }
+
+    /// <summary>
+    /// Called when the player selects an encounter step option. Handles slot item resolution for all options,
+    /// then executes the selected option and displays the next step.
+    /// </summary>
+    public void SelectEncounterOption(EncounterStepOption selectedOption)
+    {
+        UI.StatPanel.UnhighlightAll();
+
+        // Empty slots of all non-selected options - return items to cart
+        foreach (EncounterStepOption option in CurrentEventStep.Options)
+        {
+            if (option == selectedOption) continue;
+            foreach (ItemSlot slot in option.ItemSlots)
+            {
+                if (slot.IsFilled) slot.Empty();
+            }
+        }
+
+        // Resolve slots of the selected option - apply destruction chance
+        foreach (ItemSlot slot in selectedOption.ItemSlots)
+        {
+            if (!slot.IsFilled) continue;
+
+            Item item = slot.TakeItem();
+
+            if (slot.DestructionChance > 0f && Random.value <= slot.DestructionChance)
+            {
+                // Item destroyed
+                DestroyOwnedItem(item);
+            }
+            else
+            {
+                // Item survives - return to cart
+                item.Show();
+                DropItemIntoCart(item);
+            }
+        }
+
+        // Execute the option
+        EncounterStep nextEventStep = selectedOption.Execute();
+        if (nextEventStep != null) DisplayEncounterStep(nextEventStep);
     }
 
     public void ForceUnhighlightAllInventoryItems()
@@ -554,15 +621,23 @@ public class Game : MonoBehaviour
         item.Renderer.Show();
         item.SetIsPlayerOwned(true);
 
-        item.Renderer.SetPosition(Random.Range(-8f, -3f), Random.Range(2f, 4f));
-        item.Renderer.SetRandomRotation();
-        item.Renderer.Unfreeze();
+        DropItemIntoCart(item);
 
         ItemsAddedSinceLastStep.Add(item);
         Inventory.Add(item);
 
         OnGameStateChanged();
     }
+
+    public void DropItemIntoCart(Item item)
+    {
+        if (item.Renderer.IsRenderingAboveUI) item.Renderer.SetRenderAboveUI(false);
+        item.Renderer.SetPosition(Random.Range(-8f, -3f), Random.Range(2f, 4f));
+        item.Renderer.SetRandomRotation();
+        item.Renderer.Unfreeze();
+        item.Renderer.ResetVelocity();
+    }
+
     /// <summary>
     /// Adds multiple items to the player of the same type. Returns a list containing the added items.
     /// </summary>

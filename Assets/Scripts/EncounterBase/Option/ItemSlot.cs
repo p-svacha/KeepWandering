@@ -73,6 +73,43 @@ public class ItemSlot
         Option = option;
     }
 
+    public void Fill(Item item)
+    {
+        // Validate
+        if (item == null) throw new System.Exception("Cannot fill item slot with null item.");
+        if (!SpecificItems.Contains(item.Def) && !ItemTags.Exists(tag => item.Def.Tags.ToList().Contains(tag)))
+            throw new System.Exception("Item does not match slot requirements.");
+
+        // If already filled, empty the old item first
+        if (IsFilled) Empty();
+
+        FilledItem = item;
+        item.Hide();
+        item.Freeze();
+
+        UI_EncounterDisplay.Instance.RefreshOption(Option);
+    }
+
+    public void Empty()
+    {
+        FilledItem.Show();
+        Game.Instance.DropItemIntoCart(FilledItem);
+        FilledItem = null;
+
+        UI_EncounterDisplay.Instance.RefreshOption(Option);
+    }
+
+    /// <summary>
+    /// Detaches the filled item from this slot without returning it to the cart.
+    /// The caller is responsible for handling the item (destroying or returning it).
+    /// </summary>
+    public Item TakeItem()
+    {
+        Item item = FilledItem;
+        FilledItem = null;
+        return item;
+    }
+
     public int GetDifficultyReduction(ItemDef itemDef)
     {
         if (DifficultyReductionOverrides.ContainsKey(itemDef))
@@ -83,6 +120,11 @@ public class ItemSlot
         {
             return DefaultDifficultyReduction;
         }
+    }
+
+    public bool CanAcceptItem(Item item)
+    {
+        return GetSlottableItemDefs().Contains(item.Def);
     }
 
     /// <summary>

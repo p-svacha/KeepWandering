@@ -35,6 +35,7 @@ public class Encounter_Crate : LocationEncounter
         VisibleCrateItem = GetBiomeLootTable(ItemTable).GetItem();
         VisibleCrateItem.Renderer.SetPosition(6f, 0f);
         VisibleCrateItem.Renderer.SetRotation(-30f);
+        VisibleCrateItem.Renderer.SetSortingOrder(0);
 
         // Invisible crate items
         int numInvisibleItems = Random.Range(MIN_INVISIBLE_CRATE_ITEMS, MAX_INVISIBLE_CRATE_ITEMS + 1);

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public abstract class EncounterStepOption
 {
@@ -26,12 +24,22 @@ public abstract class EncounterStepOption
     /// </summary>
     public abstract EncounterStep Execute();
 
-    
+
     public EncounterStepOption(string text, string description, List<ItemSlot> itemSlots = null)
     {
         Text = text;
         Description = description;
         ItemSlots = itemSlots ?? new List<ItemSlot>();
         foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);
+    }
+
+    public bool CanSelect()
+    {
+        foreach (ItemSlot itemSlot in ItemSlots)
+        {
+            if (itemSlot.IsRequired && !itemSlot.IsFilled) return false;
+        }
+
+        return true;
     }
 }
