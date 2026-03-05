@@ -1,6 +1,10 @@
 # Keep Wandering
 A point and click adventure game where the player has to survive and escape a quarantined zone in a procedurally generated world by making choices in various encounters. The player has to manage their inventory, health, companions and quests to survive as long as possible and eventually escape the quarantine zone.
 
+# Lore
+The games takes place in a quarantined zone, which is a large area that has been sealed off from the outside world due to a mysterious outbreak of 'something'. The player character is one of the survivors trapped inside the quarantine zone, and their goal is to survive and eventually find a way to escape.
+
+
 # Game Presentation
 The game mainly happens on the same screen, which shows the player character and their cart with all their items on the left side, and the current encounter step on the right side.
 The top side of the screen shows the all UI information:
@@ -71,27 +75,27 @@ Permanent health conditions are:
 
 #### Hunger
 The player has a hidden hunger meter that increases over time. Hunger conditions has the severity stages of "Hungry", "Very hungry" and "Starving". If the hunger meter reaches a limit, the player dies.
-Hunger affects strength.
+Affects morale, strength, intellect.
 
 #### Thirst
 The player has a hidden thirst meter that increases over time. Thirst conditions has the severity stages of "Thirsty", "Very thirsty" and "Dehydrated". If the thirst meter reaches a limit, the player dies.
-Thirst affects dexterity.
+Affects dexterity, agility, perception.
 
 #### Blood loss
 Blood loss is a hidden meter that increases with certain injuries, such as cut injuries. If the blood loss meter reaches a limit, the player dies.
-Blood loss affects strength, dexterity, and intelligence.
+Affects combat, strength, agility.
 
 #### Leg bones health
 Value between 0 and 1, active if below 1.
 Stages are "Strained", "Cracked" and "Broken".
-Affects agility.
+Affects agility, combat.
 Heals naturally over time, but can also be healed faster with treatment.
 In the "Broken" stage, the player cannot move to different tiles on the world map in the morning.
 
 #### Arm bones health
 Value between 0 and 1, active if below 1.
 Stages are "Strained", "Cracked" and "Broken".
-Affects strength and dexterity.
+Affects combat, strength, dexterity.
 Heals naturally over time, but can also be healed faster with treatment.
 
 ### Temporary Health Conditions
@@ -159,6 +163,10 @@ The following biomes exist:
 ### Desert
 
 ### Farmland
+
+### Lake
+Impassable biome that cannot be entered. Mostly acts as a way to make the world map more interesting and to create natural borders and paths for the player to follow.
+
 
 ## Encounter Markers
 The Location Encounter on a tile is represented by a small sprite on the world map, that shows what type of encounter is on that tile and in what state it is, in a very simplified way. Obviously this only applies to to tiles that have a Location Encounter determined already (so either the player has stepped on the tile before, or a quest has predetermined the encounter).

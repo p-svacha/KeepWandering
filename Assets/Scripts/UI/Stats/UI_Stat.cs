@@ -31,13 +31,6 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         // Value
         ValueText.text = Stat.GetValue().ToString();
         ValueText.color = Stat.GetValueColor();
-
-        // Tooltip
-        string text = "";
-        foreach (StatModifier mod in Stat.GetModifiers())
-        {
-            text += "\n" + mod.Name;
-        }
     }
 
     private void Update()

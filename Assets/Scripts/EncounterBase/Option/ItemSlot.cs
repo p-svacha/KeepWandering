@@ -23,32 +23,32 @@ public class ItemSlot
     /// <summary>
     /// If true, the option this slot belongs to cannot be selected unless an item is dragged into this slot.
     /// </summary>
-    public bool IsRequired { get; private set; }
+    public bool IsRequired { get; init; }
 
     /// <summary>
     /// List of all specific items that may be dragged into this slot.
     /// </summary>
-    public List<ItemDef> SpecificItems { get; private set; }
+    public List<ItemDef> SpecificItems { get; init; } = new List<ItemDef>();
 
     /// <summary>
     /// List of all item tags that an item dragged into this slot must have at least one of.
     /// </summary>
-    public List<ItemTagDef> ItemTags { get; private set; }
+    public List<ItemTagDef> ItemTags { get; init; } = new List<ItemTagDef>();
 
     /// <summary>
     /// Chance that the item dragged into this slot will be destroyed when the option is selected. This is a value between 0 and 1, where 0 means the item will never be destroyed and 1 means it will always be destroyed.
     /// </summary>
-    public float DestructionChance { get; private set; }
+    public float DestructionChance { get; init; }
 
     /// <summary>
     /// How much the option difficulty will be reduced if the slot is filled and the option is selected.
     /// </summary>
-    public int DefaultDifficultyReduction { get; private set; }
+    public int DefaultDifficultyReduction { get; init; }
 
     /// <summary>
     /// Specific items that reduce the option difficulty by an amount that overrides the default difficulty reduction if dragged into this slot.
     /// </summary>
-    public Dictionary<ItemDef, int> DifficultyReductionOverrides { get; private set; }
+    public Dictionary<ItemDef, int> DifficultyReductionOverrides { get; init; } = new Dictionary<ItemDef, int>();
     public bool HasCustomDifficultyReductions => DifficultyReductionOverrides.Count > 0;
 
     public ItemSlot(bool isRequired = false, List<ItemDef> specificItems = null, List<ItemTagDef> itemTags = null, float destructionChance = 0f, int defaultDifficultyReduction = 0, Dictionary<ItemDef, int> difficultyReductionOverrides = null)

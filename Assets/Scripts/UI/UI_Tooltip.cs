@@ -6,6 +6,13 @@ using TMPro;
 
 public class UI_Tooltip : MonoBehaviour
 {
+    public static UI_Tooltip Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private Vector3 MOUSE_OFFSET = new Vector3(0.2f, -0.2f, 0f);
     private const float SCREEN_EDGE_OFFSET = 0f;
 
@@ -54,6 +61,8 @@ public class UI_Tooltip : MonoBehaviour
 
     public void Show(UI_Stat statDisplay)
     {
+        Debug.Log($"Showing tooltip for stat {statDisplay.Stat.Label}");
+
         if (statDisplay.Stat.GetModifiers().Count == 0) return;
 
         Reset();

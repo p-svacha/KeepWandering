@@ -7,14 +7,16 @@ public class Stat
     private const int BASE_VALUE = 0;
 
     protected Game Game;
+    public PlayerCharacter Player {  get; private set; }
     public StatDef Def { get; private set; }
 
     public string Label => Def.Label;
     public string Description => Def.Description;
 
-    public Stat(Game game, StatDef def)
+    public Stat(Game game, PlayerCharacter player, StatDef def)
     {
         Game = game;
+        Player = player;
         Def = def;
     }
 
@@ -37,7 +39,12 @@ public class Stat
     {
         List<StatModifier> modifiers = new List<StatModifier>();
 
-
+        // Health conditions
+        foreach (HealthCondition condition in Player.ActiveHealthConditions)
+        {
+            int modifierValue = condition.GetStatModifierFor(Def);
+            if (modifierValue != 0) modifiers.Add(new StatModifier(condition.GetReportLabel(), modifierValue));
+        }
 
         return modifiers;
     }

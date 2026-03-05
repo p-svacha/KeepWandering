@@ -75,48 +75,85 @@ public class Encounter_Crate : LocationEncounter
         List<EncounterOption> options = new List<EncounterOption>();
         if (IsSmashed)
         {
-            options.Add(new FixedOutcomeOption($"Move on", "There is nothing left to do.", () => EndEncounter("You move on."))); // Move on
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Move on",
+                Description = "There is nothing left to do.",
+                Action = () => EndEncounter("You move on.")
+            });
         }
         else
         {
             options.Add(CreateSmashCrateOption()); // Smash crate
             options.Add(CreateOpenCreateOption()); // Open crate
             if (!IsVisibleItemTaken) options.Add(CreateTakeItemOption()); // Take item
-            options.Add(new FixedOutcomeOption($"Ignore", "Move on without taking anything.", () => EndEncounter("You didn't take the " + VisibleCrateItem.Label + "."))); // Ignore
+
+            // Ignore
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Ignore",
+                Description = "Move on without taking anything.",
+                Action = () => EndEncounter("You didn't take the " + VisibleCrateItem.Label + ".")
+            });
         }
         return options;
     }
 
     private SkillCheckOption CreateTakeItemOption()
     {
-        string text = $"Take {VisibleCrateItem.Label}";
-        string description = $"Try to take the {VisibleCrateItem.Label} out of the crate.";
-        int difficulty = TAKE_ITEM_BASE_DIFFICULTY;
-        Dictionary<StatDef, float> relevantStats = new Dictionary<StatDef, float>()
+        return new SkillCheckOption()
         {
-            { StatDefOf.Dexterity, 1f },
-            { StatDefOf.Strength, 1f }
+            Text = $"Take {VisibleCrateItem.Label}",
+            Description = $"Try to take the {VisibleCrateItem.Label} out of the crate.",
+            BaseDifficulty = TAKE_ITEM_BASE_DIFFICULTY,
+            RelevantStats = new Dictionary<StatDef, float>()
+            {
+                { StatDefOf.Dexterity, 1f },
+                { StatDefOf.Strength, 1f }
+            },
+            Actions = TakeItem,
         };
-        return new SkillCheckOption(text, description, difficulty, TakeItem, relevantStats, canPartiallySucceed: true);
     }
 
     private SkillCheckOption CreateSmashCrateOption()
     {
-        string text = "Smash";
-        string description = "Try to smash the crate open to get all items out.";
-        int difficulty = SMASH_CRATE_BASE_DIFFICULTY;
-        ItemSlot foodTestSlot = new ItemSlot(isRequired: false, itemTags: new List<ItemTagDef>() { ItemTagDefOf.Food }, defaultDifficultyReduction: 50);
-        List<ItemSlot> itemSlots = new List<ItemSlot>() { foodTestSlot };
-        return new SkillCheckOption(text, description, difficulty, SmashCrate, itemSlots: itemSlots);
+        return new SkillCheckOption()
+        {
+            Text = "Smash",
+            Description = "Try to smash the crate open to get all items out.",
+            BaseDifficulty = SMASH_CRATE_BASE_DIFFICULTY,
+            RelevantStats = new Dictionary<StatDef, float>()
+            {
+                { StatDefOf.Strength, 1f }
+            },
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Food },
+                    DefaultDifficultyReduction = 50
+                }
+            },
+            Actions = TakeItem,
+        };
     }
-    private SkillCheckOption CreateOpenCreateOption()
+    private FixedOutcomeOption CreateOpenCreateOption()
     {
-        string text = "Open";
-        string description = "Try to open the crate carefully to get all items out without damaging them.";
-        int difficulty = OPEN_CRATE_BASE_DIFFICULTY;
-        ItemSlot crowbarSlot = new ItemSlot(isRequired: true, specificItems: new List<ItemDef>() { ItemDefOf.Crowbar }, destructionChance: 0.5f);
-        List<ItemSlot> itemSlots = new List<ItemSlot>() { crowbarSlot };
-        return new SkillCheckOption(text, description, difficulty, OpenCrate, itemSlots: itemSlots);
+        return new FixedOutcomeOption()
+        {
+            Text = "Open",
+            Description = "Try to open the crate carefully to get all items out without damaging them.",
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = true,
+                    SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
+                    DestructionChance = 0.5f
+                }
+            },
+            Action = OpenCrate,
+        };
     }
 
 
@@ -150,7 +187,7 @@ public class Encounter_Crate : LocationEncounter
     {
         return null;
     }
-    private EncounterStep OpenCrate(OptionOutcomeDef outcome)
+    private EncounterStep OpenCrate()
     {
         return null;
     }

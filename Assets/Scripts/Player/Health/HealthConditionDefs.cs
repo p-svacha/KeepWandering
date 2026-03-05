@@ -15,17 +15,29 @@ public static class HealthConditionDefs
                 new HealthConditionStage()
                 {
                     Label = "hungry",
-                    Description = "Some food would be nice."
+                    Description = "Some food would be nice.",
                 },
                 new HealthConditionStage()
                 {
                     Label = "very hungry",
-                    Description = "I don't think I can go much longer without food."
+                    Description = "I don't think I can go much longer without food.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -2 },
+                        { StatDefOf.Morale, -2 },
+                        { StatDefOf.Intellect, -2 },
+                    },
                 },
                 new HealthConditionStage()
                 {
                     Label = "starving",
-                    Description = "I need to eat something immediately!"
+                    Description = "I need to eat something immediately!",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -5 },
+                        { StatDefOf.Morale, -5 },
+                        { StatDefOf.Intellect, -5 },
+                    },
                 },
             },
         },
@@ -45,12 +57,24 @@ public static class HealthConditionDefs
                 new HealthConditionStage()
                 {
                     Label = "very thirsty",
-                    Description = "I don't think I can go much longer without water."
+                    Description = "I don't think I can go much longer without water.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Agility, -2 },
+                        { StatDefOf.Perception, -2 },
+                        { StatDefOf.Dexterity, -2 },
+                    },
                 },
                 new HealthConditionStage()
                 {
                     Label = "dehydrated",
-                    Description = "I need to drink something immediately!"
+                    Description = "I need to drink something immediately!",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Agility, -5 },
+                        { StatDefOf.Perception, -5 },
+                        { StatDefOf.Dexterity, -5 },
+                    },
                 },
             }
         },
@@ -64,18 +88,33 @@ public static class HealthConditionDefs
             {
                 new HealthConditionStage()
                 {
-                    Label = "leg sprain",
-                    Description = "My leg is sprained. I can still walk, but it's painful."
+                    Label = "sprained leg",
+                    Description = "My leg is sprained. I can still walk, but it's painful.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -1 },
+                        { StatDefOf.Agility, -2 },
+                    },
                 },
                 new HealthConditionStage()
                 {
-                    Label = "leg fracture",
-                    Description = "My leg is fractured. My agility is severly reduced."
+                    Label = "cracked leg",
+                    Description = "My leg is cracked.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -2 },
+                        { StatDefOf.Agility, -4 },
+                    },
                 },
                 new HealthConditionStage()
                 {
                     Label = "broken leg",
-                    Description = "My leg is broken. I can't walk at all today."
+                    Description = "My leg is broken. I can't walk at all today.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -3 },
+                        { StatDefOf.Agility, -6 },
+                    },
                 }
             }
         },
@@ -89,18 +128,36 @@ public static class HealthConditionDefs
             {
                 new HealthConditionStage()
                 {
-                    Label = "arm sprain",
-                    Description = "My arm is sprained. It hurts moving it."
+                    Label = "sprained arm",
+                    Description = "My arm is sprained. It hurts moving it.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -1 },
+                        { StatDefOf.Dexterity, -1 },
+                        { StatDefOf.Strength, -1 },
+                    },
                 },
                 new HealthConditionStage()
                 {
-                    Label = "arm fracture",
-                    Description = "Oof ouch, my arms."
+                    Label = "cracked arm",
+                    Description = "Oof ouch, my arms.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -3 },
+                        { StatDefOf.Dexterity, -3 },
+                        { StatDefOf.Strength, -3 },
+                    },
                 },
                 new HealthConditionStage()
                 {
                     Label = "broken arm",
-                    Description = "My arm is broken."
+                    Description = "My arm is broken.",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -5 },
+                        { StatDefOf.Dexterity, -5 },
+                        { StatDefOf.Strength, -5 },
+                    },
                 }
             }
         },
@@ -121,11 +178,23 @@ public static class HealthConditionDefs
                 {
                     Label = "heavy blood loss",
                     Description = "I've lost a lot of blood!",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -2 },
+                        { StatDefOf.Strength, -2 },
+                        { StatDefOf.Agility, -2 },
+                    },
                 },
                 new HealthConditionStage()
                 {
                     Label = "critical blood loss",
                     Description = "I'm losing blood very fast! I need to stop the bleeding immediately!",
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Combat, -5 },
+                        { StatDefOf.Strength, -5 },
+                        { StatDefOf.Agility, -5 },
+                    },
                 },
             }
         },

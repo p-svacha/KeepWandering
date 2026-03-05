@@ -8,13 +8,14 @@ public class FixedOutcomeOption : EncounterOption
     /// <summary>
     /// The function that gets executed when choosing this encounter step option. Function must return the next step in the encounter.
     /// </summary>
-    public System.Func<EncounterStep> Action { get; private set; }
+    public System.Func<EncounterStep> Action { get; init; }
 
-    public FixedOutcomeOption(string text, string description, System.Func<EncounterStep> action, List<ItemSlot> itemSlots = null) : base(text, description, itemSlots)
+    public override void Init()
     {
-        Action = action;
+        base.Init();
 
         // Validate
+        if (Action == null) throw new System.Exception("Action function cannot be null for FixedOutcomeOption.");
         if (ItemSlots.Any(slot => slot.DefaultDifficultyReduction != 0))
             throw new System.Exception("FixedOutcomeOption cannot have item slots with difficulty reduction, since it does not involve any checks. All item slots must have a default difficulty reduction of 0.");
         if (ItemSlots.Any(slot => slot.DifficultyReductionOverrides.Count > 0))

@@ -43,7 +43,7 @@ public class PlayerCharacter
 
         // Init stats
         Stats = new Dictionary<StatDef, Stat>();
-        foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) Stats.Add(stat, new Stat(Game, stat));
+        foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) Stats.Add(stat, new Stat(Game, this, stat));
 
         // Add instance of each permanent health condition
         PermanentConditions = new Dictionary<HealthConditionDef, HealthCondition>();
@@ -75,7 +75,8 @@ public class PlayerCharacter
     public void OnEndDay(Game game, MorningReport morningReport)
     {
         // Health conditions
-        foreach(HealthCondition hc in HealthConditions) hc.OnEndDay(game, morningReport);
+        List<HealthCondition> healthConditions = new List<HealthCondition>(HealthConditions); // Copy list in case it gets modified during the loop
+        foreach (HealthCondition hc in healthConditions) hc.OnEndDay(game, morningReport);
     }
 
     public void ModifyNutrition(float value) => Hunger.ModifyNutrition(value);

@@ -26,6 +26,11 @@ public class HealthConditionDef : Def
     /// </summary>
     public int MaxAmount { get; init; } = 1;
 
+    /// <summary>
+    /// The stats affected by this health condition, if no stage is active. If a stage is active, the stats affected by the health condition are determined by the stage, and this property is ignored.
+    /// </summary>
+    public Dictionary<StatDef, int> StatModifiers { get; init; } = new Dictionary<StatDef, int>();
+
     public override bool Validate()
     {
         if (IsPermanent && MaxAmount != 1) throw new System.Exception($"Permanent health condition {DefName} must have MaxAmount of 1.");

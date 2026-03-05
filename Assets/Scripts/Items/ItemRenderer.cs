@@ -32,6 +32,18 @@ public class ItemRenderer : MonoBehaviour
         SetSortingOrder(1000);
         Rigidbody = gameObject.AddComponent<Rigidbody2D>();
         Collider = gameObject.AddComponent<PolygonCollider2D>();
+        ScaleCollider(Collider, 0.9f);
+    }
+
+    private void ScaleCollider(PolygonCollider2D collider, float scale)
+    {
+        for (int i = 0; i < collider.pathCount; i++)
+        {
+            Vector2[] path = collider.GetPath(i);
+            for (int j = 0; j < path.Length; j++)
+                path[j] *= scale;
+            collider.SetPath(i, path);
+        }
     }
 
     public void Freeze() => Rigidbody.bodyType = RigidbodyType2D.Static;

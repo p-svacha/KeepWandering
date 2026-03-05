@@ -1,23 +1,19 @@
 - finish crate event (dynamic options on each step (GetOptions()), crowbar for smash option, new spy option to items inside)
 
-- show morale stat in own UI element (bigger than other stats)
 - evening/biome encounters
-- add some random slight rotation to outcome notes
 - location encounter markers on world map
 - exposure mechanic
 - red text for exposure warning in rest and stay option
-- min difficulty of 5 for skill checks, max 200
+- red text when hovering option that cannot be selected with reason
 - draw new background for farmland
 - make poisoning a temporary condition
-- health conditions affecting stats
+
 - move health condition description box to health description entry (beside text)
 - fix health condition text color
 - make health condition text a little bigger
 - make infection stages to defs. use that label and description for the dynamic wound report label and description
 - simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
 - sound
-
-- auto resize item polygon colliders to be a bit smaller
 
 - biome loot tables
 - biome encounters

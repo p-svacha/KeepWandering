@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class HealthCondition
@@ -58,6 +59,20 @@ public abstract class HealthCondition
     public virtual string GetReportDescription() => Description;
     public virtual Color GetReportTextColor() => ResourceManager.Color_Text_Default;
     public virtual Color GetReportBackgroundColor() => Color.clear;
+
+    // Stat modifiers
+    public Dictionary<StatDef, int> GetCurrentModifiers()
+    {
+        if (ActiveStage != null) return ActiveStage.StatModifiers;
+        else return Def.StatModifiers;
+    }
+
+    public int GetStatModifierFor(StatDef stat)
+    {
+        Dictionary<StatDef, int> modifiers = GetCurrentModifiers();
+        if (modifiers.ContainsKey(stat)) return modifiers[stat];
+        else return 0;
+    }
 
     #endregion
 }

@@ -279,6 +279,12 @@ public class Game : MonoBehaviour
 
     public void DisplayEncounterStep(EncounterStep step, OptionOutcomeDef prevOutcome = null)
     {
+        // Validate and initialize options
+        foreach (EncounterOption option in step.Options)
+        {
+            option.Init();
+        }
+
         // Unhighlight from previous step
         ForceUnhighlightAllInventoryItems();
 
@@ -336,8 +342,7 @@ public class Game : MonoBehaviour
 
         // Execute the option
         EncounterStep nextEventStep = selectedOption.Execute(out OptionOutcomeDef outcome);
-        if (nextEventStep == null) throw new System.Exception("Selected option " + selectedOption.Text + " returned null as next event step!");
-        DisplayEncounterStep(nextEventStep, outcome);
+        if (nextEventStep != null) DisplayEncounterStep(nextEventStep, outcome); // Can be null on time of day transitions
     }
 
     public void ForceUnhighlightAllInventoryItems()
@@ -435,14 +440,35 @@ public class Game : MonoBehaviour
 
         if (Day == 1)
         {
-            options.Add(new FixedOutcomeOption("Start Journey", "Open the map to choose your first location.", OpenMap)); // Move
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Start Journey",
+                Description = "Open the map to choose your first location.",
+                Action = OpenMap
+            });
         }
         else
         {
             string exposureAppendix = "\n\nThis will increase your exposure in this location, increasing the chance for attacks during the night!";
-            options.Add(new FixedOutcomeOption("Move", "Open the map to choose your next location.", OpenMap)); // Move
-            options.Add(new FixedOutcomeOption("Stay", "Stay in the current location to continue where you left off yesterday." + exposureAppendix, Stay)); // Stay
-            options.Add(new FixedOutcomeOption("Rest", "Rest and recover your energy. Skips the afternoon encounter and potentially heals some injuries." + exposureAppendix, Rest)); // Rest
+
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Move",
+                Description = "Open the map to choose a location to move to." + exposureAppendix,
+                Action = OpenMap
+            });
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Stay",
+                Description = "Stay in the current location to continue where you left off yesterday." + exposureAppendix,
+                Action = Stay
+            });
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Rest",
+                Description = "Rest and recover your energy. Skips the afternoon encounter and potentially heals some injuries." + exposureAppendix,
+                Action = Rest
+            });
         }
 
         EncounterStep morningEventStep = new EncounterStep(text, options);
@@ -578,7 +604,12 @@ public class Game : MonoBehaviour
         // Dialogue Options
         List<EncounterOption> options = new List<EncounterOption>();
 
-        FixedOutcomeOption sleepOtion = new FixedOutcomeOption("Sleep", "Go to sleep and hope for a calm night.", Sleep);
+        FixedOutcomeOption sleepOtion = new FixedOutcomeOption()
+        {
+            Text = "Sleep",
+            Description = "Go to sleep and hope for a calm night.",
+            Action = Sleep
+        };
         options.Add(sleepOtion);
 
         EncounterStep eveningEventStep = new EncounterStep(text, options);

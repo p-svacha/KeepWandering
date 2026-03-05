@@ -52,7 +52,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         OptionDisplays = new Dictionary<EncounterOption, UI_EncounterStepOption>();
         if (step.IsFinalStep)
         {
-            FixedOutcomeOption endDayOption = new FixedOutcomeOption("Continue journey", "Continue your day.", EndEvent);
+            FixedOutcomeOption endDayOption = new FixedOutcomeOption() { Text = "Continue journey", Description = "Continue your day.", Action = EndEvent };
             UI_EncounterStepOption optionDisplay = Instantiate(EventOptionPrefab, EventOptionContainer.transform);
             optionDisplay.Init(this, endDayOption);
             OptionDisplays.Add(endDayOption, optionDisplay);
@@ -91,6 +91,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         {
             // Highlight associated stats
             foreach (StatDef stat in skillCheckOption.RelevantStats.Keys) GameUI.Instance.HightlightStat(stat);
+            GameUI.Instance.HightlightStat(StatDefOf.Morale); // Morale is always relevant for skill checks
 
             // Show option details
             ShowOptionDetails(skillCheckOption);
@@ -179,7 +180,14 @@ public class UI_EncounterDisplay : MonoBehaviour
             UI_EventOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             outcomeNote.Init(group.Key.SpriteBase, true, group.Value);
         }
+
+        // Add slight rotation to all notes
+        foreach(UI_EventOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EventOutcomeNote>())
+        {
+            note.transform.rotation = Quaternion.Euler(0, 0, Random.Range(-10f, 10f));
+        }
     }
+
 
     #endregion
 

@@ -1,50 +1,43 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SkillCheckOption : EncounterOption
 {
+    public static int MIN_DIFFICULTY = 5;
+    public static int MAX_DIFFICULTY = 200;
+
     public override EncounterStepOptionType Type => EncounterStepOptionType.SkillCheck;
 
     /// <summary>
     /// Base difficulty of the encounter step option, before any modifiers apply.
     /// </summary>
-    public int BaseDifficulty { get; private set; }
+    public int BaseDifficulty { get; init; }
 
     /// <summary>
     /// The stats that are relevant for performing this encounter step option, along with the modifier of how much it affects the difficulty of the encounter step option.
     /// </summary>
-    public Dictionary<StatDef, float> RelevantStats { get; private set; }
+    public Dictionary<StatDef, float> RelevantStats { get; init; } = new Dictionary<StatDef, float>();
 
     /// <summary>
     /// Function that gets executed when choosing this option. Function must return the next step in the encounter. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
     /// </summary>
-    public Func<OptionOutcomeDef, EncounterStep> Actions { get; private set; }
+    public Func<OptionOutcomeDef, EncounterStep> Actions { get; init; }
 
-    public bool CanPartiallySucceed { get; private set; }
-    public bool CanCriticallySucceed { get; private set; }
-    public bool CanCriticallyFail { get; private set; }
+    public bool CanPartiallySucceed { get; init; } = true;
+    public bool CanCriticallySucceed { get; init; } = true;
+    public bool CanCriticallyFail { get; init; } = true;
 
-    public SkillCheckOption(
-        string text,
-        string description,
-        int baseDifficulty,
-        Func<OptionOutcomeDef, EncounterStep> actions,
-        Dictionary<StatDef, float> relevantStats = null,
-        List<ItemSlot> itemSlots = null,
-        Dictionary<ItemSlot, int> modifierItemSlots = null,
-        bool canPartiallySucceed = false,
-        bool canCriticallySucceed = false,
-        bool canCriticallyFail = false
-        ) : base(text, description, itemSlots)
+    public override void Init()
     {
-        BaseDifficulty = baseDifficulty;
-        Actions = actions;
-        RelevantStats = relevantStats ?? new Dictionary<StatDef, float>();
-        CanPartiallySucceed = canPartiallySucceed;
-        CanCriticallySucceed = canCriticallySucceed;
-        CanCriticallyFail = canCriticallyFail;
+        base.Init();
+
+        // Validate
+        if (Actions == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
+        if (BaseDifficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
     }
+
 
     public override EncounterStep Execute(out OptionOutcomeDef outcome)
     {
@@ -75,13 +68,13 @@ public class SkillCheckOption : EncounterOption
         foreach (var statEntry in RelevantStats)
         {
             int statValue = Game.Instance.Player.GetStatValue(statEntry.Key);
-            int modifierAmount = (int)(statValue * statEntry.Value);
+            int modifierAmount = -(int)(statValue * statEntry.Value);
             if (modifierAmount != 0) modifiers.Add(statEntry.Key.LabelCapWord, modifierAmount);
         }
 
         // Morale modifier
         int moraleValue = Game.Instance.Player.Morale;
-        if (moraleValue != 0) modifiers.Add("Morale", moraleValue);
+        if (moraleValue != 0) modifiers.Add("Morale", -moraleValue);
 
         // Item slots
         foreach (ItemSlot slot in ItemSlots)
@@ -91,6 +84,17 @@ public class SkillCheckOption : EncounterOption
                 int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
                 if (modifierAmount != 0) modifiers.Add($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount);
             }
+        }
+
+        // Clamp modifier (value can't go below 5 or above 200)
+        int difficultySoFar = BaseDifficulty + modifiers.Values.Sum();
+        if (difficultySoFar < MIN_DIFFICULTY)
+        {
+            modifiers.Add($"Limit ({MIN_DIFFICULTY})", MIN_DIFFICULTY - difficultySoFar);
+        }
+        else if (difficultySoFar > MAX_DIFFICULTY)
+        {
+            modifiers.Add($"Limit ({MAX_DIFFICULTY})", MAX_DIFFICULTY - difficultySoFar);
         }
 
         return modifiers;
