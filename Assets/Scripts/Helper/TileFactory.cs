@@ -1,13 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// Static class that can create tile objects from textures
+/// Class responsible for creating Tile objects usable in Unity's tilemaps.
 /// </summary>
-public static class TileGenerator
+public static class TileFactory
 {
+    /// <summary>
+    /// Creates a simple static Tile from a single sprite.
+    /// </summary>
+    public static Tile CreateTileFromSprite(Sprite sprite)
+    {
+        var tile = ScriptableObject.CreateInstance<Tile>();
+        tile.sprite = sprite;
+        tile.colliderType = Tile.ColliderType.None;
+        return tile;
+    }
+
     public static Tile CreateTileFromTexture(Texture2D texture, int row, int col, int size, string name)
     {
         Tile tile = ScriptableObject.CreateInstance<Tile>();

@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 public class BiomeDef : Def
 {
     public override string DefTypeLabel => "Biome";
+    public Sprite BackgroundSprite => ResourceManager.LoadSprite($"Backgrounds/{DefName}");
     public GameObject Visuals { get; private set; } // Container for background or particle stuff
     public Tile WorldMapTile { get; private set; }
 
@@ -16,6 +17,6 @@ public class BiomeDef : Def
         base.OnLoadingDefsDone();
 
         Visuals = Game.Instance.BiomeBackgroundContainer.transform.Find(DefName).gameObject;
-        WorldMapTile = TileGenerator.CreateTileFromTexture(ResourceManager.LoadTexture("Biomes/" + DefName));
+        WorldMapTile = TileFactory.CreateTileFromTexture(ResourceManager.LoadTexture("Biomes/" + DefName));
     }
 }

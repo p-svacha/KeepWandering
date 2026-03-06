@@ -1,0 +1,349 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+public static class WorldMapGenerator
+{
+    public static int NUM_CITIES = 10;
+    public static int MIN_CITY_SIZE = 3;
+    public static int MAX_CITY_SIZE = 10;
+    public static int MIN_BIOME_AREA_SIZE = 5;
+
+    private static WorldMapRenderer Renderer => WorldMapRenderer.Instance;
+
+    private static PerlinNoise WaterNoise;
+    private static PerlinNoise ForestNoise;
+    private static PerlinNoise CityNoise;
+
+    private static Dictionary<Vector2Int, WorldMapTile> Tiles;
+    private static List<Area> Cities;
+    private static List<Area> Forests;
+    private static List<Area> Lakes;
+
+    /// <summary>
+    /// Generates a random world with a specified quarantine zone radius.
+    /// <br/> The number of additional tiles will add random tiles to the perimeter to randomize the quarantine zone shape.
+    /// </summary>
+    public static WorldMap GenerateWorld(int zoneRadius, int numAdditionalTiles)
+    {
+        // Initialize noisemaps
+        WaterNoise = new PerlinNoise(scale: 0.1f);
+        ForestNoise = new PerlinNoise(scale: 0.15f);
+        CityNoise = new PerlinNoise(scale: 0.3f);
+
+        // Add initial tiles
+        Tiles = new Dictionary<Vector2Int, WorldMapTile>();
+
+        AddTile(Vector2Int.zero);
+
+        // Create base perimeter to have minimum radius of zone
+        for (int i = 0; i < zoneRadius; i++) ExpandMapEdge();
+
+        // Expand random tiles along the perimeter
+        for (int i = 0; i < numAdditionalTiles; i++) ExpandRandomTile();
+
+        // Expand edge a final time to fill holes and smooth edges
+        ExpandMapEdge();
+        List<WorldMapTile> quarantineZoneTiles = new List<WorldMapTile>(Tiles.Values); // all tiles generated so far will make up quarantine zone
+
+        // Create cities
+        Cities = new List<Area>();
+        GenerateCities();
+
+        // Show city labels
+        foreach (Area city in Cities)
+        {
+            float t = Mathf.InverseLerp(MIN_CITY_SIZE, MAX_CITY_SIZE, city.TileCount);
+            float fontSize = Mathf.Lerp(WorldMapRenderer.MIN_AREA_LABEL_SIZE, WorldMapRenderer.MAX_AREA_LABEL_SIZE, t);
+            city.ShowLabel(fontSize);
+        }
+
+        // Group biome clusters into named areas
+        Forests = GenerateBiomeAreas(BiomeDefOf.Woods, GetRandomForestName);
+        Lakes = GenerateBiomeAreas(BiomeDefOf.Lake, GetRandomLakeName);
+
+        // Show biome area labels
+        foreach (Area area in Forests.Concat(Lakes))
+        {
+            float t = Mathf.InverseLerp(MIN_BIOME_AREA_SIZE, MIN_BIOME_AREA_SIZE * 4, area.TileCount);
+            float fontSize = Mathf.Lerp(WorldMapRenderer.MIN_AREA_LABEL_SIZE, WorldMapRenderer.MAX_AREA_LABEL_SIZE, t);
+            area.ShowLabel(fontSize);
+        }
+
+        // Expand edge to create safety zone outside quarantine
+        ExpandMapEdge();
+
+        // Create and draw quarantine zone
+        Area quarantineZone = new Area("Quarantine Zone", AreaType.QuarantineZone, quarantineZoneTiles);
+        quarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/FenceMaterial"), 0.4f);
+
+        // Create world map
+        WorldMap worldMap = new WorldMap(Tiles, quarantineZone, Cities, Forests, Lakes);
+
+        // Add landmarks to quarantine zone
+        GenerateLandmarks();
+
+        // Update renderer bounds
+        Renderer.UpdateMapBounds(worldMap);
+
+        // Clean up static state
+        Tiles = null;
+        Cities = null;
+        Forests = null;
+        Lakes = null;
+        WaterNoise = null;
+        ForestNoise = null;
+        CityNoise = null;
+
+        return worldMap;
+    }
+
+    /// <summary>
+    /// Adds a random tile at the edge of the map.
+    /// </summary>
+    private static void ExpandRandomTile()
+    {
+        List<Vector2Int> candidateCoordinates = new List<Vector2Int>();
+        foreach (WorldMapTile tile in Tiles.Values)
+        {
+            foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
+            {
+                if (!tile.HasAdjacentTile(dir))
+                {
+                    Vector2Int candidatePos = HelperFunctions.GetAdjacentHexCoordinates(tile.Coordinates, dir);
+                    candidateCoordinates.Add(candidatePos);
+                }
+            }
+        }
+
+        Vector2Int chosenCoordinates = candidateCoordinates[Random.Range(0, candidateCoordinates.Count)];
+        AddTile(chosenCoordinates);
+    }
+
+    /// <summary>
+    /// Adds a layer of tiles at the edge of the map.
+    /// </summary>
+    private static void ExpandMapEdge()
+    {
+        // Identify all coordinates where a new tile needs to be added
+        List<Vector2Int> coordinatesToExpand = new List<Vector2Int>();
+        foreach (WorldMapTile tile in Tiles.Values)
+        {
+            foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
+            {
+                if (!tile.HasAdjacentTile(dir))
+                {
+                    Vector2Int expandPos = HelperFunctions.GetAdjacentHexCoordinates(tile.Coordinates, dir);
+                    if (!coordinatesToExpand.Contains(expandPos)) coordinatesToExpand.Add(expandPos);
+                }
+            }
+        }
+
+        // Add tile to all identified coordiantes
+        foreach (Vector2Int coordinate in coordinatesToExpand) AddTile(coordinate);
+    }
+
+    /// <summary>
+    /// Adds a tile at the specifies coordinates. Biome is set automatically.
+    /// </summary>
+    private static void AddTile(Vector2Int coordinates)
+    {
+        // Create Tile
+        WorldMapTile newTile = new WorldMapTile(Tiles, coordinates);
+        Tiles.Add(coordinates, newTile);
+
+        // Set Biome (may be overriden in upcoming steps)
+        BiomeDef biome = BiomeDefOf.Farmland;
+        if (WaterNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Lake;
+        else if (ForestNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Woods;
+        newTile.SetBiome(biome);
+    }
+
+    private static void GenerateCities()
+    {
+        // Cities are generated by selecting a start tile and then randomly expanding out from it until the desired city size is reached. The start tile cannot be in a city and cities must have at least one tile between them.
+
+        HashSet<WorldMapTile> allCityTiles = new HashSet<WorldMapTile>();
+        HashSet<WorldMapTile> cityBufferTiles = new HashSet<WorldMapTile>(); // tiles adjacent to a city (buffer zone)
+
+        int numCities = NUM_CITIES;
+        for (int i = 0; i < numCities; i++)
+        {
+            int targetSize = Random.Range(MIN_CITY_SIZE, MAX_CITY_SIZE + 1);
+
+            // Find a valid start tile: not the start tile, not in a city, not in the buffer zone, and passable
+            List<WorldMapTile> candidateStartTiles = Tiles.Values
+                .Where(t => t.Coordinates != Vector2Int.zero
+                    && t.IsPassable()
+                    && !allCityTiles.Contains(t)
+                    && !cityBufferTiles.Contains(t))
+                .ToList();
+
+            if (candidateStartTiles.Count == 0) break;
+
+            WorldMapTile startTile = candidateStartTiles[Random.Range(0, candidateStartTiles.Count)];
+
+            // Expand city from the start tile
+            List<WorldMapTile> cityTiles = new List<WorldMapTile> { startTile };
+            for (int j = 1; j < targetSize; j++)
+            {
+                // Collect all passable neighbor tiles of existing city tiles that are not yet part of any city or buffer zone
+                List<WorldMapTile> expansionCandidates = new List<WorldMapTile>();
+                foreach (WorldMapTile cityTile in cityTiles)
+                {
+                    foreach (WorldMapTile adj in cityTile.GetAdjacentTiles())
+                    {
+                        if (adj.IsPassable()
+                            && !allCityTiles.Contains(adj)
+                            && !cityBufferTiles.Contains(adj)
+                            && !cityTiles.Contains(adj))
+                        {
+                            expansionCandidates.Add(adj);
+                        }
+                    }
+                }
+
+                if (expansionCandidates.Count == 0) break;
+
+                WorldMapTile chosenTile = expansionCandidates[Random.Range(0, expansionCandidates.Count)];
+                cityTiles.Add(chosenTile);
+            }
+
+            // Set biome to City for all tiles in this city
+            foreach (WorldMapTile tile in cityTiles)
+            {
+                tile.SetBiome(BiomeDefOf.City);
+                allCityTiles.Add(tile);
+            }
+
+            // Add buffer zone (all neighbors of city tiles that are not in the city)
+            foreach (WorldMapTile tile in cityTiles)
+            {
+                foreach (WorldMapTile adj in tile.GetAdjacentTiles())
+                {
+                    if (!allCityTiles.Contains(adj)) cityBufferTiles.Add(adj);
+                }
+            }
+
+            // Create area for the city
+            Area cityArea = new Area(GetRandomCityName(), AreaType.City, cityTiles);
+            Cities.Add(cityArea);
+        }
+    }
+    private static string GetRandomCityName()
+    {
+        string[] prefixes = { "New ", "Old ", "North ", "South ", "East ", "West " };
+        string[] suffixes = { "ville", "town", "city", "burg", "polis", "grad" };
+        string[] middles = { "wood", "field", "stone", "river", "hill", "port", "ford", "haven" };
+        string[] names = { "Ash", "Bright", "Dark", "Green", "High", "Low", "Red", "White", "Wind", "Wolf" };
+
+        bool hasPrefix = Random.value < 0.2f;
+        bool hasSuffix = Random.value < 0.2f;
+        string prefix = hasPrefix ? prefixes[Random.Range(0, prefixes.Length)] : "";
+        string middle = middles[Random.Range(0, middles.Length)];
+        string name = names[Random.Range(0, names.Length)];
+        string suffix = hasSuffix ? suffixes[Random.Range(0, suffixes.Length)] : "";
+        return prefix + name + middle + suffix;
+    }
+
+    /// <summary>
+    /// Finds all clusters of adjacent tiles sharing a given biome and creates named areas for clusters above the minimum size.
+    /// </summary>
+    private static List<Area> GenerateBiomeAreas(BiomeDef biome, System.Func<string> nameGenerator)
+    {
+        List<Area> areas = new List<Area>();
+        HashSet<WorldMapTile> visited = new HashSet<WorldMapTile>();
+
+        foreach (WorldMapTile tile in Tiles.Values)
+        {
+            if (tile.Biome != biome || visited.Contains(tile)) continue;
+
+            // Flood fill to find the full cluster
+            List<WorldMapTile> cluster = new List<WorldMapTile>();
+            Queue<WorldMapTile> queue = new Queue<WorldMapTile>();
+            queue.Enqueue(tile);
+            visited.Add(tile);
+
+            while (queue.Count > 0)
+            {
+                WorldMapTile current = queue.Dequeue();
+                cluster.Add(current);
+
+                foreach (WorldMapTile adj in current.GetAdjacentTiles())
+                {
+                    if (adj.Biome == biome && !visited.Contains(adj))
+                    {
+                        visited.Add(adj);
+                        queue.Enqueue(adj);
+                    }
+                }
+            }
+
+            if (cluster.Count >= MIN_BIOME_AREA_SIZE)
+            {
+                AreaType areaType = biome == BiomeDefOf.Woods ? AreaType.Forest : AreaType.Lake;
+
+                areas.Add(new Area(nameGenerator(), areaType, cluster));
+            }
+        }
+
+        return areas;
+    }
+
+    private static string GetRandomForestName()
+    {
+        string[] adjectives = { "Dark", "Green", "Whispering", "Silent", "Mossy", "Twisted", "Ancient", "Misty", "Hollow", "Shadowed" };
+        string[] nouns = { "Forest", "Woods", "Thicket", "Grove", "Timberland" };
+
+        string adjective = adjectives[Random.Range(0, adjectives.Length)];
+        string noun = nouns[Random.Range(0, nouns.Length)];
+        return adjective + " " + noun;
+    }
+
+    private static string GetRandomLakeName()
+    {
+        string[] adjectives = { "Crystal", "Still", "Deep", "Black", "Blue", "Silver", "Murky", "Hidden", "Frozen", "Sunken" };
+        string[] nouns = { "Lake", "Pond", "Reservoir", "Basin", "Waters" };
+
+        string adjective = adjectives[Random.Range(0, adjectives.Length)];
+        string noun = nouns[Random.Range(0, nouns.Length)];
+        return adjective + " " + noun;
+    }
+
+    private static void GenerateLandmarks()
+    {
+        foreach (EncounterDef landmark in DefDatabase<EncounterDef>.AllDefs.Where(def => def.Type == EncounterType.Landmark))
+        {
+            int numOccurences = Random.Range(landmark.MinOccurences, landmark.MaxOccurences + 1);
+            for (int i = 0; i < numOccurences; i++)
+            {
+                // Make dictionary of all candidate tiles and their probability
+                Dictionary<WorldMapTile, float> candidateTiles = new Dictionary<WorldMapTile, float>();
+                foreach (WorldMapTile tile in Tiles.Values)
+                {
+                    // Skip start tile
+                    if (tile.Coordinates == Vector2Int.zero) continue;
+
+                    // Distance from start
+                    if (landmark.MinDistanceFromStart > 0 && tile.DistanceFromStart < landmark.MinDistanceFromStart) continue;
+
+                    // Check if occupied already
+                    if (tile.Encounter != null) continue;
+
+                    // Biome modifier
+                    if (landmark.Biomes.Count > 0)
+                    {
+                        if (landmark.Biomes.ContainsKey(tile.Biome)) candidateTiles.Add(tile, landmark.Biomes[tile.Biome]);
+                    }
+                    else candidateTiles.Add(tile, 1f); // If no biome requirements, all tiles are valid with equal probability
+                }
+
+                // Pick location
+                WorldMapTile location = candidateTiles.GetWeightedRandomElement();
+
+                // Add encounter to tile
+                Game.Instance.SetLocationEncounter(location, landmark);
+            }
+        }
+    }
+}

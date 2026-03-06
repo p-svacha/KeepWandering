@@ -7,6 +7,7 @@ using UnityEngine;
 public abstract class Encounter
 {
     public Game Game { get; private set; }
+    public WorldMap WorldMap => WorldMap.Instance;
     public EncounterDef Def { get; private set; }
     public Mission Mission { get; private set; }
     public int NumVisits { get; private set; }
@@ -105,5 +106,11 @@ public abstract class Encounter
     {
         return new EncounterStep(text);
     }
+
+    #region Getters
+
+    public virtual string Label => Def.Label; // Shown on world map
+
+    #endregion
 
 }

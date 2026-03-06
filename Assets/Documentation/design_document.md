@@ -13,7 +13,7 @@ The top side of the screen shows the all UI information:
 - In the center the current encounter step's text and options.
 - On the right the player's stats and current active quests.
 
-Everything is sprite based in an old-school flash art style, with a fixed side-view camera and no animations. Sprites change depending on the situtation.
+Everything is sprite based in an old-school flash art style, with a fixed position side-view camera and no animations. Sprites change depending on the situtation.
 For example, the player should be rendered differently based on their health:
 
 - If the player is hungry, the torso sprite is thinner.
@@ -30,9 +30,14 @@ The background is also a collection of sprites that change based on the current 
 - The main background depends on the current biome.
 - Sky sprites depend on the current weather and time of day.
 - Some particle sprites can be added based on the current weather. For example, if it's raining, rain particle sprites can be added to the background.
-- Additional background sprites can be added based on the current encounter step. For example, if the player is in a forest biome and the encounter step is "hiding in bushes", additional bush sprites can be added to the background to make it look like the player is hiding in bushes.
+- Additional background sprites can be added based on the current encounter step. For example, if the player is in a woods
+biome and the encounter step is "hiding in bushes", additional bush sprites can be added to the background to make it look like the player is hiding in bushes.
 
 And of course each encounter step has its own unique sprites showing the current state of the encounter.
+
+Game feel wise a it's a simple point and click game, with additional focus on dragging and dropping items. All items are physical objects in the players handcart, that can be dragged and dropped around freely. When an item falls offscreen, it simple spawns back above the cart again, so nothing gets lost.
+Items can also be dragged into encounter option item slots. Encounter options may also be connected to a sprite on screen, which will then have the same click/hover/item drag controls as the option itself. For example, if there is an option to "open crate", the crate sprite can be clicked/hovered/dragged into just like the option itself, and it will have the same effects.
+Item interactions (like "eat beans", "apply bandage") etc. can either be done through a context menu when right clicking the item, or by dragging the item onto an appropriate sprite on the screen. For example, if the player has a bandage item, they can either right click the bandage and select "apply to wound", or drag the item on the wound sprite on the player character to apply it.
 
 
 # Player
@@ -143,7 +148,10 @@ Companions can have their own health conditions, which are usually simplified (i
 When a companion dies, this usually has a big temporary negative effect on the player's morale.
 
 # World Map
-The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is determined when the player first steps on that tile. When returning back to that tile, the player will encounter the same encounter again, in the same state as they left it.
+The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is either predetermined through a quest/landmark/rumour or determined when the player first steps on that tile. The afternoon each day is always the location encounter of the tile the player is currently on.
+
+## Quarantine Zone Borders
+A big area of the world map is enclosed by a quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
 
 ## Exposure
 Each tile has a persistent exposure level. That level is shown to the player. The exposure level affects the likelyhood of bad night encounters happening during the night. Exposure levels are "very safe", "safe", "caution", "danger" and "extreme danger".
@@ -152,10 +160,11 @@ This mechanic is there to encourage the player to keep moving and exploring new 
 
 ## Biomes
 Each tile has a biome, which determines the types of Location Encounters that can be encountered on that tile and also the Biome Encounter, which are the options that the player can choose from in the evening. For encounters that can appear in multiple biomes, the biome can also affect the encounter itself, by adding biome specific options or changing the outcome or difficulty of certain options.
+Each biome also has a specific loot table, which is often used in encounters that involve randomized items of some kind, such as searching the area for items. The biome also affects the background sprites that are shown in encounters on that tile.
 
 The following biomes exist:
 
-### Forest
+### Woods
 
 ### Swamp
 
@@ -175,6 +184,18 @@ Impassable biome that cannot be entered. Mostly acts as a way to make the world 
 The Location Encounter on a tile is represented by a small sprite on the world map, that shows what type of encounter is on that tile and in what state it is, in a very simplified way. Obviously this only applies to to tiles that have a Location Encounter determined already (so either the player has stepped on the tile before, or a quest has predetermined the encounter).
 Location Encounter markers are always grayscale, while quest markers are colored. This way the player can easily distinguish the "important" tiles.
 
+## Area
+An area is simply a collection of hex tiles with a name. Examples of areas or the quarantine zone, cities, woods, lakes etc. Areas can be used in quests to specify locations in a more general way, such as "go to city XY" instead of "go to tile 3/4".
+
+## World Generation
+The world is is a pointy top hex tile map that is procedurally generated at the start of each new game. Each day, the player (at default) moves 1 tile. The player starts at coordinates 0/0. The world generation follow these steps:
+
+1. The shape of the quarantine zone is generated. This is done by first expanding 18 tiles in a radius around the starting tile, and then generating some random protrusions (400 tiles) look more natural. After the protrusions, the shape is once again expanded by 1 tiles in a radius to smoothen the shape a bit. This generated area is the quarantine zone, enclosed by a fence.
+2. An additional ring of tiles outside the fence is added that represent freedom. Reaching one of these tiles is a way to win the game.
+3. The base "natural" biomes are generated (like farmland, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Farmland > Lake > Woods.
+4. Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached. All tiles in a city get assigned the city biome. Cities are areas.
+5. Now that all biomes are set, clusters of adjacent tiles sharing the same biome above a certain size are grouped together into areas. This creates named areas like forests and lakes that can be used in quests.
+6. Landmarks are placed depending on their definitions (where and how often they can appear).
 
 # Quests
 Quests are special tasks that the player can receive from certain encounters. They usually have a specific goal that the player has to achieve, such as reaching a specific location on the world map, bringing a specific item, meeting someone, etc. Quests can have various effects on the game state, such as unlocking new encounters, changing the state of existing encounters, giving the player new items or companions, etc.
@@ -184,20 +205,40 @@ Quests usually require the player to go to a specific tile on the world map. Whe
 # Encounters
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
 Different encounters can work in very different ways, with different numbers of steps, different options, and different outcomes. For example, one encounter can be a simple one-step encounter with only one option, while another encounter can be a complex multi-step encounter with many options at each step and various branching paths.
-First design priority of all encounters is to provide the player with interesting and meaningful choices.
 
+## Encounter Types
 There are three types of encounters:
 
-- Location encounters: These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
-- Biome encounters: These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.
-- Night encounters: These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
+### Location encounters
+These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
+
+Usually location encounters are generated when the player first steps on a tile, based on the biome of that tile and the current game state.
+However, some encounters can be predetermined, meaning that they are generated before the player steps on the tile, and the player can see their encounter marker on the world map before stepping on the tile. This can be the case for either quest related encounters, landmarks that are generated with the world at the start of the game, or temporary rumours (i.e. rising smoke) that can appear during the game.
+Predetermined encounters are usually a way to directly or indirectly progress the story, and are there to give the player some direction and goals to work towards.
+
+### Biome encounters
+These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.
+
+### Night encounters
+These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
 
 During encounters, free item use is restricted (i.e. for eating / bandaging). Items can only be used for encounter step options.
 At the end of an encounter, after it ends, the player can freely use items in their cart (i.e. to eat / drink / heal injuries etc.) again. After that, the player can choose to end the current time of day and transition to the next one.
 
 Encounters only ever take place within a single time of day.
 
-## Steps
+## Design Philosophy
+First design priority of all encounters is to provide the player with interesting and meaningful choices.
+
+Encounter steps should visually give an immediate sense of what's happening. The main text on an encounter step should be short and concise, giving the player a clear idea of the situation, without much prose.
+Option texts should also be short, preferably just a verb and potentially a subject (i.e. "Persuade", "Open Crate"). The option descriptions should give a sense of the possible outcomes of that option. The descriptions are only shown while hovering an option, so they can be a bit longer.
+
+Encounters happen on a single screen. There are no camera controls in the game. The left side of the screen is always occupies by the player and their handcart (inventory). The encounter is on the right. This is important to factor in when designing encounters, as everything needs to fit that screen. The player character also visually never moves. Stop outcomes aren't animated, but rather represented by changing the sprites on the screen, sound effects, and maybe simple effects.
+For example if the player selects a "Smash Crate" option, and the outcome is a success, what happens is that the crate sprite gets replaced with a broken crate sprite, a sound effect of smashing is played, and the player gains some items in their cart (meaning they spawn above the cart and fall in). If the outcome is a failure, the crate sprite stays the same, a sound effect of failure is played, and maybe the player gets injured, which is represented by a wound sprite appearing on the player character.
+
+Even though the screen is fixed, encounters can affect the zoom level of the camera, to allow for some different scale of encounters. For example, when encountering a crate, the camera size will be quite small, since it just needs to show the player and the crate. But for example when encountering a radio tower, the camera size will be much bigger, since it needs to show the player and the whole base of the tower. This can be used to give a nice sense of scale and variety to the encounters, even though they all happen on the same screen. Orthographic size should usually be in the range of 5.4 - 12.
+
+## Encounter Steps
 Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounter steps and their options are often created dynamically based on the current game state, and more importantly, the current state of the encounter itself.
 
 A step is considered the final step of an encounter if that step has no options defined. When reaching such a step, the encounter is considered to be ended, meaning the player can use items again and choose to transition to the next time of day.
@@ -303,11 +344,20 @@ In the evening, the player is presented with the Biome Encounter, that is fixed 
 
 ## Night
 Each night, it is randomly rolled if the player has any Night Encounters. These are special encounters that the player can not come back to on the world map later. Multiple night encounters may happen in a night.
-The likelihood of having a bad night encounter is based on the exposure level of the tile the player is currently on, with higher exposure levels increasing the chances of having bad night encountere.
+The likelihood of having a bad night encounter is based on the exposure level of the tile the player is currently on, with higher exposure levels increasing the chances of having bad night encounter.
 There is also the chance of neutral night encounters, that can happen randomly regardless of the exposure level.
 
 If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
 
-During the night, seperate from the night encounter, night events can happen as well. These are events that happen without any player input and without any visual representation.
+During the night, separate from the night encounter, night events can happen as well. These are events that happen without any player input and without any visual representation.
 They are purely based on the current game state and can have various effects on the player. For example, if the player has an untended injury, there is a chance that the injury gets infected. Or if the player has a certain companion, there is a chance that the companion finds an item during the night.
 Night events are shown to the player in the morning as text.
+
+
+
+# Encouter List
+
+## Location Encounters
+
+### Wooden Crate
+A locked container where players can peek inside to identify hidden loot before deciding to squeeze items through a hole, pry it open with tools, or smash it at the risk of destroying the contents.

@@ -4,7 +4,6 @@ using UnityEngine;
 public static class ItemDragDropManager
 {
     private const float OFF_SCREEN_MIN_X = -12f;
-    private const float OFF_SCREEN_MAX_X = 12f;
     private const float OFF_SCREEN_MIN_Y = -8f;
 
     private const float MAX_RELEASE_VELOCITY = 25f;
@@ -248,13 +247,20 @@ public static class ItemDragDropManager
     {
         if (Game.Instance == null) return;
 
+        float offScreenMaxX = 12f;
+        if (EncounterCamera.Instance.Camera.orthographicSize > EncounterCamera.DEFAULT_CAMERA_SIZE)
+        {
+            float increase = (EncounterCamera.Instance.Camera.orthographicSize - EncounterCamera.DEFAULT_CAMERA_SIZE) * EncounterCamera.Instance.Camera.aspect * 2f;
+            offScreenMaxX += increase;
+        }
+
         for (int i = Game.Instance.Inventory.Count - 1; i >= 0; i--)
         {
             Item item = Game.Instance.Inventory[i];
             if (IsDragging && item == DraggedItem) continue;
 
             Vector3 pos = item.Renderer.transform.position;
-            if (pos.y < OFF_SCREEN_MIN_Y || pos.x < OFF_SCREEN_MIN_X || pos.x > OFF_SCREEN_MAX_X)
+            if (pos.y < OFF_SCREEN_MIN_Y || pos.x < OFF_SCREEN_MIN_X || pos.x > offScreenMaxX)
             {
                 Game.Instance.DropItemIntoCart(item);
             }

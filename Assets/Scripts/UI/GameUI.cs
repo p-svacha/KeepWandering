@@ -199,7 +199,7 @@ public class GameUI : MonoBehaviour
     {
         if (Game.State != GameState.InGame) return;
         WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
-        Game.WorldMap.gameObject.SetActive(!Game.WorldMap.gameObject.activeSelf);
+        Game.WorldMapRenderer.gameObject.SetActive(!Game.WorldMapRenderer.gameObject.activeSelf);
         ContextMenu.Hide();
         Tooltip.Hide();
     }
@@ -208,8 +208,8 @@ public class GameUI : MonoBehaviour
         if (Game.State != GameState.InGame) return;
 
         WorldMapMenu.gameObject.SetActive(true);
-        Game.WorldMap.gameObject.SetActive(true);
-        if (focusTile != null) Game.WorldMap.FocusTile(focusTile);
+        Game.WorldMapRenderer.gameObject.SetActive(true);
+        if (focusTile != null) Game.WorldMapRenderer.FocusTile(focusTile);
 
         ContextMenu.Hide();
         Tooltip.Hide();
@@ -217,7 +217,7 @@ public class GameUI : MonoBehaviour
     public void CloseWorldMap()
     {
         WorldMapMenu.gameObject.SetActive(false);
-        Game.WorldMap.gameObject.SetActive(false);
+        Game.WorldMapRenderer.gameObject.SetActive(false);
         ContextMenu.Hide();
         Tooltip.Hide();
     }

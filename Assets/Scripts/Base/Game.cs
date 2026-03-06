@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Game : MonoBehaviour
 {
@@ -41,6 +42,12 @@ public class Game : MonoBehaviour
     public Camera MainCamera;
     public GameUI UI;
 
+    [Header("Background")]
+    public SpriteRenderer Background1;
+    public SpriteRenderer Background2;
+    public SpriteRenderer Background3;
+    public SpriteRenderer AmbienceOverlay;
+
     [Header("Items")]
     private Item CurrentHoverItem;
     private float CurrentHoverTime;
@@ -53,7 +60,8 @@ public class Game : MonoBehaviour
 
     [Header("World Map")]
     public WorldMap WorldMap;
-    public CameraHandler WorldMapCamera;
+    public WorldMapRenderer WorldMapRenderer;
+    public WorldMapCameraHandler WorldMapCamera;
     public Area QuarantineZone => WorldMap.QuarantineZone;
 
     // Debug
@@ -71,22 +79,21 @@ public class Game : MonoBehaviour
 
         ResourceManager.ClearCache();
         DefDatabaseRegistry.InitDefs();
+        WorldMapRenderer.Init(this);
 
         StartGame();
     }
 
     private void StartGame()
     {
+        EncounterManager = new EncounterManager(this);
+
         // Init world
-        WorldMap.Init(this);
-        //WorldMap.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
-        WorldMap.GenerateWorld(zoneRadius: 2, numAdditionalTiles: 10);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 3, numAdditionalTiles: 20);
         WorldMapCamera.Init(this);
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
-        WorldMap.ResetCamera();
-
-        // Init events
-        EncounterManager = new EncounterManager(this);
+        WorldMapRenderer.ResetCamera();
 
         // Init player
         PlayerCharacterRenderer.Instance.Init();
@@ -111,6 +118,10 @@ public class Game : MonoBehaviour
     {
         TimeOfDay = timeOfDay;
         UI.DayTimeText.text = timeOfDay.LabelCapWord;
+
+        // Lighting
+        EncounterCamera.Instance.SetBackgroundColor(timeOfDay.SkyColor);
+        AmbienceOverlay.color = timeOfDay.LightingAmbienceOverlayColor;
     }
 
     // Update is called once per frame
@@ -253,7 +264,7 @@ public class Game : MonoBehaviour
         switch (newState)
         {
             case GameState.InDayTransition:
-                StartMorningEvent();
+                StartMorning();
                 UI.HoldBlackTransition(GameUI.TRANSITION_HOLD_TIME);
                 break;
 
@@ -261,7 +272,7 @@ public class Game : MonoBehaviour
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
-            case GameState.EndEventTransitionIn:
+            case GameState.EndEncounterTransitionIn:
             case GameState.EndMorningReportTransitionIn:
                 UI.FadeInBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 UI.BlackTransitionText.text = "";
@@ -273,7 +284,7 @@ public class Game : MonoBehaviour
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
-            case GameState.EndEventTransitionOut:
+            case GameState.EndEncounterTransitionOut:
                 StartEveningEncounter();
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
@@ -322,6 +333,7 @@ public class Game : MonoBehaviour
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
         WoundsAddedSinceLastStep.Clear();
+        StatChangesSinceLastStep.Clear();
     }
 
     /// <summary>
@@ -407,9 +419,10 @@ public class Game : MonoBehaviour
 
     #region Morning
 
-    private void StartMorningEvent()
+    private void StartMorning()
     {
         SetTimeOfDay(TimeOfDayDefOf.Morning);
+        EncounterCamera.Instance.SetDefaultZoom();
 
         LatestMorningReport = new MorningReport(Day);
 
@@ -424,7 +437,7 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
 
         // Show morning report
-        UpdateMorningEvent();
+        UpdateMorningEncounter();
 
         // Day UI Updates
         UI.BlackTransitionText.text = "Day " + Day;
@@ -432,19 +445,19 @@ public class Game : MonoBehaviour
 
         // Enable destination selection of adjacent tiles
         WorldMap.CanSelectDestination = true;
-        foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMap.HighlightTileRed(nextPositionTarget);
+        foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMapRenderer.HighlightTileRed(nextPositionTarget);
     }
 
     /// <summary>
     /// Displays the morning event step.
     /// </summary>
-    private void UpdateMorningEvent()
+    private void UpdateMorningEncounter()
     {
         DisplayEncounterStep(GetMorningEncounter());
     }
 
     /// <summary>
-    /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
+    /// Creates the morning report encounter step that contains all information about what happened during the night and the options of what to do that day.
     /// </summary>
     private EncounterStep GetMorningEncounter()
     {
@@ -478,7 +491,7 @@ public class Game : MonoBehaviour
             options.Add(new FixedOutcomeOption()
             {
                 Text = "Move",
-                Description = "Open the map to choose a location to move to." + exposureAppendix,
+                Description = "Open the map to choose a location to move to.",
                 Action = OpenMap
             });
             options.Add(new FixedOutcomeOption()
@@ -523,7 +536,6 @@ public class Game : MonoBehaviour
     public List<WorldMapTile> GetNextPositionTiles()
     {
         List<WorldMapTile> tiles = new List<WorldMapTile>();
-        tiles.Add(CurrentPosition);
         foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
         {
             Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(CurrentPosition.Coordinates, dir);
@@ -551,7 +563,7 @@ public class Game : MonoBehaviour
 
         // Reset world map selection
         WorldMap.CanSelectDestination = false;
-        WorldMap.UnhighlightAllRedTiles();
+        WorldMapRenderer.UnhighlightAllRedTiles();
 
         // Switch state
         SwitchState(GameState.EndMorningReportTransitionIn);
@@ -582,23 +594,36 @@ public class Game : MonoBehaviour
         // Else generate a new one
         else
         {
-            LocationEncounter newEncounter = EncounterManager.GenerateLocationEncounter(CurrentPosition);
-            CurrentPosition.SetEncounter(newEncounter);
-            CurrentEncounter = newEncounter;
+            EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(CurrentPosition);
+            LocationEncounter encounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
+            CurrentEncounter = encounter;
         }
 
         // Display the encounter
         EncounterStep initialStep = CurrentEncounter.StartEncounter();
         DisplayEncounterStep(initialStep);
 
+        // Set zoom according to encounter
+        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
+
         // Update status
         OnGameStateChanged();
+    }
+
+    public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef)
+    {
+        if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
+        if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
+
+        LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef) as LocationEncounter;
+        tile.SetEncounter(encounter);
+        return encounter;
     }
 
     public void EndAfternoonEncounter()
     {
         UI.CloseAllWindows();
-        SwitchState(GameState.EndEventTransitionIn);
+        SwitchState(GameState.EndEncounterTransitionIn);
     }
 
     #endregion
@@ -608,6 +633,7 @@ public class Game : MonoBehaviour
     private void StartEveningEncounter()
     {
         SetTimeOfDay(TimeOfDayDefOf.Evening);
+        EncounterCamera.Instance.SetDefaultZoom();
 
         // Clear previous encounter
         if (CurrentEncounter != null) CurrentEncounter.EndEncounter();
@@ -880,6 +906,11 @@ public class Game : MonoBehaviour
 
     public void SetPosition(WorldMapTile tile)
     {
+        // Background
+        Background1.sprite = tile.Biome.BackgroundSprite;
+        Background2.sprite = tile.Biome.BackgroundSprite;
+        Background3.sprite = tile.Biome.BackgroundSprite;
+
         if (CurrentPosition != null) CurrentPosition.Biome.Visuals.SetActive(false);
         CurrentPosition = tile;
         CurrentPosition.Biome.Visuals.SetActive(true);
@@ -943,7 +974,7 @@ public class Game : MonoBehaviour
     public void OnTransitionFadeInDone()
     {
         if (State == GameState.DayTransitionFadeIn) SwitchState(GameState.InDayTransition);
-        else if (State == GameState.EndEventTransitionIn) SwitchState(GameState.EndEventTransitionOut);
+        else if (State == GameState.EndEncounterTransitionIn) SwitchState(GameState.EndEncounterTransitionOut);
         else if (State == GameState.EndMorningReportTransitionIn) SwitchState(GameState.EndMorningReportTransitionOut);
         else if (State == GameState.GameOver) { } // game ended here
         else throw new System.Exception("State " + State.ToString() + " not handled.");
@@ -952,7 +983,7 @@ public class Game : MonoBehaviour
     public void OnTransitionFadeOutDone()
     {
         if (State == GameState.DayTransitionFadeOut ||
-            State == GameState.EndEventTransitionOut ||
+            State == GameState.EndEncounterTransitionOut ||
             State == GameState.EndMorningReportTransitionOut)
         {
             SwitchState(GameState.InGame);

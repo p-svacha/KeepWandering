@@ -8,9 +8,10 @@ public static class EncounterDefs
         new EncounterDef()
         {
             DefName = "Crate",
-            DevNotes = "A crate lies before the player, containing a randomised visible player. The player can try to pry the item out, risking an injury in the process.",
+            Label = "Crate",
+            DevNotes = "A locked container where players can peek inside to identify hidden loot before deciding to squeeze items through a hole, pry it open with tools, or smash it at the risk of destroying the contents.",
             EncounterClass = typeof(Encounter_Crate),
-            EncounterType = EncounterType.Location,
+            Type = EncounterType.Location,
             BaseProbability = 6,
             Biomes = new Dictionary<BiomeDef, float>()
             {
@@ -18,6 +19,19 @@ public static class EncounterDefs
                 {BiomeDefOf.City, 0.2f},
                 {BiomeDefOf.Woods, 0.9f},
             },
+            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
         },
+
+        new EncounterDef()
+        {
+            DefName = "RadioTower",
+            Label = "Radio Tower",
+            EncounterClass = typeof(Encounter_RadioTower),
+            Type = EncounterType.Landmark,
+            CameraZoomLevel = 12f,
+            MinOccurences = 1,
+            MaxOccurences = 1,
+            MinDistanceFromStart = 4,
+        }
     };
 }

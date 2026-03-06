@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 /// This is the default controls for handling camera movement on the world map.
 /// Attach this script to the main camera.
 /// </summary>
-public class CameraHandler : MonoBehaviour
+public class WorldMapCameraHandler : MonoBehaviour
 {
     private Game Game;
     public Camera Camera { get; private set; }
@@ -16,8 +16,8 @@ public class CameraHandler : MonoBehaviour
     protected static float ZOOM_SPEED = 0.9f; // Mouse Wheel Speed
     protected static float DRAG_SPEED = 0.025f; // Middle Mouse Drag Speed
     protected static float PAN_SPEED = 20f; // WASD Speed
-    protected static float MIN_CAMERA_SIZE = 1.5f;
-    protected static float MAX_CAMERA_SIZE = 16f;
+    protected static float MIN_CAMERA_SIZE = 4f;
+    protected static float MAX_CAMERA_SIZE = 10f;
     protected bool IsLeftMouseDown;
     protected bool IsRightMouseDown;
     protected bool IsMouseWheelDown;
@@ -48,8 +48,9 @@ public class CameraHandler : MonoBehaviour
 
     private void Update()
     {
-        if (!Game.WorldMap.gameObject.activeSelf) return;
+        if (!Game.WorldMapRenderer.gameObject.activeSelf) return;
 
+        
         // Scroll
         if (Input.mouseScrollDelta.y != 0)
         {
@@ -59,6 +60,7 @@ public class CameraHandler : MonoBehaviour
             if (Camera.orthographicSize < MIN_CAMERA_SIZE) Camera.orthographicSize = MIN_CAMERA_SIZE;
             if (Camera.orthographicSize > MAX_CAMERA_SIZE) Camera.orthographicSize = MAX_CAMERA_SIZE;
         }
+        
 
         // Dragging with right/middle mouse button
         if (Input.GetKeyDown(KeyCode.Mouse2)) IsMouseWheelDown = true;

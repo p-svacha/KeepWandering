@@ -327,7 +327,7 @@ public class Encounter_Crate : LocationEncounter
         HasPeeked = true;
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            text = $"You manage to identify that there's {InvisibleCrateItems.ToNaturalLanguage()} else inside the crate.";
+            text = $"You manage to identify that there's {InvisibleCrateItems.ToNaturalLanguage()} left inside the crate.";
             AreItemsInsideKnown = true;
         }
         if (outcome == OptionOutcomeDefOf.Failure)

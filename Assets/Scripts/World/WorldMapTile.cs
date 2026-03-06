@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,38 +8,52 @@ using UnityEngine;
 public class WorldMapTile
 {
     // World
-    public WorldMap World { get; private set; }
+    private Dictionary<Vector2Int, WorldMapTile> AllTiles;
     public Vector2Int Coordinates { get; private set; }
+    public int DistanceFromStart {  get; private set; }
     public Vector2 WorldPosition { get; private set; }
     public BiomeDef Biome { get; private set; }
     public LocationEncounter Encounter { get; private set; }
     public Mission Mission { get; private set; }
 
-    public WorldMapTile(WorldMap world, Vector2Int coordinates)
+    public List<Area> Areas { get; private set; }
+    public Area City => Areas.FirstOrDefault(a => a.Type == AreaType.City);
+    public Area Forest => Areas.FirstOrDefault(a => a.Type == AreaType.Forest);
+    public Area Lake => Areas.FirstOrDefault(a => a.Type == AreaType.Lake); 
+
+
+    public WorldMapTile(Dictionary<Vector2Int, WorldMapTile> allTiles, Vector2Int coordinates)
     {
-        World = world;
+        AllTiles = allTiles;
         Coordinates = coordinates;
-        Vector3 worldPos = World.HexGrid.CellToWorld(new Vector3Int(Coordinates.x, Coordinates.y, 0));
-        WorldPosition = new Vector2(worldPos.x, worldPos.y);
+        WorldPosition = WorldMapRenderer.Instance.GetWorldPosition(coordinates);
+        Areas = new List<Area>();
+
+        // Calculate hex tile distance from start (0,0) using cube coordinates (odd-r offset)
+        int col = coordinates.x;
+        int row = coordinates.y;
+        int q = col - (row - (row & 1)) / 2;
+        int r = row;
+        int s = -q - r;
+        DistanceFromStart = (Mathf.Abs(q) + Mathf.Abs(r) + Mathf.Abs(s)) / 2;
     }
 
     public void SetBiome(BiomeDef biome)
     {
         Biome = biome;
+        WorldMapRenderer.Instance.FillTile(this);
     }
 
     public void SetEncounter(LocationEncounter encounter)
     {
         Encounter = encounter;
-        // todo: draw on world map
+        WorldMapRenderer.Instance.SetMarkerTile(this, encounter.Def);
     }
 
     public void SetMission(Mission mission)
     {
         Mission = mission;
-
-        if (mission == null) World.SetTile(World.MarkerTilemap, Coordinates, null);
-        else World.SetTile(World.MarkerTilemap, Coordinates, mission.MapMarker);
+        WorldMapRenderer.Instance.SetMissionMarker(this, mission);
     }
 
     #region Getters
@@ -50,7 +63,9 @@ public class WorldMapTile
     /// </summary>
     public WorldMapTile GetAdjacentTile(Direction dir)
     {
-        return World.GetTile(HelperFunctions.GetAdjacentHexCoordinates(Coordinates, dir));
+        Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(Coordinates, dir);
+        AllTiles.TryGetValue(adjCoord, out WorldMapTile tile);
+        return tile;
     }
 
     /// <summary>
@@ -59,9 +74,9 @@ public class WorldMapTile
     public List<WorldMapTile> GetAdjacentTiles()
     {
         List<WorldMapTile> adjacentTiles = new List<WorldMapTile>();
-        foreach(Direction dir in HelperFunctions.GetAdjacentHexDirections())
+        foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
         {
-            WorldMapTile adjacentTile = World.GetTile(HelperFunctions.GetAdjacentHexCoordinates(Coordinates, dir));
+            WorldMapTile adjacentTile = GetAdjacentTile(dir);
             if (adjacentTile != null) adjacentTiles.Add(adjacentTile);
         }
 
@@ -73,7 +88,7 @@ public class WorldMapTile
     /// </summary>
     public bool HasAdjacentTile(Direction dir)
     {
-        return World.GetTile(HelperFunctions.GetAdjacentHexCoordinates(Coordinates, dir)) != null;
+        return GetAdjacentTile(dir) != null;
     }
 
     public bool IsPassable()
@@ -91,7 +106,9 @@ public class WorldMapTile
     public override string ToString()
     {
         string info = Biome.ToString();
+        if (Encounter != null) info += ", " + Encounter.Label;
         if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
+        // info += "\nDistance from start: " + DistanceFromStart; // debug
         return info;
     }
 

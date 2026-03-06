@@ -33,9 +33,12 @@ public static class DefDatabase<T> where T : Def
 	{
 		foreach (T def in defCollection)
 		{
-			if (!def.Validate())
-				throw new System.Exception("Loading Defs aborted due to an invalid Def");
-			if (defsByName.ContainsKey(def.DefName))
+			try { def.Validate(); }
+			catch (System.Exception e)
+			{
+				throw new System.Exception("Failed to validate Def '" + def.DefName + "' of type " + def.GetType() + ": " + e.Message);
+            }
+            if (defsByName.ContainsKey(def.DefName))
 				throw new System.Exception($"Def with name {def.DefName} has already been loaded for type {def.GetType()}.");
 
 			defsList.Add(def);

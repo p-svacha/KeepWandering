@@ -50,6 +50,9 @@ TagManager:
   - name: Injury
     uniqueID: 2487721409
     locked: 0
+  - name: LightingOverlay
+    uniqueID: 1181111563
+    locked: 0
   - name: UI
     uniqueID: 3092948663
     locked: 0

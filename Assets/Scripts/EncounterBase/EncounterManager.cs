@@ -36,8 +36,7 @@ public class EncounterManager
         int numAppearances = Game.WorldMap.GetNumAppearances(def);
 
         // Check if the event can even occur
-        if (def.BaseProbability == 0f) return 0f; // Cannot occur naturally
-        if (def.CanOnlyOccurOnce && numAppearances > 0) return 0f; // Cannot occur more than once and it already happened
+        if (numAppearances >= def.MaxOccurences && def.MaxOccurences > 0) return 0f; // Cannot occur more than once and it already happened
         if (!def.Biomes.ContainsKey(tile.Biome)) return 0f; // Cannot occur in this biome
 
         // Base probability
@@ -60,26 +59,24 @@ public class EncounterManager
     /// <summary>
     /// Choses and returns a new encounter for a tile that the player first steps on.
     /// </summary>
-    public LocationEncounter GenerateLocationEncounter(WorldMapTile tile)
+    public EncounterDef SelectRandomLocationEncounterDefFor(WorldMapTile tile)
     {
         // Forced encounter (dev mode)
         if (ForcedLocationEncounter != null)
         {
-            LocationEncounter forcedLocationEncounter = GenerateEncounter(ForcedLocationEncounter) as LocationEncounter;
+            EncounterDef forced = ForcedLocationEncounter;
             ForcedLocationEncounter = null;
-            return forcedLocationEncounter;
+            return forced;
         }
 
         // Create a weighted table with the probabilities of each event and chose one
         Dictionary<EncounterDef, float> eventTable = new Dictionary<EncounterDef, float>();
-        foreach (EncounterDef def in DefDatabase<EncounterDef>.AllDefs.Where(e => e.EncounterType == EncounterType.Location))
+        foreach (EncounterDef def in DefDatabase<EncounterDef>.AllDefs.Where(e => e.Type == EncounterType.Location))
         {
             eventTable.Add(def, GetEncounterProbability(def, tile));
         }
         EncounterDef chosenEncounterDef = HelperFunctions.GetWeightedRandomElement(eventTable);
-
-        // Instantiate the encounter
-        return GenerateEncounter(chosenEncounterDef) as LocationEncounter;
+        return chosenEncounterDef;
     }
 
     public void ForceEncounter(EncounterDef encounterDef)

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -8,21 +9,26 @@ using UnityEngine;
 /// </summary>
 public class Area
 {
-    private WorldMap World;
-    public string Name;
-    private List<WorldMapTile> Tiles;
+    private WorldMapRenderer Renderer => WorldMapRenderer.Instance;
+    public string Name { get; private set; }
+    public AreaType Type { get; private set; }
+    public List<WorldMapTile> Tiles;
     private List<WorldMapTile> PerimeterTiles;
 
     // Visual
     private Color FENCE_COLOR = Color.white;
     public GameObject FenceObject;
+    public GameObject LabelObject;
 
-    public Area(WorldMap world, string name, List<WorldMapTile> tiles)
+    public int TileCount => Tiles.Count;
+
+    public Area(string name, AreaType type, List<WorldMapTile> tiles)
     {
-        World = world;
         Name = name;
+        Type = type;
         Tiles = tiles;
         PerimeterTiles = GetPerimeterTiles();
+        foreach(WorldMapTile tile in Tiles) tile.Areas.Add(this);
     }
 
     public void DrawPerimeterFence(Material material, float width = 0.03f)
@@ -30,8 +36,8 @@ public class Area
         if (FenceObject != null) GameObject.Destroy(FenceObject.gameObject);
 
         FenceObject = new GameObject(Name + " Fence");
-        FenceObject.transform.SetParent(World.transform);
-        FenceObject.layer = World.gameObject.layer;
+        FenceObject.transform.SetParent(Renderer.transform);
+        FenceObject.layer = Renderer.gameObject.layer;
 
         LineRenderer line = FenceObject.AddComponent<LineRenderer>();
         line.material = material;
@@ -48,6 +54,61 @@ public class Area
         List<Vector2> fence = GetPerimeterPoints();
         line.positionCount = fence.Count;
         for (int i = 0; i < fence.Count; i++) line.SetPosition(i, fence[i]);
+    }
+
+    /// <summary>
+    /// Shows a label for this area on the world map. Position is centered on the area and rotation aligns with the principal axis of the tile positions.
+    /// </summary>
+    public void ShowLabel(float fontSize)
+    {
+        HideLabel();
+
+        // Calculate center position (centroid of all tiles)
+        Vector2 center = Vector2.zero;
+        foreach (WorldMapTile tile in Tiles) center += tile.WorldPosition;
+        center /= Tiles.Count;
+
+        // Calculate rotation based on principal axis of tile positions (PCA)
+        float angle = 0f;
+        if (Tiles.Count >= 2)
+        {
+            float covXX = 0f, covYY = 0f, covXY = 0f;
+            foreach (WorldMapTile tile in Tiles)
+            {
+                float dx = tile.WorldPosition.x - center.x;
+                float dy = tile.WorldPosition.y - center.y;
+                covXX += dx * dx;
+                covYY += dy * dy;
+                covXY += dx * dy;
+            }
+            angle = 0.5f * Mathf.Atan2(2f * covXY, covXX - covYY) * Mathf.Rad2Deg;
+
+            // Scale rotation down linearly so it stays within -30/30 range
+            // (maps -90..90 to -30..30 while preserving proportions)
+            angle = angle * (30f / 90f);
+        }
+
+        // Instantiate label from prefab
+        LabelObject = GameObject.Instantiate(Renderer.AreaLabelPrefab.gameObject, Renderer.AreaLabelContainer.transform);
+        LabelObject.name = Name + " Label";
+        LabelObject.transform.position = new Vector3(center.x, center.y, 0f);
+        LabelObject.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        TextMeshPro tmp = LabelObject.GetComponent<TextMeshPro>();
+        tmp.text = Name;
+        tmp.fontSize = fontSize;
+    }
+
+    /// <summary>
+    /// Hides the label for this area.
+    /// </summary>
+    public void HideLabel()
+    {
+        if (LabelObject != null)
+        {
+            GameObject.Destroy(LabelObject);
+            LabelObject = null;
+        }
     }
 
     #region Getters
