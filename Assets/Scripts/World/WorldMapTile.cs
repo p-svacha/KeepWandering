@@ -103,6 +103,58 @@ public class WorldMapTile
     public Vector2 SouthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, -0.25f);
     public Vector2 NorthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, 0.25f);
 
+    /// <summary>
+    /// Returns the city, forest or lake that is closest to this tile.
+    /// </summary>
+    /// <returns></returns>
+    public Area GetClosestArea()
+    {
+        // Check if tile is within a city, forest or lake area
+        if (City != null) return City;
+        if (Forest != null) return Forest;
+        if (Lake != null) return Lake;
+
+        // Go outwards in rings of adjacent tiles until we find a city, forest or lake
+        int ring = 1;
+        while (true)
+        {
+            List<WorldMapTile> ringTiles = GetTilesInHexRing(ring).GetShuffledList();
+            foreach (WorldMapTile tile in ringTiles)
+            {
+                if (tile.City != null) return tile.City;
+                if (tile.Forest != null) return tile.Forest;
+                if (tile.Lake != null) return tile.Lake;
+            }
+            ring++;
+        }
+    }
+
+    public List<WorldMapTile> GetTilesInHexRing(int ring)
+    {
+        List<WorldMapTile> checkedTiles = new List<WorldMapTile>();
+        List<WorldMapTile> prevRingTiles = new List<WorldMapTile>() { this };
+        List<WorldMapTile> nextRingTiles = new List<WorldMapTile>();
+
+        for (int i = 0; i < ring; i++)
+        {
+            nextRingTiles = new List<WorldMapTile>();
+            foreach (WorldMapTile tile in prevRingTiles)
+            {
+                foreach (WorldMapTile adjacent in tile.GetAdjacentTiles())
+                {
+                    if (!checkedTiles.Contains(adjacent))
+                    {
+                        checkedTiles.Add(adjacent);
+                        nextRingTiles.Add(adjacent);
+                    }
+                }
+            }
+            prevRingTiles = nextRingTiles;
+        }
+
+        return prevRingTiles;
+    }
+
     public override string ToString()
     {
         string info = Biome.ToString();

@@ -154,8 +154,8 @@ public static class WorldMapGenerator
 
         // Set Biome (may be overriden in upcoming steps)
         BiomeDef biome = BiomeDefOf.Farmland;
-        if (WaterNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Lake;
-        else if (ForestNoise.GetValue(coordinates) > 0.65f) biome = BiomeDefOf.Woods;
+        if (WaterNoise.GetValue(coordinates) > 0.63f) biome = BiomeDefOf.Lake;
+        else if (ForestNoise.GetValue(coordinates) > 0.63f) biome = BiomeDefOf.Woods;
         newTile.SetBiome(biome);
     }
 

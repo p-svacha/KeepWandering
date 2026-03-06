@@ -100,10 +100,15 @@ public static class DefDatabase<T> where T : Def
 		}
 	}
 
-	/// <summary>
-	/// Returns the Def of the given name. Throws an exception if it does not exist.
-	/// </summary>
-	public static T GetNamed(string defName)
+	public static bool TryGetNamed(string defName, out T def)
+	{
+		return defsByName.TryGetValue(defName, out def);
+    }
+
+    /// <summary>
+    /// Returns the Def of the given name. Throws an exception if it does not exist.
+    /// </summary>
+    public static T GetNamed(string defName)
 	{
 		if (defName == "")
 		{

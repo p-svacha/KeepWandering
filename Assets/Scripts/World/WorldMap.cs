@@ -69,14 +69,24 @@ public class WorldMap
         return GetTile(new Vector2Int(x, y));
     }
 
-    public WorldMapTile GetRandomQuarantineTile()
+    public WorldMapTile GetRandomTile(BiomeDef biome = null, bool empty = true, bool mustBorderFence = false)
     {
-        return QuarantineZone.GetRandomPassableTile();
-    }
+        List<WorldMapTile> candidateTiles = new List<WorldMapTile>(QuarantineZone.Tiles);
 
-    public WorldMapTile GetRandomEmptyTileOfBiome(BiomeDef biome)
-    {
-        return QuarantineZone.Tiles.Where(t => t.Biome == biome && t.Encounter == null).ToList().RandomElement();
+        if (biome != null)
+        {
+            candidateTiles = candidateTiles.Where(t => t.Biome == biome).ToList();
+        }
+        if (empty)
+        {
+            candidateTiles = candidateTiles.Where(t => t.Encounter == null).ToList();
+        }
+        if (mustBorderFence)
+        {
+            candidateTiles = candidateTiles.Where(t => QuarantineZone.IsOnPerimeter(t)).ToList();
+        }
+
+        return candidateTiles.RandomElement();
     }
 
     /// <summary>

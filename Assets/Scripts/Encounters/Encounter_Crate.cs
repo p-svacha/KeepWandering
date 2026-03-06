@@ -51,7 +51,7 @@ public class Encounter_Crate : LocationEncounter
         }
     }
 
-    protected override EncounterStep OnStart()
+    protected override string OnStart()
     {
         // Sprites
         if (!IsVisibleItemGone) VisibleCrateItem.Show();
@@ -60,42 +60,10 @@ public class Encounter_Crate : LocationEncounter
         if (IsFirstVisit) text = $"You come across a locked wooden crate. You can see a {VisibleCrateItem.Label} inside through a small hole. Maybe there are more items hidden within.";
         else text = $"You are back at the {(IsSmashed || IsOpened ? "looted" : "locked wooden")} crate.";
 
-        return GetNextEncounterStep(text);
+        return text;
     }
 
-    protected override void OnEnd()
-    {
-        if (!IsVisibleItemGone) VisibleCrateItem.Hide();
-    }
-
-    private void TakeVisibleItem()
-    {
-        if (IsVisibleItemGone) return;
-
-        Game.AddExistingItemToInventory(VisibleCrateItem);
-        IsVisibleItemGone = true;
-    }
-    private void TakeAllInvisibleItems()
-    {
-        if (AllItemsGone) return;
-
-        foreach (var item in InvisibleCrateItems) Game.AddExistingItemToInventory(item);
-        InvisibleCrateItems.Clear();
-        AreItemsInsideKnown = true;
-        AllItemsGone = true;
-    }
-
-    private EncounterStep GetNextEncounterStep(string text)
-    {
-        // Sprites
-        SetEncounterSpriteVisibility("Crate_Destroyed", IsSmashed);
-        SetEncounterSpriteVisibility("Crate_Open", IsOpened);
-        SetEncounterSpriteVisibility("Crate", !IsSmashed && !IsOpened);
-
-        return new EncounterStep(text, GetOptions());
-    }
-
-    private List<EncounterOption> GetOptions()
+    protected override List<EncounterOption> GetOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
         if (AllItemsGone)
@@ -124,6 +92,36 @@ public class Encounter_Crate : LocationEncounter
         return options;
     }
 
+    protected override void RefreshSprites()
+    {
+        SetEncounterSpriteVisibility("Crate_Destroyed", IsSmashed);
+        SetEncounterSpriteVisibility("Crate_Open", IsOpened);
+        SetEncounterSpriteVisibility("Crate", !IsSmashed && !IsOpened);
+    }
+
+    protected override void OnEnd()
+    {
+        if (!IsVisibleItemGone) VisibleCrateItem.Hide();
+    }
+
+    private void TakeVisibleItem()
+    {
+        if (IsVisibleItemGone) return;
+
+        Game.AddExistingItemToInventory(VisibleCrateItem);
+        IsVisibleItemGone = true;
+    }
+    private void TakeAllInvisibleItems()
+    {
+        if (AllItemsGone) return;
+
+        foreach (var item in InvisibleCrateItems) Game.AddExistingItemToInventory(item);
+        InvisibleCrateItems.Clear();
+        AreItemsInsideKnown = true;
+        AllItemsGone = true;
+    }
+  
+
     private EncounterOption CreateTakeItemOption()
     {
         return new SkillCheckOption()
@@ -141,7 +139,7 @@ public class Encounter_Crate : LocationEncounter
             Action = TakeItem,
         };
     }
-    private EncounterStep TakeItem(OptionOutcomeDef outcome)
+    private string TakeItem(OptionOutcomeDef outcome)
     {
         string text = "";
 
@@ -182,7 +180,7 @@ public class Encounter_Crate : LocationEncounter
             Game.AddCutWound();
         }
 
-        return GetNextEncounterStep(text);
+        return text;
     }
 
     private EncounterOption CreateSmashCrateOption()
@@ -208,7 +206,7 @@ public class Encounter_Crate : LocationEncounter
             Action = SmashCrate,
         };
     }
-    private EncounterStep SmashCrate(OptionOutcomeDef outcome)
+    private string SmashCrate(OptionOutcomeDef outcome)
     {
         string text = "";
 
@@ -252,7 +250,7 @@ public class Encounter_Crate : LocationEncounter
             Game.ModifyStatBaseValue(StatDefOf.Morale, -1);
         }
 
-        return GetNextEncounterStep(text);
+        return text;
     }
 
 
@@ -276,7 +274,7 @@ public class Encounter_Crate : LocationEncounter
             Action = OpenCrate,
         };
     }
-    private EncounterStep OpenCrate(OptionOutcomeDef outcome)
+    private string OpenCrate(OptionOutcomeDef outcome)
     {
         string text = "";
 
@@ -301,7 +299,7 @@ public class Encounter_Crate : LocationEncounter
             Game.DestroyOwnedItem(Game.ItemsUsedInOption[0]);
         }
 
-        return GetNextEncounterStep(text);
+        return text;
     }
 
     private EncounterOption CreatePeekOption()
@@ -320,7 +318,7 @@ public class Encounter_Crate : LocationEncounter
             Action = Peek,
         };
     }
-    private EncounterStep Peek(OptionOutcomeDef outcome)
+    private string Peek(OptionOutcomeDef outcome)
     {
         string text = "";
 
@@ -340,7 +338,7 @@ public class Encounter_Crate : LocationEncounter
             Game.AddCutWound();
         }
 
-        return GetNextEncounterStep(text);
+        return text;
     }
 
 }

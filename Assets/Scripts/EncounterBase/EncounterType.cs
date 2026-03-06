@@ -8,6 +8,11 @@ public enum EncounterType
     Invalid,
 
     /// <summary>
+    /// Only used once for the morning encounter. Same every day.
+    /// </summary>
+    Morning,
+
+    /// <summary>
     /// These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
     /// </summary>
     Location,

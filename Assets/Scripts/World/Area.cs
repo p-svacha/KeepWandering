@@ -85,7 +85,7 @@ public class Area
 
             // Scale rotation down linearly so it stays within -30/30 range
             // (maps -90..90 to -30..30 while preserving proportions)
-            angle = angle * (30f / 90f);
+            //angle = angle * (30f / 90f);
         }
 
         // Instantiate label from prefab

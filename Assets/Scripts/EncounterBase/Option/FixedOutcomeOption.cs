@@ -6,9 +6,9 @@ public class FixedOutcomeOption : EncounterOption
     public override EncounterStepOptionType Type => EncounterStepOptionType.FixedOutcome;
 
     /// <summary>
-    /// The function that gets executed when choosing this encounter step option. Function must return the next step in the encounter.
+    /// The function that gets executed when choosing this encounter step option. Handles the logic of the outcome and returns the text displayed on the next step.
     /// </summary>
-    public System.Func<EncounterStep> Action { get; init; }
+    public System.Func<string> Action { get; init; }
 
     public override void Init()
     {
@@ -22,7 +22,7 @@ public class FixedOutcomeOption : EncounterOption
             throw new System.Exception("FixedOutcomeOption cannot have item slots with difficulty reduction overrides, since it does not involve any checks. All item slots must have no difficulty reduction overrides.");
     }
 
-    public override EncounterStep Execute(out OptionOutcomeDef outcome)
+    public override string Execute(out OptionOutcomeDef outcome)
     {
         outcome = null;
         return Action.Invoke();

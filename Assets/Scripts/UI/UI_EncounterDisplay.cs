@@ -83,10 +83,17 @@ public class UI_EncounterDisplay : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
-    private EncounterStep EndEncounter()
+    private string EndEncounter()
     {
-        Game.EndAfternoonEncounter();
-        return null;
+        if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
+        {
+            // End night encounter
+        }
+        else // It is afternoon
+        {
+            Game.EndAfternoonEncounter();
+        }
+        return "";
     }
 
     public void OnOptionHovered(EncounterOption option)

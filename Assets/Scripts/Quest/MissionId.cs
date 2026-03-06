@@ -5,4 +5,6 @@ using UnityEngine;
 public enum MissionId
 {
     FindRadioTowerR,
+    GoToFenceHoleArea,
+    GoToFenceHole,
 }

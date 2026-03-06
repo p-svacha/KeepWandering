@@ -20,9 +20,9 @@ public abstract class EncounterOption
     public List<ItemSlot> ItemSlots { get; init; } = new List<ItemSlot>();
 
     /// <summary>
-    /// Executes the logic of the encounter step option and returns the next encounter step to transition to.
+    /// Executes the logic of the encounter step option and returns the text to be displayed on the next step.
     /// </summary>
-    public abstract EncounterStep Execute(out OptionOutcomeDef outcome);
+    public abstract string Execute(out OptionOutcomeDef outcome);
 
     /// <summary>
     /// Checks if the option has been set up correctly. Throws an exception if not.

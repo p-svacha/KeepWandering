@@ -14,6 +14,7 @@ public abstract class Encounter
     protected bool IsFirstVisit => NumVisits == 1;
 
     // During encounter
+    private bool IsEncounterDone;
     private List<GameObject> EventSprites = new List<GameObject>();
 
     public Encounter() { } // Empty constructor for activator
@@ -36,12 +37,28 @@ public abstract class Encounter
     public EncounterStep StartEncounter()
     {
         NumVisits++;
-        return OnStart();
+        IsEncounterDone = false;
+
+        string startText = OnStart();
+
+        return GetNextEncounterStep(startText);
+    }
+
+    public EncounterStep GetNextEncounterStep(string text)
+    {
+        RefreshSprites();
+        return new EncounterStep(text, _GetOptions());
     }
 
     public void SetMission(Mission mission)
     {
         Mission = mission;
+    }
+
+    private List<EncounterOption> _GetOptions()
+    {
+        if (IsEncounterDone) return new List<EncounterOption>();
+        else return GetOptions();
     }
 
 
@@ -51,14 +68,24 @@ public abstract class Encounter
     protected abstract void OnInitialize();
 
     /// <summary>
-    /// Called whenever this encounter starts, returning the initial step of the encounter. For location events that player can come back to, this is called every time the player enters the location, not just the first time. For encounters that are only played once, this is called after InitializeEncounter.
+    /// Called whenever this encounter starts, returning the text of the initial step of the encounter. For location events that player can come back to, this is called every time the player enters the location, not just the first time. For encounters that are only played once, this is called after InitializeEncounter.
     /// </summary>
-    protected abstract EncounterStep OnStart();
+    protected abstract string OnStart();
 
     /// <summary>
-    /// Handles everything that needs to be done when the event is done, like hiding sprites and destroying leftover items.
+    /// Called every time the player chooses an option. Shows/Hides sprites according to the current state of the encounter.
     /// </summary>
-    protected virtual void OnEnd() { }
+    protected abstract void RefreshSprites();
+
+    /// <summary>
+    /// Returns the options that the player can choose from at the current step of the encounter based on the encounters current state. This is called every time the encounter step changes, so it can be used to change the options based on the player's previous choices.
+    /// </summary>
+    protected abstract List<EncounterOption> GetOptions();
+
+    /// <summary>
+    /// Gets called when the encounter is over.
+    /// </summary>
+    protected abstract void OnEnd();
 
     /// <summary>
     /// Makes a gameobject belonging to this event visible. The gameobject will be hidden when the event ends.
@@ -82,6 +109,7 @@ public abstract class Encounter
         if (show) ShowEncounterSprite(spriteName);
         else HideEncounterSprite(spriteName);
     } 
+    protected void ShowPlayerCharacter(bool value) => Game.ShowPlayerCharacter(value);
 
     /// <summary>
     /// Makes a gameobject belonging to this event invisible.
@@ -93,7 +121,7 @@ public abstract class Encounter
     }
 
     /// <summary>
-    /// Ends the event.
+    /// Ends the event. Only called from Game.
     /// </summary>
     public void EndEncounter()
     {
@@ -102,9 +130,13 @@ public abstract class Encounter
         OnEnd();
     }
 
-    protected EncounterStep EndEncounter(string text)
+    /// <summary>
+    /// Called from subclass as the action of an option that leads to the end of the encounter.
+    /// </summary>
+    public string EndEncounter(string endText)
     {
-        return new EncounterStep(text);
+        IsEncounterDone = true;
+        return endText;
     }
 
     #region Getters

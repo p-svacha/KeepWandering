@@ -21,9 +21,9 @@ public class SkillCheckOption : EncounterOption
     public Dictionary<StatDef, float> RelevantStats { get; init; } = new Dictionary<StatDef, float>();
 
     /// <summary>
-    /// Function that gets executed when choosing this option. Function must return the next step in the encounter. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
+    /// Function that gets executed when choosing this option. Handles the logic of the outcome and returns the text displayed on the next step. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
     /// </summary>
-    public Func<OptionOutcomeDef, EncounterStep> Action { get; init; }
+    public Func<OptionOutcomeDef, string> Action { get; init; }
 
     public bool CanPartiallySucceed { get; init; } = true;
     public bool CanCriticallySucceed { get; init; } = true;
@@ -39,7 +39,7 @@ public class SkillCheckOption : EncounterOption
     }
 
 
-    public override EncounterStep Execute(out OptionOutcomeDef outcome)
+    public override string Execute(out OptionOutcomeDef outcome)
     {
         outcome = RollOutcome();
         return Action.Invoke(outcome);

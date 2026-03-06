@@ -19,6 +19,8 @@ public class EncounterManager
 
     public Encounter GenerateEncounter(EncounterDef def)
     {
+        if(def == null) throw new System.Exception("Cannot generate encounter: def is null.");
+
         Encounter encounter = System.Activator.CreateInstance(def.EncounterClass) as Encounter;
         encounter.Init(Game, def);
         return encounter;

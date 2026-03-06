@@ -377,8 +377,11 @@ public class Game : MonoBehaviour
         }
 
         // Execute the option
-        EncounterStep nextEventStep = selectedOption.Execute(out OptionOutcomeDef outcome);
-        if (nextEventStep != null) DisplayEncounterStep(nextEventStep, outcome); // Can be null on time of day transitions
+        string nextEncounterStepText = selectedOption.Execute(out OptionOutcomeDef outcome);
+        if (CurrentEncounter == null) return; // Option may have ended the encounter
+
+        EncounterStep nextEncounterStep = CurrentEncounter.GetNextEncounterStep(nextEncounterStepText);
+        if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome); // Can be null on time of day transitions
     }
 
     public void ForceUnhighlightAllInventoryItems()
@@ -417,6 +420,30 @@ public class Game : MonoBehaviour
 
     #endregion
 
+    private void SetCurrentEncounter(Encounter encounter)
+    {
+        // Set the encounter
+        CurrentEncounter = encounter;
+
+        // Display the encounter
+        EncounterStep initialStep = CurrentEncounter.StartEncounter();
+        DisplayEncounterStep(initialStep);
+
+        // Set zoom according to encounter
+        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
+
+        // Update status
+        OnGameStateChanged();
+    }
+
+    private void EndCurrentEncounter()
+    {
+        CurrentEncounter.EndEncounter();
+        CurrentEncounter = null;
+
+        UI.CloseAllWindows();
+    }
+
     #region Morning
 
     private void StartMorning()
@@ -436,9 +463,6 @@ public class Game : MonoBehaviour
         */
         OnGameStateChanged();
 
-        // Show morning report
-        UpdateMorningEncounter();
-
         // Day UI Updates
         UI.BlackTransitionText.text = "Day " + Day;
         UI.DayText.text = "Day " + Day;
@@ -446,90 +470,14 @@ public class Game : MonoBehaviour
         // Enable destination selection of adjacent tiles
         WorldMap.CanSelectDestination = true;
         foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMapRenderer.HighlightTileRed(nextPositionTarget);
+
+        // Start encounter
+        Encounter morningEncounter = EncounterManager.GenerateEncounter(EncounterDefOf.MorningEncounter);
+        SetCurrentEncounter(morningEncounter);
     }
 
-    /// <summary>
-    /// Displays the morning event step.
-    /// </summary>
-    private void UpdateMorningEncounter()
-    {
-        DisplayEncounterStep(GetMorningEncounter());
-    }
-
-    /// <summary>
-    /// Creates the morning report encounter step that contains all information about what happened during the night and the options of what to do that day.
-    /// </summary>
-    private EncounterStep GetMorningEncounter()
-    {
-        // Text displaying night events
-        string text = "";
-        if (Day == 1) text = "After you saw the news you knew that you have to get out of the quarantine zone. You ran outside, grabbed your handcart and so starts your journey.";
-        else if (LatestMorningReport.NightEvents.Count == 0) text = "You wake after an uneventful night.";
-        else
-        {
-            text = $"You wake up in the {CurrentPosition.Biome.Label}. The following happened during the night:";
-            foreach (string e in LatestMorningReport.NightEvents) text += "\n- " + e;
-        }
-
-
-        // Options
-        List<EncounterOption> options = new List<EncounterOption>();
-
-        if (Day == 1)
-        {
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Start Journey",
-                Description = "Open the map to choose your first location.",
-                Action = OpenMap
-            });
-        }
-        else
-        {
-            string exposureAppendix = ResourceManager.WarningText("\nThis will increase your exposure in this location, increasing the chance for attacks during the night!");
-
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Move",
-                Description = "Open the map to choose a location to move to.",
-                Action = OpenMap
-            });
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Stay",
-                Description = "Stay in the current location to continue where you left off yesterday." + exposureAppendix,
-                Action = Stay
-            });
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Rest",
-                Description = "Rest and recover your energy. Skips the afternoon encounter and potentially heals some injuries." + exposureAppendix,
-                Action = Rest
-            });
-        }
-
-        EncounterStep morningEventStep = new EncounterStep(text, options);
-        return morningEventStep;
-    }
-
-    private EncounterStep Stay()
-    {
-        DayAction = DayAction.Stay;
-        return EndMorning();
-    }
-
-    private EncounterStep Rest()
-    {
-        DayAction = DayAction.Rest;
-        return EndMorning();
-    }
-
-    private EncounterStep OpenMap()
-    {
-        UI.OpenWorldMap();
-        return GetMorningEncounter();
-    }
-
+    public void SetDayAction(DayAction dayAction) => DayAction = dayAction;
+   
     /// <summary>
     /// Returns all tiles the player can select when chosing what to do in the morning.
     /// </summary>
@@ -552,14 +500,14 @@ public class Game : MonoBehaviour
     {
         if (!GetNextPositionTiles().Contains(tile)) return;
 
-        DayAction = DayAction.Move;
+        SetDayAction(DayAction.Move);
         TargetPosition = tile;
         EndMorning();
     }
 
-    public EncounterStep EndMorning()
+    public void EndMorning()
     {
-        UI.CloseAllWindows();
+        EndCurrentEncounter();
 
         // Reset world map selection
         WorldMap.CanSelectDestination = false;
@@ -567,7 +515,6 @@ public class Game : MonoBehaviour
 
         // Switch state
         SwitchState(GameState.EndMorningReportTransitionIn);
-        return null;
     }
 
     #endregion
@@ -588,26 +535,16 @@ public class Game : MonoBehaviour
         // If the tile already has a location encounter set, just take that.
         if (CurrentPosition.Encounter != null)
         {
-            CurrentEncounter = CurrentPosition.Encounter;
+            SetCurrentEncounter(CurrentPosition.Encounter);
         }
 
         // Else generate a new one
         else
         {
             EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(CurrentPosition);
-            LocationEncounter encounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
-            CurrentEncounter = encounter;
+            LocationEncounter newEncounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
+            SetCurrentEncounter(newEncounter);
         }
-
-        // Display the encounter
-        EncounterStep initialStep = CurrentEncounter.StartEncounter();
-        DisplayEncounterStep(initialStep);
-
-        // Set zoom according to encounter
-        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
-
-        // Update status
-        OnGameStateChanged();
     }
 
     public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef)
@@ -622,7 +559,7 @@ public class Game : MonoBehaviour
 
     public void EndAfternoonEncounter()
     {
-        UI.CloseAllWindows();
+        EndCurrentEncounter();
         SwitchState(GameState.EndEncounterTransitionIn);
     }
 
@@ -635,46 +572,14 @@ public class Game : MonoBehaviour
         SetTimeOfDay(TimeOfDayDefOf.Evening);
         EncounterCamera.Instance.SetDefaultZoom();
 
-        // Clear previous encounter
-        if (CurrentEncounter != null) CurrentEncounter.EndEncounter();
-        CurrentEncounter = null;
-
-        // Display evening event
-        DisplayEncounterStep(GetEveningEncounter()); // todo: replace with biome specific evening encounter
+        // Start encounter
+        Encounter eveningBiomeEncounter = EncounterManager.GenerateEncounter(CurrentPosition.Biome.EveningEncounter) as Encounter;
+        SetCurrentEncounter(eveningBiomeEncounter);
     }
 
-    /// <summary>
-    /// Creates the morning report event step that contains all information about what happened during the night and the options of what to do that day.
-    /// </summary>
-    private EncounterStep GetEveningEncounter()
+    public void EndEveningEncounter()
     {
-        // Text displaying night events
-        string text = $"How would you like to spend your evening in the {CurrentPosition.Biome.Label}?";
-
-        // Dialogue Options
-        List<EncounterOption> options = new List<EncounterOption>();
-
-        FixedOutcomeOption sleepOtion = new FixedOutcomeOption()
-        {
-            Text = "Sleep",
-            Description = "Go to sleep and hope for a calm night.",
-            Action = Sleep
-        };
-        options.Add(sleepOtion);
-
-        EncounterStep eveningEventStep = new EncounterStep(text, options);
-        return eveningEventStep;
-    }
-
-    private EncounterStep Sleep()
-    {
-        EndEveningEvent();
-        return null;
-    }
-
-    public void EndEveningEvent()
-    {
-        UI.CloseAllWindows();
+        EndCurrentEncounter();
         SwitchState(GameState.DayTransitionFadeIn);
     }
 
@@ -682,10 +587,16 @@ public class Game : MonoBehaviour
 
     #region Game Actions
 
-    public Item CreateItem(ItemDef itemDef)
+    public Item CreateItem(ItemTagDef itemTag, bool hidden = false, bool frozen = true)
+    {
+        ItemDef itemDef = GetRandomItemDefWithTag(itemTag);
+        return CreateItem(itemDef, hidden, frozen);
+    }
+    public Item CreateItem(ItemDef itemDef, bool hidden = false, bool frozen = true)
     {
         Item item = new Item(this, ItemIdCounter++, itemDef);
-        item.Renderer.Freeze();
+        if (hidden) item.Renderer.Hide();
+        if (frozen) item.Renderer.Freeze();
         return item;
     }
 
@@ -790,6 +701,8 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void DecreaseArmBoneHealth(float value) => Player.ModifyArmBoneHealth(-value);
+    public void DecreaseLegBoneHealth(float value) => Player.ModifyLegBoneHealth(-value);
     public void ApplyBruiseDamage() // Adds a bruise wound and some damage to either arm or leg bone health
     {
         AddBruiseWound();
@@ -946,6 +859,8 @@ public class Game : MonoBehaviour
         UI.UpdateHealthReports();
         UI.RefreshStats();
     }
+
+    public void ShowPlayerCharacter(bool value) => Player.Renderer.gameObject.SetActive(value);
 
     #endregion
 

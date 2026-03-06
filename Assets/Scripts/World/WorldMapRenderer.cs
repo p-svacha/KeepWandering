@@ -62,6 +62,11 @@ public class WorldMapRenderer : MonoBehaviour
         EncounterMarkerCache = new Dictionary<EncounterDef, Tile>();
         foreach (EncounterDef def in DefDatabase<EncounterDef>.AllDefs)
         {
+            if (def.Type == EncounterType.Morning) continue;
+            if (def.Type == EncounterType.Biome) continue;
+            if (def.Type == EncounterType.Night) continue;
+
+            // Only interested in location encounters
             Tile markerTile = TileFactory.CreateTileFromSprite(def.WorldMapMarker);
             EncounterMarkerCache.Add(def, markerTile);
         }

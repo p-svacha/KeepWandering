@@ -82,7 +82,7 @@ public class EncounterDef : Def
             if (MinDistanceFromStart != -1) throw new System.Exception("Biome encounters cannot have a minimum distance from the starting tile.");
             if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited to occurring only once.");
             if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
-            if (Biomes != null) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
+            if (Biomes != null && Biomes.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
         }
 
         if (Type == EncounterType.Night)
