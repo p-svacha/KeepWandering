@@ -31,8 +31,6 @@ public class WorldMapRenderer : MonoBehaviour
     public GameObject PlayerPositionMarker;
 
     [Header("Area Labels")]
-    public static float MIN_AREA_LABEL_SIZE = 6;
-    public static float MAX_AREA_LABEL_SIZE = 7;
     public GameObject AreaLabelContainer;
     public TextMeshPro AreaLabelPrefab;
 

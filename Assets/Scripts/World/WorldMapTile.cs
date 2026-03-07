@@ -14,7 +14,7 @@ public class WorldMapTile
     public Vector2 WorldPosition { get; private set; }
     public BiomeDef Biome { get; private set; }
     public LocationEncounter Encounter { get; private set; }
-    public Mission Mission { get; private set; }
+    public Quest Mission { get; private set; }
 
     public List<Area> Areas { get; private set; }
     public Area City => Areas.FirstOrDefault(a => a.Type == AreaType.City);

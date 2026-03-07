@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Game : MonoBehaviour
 {
@@ -27,7 +26,7 @@ public class Game : MonoBehaviour
     public List<Wound> WoundsAddedSinceLastStep = new List<Wound>();
     public Dictionary<StatDef, int> StatChangesSinceLastStep = new Dictionary<StatDef, int>();
     public int NumRevealedLocationEncountersSinceLastStep = 0;
-    public int NumAddedMissionsSinceLastStep = 0;
+    public int NumAddedQuestsSinceLastStep = 0;
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -36,8 +35,9 @@ public class Game : MonoBehaviour
     public WorldMapTile TargetPosition { get; private set; } // Position the player is moving towards.
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
-    // Missions
-    public Dictionary<MissionId, Mission> Missions = new Dictionary<MissionId, Mission>();
+    // Quests
+    public Dictionary<QuestDef, QuestState> QuestStates;
+    public Dictionary<QuestDef, Quest> ActiveQuests;
 
     // Elements
     [Header("Main Elements")]
@@ -70,7 +70,7 @@ public class Game : MonoBehaviour
     // Debug
     public const bool DEBUG_RANDOM_CHOICES = true;
 
-    #region Game Flow
+    #region Initialize
 
     void Start()
     {
@@ -90,6 +90,14 @@ public class Game : MonoBehaviour
     private void StartGame()
     {
         EncounterManager = new EncounterManager(this);
+
+        // Init quests
+        QuestStates = new Dictionary<QuestDef, QuestState>();
+        foreach (QuestDef questDef in DefDatabase<QuestDef>.AllDefs)
+        {
+            QuestStates.Add(questDef, global::QuestState.Inactive);
+        }
+        ActiveQuests = new Dictionary<QuestDef, Quest>();
 
         // Init world
         WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200);
@@ -116,6 +124,10 @@ public class Game : MonoBehaviour
 
         SwitchState(GameState.InDayTransition);
     }
+
+    #endregion
+
+    #region Game Flow
 
     public void SetTimeOfDay(TimeOfDayDef timeOfDay)
     {
@@ -363,7 +375,7 @@ public class Game : MonoBehaviour
         WoundsAddedSinceLastStep.Clear();
         StatChangesSinceLastStep.Clear();
         NumRevealedLocationEncountersSinceLastStep = 0;
-        NumAddedMissionsSinceLastStep = 0;
+        NumAddedQuestsSinceLastStep = 0;
     }
 
     /// <summary>
@@ -450,14 +462,14 @@ public class Game : MonoBehaviour
 
     #endregion
 
- 
+
 
     #region Morning
 
     private void StartMorning()
     {
         // End previous encounter
-        if(Day > 0) EndCurrentEncounter();
+        if (Day > 0) EndCurrentEncounter();
 
         SetTimeOfDay(TimeOfDayDefOf.Morning);
         EncounterCamera.Instance.SetDefaultZoom();
@@ -488,7 +500,7 @@ public class Game : MonoBehaviour
     }
 
     public void SetDayAction(DayAction dayAction) => DayAction = dayAction;
-   
+
     /// <summary>
     /// Returns all tiles the player can select when chosing what to do in the morning.
     /// </summary>
@@ -734,7 +746,7 @@ public class Game : MonoBehaviour
     {
         AddBruiseWound();
 
-        if(Random.value < 0.5f) Player.ModifyArmBoneHealth(-damage);
+        if (Random.value < 0.5f) Player.ModifyArmBoneHealth(-damage);
         else Player.ModifyLegBoneHealth(-damage);
     }
     public void AddBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
@@ -799,25 +811,24 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void AddMission(Mission mission)
+    public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != global::QuestState.Inactive;
+    public void AddQuest(Quest quest)
     {
-        Missions.Add(mission.Id, mission);
-        NumAddedMissionsSinceLastStep++;
+        if (HasQuestStarted(quest.QuestDef)) Debug.LogWarning("Adding quest that has already started: " + quest.QuestDef.Label);
 
-        UI.UpdateMissionDisplay();
+        ActiveQuests.Add(quest.QuestDef, quest);
+        QuestStates[quest.QuestDef] = global::QuestState.Active;
+        NumAddedQuestsSinceLastStep++;
+
+        OnGameStateChanged();
     }
-    public void RemoveMission(MissionId missionId)
+    public void CompleteQuest(QuestDef quest)
     {
-        if (!Missions.ContainsKey(missionId)) return;
+        QuestStates[quest] = global::QuestState.Completed;
 
-        Mission mission = Missions[missionId];
-        Missions.Remove(missionId);
+        if (ActiveQuests.ContainsKey(quest)) ActiveQuests.Remove(quest);
 
-        UI.UpdateMissionDisplay();
-    }
-    public bool HasMission(MissionId missionId)
-    {
-        return Missions.ContainsKey(missionId);
+        OnGameStateChanged();
     }
 
     /*
@@ -900,6 +911,7 @@ public class Game : MonoBehaviour
 
         UI.UpdateHealthReports();
         UI.RefreshStats();
+        UI.UpdateQuestDisplay();
     }
 
     public void ShowPlayerCharacter(bool value) => Player.Renderer.gameObject.SetActive(value);
@@ -914,10 +926,6 @@ public class Game : MonoBehaviour
     }
 
     public Item RandomInventoryItem => Inventory.RandomElement();
-    public bool IsMissionActive(MissionId id)
-    {
-        return Missions.ContainsKey(id);
-    }
 
     public static Game Instance;
 

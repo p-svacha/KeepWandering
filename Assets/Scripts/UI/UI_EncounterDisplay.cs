@@ -253,11 +253,11 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
 
         // New missions
-        if (Game.NumAddedMissionsSinceLastStep > 0)
+        if (Game.NumAddedQuestsSinceLastStep > 0)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             Sprite sprite = ResourceManager.LoadSprite("UiSprites/NewNote2");
-            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedMissionsSinceLastStep, tooltipText: $"Gained {Game.NumAddedMissionsSinceLastStep} new note{(Game.NumAddedMissionsSinceLastStep > 1 ? "s" : "")}.");
+            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedQuestsSinceLastStep, tooltipText: $"Gained {Game.NumAddedQuestsSinceLastStep} new note{(Game.NumAddedQuestsSinceLastStep > 1 ? "s" : "")}.");
         }
 
         // Add slight rotation to all notes

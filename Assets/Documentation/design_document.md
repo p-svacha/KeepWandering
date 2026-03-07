@@ -195,12 +195,15 @@ The world is is a pointy top hex tile map that is procedurally generated at the 
 3. The base "natural" biomes are generated (like farmland, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Farmland > Lake > Woods.
 4. 5 Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached (3-10). All tiles in a city get assigned the city biome. Cities are areas.
 5. Now that all biomes are set, clusters of adjacent tiles sharing the same biome above a certain size are grouped together into areas. This creates named areas like forests and lakes that can be used in quests.
-6. Landmarks are placed depending on their definitions (where and how often they can appear).
+6. Each tile adjacent to the quarantine fence gets assigned the "fence" encounter. This is simply an encounter where the player faces the electric quarantine fence. 
+7. Landmarks are placed depending on their definitions (where and how often they can appear). Landmarks are predetermined encounters visible from the start. During landmark generation, more tiles may get predetermined encounters for quest chains, some of which may be hidden.
 
 # Quests
 Quests are special tasks that the player can receive from certain encounters. They usually have a specific goal that the player has to achieve, such as reaching a specific location on the world map, bringing a specific item, meeting someone, etc. Quests can have various effects on the game state, such as unlocking new encounters, changing the state of existing encounters, giving the player new items or companions, etc.
 Quests usually require the player to go to a specific tile on the world map. When a quest is given, some location encounters of affected tiles are predetermined, so the player knows what they will encounter there. Functionally quest markers work as any other encounter marker on the world map, with the only difference that they are visible before stepping on the tile, so the player can plan their route accordingly.
 In the game quests are communicated in panel titled "Notes".
+
+On a technical level, quests are defined via QuestDefs. For each QuestDef, the state of that quest is tracked and is either "Inactive", "Active", "Completed" or "Failed". The state of quests can affect encounters. For example, an encounter that would usually give a specific quest, but that quest is already active/done, then the option that would result in giving that quest is not shown.
 
 
 # Encounters
@@ -301,7 +304,6 @@ The most common types of modifiers are (in rough order of importance):
 - Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
 - Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
 - Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
-- Time of day: Some options have time of day modifiers, where certain times of day can increase or decrease the difficulty value.
 
 Difficulty is capped at 5 minimum and 200 maximum. This means that no matter how good the player is, there is always a small chance of failure, and at max difficulty the only possible outcomes are failure and critical failure.
 
@@ -354,11 +356,25 @@ During the night, separate from the night encounter, night events can happen as 
 They are purely based on the current game state and can have various effects on the player. For example, if the player has an untended injury, there is a chance that the injury gets infected. Or if the player has a certain companion, there is a chance that the companion finds an item during the night.
 Night events are shown to the player in the morning as text.
 
+# Ways to Win
+The main goal of the game is to escape the quarantine zone.
+
+## Cutting through the fence
+At the start of the game, one random tile adjacent to the quarantine fence will have its fence encounter altered, so that the electricity on the fence doesn't work. This allows the player to cut through the fence and escape.
+The location of that tile can be found at the radio tower landmark when listening to the transmission.
+The fence cutter can be received by R, who will have a predetermined, initially hidden encounter in a random city. The city, where R lives, can be found in the radio tower on a note. R needs someone to escape for him to deliver a message to the outside world, so he gives the player the fence cutter if they agree to escape for him.
 
 
-# Encouter List
+# Location Encounter List
+Location encounters are encounters that are tied to specific tiles on the world map. They are persistent, meaning that they can be returned to later with the same state as they were left in.
 
-## Location Encounters
+## Random Encounters
+These are encounters that can be generated on any tile that doesn't have a predetermined encounter. They are based on the biome of the tile and the current game state, and are generated when the player first steps on the tile or when they are revealed.
 
 ### Wooden Crate
 A locked container where players can peek inside to identify hidden loot before deciding to squeeze items through a hole, pry it open with tools, or smash it at the risk of destroying the contents.
+
+## Landmarks
+Landmarks are location encounters, that are predetermined during world generation and are visible from the start.
+
+### Radio Tower

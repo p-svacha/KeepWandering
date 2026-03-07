@@ -13,6 +13,7 @@ public static class ItemDefOf
     public static ItemDef Knife;
     public static ItemDef MedicalKit;
     public static ItemDef NutSnack;
+    public static ItemDef Rope;
     public static ItemDef WaterBottle;
 
 }

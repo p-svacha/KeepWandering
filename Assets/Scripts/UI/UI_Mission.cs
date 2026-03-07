@@ -6,13 +6,13 @@ using TMPro;
 
 public class UI_Mission : MonoBehaviour
 {
-    private Mission Mission;
+    private Quest Mission;
 
     [Header("Elements")]
     public TextMeshProUGUI MissionText;
     public Button LocationButton;
 
-    public void Init(Mission mission)
+    public void Init(Quest mission)
     {
         Mission = mission;
         MissionText.text = "- " + Mission.Text;

@@ -52,24 +52,14 @@ public static class WorldMapGenerator
         GenerateCities();
 
         // Show city labels
-        foreach (Area city in Cities)
-        {
-            float t = Mathf.InverseLerp(MIN_CITY_SIZE, MAX_CITY_SIZE, city.TileCount);
-            float fontSize = Mathf.Lerp(WorldMapRenderer.MIN_AREA_LABEL_SIZE, WorldMapRenderer.MAX_AREA_LABEL_SIZE, t);
-            city.ShowLabel(fontSize);
-        }
+        foreach (Area city in Cities) city.ShowLabel();
 
         // Group biome clusters into named areas
         Forests = GenerateBiomeAreas(BiomeDefOf.Woods, GetRandomForestName);
         Lakes = GenerateBiomeAreas(BiomeDefOf.Lake, GetRandomLakeName);
 
         // Show biome area labels
-        foreach (Area area in Forests.Concat(Lakes))
-        {
-            float t = Mathf.InverseLerp(MIN_BIOME_AREA_SIZE, MIN_BIOME_AREA_SIZE * 4, area.TileCount);
-            float fontSize = Mathf.Lerp(WorldMapRenderer.MIN_AREA_LABEL_SIZE, WorldMapRenderer.MAX_AREA_LABEL_SIZE, t);
-            area.ShowLabel(fontSize);
-        }
+        foreach (Area area in Forests.Concat(Lakes)) area.ShowLabel();
 
         // Expand edge to create safety zone outside quarantine
         ExpandMapEdge();

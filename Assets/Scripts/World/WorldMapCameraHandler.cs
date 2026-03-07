@@ -13,11 +13,11 @@ public class WorldMapCameraHandler : MonoBehaviour
     private Game Game;
     public Camera Camera { get; private set; }
 
-    protected static float ZOOM_SPEED = 0.9f; // Mouse Wheel Speed
+    protected static float ZOOM_SPEED = 0.8f; // Mouse Wheel Speed
     protected static float DRAG_SPEED = 0.025f; // Middle Mouse Drag Speed
     protected static float PAN_SPEED = 20f; // WASD Speed
     protected static float MIN_CAMERA_SIZE = 4f;
-    protected static float MAX_CAMERA_SIZE = 10f;
+    protected static float MAX_CAMERA_SIZE = 6.5f;
     protected bool IsLeftMouseDown;
     protected bool IsRightMouseDown;
     protected bool IsMouseWheelDown;

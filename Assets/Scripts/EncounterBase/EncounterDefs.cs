@@ -45,7 +45,7 @@ public static class EncounterDefs
             CameraZoomLevel = 12f,
             MinOccurences = 1,
             MaxOccurences = 1,
-            MinDistanceFromStart = 4,
+            MinDistanceFromStart = 8,
         },
     };
 }

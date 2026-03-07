@@ -164,9 +164,9 @@ public class GameUI : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
     }
 
-    public void UpdateMissionDisplay()
+    public void UpdateQuestDisplay()
     {
-        MissionsDisplay.UpdateList(Game.Missions.Values.ToList());
+        MissionsDisplay.UpdateList(Game.ActiveQuests.Values.ToList());
     }
 
     #endregion

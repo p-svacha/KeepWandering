@@ -12,13 +12,13 @@ public class UI_Missions : MonoBehaviour
     [Header("Prefabs")]
     public UI_Mission MissionPrefab;
 
-    public void UpdateList(List<Mission> missions)
+    public void UpdateList(List<Quest> missions)
     {
         // Clear old elements
         HelperFunctions.DestroyAllChildredImmediately(MissionsContainer);
 
         // Display new elements
-        foreach(Mission mission in missions)
+        foreach(Quest mission in missions)
         {
             UI_Mission missionDisplay = Instantiate(MissionPrefab, MissionsContainer.transform);
             missionDisplay.Init(mission);

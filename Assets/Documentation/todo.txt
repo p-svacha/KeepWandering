@@ -1,10 +1,14 @@
 - landmark encounter "radio tower" (prepopulated on world map)
-(/) outcome note for revealing tiles
-(/) outcome note for adding mission
-(/) tooltips for outcome notes
-(/) missions can be bound to an area. if so, location button is visible and zooms map to area center
-(/) when fading into an encounter, also slowly move camera from to right to make it look like we are arriving, also zoom out from default level to encounter zoom level
-(/) encounter sprites disappear before full black
+- port missions to questdefs
+- for each questdef, store state (inactive, active, failed, completed)
+
+- fence cutter
+- fence encounter
+- R encounter
+- make first real way to win the game
+
+- add fixed difficulty modifiers (based on encounter state)
+- for stat modifiers, show factor (i.e. "Strength (x2)"
 
 - rumor encounter "smoke rising" (can happen as night event)
 
@@ -13,20 +17,19 @@
 - biome loot tables
 - exposure mechanic
 - make poisoning a temporary condition
-- align bruise wound descruption and real logic (make it slow down bone healing)
 
+- align bruise wound descruption and real logic (make it slow down bone healing)
 - should become thirsty before becoming hungry, thirst reducing quicker than hunger
+- make infection stages to defs. use that label and description for the dynamic wound report label and description
 
 - move health condition description box to health description entry (beside text)
 - fix health condition text color
 - make health condition text a little bigger
-- make infection stages to defs. use that label and description for the dynamic wound report label and description
 - simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
 - sound
 
 
-- port missions to questdefs
-- make first real way to win the game
+
 
 - Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.
 - Dragging items onto SpriteRenderers on the player. I.e. I might wanna add that dragging a bandage on a wound sprite on the player tends it (as if selecting "tend" in the context menu)

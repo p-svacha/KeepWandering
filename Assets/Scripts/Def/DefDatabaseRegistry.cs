@@ -25,6 +25,7 @@ public static class DefDatabaseRegistry
         ClearAllDatabases();
 
         DefDatabase<TimeOfDayDef>.AddDefs(TimeOfDayDefs.Defs);
+        DefDatabase<QuestDef>.AddDefs(QuestDefs.Defs);
         DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
         DefDatabase<HealthConditionDef>.AddDefs(HealthConditionDefs.Defs);

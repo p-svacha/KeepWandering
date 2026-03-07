@@ -2,15 +2,15 @@ using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
 
 /// <summary>
-/// Acts as the source for the quest leading to a hole in the fence.
+/// Acts as the source for the quest leading to a tile where the fence can be cut.
 /// </summary>
 public class Encounter_RadioTower : LocationEncounter
 {
     private WorldMapTile HomeOfR;
     private Area CityOfR => HomeOfR.City;
 
-    private WorldMapTile FenceHoleTile;
-    private Area ClosestAreaOfHole;
+    private WorldMapTile CuttableFenceTile;
+    private Area ClosestAreaOfCuttableFence;
 
     enum PlayerPosition
     {
@@ -31,8 +31,8 @@ public class Encounter_RadioTower : LocationEncounter
     protected override void OnInitialize()
     {
         HomeOfR = WorldMap.GetRandomTile(biome: BiomeDefOf.City);
-        FenceHoleTile = WorldMap.GetRandomTile(mustBorderFence: true);
-        ClosestAreaOfHole = FenceHoleTile.GetClosestArea();
+        CuttableFenceTile = WorldMap.GetRandomTile(mustBorderFence: true);
+        ClosestAreaOfCuttableFence = CuttableFenceTile.GetClosestArea();
 
         ItemsInside = new List<Item>();
         ItemsInside.Add(Game.CreateItem(Game.GetRandomItemDef(), hidden: true));
@@ -55,18 +55,20 @@ public class Encounter_RadioTower : LocationEncounter
 
     protected override List<EncounterOption> GetOptions()
     {
+        // Note has to be taken and read before anything else for narrative clarity
+        if (!IsNoteTaken) return new List<EncounterOption>() { GetTakeNoteOption() };
+
         List<EncounterOption> options = new List<EncounterOption>();
 
         switch (CurrentPlayerPosition)
         {
             case PlayerPosition.Outside:
-                if (!IsNoteTaken) options.Add(GetTakeNoteOption());
-                if (!TriedToListen && !Game.HasMission(MissionId.GoToFenceHole) && !Game.HasMission(MissionId.GoToFenceHoleArea)) options.Add(GetListenOption());
-                if (IsNoteTaken && !IsDoorOpen && !TriedForcingDoor) options.Add(GetForceDoorOption());
+                if (!TriedToListen && !Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence)) options.Add(GetListenOption());
+                if (!IsDoorOpen && !TriedForcingDoor) options.Add(GetForceDoorOption());
                 if (!HasBeenOnTop && !TriedClimbing) options.Add(GetClimbTowerOption());
                 break;
             case PlayerPosition.Inside:
-                // No options for now, maybe add some later?
+                // Player can't be permanently inside atm
                 break;
             case PlayerPosition.OnTop:
                 options.Add(GetClimbDownOption());
@@ -75,7 +77,7 @@ public class Encounter_RadioTower : LocationEncounter
 
         return options;
     }
-    protected override bool IsMoveOnOptionAvailable() => CurrentPlayerPosition == PlayerPosition.Outside;
+    protected override bool IsMoveOnOptionAvailable() => CurrentPlayerPosition == PlayerPosition.Outside && IsNoteTaken;
 
     protected override void RefreshSprites()
     {
@@ -111,8 +113,17 @@ public class Encounter_RadioTower : LocationEncounter
     private string ReadNote()
     {
         string text = $"The note reads:\n\"Still transmitting. If you can hear this, the fence has a weak point. Find me in {CityOfR.Name}. - R'\"";
+        if (Game.QuestStates[QuestDefOf.FindR] == QuestState.Completed)
+        {
+            text += "\n\nYou have already found R, so you know all about it.";
+        }
+
+
         Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
-        Game.AddMission(new Mission(MissionId.FindRadioTowerR, $"Find R in {CityOfR.Name}", area: CityOfR));
+        if (!Game.HasQuestStarted(QuestDefOf.FindR))
+        {
+            Game.AddQuest(new Quest(QuestDefOf.FindR, $"Find R in {CityOfR.Name}", area: CityOfR));
+        }
         IsNoteTaken = true;
 
         return text;
@@ -142,18 +153,18 @@ public class Encounter_RadioTower : LocationEncounter
 
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            text = "You understand everything! The voice tells you the exact coordinates of a fence in the hole. You write it down immediately.";
+            text = "You understand everything! The voice tells you the exact coordinates of a fence segment that is unpowered and could be cut through with a fence cutter.";
             Game.ModifyStatBaseValue(StatDefOf.Morale, +2);
-            Game.AddMission(new Mission(MissionId.GoToFenceHole, $"There is hole in the fence at {FenceHoleTile.Coordinates}.", location: FenceHoleTile));
+            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: CuttableFenceTile));
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
-            text = $"You understand parts of the message. The voice mentions {ClosestAreaOfHole.Name}.";
-            Game.AddMission(new Mission(MissionId.GoToFenceHoleArea, $"The radio voice mentioned {ClosestAreaOfHole.Name}.", area: ClosestAreaOfHole));
+            text = $"You understand parts of the message. The voice mentions a fence cutter and {ClosestAreaOfCuttableFence.Name}.";
+            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The radio voice mentioned {ClosestAreaOfCuttableFence.Name} and a fence cutter.", area: ClosestAreaOfCuttableFence));
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
-            text = "You can't make out anything useful from the static.";
+            text = "You can't make out anything useful from the static. The transmissions stops, maybe try again another day.";
             Game.ModifyStatBaseValue(StatDefOf.Morale, -1);
         }
 
@@ -175,7 +186,17 @@ public class Encounter_RadioTower : LocationEncounter
             RelevantStats = new Dictionary<StatDef, float>()
             {
                 { StatDefOf.Strength, 4f }
-             },
+            },
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = false,
+                    SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
+                    DifficultyReduction = 40,
+                    DestructionChance = 0.1f,
+                }
+            }
         };
     }
     private string ForceDoor(OptionOutcomeDef outcome)
@@ -210,6 +231,15 @@ public class Encounter_RadioTower : LocationEncounter
             {
                 { StatDefOf.Agility, 2f },
                 { StatDefOf.Strength, 2f },
+            },
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = false,
+                    SpecificItems = new List<ItemDef>() { ItemDefOf.Rope },
+                    DifficultyReduction = 30,
+                }
             }
         };
     }

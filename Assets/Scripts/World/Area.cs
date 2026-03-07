@@ -21,6 +21,12 @@ public class Area
     public GameObject FenceObject;
     public GameObject LabelObject;
 
+    // Label
+    public static int SIZE_FOR_MIN_LABEL_SIZE = 4;
+    public static int SIZE_MAX_MIN_LABEL_SIZE = 30;
+    public static float MIN_LABEL_SIZE = 4;
+    public static float MAX_LABEL_SIZE = 8;
+
     public int TileCount => Tiles.Count;
 
     public Area(string name, AreaType type, List<WorldMapTile> tiles)
@@ -65,9 +71,12 @@ public class Area
     /// <summary>
     /// Shows a label for this area on the world map. Position is centered on the area and rotation aligns with the principal axis of the tile positions.
     /// </summary>
-    public void ShowLabel(float fontSize)
+    public void ShowLabel()
     {
         HideLabel();
+
+        float t = Mathf.InverseLerp(SIZE_FOR_MIN_LABEL_SIZE, SIZE_MAX_MIN_LABEL_SIZE, TileCount);
+        float fontSize = Mathf.Lerp(MIN_LABEL_SIZE, MAX_LABEL_SIZE, t);
 
         // Calculate rotation based on principal axis of tile positions (PCA)
         float angle = 0f;

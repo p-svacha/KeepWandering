@@ -9,7 +9,7 @@ public abstract class Encounter
     public Game Game { get; private set; }
     public WorldMap WorldMap => WorldMap.Instance;
     public EncounterDef Def { get; private set; }
-    public Mission Mission { get; private set; }
+    public Quest Mission { get; private set; }
     public int NumVisits { get; private set; }
     protected bool IsFirstVisit => NumVisits == 1;
 
@@ -50,7 +50,7 @@ public abstract class Encounter
         return new EncounterStep(text, _GetOptions());
     }
 
-    public void SetMission(Mission mission)
+    public void SetMission(Quest mission)
     {
         Mission = mission;
     }

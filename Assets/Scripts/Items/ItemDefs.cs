@@ -9,7 +9,7 @@ public static class ItemDefs
         {
             DefName = "Beans",
             Label = "can of beans",
-            Description = "A can of beans that will provide a good amount of nutrition and a small amount of hydration.",
+            Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Tags = { ItemTagDefOf.Food },
             IsEdible = true,
             OnEatNutrition = 3f,
@@ -20,7 +20,7 @@ public static class ItemDefs
         {
             DefName = "WaterBottle",
             Label = "bottle of water",
-            Description = "A full water bottle providing water for about 3 days.",
+            Description = "Provides water for about 3 days.",
             Tags = { ItemTagDefOf.Drink },
             IsDrinkable = true,
             OnDrinkHydration = 3f,
@@ -30,7 +30,7 @@ public static class ItemDefs
         {
             DefName = "Bandage",
             Label = "bandage",
-            Description = "A simple bandage that can be used to tend wounds.",
+            Description = "An effective way to tend all kinds of wounds.",
             Tags = { ItemTagDefOf.Medical },
             CanTendWounds = true,
         },
@@ -39,7 +39,7 @@ public static class ItemDefs
         {
             DefName = "Antibiotics",
             Label = "antibiotics",
-            Description = "A course of antibiotics that can be used to heal infections.",
+            Description = "Treats infections.",
             Tags = { ItemTagDefOf.Medical },
             CanHealInfections = true,
         },
@@ -56,14 +56,14 @@ public static class ItemDefs
         {
             DefName = "Knife",
             Label = "knife",
-            Description = "A sharp knife that can be used as a weapon or tool.",
+            Description = "Both useful as a weapon and as a tool.",
             Tags = { ItemTagDefOf.Weapon },
         },
 
         new ItemDef() {
             DefName = "NutSnack",
             Label = "nut snack",
-            Description = "A small bag of mixed nuts that will provide a small amount of nutrition and hydration.",
+            Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
             IsEdible = true,
             OnEatNutrition = 3f,
@@ -73,17 +73,18 @@ public static class ItemDefs
         {
             DefName = "MedicalKit",
             Label = "medical kit",
-            Description = "A medical kit that can be used to tend wounds and heal infections.",
+            Description = "Can be used to tend or heal a variety of medical issues.",
             Tags = { ItemTagDefOf.Medical },
             CanTendWounds = true,
             CanHealInfections = true,
+            CanHealPoisoning = true,
         },
 
         new ItemDef()
         {
             DefName = "Antidote",
             Label = "antidote",
-            Description = "An antidote that can be used to heal poisoning.",
+            Description = "Heals poisoning.",
             Tags = { ItemTagDefOf.Medical },
             CanHealPoisoning = true,
         },
@@ -92,15 +93,22 @@ public static class ItemDefs
         {
             DefName = "Coin",
             Label = "coin",
-            Description = "A coin often used as currency in trades.",
+            Description = "Commonly accepted as currency.",
         },
 
         new ItemDef()
         {
             DefName = "Crowbar",
             Label = "crowbar",
-            Description = "A sturdy crowbar that can be used as a tool for various purposes.",
+            Description = "Very useful for opening things that were not meant to be opened.",
             Tags = { ItemTagDefOf.Tool },
         },
+
+        new ItemDef()
+        {
+            DefName = "Rope",
+            Label = "rope",
+            Description = "Useful to tie things together or climbing.",
+        }
     };
 }
