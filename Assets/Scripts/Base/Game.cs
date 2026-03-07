@@ -101,11 +101,14 @@ public class Game : MonoBehaviour
         ActiveQuests = new Dictionary<QuestDef, Quest>();
 
         // Init world
-        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200, numCities: 5);
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200, numCities: 5);
+        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
         WorldMapCamera.Init(this);
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
         WorldMapRenderer.ResetCamera();
+
+        // Init story
+        StoryManager.OnGameStarted();
 
         // Init player
         PlayerCharacterRenderer.Instance.Init();
@@ -580,7 +583,7 @@ public class Game : MonoBehaviour
         // Else generate a new one
         else
         {
-            EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(CurrentPosition);
+            EncounterDef newEncounterDef = EncounterManager.SelectLocationEncounterDefFor(CurrentPosition);
             LocationEncounter newEncounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
             SetCurrentEncounter(newEncounter);
         }
@@ -597,6 +600,8 @@ public class Game : MonoBehaviour
         LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef) as LocationEncounter;
         encounter.Init(this, encounterDef, tile);
         if (!hidden) RevealEncounter(tile, showInOutcomeNote);
+
+        Debug.Log($"Set encounter {encounter.Def.Label} on tile {tile.Coordinates}");
         return encounter;
     }
 
@@ -814,7 +819,7 @@ public class Game : MonoBehaviour
         // If tile does not have encounter yet, generate one
         if (tile.Encounter == null)
         {
-            EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(tile);
+            EncounterDef newEncounterDef = EncounterManager.SelectLocationEncounterDefFor(tile);
             SetLocationEncounter(tile, newEncounterDef, showInOutcomeNote);
         }
 

@@ -8,7 +8,9 @@ public static class StoryManager
     private static Game Game => Game.Instance;
     private static WorldMap WorldMap => Game.WorldMap;
 
-    // Important locations
+
+    // One radio tower landmark will have a note hinting at R's location and the existence of the cuttable fence.
+    public static Encounter_RadioTower RadioTowerWithNote;
 
     // On one fence encounter on the perimeter the fence is unpowered from the start. It can be cut with a fence cutter.
     public static WorldMapTile CuttableFenceTile { get; private set; }
@@ -23,8 +25,14 @@ public static class StoryManager
     /// </summary>
     public static void OnGameStarted()
     {
+        RadioTowerWithNote = WorldMap.GetRandomTile(encounter: EncounterDefOf.RadioTower).Encounter as Encounter_RadioTower;
+        RadioTowerWithNote.HasNoteOnDoor = true;
+
         HomeOfR = WorldMap.GetRandomTile(biome: BiomeDefOf.City);
-        CuttableFenceTile = WorldMap.GetRandomTile(mustBorderFence: true);
+        Game.SetLocationEncounter(HomeOfR, EncounterDefOf.HomeOfR, hidden: true);
+
+        CuttableFenceTile = WorldMap.GetRandomTile(encounter: EncounterDefOf.QuarantineFence);
+        (CuttableFenceTile.Encounter as Encounter_QuarantineFence).IsElectrified = false;
         ClosestAreaOfCuttableFence = CuttableFenceTile.GetClosestArea();
     }
 }

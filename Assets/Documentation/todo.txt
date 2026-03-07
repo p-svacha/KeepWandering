@@ -1,33 +1,22 @@
-/ simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
-/ fence cutter
-/ quest item flag
-
-/ fence encounter
-/ add fixed difficulty modifiers (based on encounter state)
-	-> use on electric fence (+200 if electricity is on)
-/ for stat modifiers, show factor (i.e. "Strength (x2)")
-/ remove limit modifier from UI
-/ hidden encounters
-/ hole sprite after cutting hole
-/ don't show hidden encounters in UI below world map
-/ check winning
-/ increase edge padding in world map
-/ implement easy way to only allow options once during an encounter
-
-- move all quest logic to a storymanager instead of handling it in radio tower encounter:
+/ min distance between encounters
+/ move all quest logic to a storymanager instead of handling it in radio tower encounter:
   - after world gen is done, the storymanager runs
   - it adds the note and transmission to one radio tower encounter (like this we can have multiple towers too)
   - it de-electrifies a random fence
   - it sets the encounter of r's home
 --> The story manager holds all central logic relevant for all quests. Like this interactions between quests are easier to implement.
-
-
-
-- electrocution health condition
-- new forest background
+/ new forest background
 
 - R encounter
 -> make first real way to win the game
+
+
+- electrocution health condition
+- new content piece that can electrocute
+
+
+
+
 
 
 

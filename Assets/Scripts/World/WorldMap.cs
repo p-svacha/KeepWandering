@@ -17,7 +17,7 @@ public class WorldMap
     /// <summary>
     /// Dictionary containing all world tiles with their coordinates as the key.
     /// </summary>
-    private Dictionary<Vector2Int, WorldMapTile> Tiles;
+    public Dictionary<Vector2Int, WorldMapTile> Tiles;
 
     public bool CanSelectDestination;
 
@@ -69,9 +69,10 @@ public class WorldMap
         return GetTile(new Vector2Int(x, y));
     }
 
-    public WorldMapTile GetRandomTile(BiomeDef biome = null, bool empty = true, bool mustBorderFence = false)
+    public WorldMapTile GetRandomTile(BiomeDef biome = null, bool empty = true, bool mustBorderFence = false, EncounterDef encounter = null)
     {
         List<WorldMapTile> candidateTiles = new List<WorldMapTile>(QuarantineZone.Tiles);
+        if (encounter != null) empty = false;
 
         if (biome != null)
         {
@@ -85,7 +86,12 @@ public class WorldMap
         {
             candidateTiles = candidateTiles.Where(t => QuarantineZone.IsOnPerimeter(t)).ToList();
         }
+        if (encounter != null)
+        {
+            candidateTiles = candidateTiles.Where(t => t.Encounter != null && t.Encounter.Def == encounter).ToList();
+        }
 
+        if (candidateTiles.Count == 0) throw new System.Exception($"No tiles found that match the filter criteria.");
         return candidateTiles.RandomElement();
     }
 

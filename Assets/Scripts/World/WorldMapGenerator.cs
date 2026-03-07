@@ -340,6 +340,25 @@ public static class WorldMapGenerator
                     // Check if occupied already
                     if (tile.Encounter != null) continue;
 
+                    // Distance from other occurences of this landmark
+                    if (landmark.MinDistanceBetween > 0)
+                    {
+                        bool tooClose = false;
+                        foreach (WorldMapTile otherTile in Tiles.Values)
+                        {
+                            if (otherTile.Encounter != null && otherTile.Encounter.Def == landmark)
+                            {
+                                int distance = tile.GetDistanceFromTile(otherTile.Coordinates);
+                                if (distance < landmark.MinDistanceBetween)
+                                {
+                                    tooClose = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (tooClose) continue;
+                    }
+
                     // Biome modifier
                     if (landmark.Biomes.Count > 0)
                     {
@@ -349,6 +368,11 @@ public static class WorldMapGenerator
                 }
 
                 // Pick location
+                if(candidateTiles.Count == 0)
+                {
+                    Debug.LogWarning($"No valid location found for landmark {landmark.Label}");
+                    continue;
+                }
                 WorldMapTile location = candidateTiles.GetWeightedRandomElement();
 
                 // Add encounter to tile

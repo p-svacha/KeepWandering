@@ -48,6 +48,11 @@ public class EncounterDef : Def
     public int MinDistanceFromStart { get; init; } = -1;
 
     /// <summary>
+    /// The minimum amount of tiles that must be between two occurrences of this encounter. This is used to prevent certain encounters from occurring too close to each other.
+    /// </summary>
+    public int MinDistanceBetween { get; init; } = -1;
+
+    /// <summary>
     /// The orthographic size of the camera when this encounter is active.
     /// </summary>
     public float CameraZoomLevel { get; init; } = EncounterCamera.DEFAULT_CAMERA_SIZE;
@@ -84,6 +89,7 @@ public class EncounterDef : Def
             if (Biomes.Count > 0) throw new System.Exception("Special encounters cannot have biome-specific probabilities, as they are only force placed.");
             if (MaxOccurences != -1) throw new System.Exception("Special encounters cannot be limited, as they are only force placed.");
             if (MinDistanceFromStart != -1) throw new System.Exception("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
+            if (MinDistanceBetween != -1) throw new System.Exception("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
         }
 
         if (Type == EncounterType.Biome)
@@ -92,11 +98,13 @@ public class EncounterDef : Def
             if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited.");
             if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
             if (Biomes != null && Biomes.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
+            if (MinDistanceBetween != -1) throw new System.Exception("Biome encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
         }
 
         if (Type == EncounterType.Night)
         {
             if (BaseProbability == 0f) throw new System.Exception("Night encounters must have a base probability set.");
+            if (MinDistanceBetween != -1) throw new System.Exception("Night encounters cannot have a minimum distance between occurences, as they happen independently from location in the world.");
         }
 
         return base.Validate();

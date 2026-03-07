@@ -43,9 +43,10 @@ public static class EncounterDefs
             EncounterClass = typeof(Encounter_RadioTower),
             Type = EncounterType.Landmark,
             CameraZoomLevel = 12f,
-            MinOccurences = 1,
-            MaxOccurences = 1,
+            MinOccurences = 2,
+            MaxOccurences = 2,
             MinDistanceFromStart = 8,
+            MinDistanceBetween = 12,
         },
 
         new EncounterDef()
@@ -55,6 +56,15 @@ public static class EncounterDefs
             EncounterClass = typeof(Encounter_QuarantineFence),
             Type = EncounterType.Special,
             CameraZoomLevel = 8.5f,
+        },
+
+        new EncounterDef()
+        {
+            DefName = "HomeOfR",
+            Label = "Home of R",
+            EncounterClass = typeof(Encounter_HomeOfR),
+            Type = EncounterType.Special,
+            CameraZoomLevel = 6f,
         }
     };
 }

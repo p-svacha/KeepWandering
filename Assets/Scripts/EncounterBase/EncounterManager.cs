@@ -8,6 +8,7 @@ using UnityEngine;
 public class EncounterManager
 {
     private Game Game;
+    private WorldMap WorldMap => WorldMap.Instance;
 
     // Forced (dev mode)
     private EncounterDef ForcedLocationEncounter;
@@ -22,7 +23,7 @@ public class EncounterManager
         if(def == null) throw new System.Exception("Cannot generate encounter: def is null.");
 
         Encounter encounter = System.Activator.CreateInstance(def.EncounterClass) as Encounter;
-        encounter.Init(Game, def);
+        if (!(encounter is LocationEncounter)) encounter.Init(Game, def); // Location encounters get initialized in Game.SetLocationEncounter
         return encounter;
     }
 
@@ -40,6 +41,23 @@ public class EncounterManager
         // Check if the event can even occur
         if (numAppearances >= def.MaxOccurences && def.MaxOccurences > 0) return 0f; // Cannot occur more than once and it already happened
         if (!def.Biomes.ContainsKey(tile.Biome)) return 0f; // Cannot occur in this biome
+        if (def.MinDistanceBetween > 0) 
+        {
+            bool tooClose = false;
+            foreach (WorldMapTile otherTile in WorldMap.Tiles.Values)
+            {
+                if (otherTile.Encounter != null && otherTile.Encounter.Def == def)
+                {
+                    int distance = tile.GetDistanceFromTile(otherTile.Coordinates);
+                    if (distance < def.MinDistanceBetween)
+                    {
+                        tooClose = true;
+                        break;
+                    }
+                }
+            }
+            if (tooClose) return 0f; // Too close to another tile with the same encounter
+        }
 
         // Base probability
         float probability = def.BaseProbability;
@@ -61,7 +79,7 @@ public class EncounterManager
     /// <summary>
     /// Choses and returns a new encounter for a tile that the player first steps on.
     /// </summary>
-    public EncounterDef SelectRandomLocationEncounterDefFor(WorldMapTile tile)
+    public EncounterDef SelectLocationEncounterDefFor(WorldMapTile tile)
     {
         // Forced encounter (dev mode)
         if (ForcedLocationEncounter != null)

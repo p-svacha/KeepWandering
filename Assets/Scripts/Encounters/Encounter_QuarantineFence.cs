@@ -9,7 +9,7 @@ public class Encounter_QuarantineFence : LocationEncounter
     // Base
     protected override void OnInitialize()
     {
-        //IsElectrified = true;
+        IsElectrified = true;
     }
 
     protected override string OnStart()

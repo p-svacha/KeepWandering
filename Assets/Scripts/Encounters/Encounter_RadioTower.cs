@@ -1,23 +1,21 @@
 using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Acts as the source for the quest leading to a tile where the fence can be cut.
 /// </summary>
 public class Encounter_RadioTower : LocationEncounter
 {
-    private WorldMapTile HomeOfR;
-    private Area CityOfR => HomeOfR.City;
-
-    private WorldMapTile CuttableFenceTile;
-    private Area ClosestAreaOfCuttableFence;
-
     enum PlayerPosition
     {
         Outside,
         Inside,
         OnTop
     }
+
+    // Flag if this is quest relevant for the "Go to unpowered fence" quest and finding R
+    public bool HasNoteOnDoor;
     
     private PlayerPosition CurrentPlayerPosition;
     private bool IsNoteTaken;
@@ -27,10 +25,6 @@ public class Encounter_RadioTower : LocationEncounter
 
     protected override void OnInitialize()
     {
-        HomeOfR = WorldMap.GetRandomTile(biome: BiomeDefOf.City);
-        CuttableFenceTile = WorldMap.GetRandomTile(mustBorderFence: true);
-        ClosestAreaOfCuttableFence = CuttableFenceTile.GetClosestArea();
-
         ItemsInside = new List<Item>();
         ItemsInside.Add(Game.CreateItem(Game.GetRandomItemDef(), hidden: true));
         ItemsInside.Add(Game.CreateItem(Game.GetRandomItemDef(), hidden: true));
@@ -38,7 +32,14 @@ public class Encounter_RadioTower : LocationEncounter
 
     protected override string OnStart()
     {
-        string text = "You approach the radio tower. The door is locked. There is a static sound in the air. A note is taped to the door.";
+        string text = "You approach the radio tower.";
+
+        if (!IsDoorOpen) text += " The door is locked.";
+        if (IsDoorOpen) text += " The door is open.";
+
+        if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) text += " There is a static sound in the air.";
+        if (HasNoteOnDoor && !IsNoteTaken) text += " A note is taped to the door.";
+
 
         CurrentPlayerPosition = PlayerPosition.Outside;
 
@@ -50,14 +51,14 @@ public class Encounter_RadioTower : LocationEncounter
     protected override List<EncounterOption> GetOptions()
     {
         // Note has to be taken and read before anything else for narrative clarity
-        if (!IsNoteTaken) return new List<EncounterOption>() { GetTakeNoteOption() };
+        if (HasNoteOnDoor && !IsNoteTaken) return new List<EncounterOption>() { GetTakeNoteOption() };
 
         List<EncounterOption> options = new List<EncounterOption>();
 
         switch (CurrentPlayerPosition)
         {
             case PlayerPosition.Outside:
-                if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence)) options.Add(GetListenOption());
+                if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) options.Add(GetListenOption());
                 if (!IsDoorOpen) options.Add(GetForceDoorOption());
                 if (!HasBeenOnTop) options.Add(GetClimbTowerOption());
                 break;
@@ -76,7 +77,7 @@ public class Encounter_RadioTower : LocationEncounter
     protected override void RefreshSprites()
     {
         SetEncounterSpriteVisibility("Tower", true);
-        SetEncounterSpriteVisibility("Note", !IsNoteTaken);
+        SetEncounterSpriteVisibility("Note", HasNoteOnDoor && !IsNoteTaken);
         SetEncounterSpriteVisibility("DoorClosed", !IsDoorOpen);
         SetEncounterSpriteVisibility("DoorOpen", IsDoorOpen);
         ShowPlayerCharacter(CurrentPlayerPosition == PlayerPosition.Outside);
@@ -106,7 +107,7 @@ public class Encounter_RadioTower : LocationEncounter
     }
     private string ReadNote()
     {
-        string text = $"The note reads:\n\"Still transmitting. If you can hear this, the fence has a weak point. Find me in {CityOfR.Name}. - R'\"";
+        string text = $"The note reads:\n\"Still transmitting. If you can hear this, the fence has a weak point. Find me in {StoryManager.CityOfR.Name}. - R'\"";
         if (Game.QuestStates[QuestDefOf.FindR] == QuestState.Completed)
         {
             text += "\n\nYou have already found R, so you know all about it.";
@@ -116,7 +117,7 @@ public class Encounter_RadioTower : LocationEncounter
         Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
         if (!Game.HasQuestStarted(QuestDefOf.FindR))
         {
-            Game.AddQuest(new Quest(QuestDefOf.FindR, $"Find R in {CityOfR.Name}", area: CityOfR));
+            Game.AddQuest(new Quest(QuestDefOf.FindR, $"Find R in {StoryManager.CityOfR.Name}", area: StoryManager.CityOfR));
         }
         IsNoteTaken = true;
 
@@ -149,12 +150,12 @@ public class Encounter_RadioTower : LocationEncounter
         {
             text = "You understand everything! The voice tells you the exact coordinates of a fence segment that is unpowered and could be cut through with a fence cutter.";
             Game.ModifyStatBaseValue(StatDefOf.Morale, +2);
-            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: CuttableFenceTile));
+            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {StoryManager.CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: StoryManager.CuttableFenceTile));
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
-            text = $"You understand parts of the message. The voice mentions a fence cutter and {ClosestAreaOfCuttableFence.Name}.";
-            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The radio voice mentioned {ClosestAreaOfCuttableFence.Name} and a fence cutter.", area: ClosestAreaOfCuttableFence));
+            text = $"You understand parts of the message. The voice mentions a fence cutter and {StoryManager.ClosestAreaOfCuttableFence.Name}.";
+            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The radio voice mentioned {StoryManager.ClosestAreaOfCuttableFence.Name} and a fence cutter.", area: StoryManager.ClosestAreaOfCuttableFence));
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
