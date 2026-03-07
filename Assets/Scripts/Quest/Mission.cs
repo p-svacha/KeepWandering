@@ -11,6 +11,7 @@ public class Mission
 
     // Location based missions
     public WorldMapTile Location { get; private set; }
+    public Area Area { get; private set; }
     /// <summary>
     /// Text that gets displayed in context menu when clicking on map tile with this mission.
     /// </summary>
@@ -20,15 +21,18 @@ public class Mission
     /// </summary>
     public int EventId { get; private set; }
     public TileBase MapMarker { get; private set; }
-    public bool IsLocationBased => Location != null;
+    public bool IsLocationBased => Location != null || Area != null;
 
-    public Mission(MissionId id, string text, WorldMapTile location = null, string mapText = "", int eventId = -1, TileBase mapMarker = null)
+    public Mission(MissionId id, string text, WorldMapTile location = null, Area area = null, string mapText = "", int eventId = -1, TileBase mapMarker = null)
     {
         Id = id;
         Text = text;
         Location = location;
+        Area = area;
         MapText = mapText;
         EventId = eventId;
         MapMarker = mapMarker;
+
+        if (Area != null && Location != null) throw new System.Exception("Mission cannot have both an area and a location.");
     }
 }

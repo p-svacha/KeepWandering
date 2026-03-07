@@ -203,13 +203,14 @@ public class GameUI : MonoBehaviour
         ContextMenu.Hide();
         Tooltip.Hide();
     }
-    public void OpenWorldMap(WorldMapTile focusTile = null)
+    public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
     {
         if (Game.State != GameState.InGame) return;
 
         WorldMapMenu.gameObject.SetActive(true);
         Game.WorldMapRenderer.gameObject.SetActive(true);
         if (focusTile != null) Game.WorldMapRenderer.FocusTile(focusTile);
+        else if (focusArea != null) Game.WorldMapRenderer.FocusArea(focusArea);
 
         ContextMenu.Hide();
         Tooltip.Hide();

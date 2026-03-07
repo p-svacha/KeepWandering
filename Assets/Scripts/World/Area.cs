@@ -11,6 +11,7 @@ public class Area
 {
     private WorldMapRenderer Renderer => WorldMapRenderer.Instance;
     public string Name { get; private set; }
+    public Vector2 Center { get; private set; }
     public AreaType Type { get; private set; }
     public List<WorldMapTile> Tiles;
     private List<WorldMapTile> PerimeterTiles;
@@ -29,6 +30,11 @@ public class Area
         Tiles = tiles;
         PerimeterTiles = GetPerimeterTiles();
         foreach(WorldMapTile tile in Tiles) tile.Areas.Add(this);
+
+        // Center
+        Vector2 center = Vector2.zero;
+        foreach (WorldMapTile tile in Tiles) center += tile.WorldPosition;
+        Center = center / Tiles.Count;
     }
 
     public void DrawPerimeterFence(Material material, float width = 0.03f)
@@ -63,11 +69,6 @@ public class Area
     {
         HideLabel();
 
-        // Calculate center position (centroid of all tiles)
-        Vector2 center = Vector2.zero;
-        foreach (WorldMapTile tile in Tiles) center += tile.WorldPosition;
-        center /= Tiles.Count;
-
         // Calculate rotation based on principal axis of tile positions (PCA)
         float angle = 0f;
         if (Tiles.Count >= 2)
@@ -75,8 +76,8 @@ public class Area
             float covXX = 0f, covYY = 0f, covXY = 0f;
             foreach (WorldMapTile tile in Tiles)
             {
-                float dx = tile.WorldPosition.x - center.x;
-                float dy = tile.WorldPosition.y - center.y;
+                float dx = tile.WorldPosition.x - Center.x;
+                float dy = tile.WorldPosition.y - Center.y;
                 covXX += dx * dx;
                 covYY += dy * dy;
                 covXY += dx * dy;
@@ -91,7 +92,7 @@ public class Area
         // Instantiate label from prefab
         LabelObject = GameObject.Instantiate(Renderer.AreaLabelPrefab.gameObject, Renderer.AreaLabelContainer.transform);
         LabelObject.name = Name + " Label";
-        LabelObject.transform.position = new Vector3(center.x, center.y, 0f);
+        LabelObject.transform.position = new Vector3(Center.x, Center.y, 0f);
         LabelObject.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
         TextMeshPro tmp = LabelObject.GetComponent<TextMeshPro>();
@@ -113,7 +114,7 @@ public class Area
 
     #region Getters
 
-    public bool IsInArea(WorldMapTile tile) => Tiles.Contains(tile);
+    public bool ContainsTile(WorldMapTile tile) => Tiles.Contains(tile);
     public bool IsOnPerimeter(WorldMapTile tile) => PerimeterTiles.Contains(tile);
 
     /// <summary>

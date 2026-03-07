@@ -27,4 +27,5 @@ public class BiomeEncounter_Fallback : Encounter
     protected override void OnInitialize() { }
     protected override string OnStart() => $"How would you like to spend your evening in the {Game.CurrentPosition.Biome.Label}?";
     protected override void RefreshSprites() { }
+    protected override bool IsMoveOnOptionAvailable() => false;
 }

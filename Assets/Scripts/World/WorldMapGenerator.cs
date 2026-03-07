@@ -4,11 +4,12 @@ using UnityEngine;
 
 public static class WorldMapGenerator
 {
-    public static int NUM_CITIES = 10;
+    public static int NUM_CITIES = 5;
     public static int MIN_CITY_SIZE = 3;
     public static int MAX_CITY_SIZE = 10;
     public static int MIN_BIOME_AREA_SIZE = 5;
 
+    private static WorldMap WorldMap => WorldMap.Instance;
     private static WorldMapRenderer Renderer => WorldMapRenderer.Instance;
 
     private static PerlinNoise WaterNoise;
@@ -321,6 +322,12 @@ public static class WorldMapGenerator
                 Dictionary<WorldMapTile, float> candidateTiles = new Dictionary<WorldMapTile, float>();
                 foreach (WorldMapTile tile in Tiles.Values)
                 {
+                    // Must be in quarantine zone
+                    if (!WorldMap.QuarantineZone.ContainsTile(tile)) continue;
+
+                    // Must be passable
+                    if (!tile.IsPassable()) continue;
+
                     // Skip start tile
                     if (tile.Coordinates == Vector2Int.zero) continue;
 

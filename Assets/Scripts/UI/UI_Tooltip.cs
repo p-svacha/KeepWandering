@@ -33,11 +33,11 @@ public class UI_Tooltip : MonoBehaviour
         else if (FollowCursor) UpdatePositionAtCursor();
     }
 
-    public void Show(string title, string description = "")
+    public void Show(string title = "", string description = "")
     {
         Reset();
         gameObject.SetActive(true);
-        TitleText.gameObject.SetActive(true);
+        TitleText.gameObject.SetActive(title != "");
         DescriptionText.gameObject.SetActive(description != "");
 
         FollowCursor = true;
@@ -96,7 +96,9 @@ public class UI_Tooltip : MonoBehaviour
 
     public void UpdatePositionAtCursor()
     {
-        transform.position = Input.mousePosition + MOUSE_OFFSET;
+        Vector3 worldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
+        worldPos.z = 0f;
+        transform.position = worldPos + MOUSE_OFFSET;
     }
 
     public void UpdatePosition(Item item)

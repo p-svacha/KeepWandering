@@ -80,4 +80,5 @@ public class Encounter_Morning : Encounter
     protected override void OnInitialize() { }
     protected override string OnStart() => GetMorningText();
     protected override void RefreshSprites() { }
+    protected override bool IsMoveOnOptionAvailable() => false;
 }

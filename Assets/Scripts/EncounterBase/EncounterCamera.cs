@@ -11,14 +11,44 @@ public class EncounterCamera : MonoBehaviour
     public static EncounterCamera Instance { get; private set; }
     public Camera Camera { get; private set; }
 
+    // Zoom Transition
+    private bool IsTransitioning;
+    private float TransitionDuration;
+    private float TransitionCurrentTime;
+    private Vector3 TransitionStartPosition;
+    private float TransitionStartZoom;
+    private Vector3 TransitionTargetPosition;
+    private float TransitionTargetZoom;
+
     private void Awake()
     {
         Instance = this;
         Camera = GetComponent<Camera>();
     }
 
+    private void Update()
+    {
+        if (!IsTransitioning) return;
+
+        TransitionCurrentTime += Time.deltaTime;
+        if (TransitionCurrentTime >= TransitionDuration)
+        {
+            SetZoom(TransitionTargetZoom);
+        }
+        else
+        {
+            float t = TransitionCurrentTime / TransitionDuration;
+            float easedT = 1f - (1f - t) * (1f - t); // Ease-out quadratic
+
+            Camera.orthographicSize = Mathf.Lerp(TransitionStartZoom, TransitionTargetZoom, easedT);
+            Camera.transform.position = Vector3.Lerp(TransitionStartPosition, TransitionTargetPosition, easedT);
+        }
+    }
+
     public void SetZoom(float zoomLevel)
     {
+        IsTransitioning = false;
+
         Camera.orthographicSize = zoomLevel;
 
         // Bottom and left edge should always be the same, regardless of zoom
@@ -27,6 +57,29 @@ public class EncounterCamera : MonoBehaviour
         float yPos = zoomLevel - DEFAULT_CAMERA_SIZE;
         float xPos = yPos * Camera.aspect; // Adjust x position based on aspect ratio to keep the bottom left corner fixed
         Camera.transform.position = new Vector3(xPos, yPos, Camera.transform.position.z);
+    }
+
+    /// <summary>
+    /// Starts a smooth camera transition from a fixed start position/zoom to the given target zoom level over the specified duration.
+    /// </summary>
+    public void StartZoomTransition(Vector2 startPosition, float targetZoomLevel, float duration)
+    {
+        // Calculate target state
+        float targetYPos = targetZoomLevel - DEFAULT_CAMERA_SIZE;
+        float targetXPos = targetYPos * Camera.aspect;
+        TransitionTargetPosition = new Vector3(targetXPos, targetYPos, Camera.transform.position.z);
+        TransitionTargetZoom = targetZoomLevel;
+
+        // Set start state
+        TransitionStartPosition = new Vector3(startPosition.x, startPosition.y, Camera.transform.position.z);
+        TransitionStartZoom = DEFAULT_CAMERA_SIZE;
+        Camera.orthographicSize = TransitionStartZoom;
+        Camera.transform.position = TransitionStartPosition;
+
+        // Start transition
+        TransitionCurrentTime = 0f;
+        TransitionDuration = duration;
+        IsTransitioning = true;
     }
 
     public void SetBackgroundColor(Color color)

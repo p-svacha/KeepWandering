@@ -7,6 +7,9 @@ public class UI_EscapeMenu : MonoBehaviour
 {
     private Game Game;
 
+    [Header("General")]
+    public Button CloseButton;
+
     [Header("Add Item")]
     public Dropdown AddItemDropdown;
     public Button AddItemButton;
@@ -17,6 +20,9 @@ public class UI_EscapeMenu : MonoBehaviour
     public void Init(Game game)
     {
         Game = game;
+
+        // General
+        CloseButton.onClick.AddListener(() => Game.UI.CloseEscapeMenu());
 
         // Add item
         List<Dropdown.OptionData> itemOptions = new List<Dropdown.OptionData>();

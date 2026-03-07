@@ -29,13 +29,23 @@ public class WorldMapTile
         WorldPosition = WorldMapRenderer.Instance.GetWorldPosition(coordinates);
         Areas = new List<Area>();
 
-        // Calculate hex tile distance from start (0,0) using cube coordinates (odd-r offset)
-        int col = coordinates.x;
-        int row = coordinates.y;
-        int q = col - (row - (row & 1)) / 2;
-        int r = row;
-        int s = -q - r;
-        DistanceFromStart = (Mathf.Abs(q) + Mathf.Abs(r) + Mathf.Abs(s)) / 2;
+        DistanceFromStart = GetDistanceFromTile(Vector2Int.zero);
+    }
+
+    public int GetDistanceFromTile(Vector2Int coordinates)
+    {
+        // Convert to cube coordinates (odd-r offset)
+        int col1 = Coordinates.x;
+        int row1 = Coordinates.y;
+        int q1 = col1 - (row1 - (row1 & 1)) / 2;
+        int r1 = row1;
+        int s1 = -q1 - r1;
+        int col2 = coordinates.x;
+        int row2 = coordinates.y;
+        int q2 = col2 - (row2 - (row2 & 1)) / 2;
+        int r2 = row2;
+        int s2 = -q2 - r2;
+        return (Mathf.Abs(q1 - q2) + Mathf.Abs(r1 - r2) + Mathf.Abs(s1 - s2)) / 2;
     }
 
     public void SetBiome(BiomeDef biome)
@@ -48,12 +58,6 @@ public class WorldMapTile
     {
         Encounter = encounter;
         WorldMapRenderer.Instance.SetMarkerTile(this, encounter.Def);
-    }
-
-    public void SetMission(Mission mission)
-    {
-        Mission = mission;
-        WorldMapRenderer.Instance.SetMissionMarker(this, mission);
     }
 
     #region Getters
@@ -157,10 +161,11 @@ public class WorldMapTile
 
     public override string ToString()
     {
-        string info = Biome.ToString();
+        string info = $"{Coordinates} {Biome.LabelCapWord}";
         if (Encounter != null) info += ", " + Encounter.Label;
         if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
         // info += "\nDistance from start: " + DistanceFromStart; // debug
+        info += $", Distance: {GetDistanceFromTile(Game.Instance.CurrentPosition.Coordinates)}";
         return info;
     }
 

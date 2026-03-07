@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 2256388025229134056}
   - component: {fileID: 4090614414533894358}
   - component: {fileID: 2241943525991048206}
+  - component: {fileID: 6331460747799489462}
   m_Layer: 5
   m_Name: EncounterStepOutcomeNote
   m_TagString: Untagged
@@ -230,12 +231,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba2248b3db06ea949bb3bb42f4d3812a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TooltipTarget: {fileID: 6331460747799489462}
   ItemIcon: {fileID: 1860507609639357865}
   PlusText: {fileID: 7376411709830863264}
   MinusText: {fileID: 103676289882972916}
   AmountText: {fileID: 3123207193400531286}
   StatChangeValueText: {fileID: 5317009598022279325}
   StatChangeLabelText: {fileID: 7800579362714804898}
+--- !u!114 &6331460747799489462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4280780551354815931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb3a05fd8b084ef4093658469ee9b723, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Title: 
+  Text: 
+  Disabled: 0
+  IsFocussed: 0
+  CurrentDelay: 0
 --- !u!1 &7152624906524160237
 GameObject:
   m_ObjectHideFlags: 0

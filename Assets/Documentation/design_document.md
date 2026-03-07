@@ -190,10 +190,10 @@ An area is simply a collection of hex tiles with a name. Examples of areas or th
 ## World Generation
 The world is is a pointy top hex tile map that is procedurally generated at the start of each new game. Each day, the player (at default) moves 1 tile. The player starts at coordinates 0/0. The world generation follow these steps:
 
-1. The shape of the quarantine zone is generated. This is done by first expanding 18 tiles in a radius around the starting tile, and then generating some random protrusions (400 tiles) look more natural. After the protrusions, the shape is once again expanded by 1 tiles in a radius to smoothen the shape a bit. This generated area is the quarantine zone, enclosed by a fence.
+1. The shape of the quarantine zone is generated. This is done by first expanding 12 tiles in a radius around the starting tile, and then generating some random protrusions (200 tiles) look more natural. After the protrusions, the shape is once again expanded by 1 tiles in a radius to smoothen the shape a bit. This generated area is the quarantine zone, enclosed by a fence.
 2. An additional ring of tiles outside the fence is added that represent freedom. Reaching one of these tiles is a way to win the game.
 3. The base "natural" biomes are generated (like farmland, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Farmland > Lake > Woods.
-4. Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached. All tiles in a city get assigned the city biome. Cities are areas.
+4. 5 Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached (3-10). All tiles in a city get assigned the city biome. Cities are areas.
 5. Now that all biomes are set, clusters of adjacent tiles sharing the same biome above a certain size are grouped together into areas. This creates named areas like forests and lakes that can be used in quests.
 6. Landmarks are placed depending on their definitions (where and how often they can appear).
 

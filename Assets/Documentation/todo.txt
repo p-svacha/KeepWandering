@@ -1,20 +1,21 @@
 - landmark encounter "radio tower" (prepopulated on world map)
-- allow encounters to set camera zoom
-- redraw biome backgrounds to be tileable on x axis and with transparent sky
-- make seperate sky backgrounds, one for each time of day
-- location encounter markers on world map
+(/) outcome note for revealing tiles
+(/) outcome note for adding mission
+(/) tooltips for outcome notes
+(/) missions can be bound to an area. if so, location button is visible and zooms map to area center
+(/) when fading into an encounter, also slowly move camera from to right to make it look like we are arriving, also zoom out from default level to encounter zoom level
+(/) encounter sprites disappear before full black
 
-
-
-
-- rumor encounter "smoke rising" (prepopulated on world map)
+- rumor encounter "smoke rising" (can happen as night event)
 
 
 - evening/biome encounters
 - biome loot tables
 - exposure mechanic
-- draw new background for farmland
 - make poisoning a temporary condition
+- align bruise wound descruption and real logic (make it slow down bone healing)
+
+- should become thirsty before becoming hungry, thirst reducing quicker than hunger
 
 - move health condition description box to health description entry (beside text)
 - fix health condition text color
@@ -22,7 +23,7 @@
 - make infection stages to defs. use that label and description for the dynamic wound report label and description
 - simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
 - sound
-- when fading into an encounter, also slowly move camera from to right to make it look like we are arriving, also zoom out from default level to encounter zoom level
+
 
 - port missions to questdefs
 - make first real way to win the game

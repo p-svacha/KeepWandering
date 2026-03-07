@@ -26,6 +26,8 @@ public class Game : MonoBehaviour
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
     public List<Wound> WoundsAddedSinceLastStep = new List<Wound>();
     public Dictionary<StatDef, int> StatChangesSinceLastStep = new Dictionary<StatDef, int>();
+    public int NumRevealedLocationEncountersSinceLastStep = 0;
+    public int NumAddedMissionsSinceLastStep = 0;
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -43,6 +45,7 @@ public class Game : MonoBehaviour
     public GameUI UI;
 
     [Header("Background")]
+    public SpriteRenderer Background0;
     public SpriteRenderer Background1;
     public SpriteRenderer Background2;
     public SpriteRenderer Background3;
@@ -89,7 +92,7 @@ public class Game : MonoBehaviour
         EncounterManager = new EncounterManager(this);
 
         // Init world
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 18, numAdditionalTiles: 400);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200);
         //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 3, numAdditionalTiles: 20);
         WorldMapCamera.Init(this);
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
@@ -178,6 +181,28 @@ public class Game : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void SetCurrentEncounter(Encounter encounter)
+    {
+        // Set the encounter
+        CurrentEncounter = encounter;
+
+        // Display the encounter
+        EncounterStep initialStep = CurrentEncounter.StartEncounter();
+        DisplayEncounterStep(initialStep);
+
+        // Set zoom according to encounter
+        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
+
+        // Update status
+        OnGameStateChanged();
+    }
+
+    private void EndCurrentEncounter()
+    {
+        CurrentEncounter.EndEncounter();
+        CurrentEncounter = null;
     }
 
     private void OnItemRightClicked(Item item)
@@ -269,6 +294,7 @@ public class Game : MonoBehaviour
                 break;
 
             case GameState.DayTransitionFadeOut:
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(0f, 1f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
@@ -281,11 +307,13 @@ public class Game : MonoBehaviour
             case GameState.EndMorningReportTransitionOut:
                 if (DayAction == DayAction.Rest) StartEveningEncounter(); // Resting skips afternoon
                 else StartAfternoonEncounter();
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
             case GameState.EndEncounterTransitionOut:
                 StartEveningEncounter();
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
@@ -334,6 +362,8 @@ public class Game : MonoBehaviour
         ItemsRemovedSinceLastStep.Clear();
         WoundsAddedSinceLastStep.Clear();
         StatChangesSinceLastStep.Clear();
+        NumRevealedLocationEncountersSinceLastStep = 0;
+        NumAddedMissionsSinceLastStep = 0;
     }
 
     /// <summary>
@@ -414,40 +444,21 @@ public class Game : MonoBehaviour
         }
 
         // Win
-        if (!QuarantineZone.IsInArea(CurrentPosition)) return "You escaped the quarantine.\nYou win.";
+        if (!QuarantineZone.ContainsTile(CurrentPosition)) return "You escaped the quarantine.\nYou win.";
         return null;
     }
 
     #endregion
 
-    private void SetCurrentEncounter(Encounter encounter)
-    {
-        // Set the encounter
-        CurrentEncounter = encounter;
-
-        // Display the encounter
-        EncounterStep initialStep = CurrentEncounter.StartEncounter();
-        DisplayEncounterStep(initialStep);
-
-        // Set zoom according to encounter
-        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
-
-        // Update status
-        OnGameStateChanged();
-    }
-
-    private void EndCurrentEncounter()
-    {
-        CurrentEncounter.EndEncounter();
-        CurrentEncounter = null;
-
-        UI.CloseAllWindows();
-    }
+ 
 
     #region Morning
 
     private void StartMorning()
     {
+        // End previous encounter
+        if(Day > 0) EndCurrentEncounter();
+
         SetTimeOfDay(TimeOfDayDefOf.Morning);
         EncounterCamera.Instance.SetDefaultZoom();
 
@@ -507,11 +518,12 @@ public class Game : MonoBehaviour
 
     public void EndMorning()
     {
-        EndCurrentEncounter();
-
         // Reset world map selection
         WorldMap.CanSelectDestination = false;
         WorldMapRenderer.UnhighlightAllRedTiles();
+
+        // UI
+        UI.CloseAllWindows();
 
         // Switch state
         SwitchState(GameState.EndMorningReportTransitionIn);
@@ -523,6 +535,10 @@ public class Game : MonoBehaviour
 
     private void StartAfternoonEncounter()
     {
+        // End previous encounter
+        EndCurrentEncounter();
+
+        // Set time of day
         SetTimeOfDay(TimeOfDayDefOf.Afternoon);
 
         // Move to selected target position
@@ -559,7 +575,9 @@ public class Game : MonoBehaviour
 
     public void EndAfternoonEncounter()
     {
-        EndCurrentEncounter();
+        // UI
+        UI.CloseAllWindows();
+
         SwitchState(GameState.EndEncounterTransitionIn);
     }
 
@@ -569,6 +587,9 @@ public class Game : MonoBehaviour
 
     private void StartEveningEncounter()
     {
+        // End previous encounter
+        EndCurrentEncounter();
+
         SetTimeOfDay(TimeOfDayDefOf.Evening);
         EncounterCamera.Instance.SetDefaultZoom();
 
@@ -579,9 +600,15 @@ public class Game : MonoBehaviour
 
     public void EndEveningEncounter()
     {
-        EndCurrentEncounter();
+        // UI
+        UI.CloseAllWindows();
+
         SwitchState(GameState.DayTransitionFadeIn);
     }
+
+    #endregion
+
+    #region Night
 
     #endregion
 
@@ -703,11 +730,9 @@ public class Game : MonoBehaviour
 
     public void DecreaseArmBoneHealth(float value) => Player.ModifyArmBoneHealth(-value);
     public void DecreaseLegBoneHealth(float value) => Player.ModifyLegBoneHealth(-value);
-    public void ApplyBruiseDamage() // Adds a bruise wound and some damage to either arm or leg bone health
+    public void ApplyBruiseDamage(float damage) // Adds a bruise wound and some damage to either arm or leg bone health
     {
         AddBruiseWound();
-
-        float damage = Random.Range(0.1f, 0.2f);
 
         if(Random.value < 0.5f) Player.ModifyArmBoneHealth(-damage);
         else Player.ModifyLegBoneHealth(-damage);
@@ -760,11 +785,24 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void RevealLocationEncountersAround(WorldMapTile tile)
+    {
+        List<WorldMapTile> adjacentTiles = tile.GetAdjacentTiles();
+        foreach (WorldMapTile adjTile in adjacentTiles)
+        {
+            if (adjTile.Encounter == null)
+            {
+                EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(adjTile);
+                SetLocationEncounter(adjTile, newEncounterDef);
+                NumRevealedLocationEncountersSinceLastStep++;
+            }
+        }
+    }
+
     public void AddMission(Mission mission)
     {
         Missions.Add(mission.Id, mission);
-
-        if (mission.IsLocationBased) mission.Location.SetMission(mission);
+        NumAddedMissionsSinceLastStep++;
 
         UI.UpdateMissionDisplay();
     }
@@ -773,10 +811,13 @@ public class Game : MonoBehaviour
         if (!Missions.ContainsKey(missionId)) return;
 
         Mission mission = Missions[missionId];
-        if (mission.IsLocationBased) mission.Location.SetMission(null);
         Missions.Remove(missionId);
 
         UI.UpdateMissionDisplay();
+    }
+    public bool HasMission(MissionId missionId)
+    {
+        return Missions.ContainsKey(missionId);
     }
 
     /*
@@ -820,6 +861,7 @@ public class Game : MonoBehaviour
     public void SetPosition(WorldMapTile tile)
     {
         // Background
+        Background0.sprite = tile.Biome.BackgroundSprite;
         Background1.sprite = tile.Biome.BackgroundSprite;
         Background2.sprite = tile.Biome.BackgroundSprite;
         Background3.sprite = tile.Biome.BackgroundSprite;

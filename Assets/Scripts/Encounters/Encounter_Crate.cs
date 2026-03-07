@@ -34,7 +34,7 @@ public class Encounter_Crate : LocationEncounter
     protected override void OnInitialize()
     {
         // Visible crate item
-        VisibleCrateItem = GetBiomeLootTable(ItemTable).GetItem();
+        VisibleCrateItem = GetBiomeLootTable(ItemTable).GetItem(hidden: true);
         VisibleCrateItem.Renderer.SetPosition(7.5f, -2.5f);
         VisibleCrateItem.Renderer.SetRandomRotation();
         VisibleCrateItem.Renderer.SetSortingOrder(0);
@@ -66,31 +66,16 @@ public class Encounter_Crate : LocationEncounter
     protected override List<EncounterOption> GetOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
-        if (AllItemsGone)
-        {
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Move on",
-                Description = "There is nothing left to do.",
-                Action = () => EndEncounter("You move on.")
-            });
-        }
-        else
+        if (!AllItemsGone)
         {
             if (!IsVisibleItemGone) options.Add(CreateTakeItemOption()); // Take item
             options.Add(CreateOpenCrateOption()); // Open crate
             options.Add(CreateSmashCrateOption()); // Smash crate
             if (!AreItemsInsideKnown && !HasPeeked) options.Add(CreatePeekOption()); // Peek inside
-
-            // Ignore
-            options.Add(new FixedOutcomeOption()
-            {
-                Text = "Move on",
-                Action = () => EndEncounter("You move on.")
-            });
         }
         return options;
     }
+    protected override bool IsMoveOnOptionAvailable() => true;
 
     protected override void RefreshSprites()
     {

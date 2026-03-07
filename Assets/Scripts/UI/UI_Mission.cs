@@ -22,6 +22,7 @@ public class UI_Mission : MonoBehaviour
 
     private void LocationButton_OnClick()
     {
-        Game.Instance.UI.OpenWorldMap(focusTile: Mission.Location);
+        if (Mission.Location != null) Game.Instance.UI.OpenWorldMap(focusTile: Mission.Location);
+        else if (Mission.Area != null) Game.Instance.UI.OpenWorldMap(focusArea: Mission.Area);
     }
 }

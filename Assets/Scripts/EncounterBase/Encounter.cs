@@ -58,7 +58,20 @@ public abstract class Encounter
     private List<EncounterOption> _GetOptions()
     {
         if (IsEncounterDone) return new List<EncounterOption>();
-        else return GetOptions();
+        else
+        {
+            List<EncounterOption> options = GetOptions();
+            if (IsMoveOnOptionAvailable())
+            {
+                // Ignore
+                options.Add(new FixedOutcomeOption()
+                {
+                    Text = "Move on",
+                    Action = () => EndEncounter("You move on.")
+                });
+            }
+            return options;
+        }
     }
 
 
@@ -81,6 +94,11 @@ public abstract class Encounter
     /// Returns the options that the player can choose from at the current step of the encounter based on the encounters current state. This is called every time the encounter step changes, so it can be used to change the options based on the player's previous choices.
     /// </summary>
     protected abstract List<EncounterOption> GetOptions();
+
+    /// <summary>
+    /// If true, there is a "Move On" option available to end the encounter.
+    /// </summary>
+    protected abstract bool IsMoveOnOptionAvailable();
 
     /// <summary>
     /// Gets called when the encounter is over.

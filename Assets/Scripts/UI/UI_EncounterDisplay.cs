@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Net.Sockets;
+using static UnityEngine.CullingGroup;
 
 public class UI_EncounterDisplay : MonoBehaviour
 {
@@ -206,7 +207,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         foreach (KeyValuePair<Item, int> item in groupedAddedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, true, item.Value);
+            outcomeNote.Init(item.Key.Sprite, true, item.Value, item.Key.Def.LabelCapWord, item.Key.Description);
         }
 
         // Removed items
@@ -219,7 +220,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, false, item.Value);
+            outcomeNote.Init(item.Key.Sprite, false, item.Value, item.Key.Def.LabelCapWord, item.Key.Description);
         }
 
         // Added wounds
@@ -232,7 +233,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         foreach (var group in groupedWounds)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(group.Key.SpriteBase, true, group.Value);
+            outcomeNote.Init(group.Key.SpriteBase, true, group.Value, group.Key.Def.LabelCapWord, group.Key.Description);
         }
 
         // Stat changes
@@ -243,8 +244,24 @@ public class UI_EncounterDisplay : MonoBehaviour
             outcomeNote.Init(statChange.Key, statChange.Value);
         }
 
+        // Revealed tiles
+        if (Game.NumRevealedLocationEncountersSinceLastStep > 0)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/RevealEye");
+            outcomeNote.Init(sprite, isAdded: true, Game.NumRevealedLocationEncountersSinceLastStep, tooltipText: $"Revealed {Game.NumRevealedLocationEncountersSinceLastStep} location{(Game.NumRevealedLocationEncountersSinceLastStep > 1 ? "s" : "")} on the world map.");
+        }
+
+        // New missions
+        if (Game.NumAddedMissionsSinceLastStep > 0)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/NewNote2");
+            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedMissionsSinceLastStep, tooltipText: $"Gained {Game.NumAddedMissionsSinceLastStep} new note{(Game.NumAddedMissionsSinceLastStep > 1 ? "s" : "")}.");
+        }
+
         // Add slight rotation to all notes
-        foreach(UI_EncounterOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EncounterOutcomeNote>())
+        foreach (UI_EncounterOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EncounterOutcomeNote>())
         {
             note.transform.rotation = Quaternion.Euler(0, 0, Random.Range(-10f, 10f));
         }

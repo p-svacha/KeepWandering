@@ -6,6 +6,7 @@ using TMPro;
 
 public class UI_EncounterOutcomeNote : MonoBehaviour
 {
+    public UI_TooltipTarget TooltipTarget;
     public Image ItemIcon;
     public TextMeshProUGUI PlusText;
     public TextMeshProUGUI MinusText;
@@ -14,7 +15,7 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
     public TextMeshProUGUI StatChangeLabelText;
 
 
-    public void Init(Sprite sprite, bool isAdded, int amount = 1)
+    public void Init(Sprite sprite, bool isAdded, int amount = 1, string tooltipTitle = "", string tooltipText = "")
     {
         ItemIcon.gameObject.SetActive(true);
         PlusText.gameObject.SetActive(true);
@@ -31,6 +32,8 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
 
         StatChangeLabelText.gameObject.SetActive(false);
         StatChangeValueText.gameObject.SetActive(false);
+
+        TooltipTarget.Init(tooltipTitle, tooltipText);
     }
 
     public void Init(StatDef stat, int value)
@@ -42,5 +45,7 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
 
         StatChangeValueText.text = value.ToString("+#;-#;0");
         StatChangeLabelText.text = stat.LabelCapWord;
+
+        TooltipTarget.Init(text: $"Base value of {stat.LabelCapWord} has been {(value > 0 ? "increased" : "decreased")} by {Mathf.Abs(value)}.");
     }
 }

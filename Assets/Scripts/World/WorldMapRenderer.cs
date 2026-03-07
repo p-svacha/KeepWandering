@@ -83,6 +83,11 @@ public class WorldMapRenderer : MonoBehaviour
         RenderCamera.SetZoom(DEFAULT_ZOOM);
         RenderCamera.SetPosition(new Vector3(tile.WorldPosition.x, tile.WorldPosition.y, -10));
     }
+    public void FocusArea(Area area)
+    {
+        RenderCamera.SetZoom(DEFAULT_ZOOM);
+        RenderCamera.SetPosition(new Vector3(area.Center.x, area.Center.y, -10));
+    }
 
     private void Update()
     {
@@ -258,12 +263,6 @@ public class WorldMapRenderer : MonoBehaviour
             Tile markerTile = EncounterMarkerCache[encounter];
             SetTile(MarkerTilemap, tile.Coordinates, markerTile);
         }
-    }
-
-    public void SetMissionMarker(WorldMapTile tile, Mission mission)
-    {
-        if (mission == null) SetTile(MarkerTilemap, tile.Coordinates, null);
-        else SetTile(MarkerTilemap, tile.Coordinates, mission.MapMarker);
     }
 
     public void UpdateMapBounds(WorldMap worldMap)
