@@ -13,8 +13,8 @@ public class Area
     public string Name { get; private set; }
     public Vector2 Center { get; private set; }
     public AreaType Type { get; private set; }
-    public List<WorldMapTile> Tiles;
-    private List<WorldMapTile> PerimeterTiles;
+    public List<WorldMapTile> Tiles { get; private set; }
+    public List<WorldMapTile> PerimeterTiles { get; private set; }
 
     // Visual
     private Color FENCE_COLOR = Color.white;

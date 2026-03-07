@@ -46,6 +46,6 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
         StatChangeValueText.text = value.ToString("+#;-#;0");
         StatChangeLabelText.text = stat.LabelCapWord;
 
-        TooltipTarget.Init(text: $"Base value of {stat.LabelCapWord} has been {(value > 0 ? "increased" : "decreased")} by {Mathf.Abs(value)}.");
+        TooltipTarget.Init(text: $"Base value of {stat.LabelCapWord} has {(value > 0 ? "increased" : "decreased")} by {Mathf.Abs(value)}.");
     }
 }

@@ -21,11 +21,8 @@ public class Encounter_RadioTower : LocationEncounter
     
     private PlayerPosition CurrentPlayerPosition;
     private bool IsNoteTaken;
-    private bool TriedToListen;
     private bool IsDoorOpen;
-    private bool TriedForcingDoor;
     private bool HasBeenOnTop;
-    private bool TriedClimbing;
     private List<Item> ItemsInside;
 
     protected override void OnInitialize()
@@ -43,9 +40,6 @@ public class Encounter_RadioTower : LocationEncounter
     {
         string text = "You approach the radio tower. The door is locked. There is a static sound in the air. A note is taped to the door.";
 
-        TriedToListen = false;
-        TriedClimbing = false;
-        TriedForcingDoor = false;
         CurrentPlayerPosition = PlayerPosition.Outside;
 
         return text;
@@ -63,9 +57,9 @@ public class Encounter_RadioTower : LocationEncounter
         switch (CurrentPlayerPosition)
         {
             case PlayerPosition.Outside:
-                if (!TriedToListen && !Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence)) options.Add(GetListenOption());
-                if (!IsDoorOpen && !TriedForcingDoor) options.Add(GetForceDoorOption());
-                if (!HasBeenOnTop && !TriedClimbing) options.Add(GetClimbTowerOption());
+                if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence)) options.Add(GetListenOption());
+                if (!IsDoorOpen) options.Add(GetForceDoorOption());
+                if (!HasBeenOnTop) options.Add(GetClimbTowerOption());
                 break;
             case PlayerPosition.Inside:
                 // Player can't be permanently inside atm
@@ -137,6 +131,7 @@ public class Encounter_RadioTower : LocationEncounter
             Text = "Listen",
             Description = "You think to hear a faint voice in the static. Try understanding it.",
             Action = Listen,
+            OncePerDay = true,
             Difficulty = 90,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
@@ -148,7 +143,6 @@ public class Encounter_RadioTower : LocationEncounter
     }
     private string Listen(OptionOutcomeDef outcome)
     {
-        TriedToListen = true;
         string text = "";
 
         if (outcome == OptionOutcomeDefOf.Success)
@@ -179,6 +173,7 @@ public class Encounter_RadioTower : LocationEncounter
             Text = "Force door",
             Description = "Try to force the door open.",
             Action = ForceDoor,
+            OncePerDay = true,
             Difficulty = 80,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
@@ -201,7 +196,6 @@ public class Encounter_RadioTower : LocationEncounter
     }
     private string ForceDoor(OptionOutcomeDef outcome)
     {
-        TriedForcingDoor = true;
         string text = "";
         if (outcome == OptionOutcomeDefOf.Success)
         {
@@ -225,6 +219,7 @@ public class Encounter_RadioTower : LocationEncounter
             Text = "Climb tower",
             Description = "Climb the radio tower to get a better view of the surroundings.",
             Action = ClimbTower,
+            OncePerDay = true,
             Difficulty = 70,
             CanPartiallySucceed = false,
             RelevantStats = new Dictionary<StatDef, float>()
@@ -246,7 +241,6 @@ public class Encounter_RadioTower : LocationEncounter
     private string ClimbTower(OptionOutcomeDef outcome)
     {
         string text = "";
-        TriedClimbing = true;
 
         if (outcome.SuccessLevel >= SuccessLevel.Success)
         {

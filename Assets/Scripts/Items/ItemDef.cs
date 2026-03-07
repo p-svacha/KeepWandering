@@ -7,17 +7,18 @@ public class ItemDef : Def
     public override string DefTypeLabel => "Item";
     public override Sprite Sprite => Resources.Load<Sprite>("Items/" + DefName);
 
-    // Tags
+    /// <summary>
+    /// If true, this item will not appear in random selections.
+    /// </summary>
+    public bool IsQuestItem { get; init; }
     public List<ItemTagDef> Tags { get; init; } = new List<ItemTagDef>();
 
-    // Food
-    public bool IsEdible { get; init; } = false;
-    public float OnEatNutrition { get; init; } = 0f;
-    public float OnEatHydration { get; init; } = 0f;
+    // Consumption
+    public ConsumptionTypeDef ConsumptionType { get; init; } = null;
+    public bool IsConsumable => ConsumptionType != null;
+    public float OnConsumptionNutrition { get; init; } = 0f;
+    public float OnConsumptionHydration { get; init; } = 0f;
 
-    // Drink
-    public bool IsDrinkable { get; init; } = false;
-    public float OnDrinkHydration { get; init; } = 0f;
 
     // Medical
     public bool CanTendWounds { get; init; } = false;

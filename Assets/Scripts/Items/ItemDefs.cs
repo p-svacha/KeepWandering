@@ -11,9 +11,9 @@ public static class ItemDefs
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Tags = { ItemTagDefOf.Food },
-            IsEdible = true,
-            OnEatNutrition = 3f,
-            OnEatHydration = 1f,
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
+            OnConsumptionHydration = 1f,
         },
 
         new ItemDef()
@@ -22,8 +22,8 @@ public static class ItemDefs
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Tags = { ItemTagDefOf.Drink },
-            IsDrinkable = true,
-            OnDrinkHydration = 3f,
+            ConsumptionType = ConsumptionTypeDefOf.Drink,
+            OnConsumptionHydration = 3f,
         },
 
         new ItemDef()
@@ -65,8 +65,8 @@ public static class ItemDefs
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
-            IsEdible = true,
-            OnEatNutrition = 3f,
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
         },
 
         new ItemDef()
@@ -109,6 +109,15 @@ public static class ItemDefs
             DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
+        },
+
+        new ItemDef()
+        {
+            DefName = "FenceCutter",
+            Label = "fence cutter",
+            Description = "There's a specific type of fence this could be very useful for.",
+            Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
+            IsQuestItem = true,
         }
     };
 }

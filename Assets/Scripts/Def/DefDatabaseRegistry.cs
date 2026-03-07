@@ -30,8 +30,11 @@ public static class DefDatabaseRegistry
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
         DefDatabase<HealthConditionDef>.AddDefs(HealthConditionDefs.Defs);
         DefDatabase<CompanionDef>.AddDefs(CompanionDefs.Defs);
+
+        DefDatabase<ConsumptionTypeDef>.AddDefs(ConsumptionTypeDefs.Defs);
         DefDatabase<ItemTagDef>.AddDefs(ItemTagDefs.Defs);
         DefDatabase<ItemDef>.AddDefs(ItemDefs.Defs);
+
         DefDatabase<BiomeDef>.AddDefs(BiomeDefs.Defs);
         DefDatabase<EncounterDef>.AddDefs(EncounterDefs.Defs);
 

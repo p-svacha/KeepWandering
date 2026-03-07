@@ -77,10 +77,19 @@ public class EncounterDef : Def
             if (MaxOccurences < MinOccurences) throw new System.Exception("MaxOccurences cannot be less than MinOccurences.");
         }
 
+        if (Type == EncounterType.Special)
+        {
+            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
+            if (BaseProbability != 0f) throw new System.Exception("Special encounters cannot have a probability, as they are only force placed.");
+            if (Biomes.Count > 0) throw new System.Exception("Special encounters cannot have biome-specific probabilities, as they are only force placed.");
+            if (MaxOccurences != -1) throw new System.Exception("Special encounters cannot be limited, as they are only force placed.");
+            if (MinDistanceFromStart != -1) throw new System.Exception("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
+        }
+
         if (Type == EncounterType.Biome)
         {
             if (MinDistanceFromStart != -1) throw new System.Exception("Biome encounters cannot have a minimum distance from the starting tile.");
-            if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited to occurring only once.");
+            if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited.");
             if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
             if (Biomes != null && Biomes.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
         }

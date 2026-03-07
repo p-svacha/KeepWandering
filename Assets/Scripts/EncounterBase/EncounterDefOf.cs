@@ -5,4 +5,6 @@ public class EncounterDefOf : MonoBehaviour
 {
     public static EncounterDef MorningEncounter;
     public static EncounterDef EveningFallback;
+
+    public static EncounterDef QuarantineFence;
 }

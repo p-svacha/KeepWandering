@@ -63,8 +63,7 @@ public class Item
         if (!IsPlayerOwned) return options; // todo. allow interactions of non-player items (i.e. trader)
 
         // Options by item attributes (eat, drink, etc.)
-        if (Def.IsEdible) options.Add(new InteractionOption("Eat", () => Game.EatItem(this)));
-        if (Def.IsDrinkable) options.Add(new InteractionOption("Drink", () => Game.DrinkItem(this)));
+        if (Def.IsConsumable) options.Add(new InteractionOption(Def.ConsumptionType.LabelCap, () => Game.ConsumeItem(this)));
         if (Def.CanTendWounds)
         {
             foreach (Wound wound in Game.Player.TendableWounds)

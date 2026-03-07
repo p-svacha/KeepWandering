@@ -1,14 +1,35 @@
-- landmark encounter "radio tower" (prepopulated on world map)
-- port missions to questdefs
-- for each questdef, store state (inactive, active, failed, completed)
+/ simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
+/ fence cutter
+/ quest item flag
 
-- fence cutter
-- fence encounter
+/ fence encounter
+/ add fixed difficulty modifiers (based on encounter state)
+	-> use on electric fence (+200 if electricity is on)
+/ for stat modifiers, show factor (i.e. "Strength (x2)")
+/ remove limit modifier from UI
+/ hidden encounters
+/ hole sprite after cutting hole
+/ don't show hidden encounters in UI below world map
+/ check winning
+/ increase edge padding in world map
+/ implement easy way to only allow options once during an encounter
+
+- move all quest logic to a storymanager instead of handling it in radio tower encounter:
+  - after world gen is done, the storymanager runs
+  - it adds the note and transmission to one radio tower encounter (like this we can have multiple towers too)
+  - it de-electrifies a random fence
+  - it sets the encounter of r's home
+--> The story manager holds all central logic relevant for all quests. Like this interactions between quests are easier to implement.
+
+
+
+- electrocution health condition
+- new forest background
+
 - R encounter
-- make first real way to win the game
+-> make first real way to win the game
 
-- add fixed difficulty modifiers (based on encounter state)
-- for stat modifiers, show factor (i.e. "Strength (x2)"
+
 
 - rumor encounter "smoke rising" (can happen as night event)
 
@@ -23,12 +44,13 @@
 - make infection stages to defs. use that label and description for the dynamic wound report label and description
 
 - move health condition description box to health description entry (beside text)
+- health condition description should show affected stats
 - fix health condition text color
 - make health condition text a little bigger
-- simplify consumption properties of items (replace with ConsumeTypeDef (like "eat", "drink") with general consumption effect. if type is empty, it is not consumable)
+- make tooltip text a little bit bigger
 - sound
 
-
+- dynamic map marker set by the encounter (with default, virtual)
 
 
 - Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.

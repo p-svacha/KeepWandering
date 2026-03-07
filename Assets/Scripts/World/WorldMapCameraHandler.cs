@@ -18,6 +18,7 @@ public class WorldMapCameraHandler : MonoBehaviour
     protected static float PAN_SPEED = 20f; // WASD Speed
     protected static float MIN_CAMERA_SIZE = 4f;
     protected static float MAX_CAMERA_SIZE = 6.5f;
+    private static float EDGE_PADDING = 10f; // Padding from the edge of the map when zooming/panning
     protected bool IsLeftMouseDown;
     protected bool IsRightMouseDown;
     protected bool IsMouseWheelDown;
@@ -93,10 +94,11 @@ public class WorldMapCameraHandler : MonoBehaviour
         }
 
         // Bounds
-        float realMinX = MinX + CameraWidthWorld - 1f;
-        float realMaxX = MaxX - CameraWidthWorld + 1f;
-        float realMinY = MinY + CameraHeightWorld - 1f;
-        float realMaxY = MaxY - CameraHeightWorld + 1f;
+        // todo: paddgn
+        float realMinX = MinX + CameraWidthWorld - EDGE_PADDING;
+        float realMaxX = MaxX - CameraWidthWorld + EDGE_PADDING;
+        float realMinY = MinY + CameraHeightWorld - EDGE_PADDING;
+        float realMaxY = MaxY - CameraHeightWorld + EDGE_PADDING;
         if (transform.position.x < realMinX) transform.position = new Vector3(realMinX, transform.position.y, transform.position.z);
         if (transform.position.x > realMaxX) transform.position = new Vector3(realMaxX, transform.position.y, transform.position.z);
         if (transform.position.y < realMinY) transform.position = new Vector3(transform.position.x, realMinY, transform.position.z);

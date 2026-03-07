@@ -15,6 +15,11 @@ public abstract class EncounterOption
     public string Description { get; init; } = "";
 
     /// <summary>
+    /// When true, the option can only be selected once per encounter visit (day). It will automatically be hidden after being selected once.
+    /// </summary>
+    public bool OncePerDay { get; init; } = false;
+
+    /// <summary>
     /// The definition of all item slots that are part of this encounter step option. The player can drag items from their inventory into these slots to meet the requirements of the option and/or reduce the option difficulty.
     /// </summary>
     public List<ItemSlot> ItemSlots { get; init; } = new List<ItemSlot>();

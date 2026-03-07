@@ -47,5 +47,14 @@ public static class EncounterDefs
             MaxOccurences = 1,
             MinDistanceFromStart = 8,
         },
+
+        new EncounterDef()
+        {
+            DefName = "QuarantineFence",
+            Label = "Quarantine Fence",
+            EncounterClass = typeof(Encounter_QuarantineFence),
+            Type = EncounterType.Special,
+            CameraZoomLevel = 8.5f,
+        }
     };
 }

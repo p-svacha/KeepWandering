@@ -88,6 +88,15 @@
             MaxOccurences = 1,
             MinDistanceFromStart = 8,
         },
+
+        new EncounterDef()
+        {
+            DefName = "QuarantineFence",
+            Label = "Quarantine Fence",
+            EncounterClass = typeof(Encounter_QuarantineFence),
+            Type = EncounterType.Special,
+            CameraZoomLevel = 8.5f,
+        }
     };
 
 --- OptionOutcomeDefs.cs ---
@@ -144,6 +153,21 @@
         }
     };
 
+--- ConsumptionTypeDefs.cs ---
+    public static List<ConsumptionTypeDef> Defs => new List<ConsumptionTypeDef>()
+    {
+        new ConsumptionTypeDef()
+        {
+            DefName = "Eat",
+            Label = "eat"
+        },
+        new ConsumptionTypeDef()
+        {
+            DefName = "Drink",
+            Label = "drink"
+        },
+    };
+
 --- ItemDefs.cs ---
     public static List<ItemDef> Defs => new List<ItemDef>()
     {
@@ -153,9 +177,9 @@
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Tags = { ItemTagDefOf.Food },
-            IsEdible = true,
-            OnEatNutrition = 3f,
-            OnEatHydration = 1f,
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
+            OnConsumptionHydration = 1f,
         },
 
         new ItemDef()
@@ -164,8 +188,8 @@
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Tags = { ItemTagDefOf.Drink },
-            IsDrinkable = true,
-            OnDrinkHydration = 3f,
+            ConsumptionType = ConsumptionTypeDefOf.Drink,
+            OnConsumptionHydration = 3f,
         },
 
         new ItemDef()
@@ -207,8 +231,8 @@
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
-            IsEdible = true,
-            OnEatNutrition = 3f,
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
         },
 
         new ItemDef()
@@ -251,6 +275,15 @@
             DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
+        },
+
+        new ItemDef()
+        {
+            DefName = "FenceCutter",
+            Label = "fence cutter",
+            Description = "There's a specific type of fence this could be very useful for.",
+            Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
+            IsQuestItem = true,
         }
     };
 

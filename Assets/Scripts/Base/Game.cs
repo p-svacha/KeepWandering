@@ -38,6 +38,7 @@ public class Game : MonoBehaviour
     // Quests
     public Dictionary<QuestDef, QuestState> QuestStates;
     public Dictionary<QuestDef, Quest> ActiveQuests;
+    public string WinGameReason { get; private set; }
 
     // Elements
     [Header("Main Elements")]
@@ -100,8 +101,8 @@ public class Game : MonoBehaviour
         ActiveQuests = new Dictionary<QuestDef, Quest>();
 
         // Init world
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200);
-        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 3, numAdditionalTiles: 20);
+        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200, numCities: 5);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
         WorldMapCamera.Init(this);
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
         WorldMapRenderer.ResetCamera();
@@ -422,6 +423,8 @@ public class Game : MonoBehaviour
         string nextEncounterStepText = selectedOption.Execute(out OptionOutcomeDef outcome);
         if (CurrentEncounter == null) return; // Option may have ended the encounter
 
+        CurrentEncounter.MarkOptionUsed(selectedOption);
+
         EncounterStep nextEncounterStep = CurrentEncounter.GetNextEncounterStep(nextEncounterStepText);
         if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome); // Can be null on time of day transitions
     }
@@ -432,6 +435,12 @@ public class Game : MonoBehaviour
         {
             item.Renderer.Unhighlight(removeForced: true);
         }
+    }
+
+    public void WinGame(string text)
+    {
+        WinGameReason = text;
+        OnGameStateChanged();
     }
 
     public void CheckGameOver()
@@ -456,6 +465,7 @@ public class Game : MonoBehaviour
         }
 
         // Win
+        if (WinGameReason != "") return WinGameReason;
         if (!QuarantineZone.ContainsTile(CurrentPosition)) return "You escaped the quarantine.\nYou win.";
         return null;
     }
@@ -560,9 +570,10 @@ public class Game : MonoBehaviour
             TargetPosition = null;
         }
 
-        // If the tile already has a location encounter set, just take that.
+        // If the tile already has a location encounter set, just take that and reveal it.
         if (CurrentPosition.Encounter != null)
         {
+            RevealEncounter(CurrentPosition, showInOutcomeNote: false);
             SetCurrentEncounter(CurrentPosition.Encounter);
         }
 
@@ -575,13 +586,17 @@ public class Game : MonoBehaviour
         }
     }
 
-    public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef)
+    /// <summary>
+    /// Sets the encounter on a tile according to the given def. Does not start the encounter.
+    /// </summary>
+    public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef, bool showInOutcomeNote = false, bool hidden = false)
     {
         if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
         if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
 
         LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef) as LocationEncounter;
-        tile.SetEncounter(encounter);
+        encounter.Init(this, encounterDef, tile);
+        if (!hidden) RevealEncounter(tile, showInOutcomeNote);
         return encounter;
     }
 
@@ -713,20 +728,14 @@ public class Game : MonoBehaviour
         GameObject.Destroy(item.Renderer.gameObject);
     }
 
-    public void EatItem(Item item)
+    public void ConsumeItem(Item item)
     {
-        if (!item.Def.IsEdible) Debug.LogWarning($"Eating item that is not edible! {item.Label}");
-        Player.ModifyNutrition(item.Def.OnEatNutrition);
-        Player.ModifyHydration(item.Def.OnEatHydration);
+        if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
+
+        Player.ModifyNutrition(item.Def.OnConsumptionNutrition);
+        Player.ModifyHydration(item.Def.OnConsumptionHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
-        OnGameStateChanged();
-    }
-    public void DrinkItem(Item item)
-    {
-        if (!item.Def.IsDrinkable) Debug.LogWarning($"Drinking item that is not drinkable! {item.Label}");
-        Player.ModifyHydration(item.Def.OnDrinkHydration);
-        DestroyOwnedItem(item, showOnEventStepDisplay: false);
         OnGameStateChanged();
     }
 
@@ -797,18 +806,30 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void RevealEncounter(WorldMapTile tile, bool showInOutcomeNote)
+    {
+        // Tile is already revealed, do nothing
+        if (tile.Encounter != null && !tile.Encounter.IsHidden) return;
+
+        // If tile does not have encounter yet, generate one
+        if (tile.Encounter == null)
+        {
+            EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(tile);
+            SetLocationEncounter(tile, newEncounterDef, showInOutcomeNote);
+        }
+
+        // Reveal
+        else
+        {
+            tile.Encounter.Reveal();
+            if (showInOutcomeNote) NumRevealedLocationEncountersSinceLastStep++;
+        }
+    }
+
     public void RevealLocationEncountersAround(WorldMapTile tile)
     {
         List<WorldMapTile> adjacentTiles = tile.GetAdjacentTiles();
-        foreach (WorldMapTile adjTile in adjacentTiles)
-        {
-            if (adjTile.Encounter == null)
-            {
-                EncounterDef newEncounterDef = EncounterManager.SelectRandomLocationEncounterDefFor(adjTile);
-                SetLocationEncounter(adjTile, newEncounterDef);
-                NumRevealedLocationEncountersSinceLastStep++;
-            }
-        }
+        foreach (WorldMapTile adjTile in adjacentTiles) RevealEncounter(adjTile, showInOutcomeNote: true);
     }
 
     public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != global::QuestState.Inactive;
@@ -894,6 +915,7 @@ public class Game : MonoBehaviour
 
         UpdateHealthConditions();
         RefreshVisuals();
+        CheckGameOver();
     }
 
     private void UpdateHealthConditions()
@@ -929,8 +951,9 @@ public class Game : MonoBehaviour
 
     public static Game Instance;
 
-    public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => DefDatabase<ItemDef>.AllDefs.Where(x => x.HasTag(tag)).ToList().RandomElement();
-    public ItemDef GetRandomItemDef() => DefDatabase<ItemDef>.AllDefs.RandomElement();
+    private List<ItemDef> RandomItemPool => DefDatabase<ItemDef>.AllDefs.Where(i => !i.IsQuestItem).ToList();
+    public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => RandomItemPool.Where(x => x.HasTag(tag)).ToList().RandomElement();
+    public ItemDef GetRandomItemDef() => RandomItemPool.RandomElement();
 
     #endregion
 

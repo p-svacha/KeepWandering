@@ -21,6 +21,11 @@ public class SkillCheckOption : EncounterOption
     public Dictionary<StatDef, float> RelevantStats { get; init; } = new Dictionary<StatDef, float>();
 
     /// <summary>
+    /// Fixed difficulty modifiers that apply to this encounter step option, with a label for each modifier to be displayed in the UI.
+    /// </summary>
+    public Dictionary<string, int> FixedDifficultyModifiers { get; init; } = new Dictionary<string, int>();
+
+    /// <summary>
     /// Function that gets executed when choosing this option. Handles the logic of the outcome and returns the text displayed on the next step. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
     /// </summary>
     public Func<OptionOutcomeDef, string> Action { get; init; }
@@ -54,8 +59,8 @@ public class SkillCheckOption : EncounterOption
 
         foreach (var modifier in GetDifficultyModifiers()) difficulty += modifier.Value;
 
-        // Clamp to valid range (maximum has no limit)
-        if (difficulty < 0) difficulty = 0;
+        // Clamp
+        difficulty = Mathf.Clamp(difficulty, MIN_DIFFICULTY, MAX_DIFFICULTY);
 
         return difficulty;
     }
@@ -64,12 +69,21 @@ public class SkillCheckOption : EncounterOption
     {
         Dictionary<string, int> modifiers = new Dictionary<string, int>();
 
+        // Fixed moidifers
+        foreach (var modifier in FixedDifficultyModifiers)
+        {
+            if (modifier.Value != 0) modifiers.Add(modifier.Key, modifier.Value);
+        }
+
         // Player stat modifiers
         foreach (var statEntry in RelevantStats)
         {
             int statValue = Game.Instance.Player.GetStatValue(statEntry.Key);
-            int modifierAmount = -(int)(statValue * statEntry.Value);
-            if (modifierAmount != 0) modifiers.Add(statEntry.Key.LabelCapWord, modifierAmount);
+            float factor = statEntry.Value;
+            int modifierAmount = -(int)(statValue * factor);
+            string label = statEntry.Key.LabelCapWord;
+            if(modifierAmount != 1f) label += $" (x{factor})";
+            if (modifierAmount != 0) modifiers.Add(label, modifierAmount);
         }
 
         // Morale modifier
@@ -84,17 +98,6 @@ public class SkillCheckOption : EncounterOption
                 int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
                 if (modifierAmount != 0) modifiers.Add($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount);
             }
-        }
-
-        // Clamp modifier (value can't go below 5 or above 200)
-        int difficultySoFar = Difficulty + modifiers.Values.Sum();
-        if (difficultySoFar < MIN_DIFFICULTY)
-        {
-            modifiers.Add($"Limit ({MIN_DIFFICULTY})", MIN_DIFFICULTY - difficultySoFar);
-        }
-        else if (difficultySoFar > MAX_DIFFICULTY)
-        {
-            modifiers.Add($"Limit ({MAX_DIFFICULTY})", MAX_DIFFICULTY - difficultySoFar);
         }
 
         return modifiers;

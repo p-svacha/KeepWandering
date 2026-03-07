@@ -151,7 +151,7 @@ When a companion dies, this usually has a big temporary negative effect on the p
 The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is either predetermined through a quest/landmark/rumour or determined when the player first steps on that tile. The afternoon each day is always the location encounter of the tile the player is currently on.
 
 ## Quarantine Zone Borders
-A big area of the world map is enclosed by a quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
+A big area of the world map is enclosed by an electrified quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
 
 ## Exposure
 Each tile has a persistent exposure level. That level is shown to the player. The exposure level affects the likelyhood of bad night encounters happening during the night. Exposure levels are "very safe", "safe", "caution", "danger" and "extreme danger".
@@ -378,3 +378,10 @@ A locked container where players can peek inside to identify hidden loot before 
 Landmarks are location encounters, that are predetermined during world generation and are visible from the start.
 
 ### Radio Tower
+A tall radio tower with a locked door and a blinking red light. A note taped to the door directs the player to find R in a specific city. The tower can be explored in multiple ways: the door can be forced open (easier with a crowbar) to collect supplies inside, or the tower can be climbed (easier with a rope) to reveal nearby encounter markers and gain permanent stat bonuses. Listening to the radio transmission can reveal the location of an unpowered fence segment, which is a prerequisite for one of the ways to escape the quarantine zone.
+
+## Hidden Predetermined Encounters
+These are encounters that are predetermined during world generation, but are not visible to the player until they are revealed, either through exploration or through fulfilling certain conditions. They are usually used for quest chains, where the player has to discover and complete a series of encounters to progress in the quest.
+
+### Quarantine Fence
+Every tile adjacent to the quarantine fence has this encounter. The only options are to cut the fence or leave. Cutting the fence requires having the fence cutter item, and has a fixed modifier "Electrified" with +200 difficulty, so it's impossible to succeed. One random tile adjacent to the fence is not powered.

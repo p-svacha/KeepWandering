@@ -10,6 +10,7 @@ public static class ItemDefOf
     public static ItemDef Bone;
     public static ItemDef Coin;
     public static ItemDef Crowbar;
+    public static ItemDef FenceCutter;
     public static ItemDef Knife;
     public static ItemDef MedicalKit;
     public static ItemDef NutSnack;

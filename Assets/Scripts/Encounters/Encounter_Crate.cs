@@ -28,7 +28,6 @@ public class Encounter_Crate : LocationEncounter
     private bool IsSmashed;
     private bool AllItemsGone;
     private bool AreItemsInsideKnown;
-    private bool HasPeeked;
 
     // Base
     protected override void OnInitialize()
@@ -71,7 +70,7 @@ public class Encounter_Crate : LocationEncounter
             if (!IsVisibleItemGone) options.Add(CreateTakeItemOption()); // Take item
             options.Add(CreateOpenCrateOption()); // Open crate
             options.Add(CreateSmashCrateOption()); // Smash crate
-            if (!AreItemsInsideKnown && !HasPeeked) options.Add(CreatePeekOption()); // Peek inside
+            if (!AreItemsInsideKnown) options.Add(CreatePeekOption()); // Peek inside
         }
         return options;
     }
@@ -115,6 +114,7 @@ public class Encounter_Crate : LocationEncounter
             Description = $"Try to squeeze the {VisibleCrateItem.Label} through the hole.",
             Difficulty = 50,
             CanCriticallyFail = false,
+            OncePerDay = true,
             RelevantStats = new Dictionary<StatDef, float>()
             {
                 { StatDefOf.Dexterity, 2f },
@@ -175,6 +175,7 @@ public class Encounter_Crate : LocationEncounter
             Text = "Smash",
             Description = "Try to destroy the crate to get its content. This might destroy some items inside.",
             Difficulty = 70,
+            OncePerDay = true,
             RelevantStats = new Dictionary<StatDef, float>()
             {
                 { StatDefOf.Strength, 3f }
@@ -246,6 +247,7 @@ public class Encounter_Crate : LocationEncounter
             Text = "Pry Open",
             Description = "Pry open the crate using a crowbar.",
             Difficulty = 20,
+            OncePerDay = true,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
             ItemSlots = new List<ItemSlot>()
@@ -294,6 +296,7 @@ public class Encounter_Crate : LocationEncounter
             Text = "Peek inside",
             Description = "Try to peek inside the crate to see if there are more items hidden within.",
             Difficulty = 30,
+            OncePerDay = true,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
             RelevantStats = new Dictionary<StatDef, float>()
@@ -307,7 +310,6 @@ public class Encounter_Crate : LocationEncounter
     {
         string text = "";
 
-        HasPeeked = true;
         if (outcome == OptionOutcomeDefOf.Success)
         {
             text = $"You manage to identify that there's {InvisibleCrateItems.ToNaturalLanguage()} left inside the crate.";

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 /// <summary>
 /// An instance of an encounter.
@@ -10,19 +11,17 @@ public abstract class Encounter
     public WorldMap WorldMap => WorldMap.Instance;
     public EncounterDef Def { get; private set; }
     public Quest Mission { get; private set; }
-    public int NumVisits { get; private set; }
-    protected bool IsFirstVisit => NumVisits == 1;
 
     // During encounter
     private bool IsEncounterDone;
     private List<GameObject> EventSprites = new List<GameObject>();
+    private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
 
     public Encounter() { } // Empty constructor for activator
     public void Init(Game game, EncounterDef def)
     {
         Game = game;
         Def = def;
-        NumVisits = 0;
         OnInitialize();
     }
 
@@ -36,17 +35,20 @@ public abstract class Encounter
 
     public EncounterStep StartEncounter()
     {
-        NumVisits++;
         IsEncounterDone = false;
+        UsedOncePerDayOptions.Clear();
+        OnStartExtension(); // General subclass logic
 
         string startText = OnStart();
 
         return GetNextEncounterStep(startText);
     }
+    protected virtual void OnStartExtension() { }
 
     public EncounterStep GetNextEncounterStep(string text)
     {
         RefreshSprites();
+
         return new EncounterStep(text, _GetOptions());
     }
 
@@ -55,12 +57,18 @@ public abstract class Encounter
         Mission = mission;
     }
 
+    public void MarkOptionUsed(EncounterOption option)
+    {
+        if (option.OncePerDay) UsedOncePerDayOptions.Add(option.Text);
+    }
+
     private List<EncounterOption> _GetOptions()
     {
         if (IsEncounterDone) return new List<EncounterOption>();
         else
         {
             List<EncounterOption> options = GetOptions();
+            options.RemoveAll(o => o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text));
             if (IsMoveOnOptionAvailable())
             {
                 // Ignore

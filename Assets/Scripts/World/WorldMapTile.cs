@@ -57,7 +57,6 @@ public class WorldMapTile
     public void SetEncounter(LocationEncounter encounter)
     {
         Encounter = encounter;
-        WorldMapRenderer.Instance.SetMarkerTile(this, encounter.Def);
     }
 
     #region Getters
@@ -162,7 +161,7 @@ public class WorldMapTile
     public override string ToString()
     {
         string info = $"{Coordinates} {Biome.LabelCapWord}";
-        if (Encounter != null) info += ", " + Encounter.Label;
+        if (Encounter != null && !Encounter.IsHidden) info += ", " + Encounter.Label;
         if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
         // info += "\nDistance from start: " + DistanceFromStart; // debug
         info += $", Distance: {GetDistanceFromTile(Game.Instance.CurrentPosition.Coordinates)}";

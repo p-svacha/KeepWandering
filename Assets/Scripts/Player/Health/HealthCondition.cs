@@ -35,7 +35,7 @@ public abstract class HealthCondition
     protected abstract void OnInit();
 
     /// <summary>
-    /// Gets called after every action in the game.
+    /// Gets called after every action in the game. Should only be used to change the active stage of the condition or perform some visual changes.
     /// </summary>
     public abstract void OnUpdate();
 
