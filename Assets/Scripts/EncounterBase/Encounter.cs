@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
@@ -12,9 +13,12 @@ public abstract class Encounter
     public EncounterDef Def { get; private set; }
     public Quest Mission { get; private set; }
 
+    // Persistence
+    private List<Item> EncounterItems = new List<Item>();
+
     // During encounter
     private bool IsEncounterDone;
-    private List<GameObject> EventSprites = new List<GameObject>();
+    private List<GameObject> EncounterSprites = new List<GameObject>();
     private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
 
     public Encounter() { } // Empty constructor for activator
@@ -37,7 +41,12 @@ public abstract class Encounter
     {
         IsEncounterDone = false;
         UsedOncePerDayOptions.Clear();
-        OnStartExtension(); // General subclass logic
+
+        // Show encounter items
+        foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Show();
+
+        // General subclass logic
+        OnStartExtension(); 
 
         string startText = OnStart();
 
@@ -61,6 +70,21 @@ public abstract class Encounter
     {
         if (option.OncePerDay) UsedOncePerDayOptions.Add(option.Text);
     }
+
+    /// <summary>
+    /// Generates an item belonging to this encounter, that will automatically shown when the encounter starts and hidden when the encounter ends.
+    /// <br/>Handles automatically if the item is destroyed or taken by the player during the encounter.
+    /// </summary>
+    protected Item GenerateEncounterItem(ItemDef itemDef, Vector2? position = null, int? sortingOrder = null)
+    {
+        Item item = Game.CreateItem(itemDef, hidden: true);
+        if (position.HasValue) item.Renderer.SetPosition(position.Value.x, position.Value.y);
+        if (sortingOrder.HasValue) item.Renderer.SetSortingOrder(sortingOrder.Value);
+
+        EncounterItems.Add(item);
+        return item;
+    }
+
 
     private List<EncounterOption> _GetOptions()
     {
@@ -89,7 +113,7 @@ public abstract class Encounter
     protected abstract void OnInitialize();
 
     /// <summary>
-    /// Called whenever this encounter starts, returning the text of the initial step of the encounter. For location events that player can come back to, this is called every time the player enters the location, not just the first time. For encounters that are only played once, this is called after InitializeEncounter.
+    /// Called whenever this encounter starts, returning the text of the initial step of the encounter. For location encounters that player can come back to, this is called every time the player enters the location, not just the first time. For encounters that are only played once, this is called after InitializeEncounter.
     /// </summary>
     protected abstract string OnStart();
 
@@ -114,7 +138,7 @@ public abstract class Encounter
     protected abstract void OnEnd();
 
     /// <summary>
-    /// Makes a gameobject belonging to this event visible. The gameobject will be hidden when the event ends.
+    /// Makes a gameobject belonging to this encounter visible. The gameobject will be hidden when the encounter ends.
     /// <br/>In the Unity hierarchy, the GameObject needs to be placed in GameScreen/Encounters/{EncounterDefName}/{spriteName}.
     /// </summary>
     protected void ShowEncounterSprite(string spriteName)
@@ -122,13 +146,13 @@ public abstract class Encounter
         GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
         spriteObj.gameObject.SetActive(true);
 
-        EventSprites.Add(spriteObj);
+        EncounterSprites.Add(spriteObj);
     }
     protected void HideEncounterSprite(string spriteName)
     {
         GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
         spriteObj.gameObject.SetActive(false);
-        EventSprites.Remove(spriteObj);
+        EncounterSprites.Remove(spriteObj);
     }
     protected void SetEncounterSpriteVisibility(string spriteName, bool show)
     {
@@ -138,21 +162,17 @@ public abstract class Encounter
     protected void ShowPlayerCharacter(bool value) => Game.ShowPlayerCharacter(value);
 
     /// <summary>
-    /// Makes a gameobject belonging to this event invisible.
-    /// </summary>
-    protected void HideEventSprite(GameObject sprite)
-    {
-        sprite.gameObject.SetActive(false);
-        EventSprites.Remove(sprite);
-    }
-
-    /// <summary>
-    /// Ends the event. Only called from Game.
+    /// Ends the encounter. Only called from Game.
     /// </summary>
     public void EndEncounter()
     {
-        foreach (GameObject sprite in EventSprites) sprite.gameObject.SetActive(false);
-        EventSprites.Clear();
+        // Hide encounter items
+        foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Hide();
+
+        // Hide encounter sprites
+        foreach (GameObject sprite in EncounterSprites) sprite.gameObject.SetActive(false);
+
+        EncounterSprites.Clear();
         OnEnd();
     }
 

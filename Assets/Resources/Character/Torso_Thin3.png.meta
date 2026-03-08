@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f3e215df39397e64db8ff30137624dfd
+guid: 903b2e386e7f2b441b3933f7feaef22c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2385295341904005879
-    second: NewNote2_0
+      213: -4847877128469560094
+    second: Torso_Thin3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 128
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NewNote2_0
+      name: Torso_Thin3_0
       rect:
         serializedVersion: 2
-        x: 14
-        y: 10
-        width: 114
-        height: 113
+        x: 178
+        y: 164
+        width: 165
+        height: 374
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7fa0592c9754a1120800000000000000
-      internalID: 2385295341904005879
+      spriteID: 2e4c4d2df61e8bcb0800000000000000
+      internalID: -4847877128469560094
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NewNote2_0: 2385295341904005879
+      Torso_Thin3_0: -4847877128469560094
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

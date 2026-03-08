@@ -1,47 +1,61 @@
-/ min distance between encounters
-/ move all quest logic to a storymanager instead of handling it in radio tower encounter:
-  - after world gen is done, the storymanager runs
-  - it adds the note and transmission to one radio tower encounter (like this we can have multiple towers too)
-  - it de-electrifies a random fence
-  - it sets the encounter of r's home
---> The story manager holds all central logic relevant for all quests. Like this interactions between quests are easier to implement.
-/ new forest background
+/ R encounter
+/ make first real way to win the game
 
-- R encounter
--> make first real way to win the game
+/ note icon for complete and fail mission
+/ general way of handling encounter items
+
+/ HEALTH CONDITIONS REDESIGN
+/ new torso sprites
+
+/ bind visuals to health condition stages
+/ wounds affect combart stats
+/ game over logic
+/ natural healing logic
+/ natural healing when resting
+/ give all healthconditions a "value" for representing the severity. conditions can use this value of they want
+/ light blood loss should affect stats
+/ reduce blood loss of untended cut wounds
+/ blood loss should have invisible stage at first without effect
+/ player color gets reset if torso changes (needs persisting)
+/ align bruise wound descruption and real logic (make it slow down bone healing)
+/ should become thirsty before becoming hungry, thirst reducing quicker than hunger
+/ make infection stages to defs. use that label and description for the dynamic wound report label and description
+/ fix health condition text color
 
 
 - electrocution health condition
 - new content piece that can electrocute
 
+- new general encounter
+
+- 2nd way to get fence cutter
+
+- add another item that can bandage
 
 
-
-
-
+- outcome notes for bone damage, blood loss
+- sprites for health conditions
+- outcome notes when a health condition disappears
 
 - rumor encounter "smoke rising" (can happen as night event)
 
-
+- define and show important stats for each biome (in world map)
 - evening/biome encounters
+
 - biome loot tables
 - exposure mechanic
-- make poisoning a temporary condition
 
-- align bruise wound descruption and real logic (make it slow down bone healing)
-- should become thirsty before becoming hungry, thirst reducing quicker than hunger
-- make infection stages to defs. use that label and description for the dynamic wound report label and description
+- items to permanently increase stats
 
-- move health condition description box to health description entry (beside text)
 - health condition description should show affected stats
-- fix health condition text color
+
 - make health condition text a little bigger
 - make tooltip text a little bit bigger
 - sound
 
-- dynamic map marker set by the encounter (with default, virtual)
-
-
 - Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.
 - Dragging items onto SpriteRenderers on the player. I.e. I might wanna add that dragging a bandage on a wound sprite on the player tends it (as if selecting "tend" in the context menu)
 - So it should be easily doable to highlight sprite rendereds as well (potential targets) while dragging something
+
+- red circle around quest tiles and areas on world map
+- dynamic map marker set by the encounter (with default, virtual)

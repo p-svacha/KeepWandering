@@ -14,6 +14,21 @@ public class HealthConditionStage
     public string Description { get; init; } = "";
 
     /// <summary>
+    /// Flag if the health condition is shown in the health report while this stage is active.
+    /// </summary>
+    public bool IsVisible { get; init; } = true;
+
+    /// <summary>
+    /// The severity value at which this stage becomes active. If the severity value is below this threshold, the previous stage becomes active.
+    /// </summary>
+    public float SeverityThreshold { get; init; }
+
+    /// <summary>
+    /// Text color of the health condition in the health report while this stage is active.
+    /// </summary>
+    public Color Color { get; init; } = ResourceManager.Color_Text_Default;
+
+    /// <summary>
     /// The stats affected by this stage.
     /// </summary>
     public Dictionary<StatDef, int> StatModifiers { get; init; } = new Dictionary<StatDef, int>();

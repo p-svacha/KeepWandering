@@ -8,7 +8,6 @@ public static class HealthConditionDefOf
     public static HealthConditionDef LegFracture;
     public static HealthConditionDef ArmFracture;
     public static HealthConditionDef BloodLoss;
-    public static HealthConditionDef Poison;
 
     public static HealthConditionDef Bruise;
     public static HealthConditionDef Cut;

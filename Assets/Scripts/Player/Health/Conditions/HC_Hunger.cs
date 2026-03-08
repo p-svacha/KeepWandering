@@ -1,35 +1,16 @@
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class HC_Hunger : HealthCondition
 {
-    public float Nutrition { get; private set; }
-
-    protected override void OnInit()
+    protected override void OnActiveStageChanged()
     {
-        Nutrition = 7.5f;
+        PlayerRenderer.SetActiveSprite(PlayerRenderer.Torso, ActiveStageIndex);
     }
 
-    public override void OnUpdate()
+    protected override void OnEndDay(MorningReport morningReport)
     {
-        if (Nutrition <= 1f) SetActiveStage(2);
-        else if (Nutrition <= 2.5f) SetActiveStage(1);
-        else if (Nutrition <= 5f) SetActiveStage(0);
-        else SetActiveStage(null);
-    }
-
-    public override void OnEndDay(Game game, MorningReport morningReport)
-    {
-        Player.ModifyNutrition(-PlayerCharacter.BASE_NUTRITION_DROP_PER_DAY);
-    }
-
-    public override string IsFatal()
-    {
-        if (Nutrition <= 0f) return "You starved";
-        return "";
-    }
-
-    public void ModifyNutrition(float value)
-    {
-        Nutrition += value;
+        // Increase hunger
+        Player.ModifyNutrition(PlayerCharacter.HUNGER_INCREASE_PER_DAY);
     }
 }

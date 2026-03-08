@@ -252,12 +252,28 @@ public class UI_EncounterDisplay : MonoBehaviour
             outcomeNote.Init(sprite, isAdded: true, Game.NumRevealedLocationEncountersSinceLastStep, tooltipText: $"Revealed {Game.NumRevealedLocationEncountersSinceLastStep} location{(Game.NumRevealedLocationEncountersSinceLastStep > 1 ? "s" : "")} on the world map.");
         }
 
-        // New missions
+        // New quests
         if (Game.NumAddedQuestsSinceLastStep > 0)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            Sprite sprite = ResourceManager.LoadSprite("UiSprites/NewNote2");
-            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedQuestsSinceLastStep, tooltipText: $"Gained {Game.NumAddedQuestsSinceLastStep} new note{(Game.NumAddedQuestsSinceLastStep > 1 ? "s" : "")}.");
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/NewNote");
+            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedQuestsSinceLastStep, tooltipText: $"Gained {Game.NumAddedQuestsSinceLastStep} new quest{(Game.NumAddedQuestsSinceLastStep > 1 ? "s" : "")}.");
+        }
+
+        // Completed quests
+        if (Game.NumCompletedQuestsSinceLastStep > 0)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/QuestCompleted");
+            outcomeNote.Init(sprite, isAdded: true, Game.NumCompletedQuestsSinceLastStep, tooltipText: $"Completed {Game.NumCompletedQuestsSinceLastStep} quest{(Game.NumCompletedQuestsSinceLastStep > 1 ? "s" : "")}.");
+        }
+
+        // Failed quests
+        if (Game.NumFailedQuestsSinceLastStep > 0)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/QuestFailed");
+            outcomeNote.Init(sprite, isAdded: false, Game.NumFailedQuestsSinceLastStep, tooltipText: $"Failed {Game.NumFailedQuestsSinceLastStep} quest{(Game.NumFailedQuestsSinceLastStep > 1 ? "s" : "")}.");
         }
 
         // Add slight rotation to all notes

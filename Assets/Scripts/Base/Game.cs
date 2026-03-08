@@ -27,6 +27,8 @@ public class Game : MonoBehaviour
     public Dictionary<StatDef, int> StatChangesSinceLastStep = new Dictionary<StatDef, int>();
     public int NumRevealedLocationEncountersSinceLastStep = 0;
     public int NumAddedQuestsSinceLastStep = 0;
+    public int NumCompletedQuestsSinceLastStep = 0;
+    public int NumFailedQuestsSinceLastStep = 0;
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -101,7 +103,7 @@ public class Game : MonoBehaviour
         ActiveQuests = new Dictionary<QuestDef, Quest>();
 
         // Init world
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 12, numAdditionalTiles: 200, numCities: 5);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 10, numAdditionalTiles: 340, numCities: 5);
         //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
         WorldMapCamera.Init(this);
         SetPosition(WorldMap.GetTile(Vector2Int.zero));
@@ -380,6 +382,8 @@ public class Game : MonoBehaviour
         StatChangesSinceLastStep.Clear();
         NumRevealedLocationEncountersSinceLastStep = 0;
         NumAddedQuestsSinceLastStep = 0;
+        NumCompletedQuestsSinceLastStep = 0;
+        NumFailedQuestsSinceLastStep = 0;
     }
 
     /// <summary>
@@ -490,8 +494,9 @@ public class Game : MonoBehaviour
         LatestMorningReport = new MorningReport(Day);
 
         Day++;
+        Debug.Log($"--- Start Day {Day} ---");
 
-        Player.OnEndDay(this, LatestMorningReport);
+        if (Day > 1) Player.OnEndDay(this, LatestMorningReport);
         /*
         List<Companion> companionsCopy = new List<Companion>();
         foreach (Companion c in Companions) companionsCopy.Add(c);
@@ -622,6 +627,13 @@ public class Game : MonoBehaviour
         // End previous encounter
         EndCurrentEncounter();
 
+        // If player rested, apply healing
+        if(DayAction == DayAction.Rest)
+        {
+            foreach (HealthCondition hc in Player.HealthConditions) hc.ApplyNaturalHealing();
+        }
+
+        // Time of Day
         SetTimeOfDay(TimeOfDayDefOf.Evening);
         EncounterCamera.Instance.SetDefaultZoom();
 
@@ -730,15 +742,15 @@ public class Game : MonoBehaviour
     public void DestroyItem(Item item)
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't use DestroyItem on player owned item. Use DestroyOwnedItem instead.");
-        GameObject.Destroy(item.Renderer.gameObject);
+        item.Destroy();
     }
 
     public void ConsumeItem(Item item)
     {
         if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
 
-        Player.ModifyNutrition(item.Def.OnConsumptionNutrition);
-        Player.ModifyHydration(item.Def.OnConsumptionHydration);
+        Player.ModifyNutrition(-item.Def.OnConsumptionNutrition);
+        Player.ModifyHydration(-item.Def.OnConsumptionHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
         OnGameStateChanged();
@@ -754,14 +766,31 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
-    public void DecreaseArmBoneHealth(float value) => Player.ModifyArmBoneHealth(-value);
-    public void DecreaseLegBoneHealth(float value) => Player.ModifyLegBoneHealth(-value);
-    public void ApplyBruiseDamage(float damage) // Adds a bruise wound and some damage to either arm or leg bone health
+    public void ApplyRandomFracture(float severity)
+    {
+        Player.ApplyRandomFracture(severity);
+        OnGameStateChanged();
+    }
+    public void ApplyArmFracture(float severity)
+    {
+        Player.ApplyArmFracture(severity);
+        OnGameStateChanged();
+    }
+    public void ApplyLegFracture(float severity)
+    {
+        Player.ApplyLegFracture(severity);
+        OnGameStateChanged();
+    }
+    public void ApplyBloodLoss(float severity)
+    {
+        Player.ApplyBloodLoss(severity);
+        OnGameStateChanged();
+    }
+
+    public void ApplyBruiseDamage(float fractureSeverity)
     {
         AddBruiseWound();
-
-        if (Random.value < 0.5f) Player.ModifyArmBoneHealth(-damage);
-        else Player.ModifyLegBoneHealth(-damage);
+        ApplyRandomFracture(fractureSeverity);
     }
     public void AddBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
     public void AddCutWound() => AddWound(HealthConditionDefOf.Cut);
@@ -769,15 +798,6 @@ public class Game : MonoBehaviour
     {
         // Validate
         if (!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
-
-        // Check maximum
-        int max = woundDef.MaxAmount;
-        int current = Player.GetHealthConditionAmount(woundDef);
-        if (current > max)
-        {
-            Debug.Log($"Can't add wound {woundDef.Label} because player already has maximum amount ({max}).");
-            return;
-        }
 
         // Apply
         Wound newWound = Player.AddWound(woundDef);
@@ -795,18 +815,13 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
-    public void RemoveWound(Wound wound)
-    {
-        Player.RemoveWound(wound);
-        OnGameStateChanged();
-    }
-
-    public void HealInfection(Wound wound, Item item)
+    public void TreatWound(Wound wound, Item item)
     {
         if (!item.Def.CanHealInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
+
         wound.SetHightlighted(false);
-        Player.HealInfection(wound);
+        Player.TreatWound(wound);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
         OnGameStateChanged();
     }
@@ -837,20 +852,26 @@ public class Game : MonoBehaviour
         foreach (WorldMapTile adjTile in adjacentTiles) RevealEncounter(adjTile, showInOutcomeNote: true);
     }
 
-    public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != global::QuestState.Inactive;
-    public void AddQuest(Quest quest)
+    public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != QuestState.Inactive;
+    public bool IsQuestActive(QuestDef quest) => QuestStates[quest] == QuestState.Active;
+    public bool IsQuestCompleted(QuestDef quest) => QuestStates[quest] == QuestState.Completed || QuestStates[quest] == QuestState.Failed;
+    public void StartQuest(Quest quest)
     {
-        if (HasQuestStarted(quest.QuestDef)) Debug.LogWarning("Adding quest that has already started: " + quest.QuestDef.Label);
+        if (IsQuestCompleted(quest.QuestDef))
+        {
+            Debug.LogWarning("Trying to add quest that is already completed! " + quest.QuestDef.Label);
+            return;
+        }
 
-        ActiveQuests.Add(quest.QuestDef, quest);
-        QuestStates[quest.QuestDef] = global::QuestState.Active;
+        ActiveQuests[quest.QuestDef] = quest; // This also replaces the quest if it's already active, which is useful for updating the quest text or other properties without having to remove and re-add the quest.
+        QuestStates[quest.QuestDef] = QuestState.Active;
         NumAddedQuestsSinceLastStep++;
 
         OnGameStateChanged();
     }
     public void CompleteQuest(QuestDef quest)
     {
-        QuestStates[quest] = global::QuestState.Completed;
+        QuestStates[quest] = QuestState.Completed;
 
         if (ActiveQuests.ContainsKey(quest)) ActiveQuests.Remove(quest);
 
@@ -918,24 +939,15 @@ public class Game : MonoBehaviour
     {
         if (State == GameState.Initializing) return;
 
-        UpdateHealthConditions();
-        RefreshVisuals();
+        RefreshUI();
         CheckGameOver();
     }
 
-    private void UpdateHealthConditions()
-    {
-        foreach (HealthCondition condition in Player.HealthConditions) condition.OnUpdate();
-    }
-
     /// <summary>
-    /// Refreshes all visual elements in the game according to the current game state. This includes both UI and world elements. Should be called after every change to the game state.
+    /// Refreshes all UI elements.
     /// </summary>
-    private void RefreshVisuals()
+    private void RefreshUI()
     {
-        PlayerCharacterRenderer.Instance.UpdateSprites();
-        //foreach (Companion c in Companions) c.UpdateStatusEffects();
-
         UI.UpdateHealthReports();
         UI.RefreshStats();
         UI.UpdateQuestDisplay();

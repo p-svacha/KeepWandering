@@ -117,7 +117,7 @@ public class Encounter_RadioTower : LocationEncounter
         Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
         if (!Game.HasQuestStarted(QuestDefOf.FindR))
         {
-            Game.AddQuest(new Quest(QuestDefOf.FindR, $"Find R in {StoryManager.CityOfR.Name}", area: StoryManager.CityOfR));
+            Game.StartQuest(new Quest(QuestDefOf.FindR, $"Find R in {StoryManager.CityOfR.Name}", area: StoryManager.CityOfR));
         }
         IsNoteTaken = true;
 
@@ -150,12 +150,12 @@ public class Encounter_RadioTower : LocationEncounter
         {
             text = "You understand everything! The voice tells you the exact coordinates of a fence segment that is unpowered and could be cut through with a fence cutter.";
             Game.ModifyStatBaseValue(StatDefOf.Morale, +2);
-            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {StoryManager.CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: StoryManager.CuttableFenceTile));
+            Game.StartQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {StoryManager.CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: StoryManager.CuttableFenceTile));
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
             text = $"You understand parts of the message. The voice mentions a fence cutter and {StoryManager.ClosestAreaOfCuttableFence.Name}.";
-            Game.AddQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The radio voice mentioned {StoryManager.ClosestAreaOfCuttableFence.Name} and a fence cutter.", area: StoryManager.ClosestAreaOfCuttableFence));
+            Game.StartQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The radio voice mentioned {StoryManager.ClosestAreaOfCuttableFence.Name} and a fence cutter.", area: StoryManager.ClosestAreaOfCuttableFence));
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
@@ -206,8 +206,8 @@ public class Encounter_RadioTower : LocationEncounter
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
-            text = "The door holds. You strain your shoulder.";
-            Game.DecreaseArmBoneHealth(0.2f);
+            text = "The door holds. You sprain your shoulder.";
+            Game.ApplyArmFracture(2f);
         }
         return text;
     }
@@ -262,13 +262,12 @@ public class Encounter_RadioTower : LocationEncounter
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             text = "You slip while climbing and fall to the ground, hurting yourself.";
-            Game.ApplyBruiseDamage(0.2f);
+            Game.ApplyBruiseDamage(2f);
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
             text = "You slip while climbing and fall to the ground, hurting yourself badly.";
-            Game.ApplyBruiseDamage(0.2f);
-            Game.ApplyBruiseDamage(0.2f);
+            Game.ApplyBruiseDamage(5f);
         }
         return text;
     }

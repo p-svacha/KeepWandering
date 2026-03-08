@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Stat
 {
+    public const int STAP_CAP = 30; // Both positive and negative
+
     protected Game Game;
     public PlayerCharacter Player {  get; private set; }
     public StatDef Def { get; private set; }
@@ -23,7 +25,10 @@ public class Stat
     public int GetValue()
     {
         int value = BaseValue;
-        foreach(StatModifier mod in GetModifiers()) value += mod.Value;
+        foreach (StatModifier mod in GetModifiers()) value += mod.Value;
+
+        value = Mathf.Clamp(value, -STAP_CAP, STAP_CAP);
+
         return value;
     }
 
@@ -37,7 +42,7 @@ public class Stat
         List<StatModifier> modifiers = new List<StatModifier>();
 
         // Health conditions
-        foreach (HealthCondition condition in Player.ActiveHealthConditions)
+        foreach (HealthCondition condition in Player.HealthConditions)
         {
             int modifierValue = condition.GetStatModifierFor(Def);
             if (modifierValue != 0) modifiers.Add(new StatModifier(condition.GetReportLabel(), modifierValue));

@@ -23,8 +23,9 @@ public class UI_HealthReport : MonoBehaviour
         Source = player;
 
         TitleText.text = "Health Report (You)";
-        foreach (HealthCondition condition in Source.ActiveHealthConditions)
+        foreach (HealthCondition condition in Source.HealthConditions)
         {
+            if(!condition.ActiveStage.IsVisible) continue; // Don't display invisible conditions
             UI_StatusEffect display = Instantiate(StatusEffectPrefab, transform);
             display.Init(this, condition);
         }

@@ -24,9 +24,16 @@ Color choice is free.
 ## Export
 When done, Image > Trim > Transparent Pixels, then export as png. place in Assets/Sprites/Items and add to ItemDef in code. Name must match the DefName in ItemDef.
 
+
+# Character
+Outline full black, 10px, 100% hardness,opacity,flow - NO PRESSURE FOR SIZE
+
+
 # Encounter Markers
 64x64 px transparent Canvas
 Use only grayscale colors, except for quest markers, 6px brush, 100% hardness, 100% opacity, and 100% flow. Pen pressure for size.
+
+
 
 # Biome Backgrounds
 Side-view biome backgrounds

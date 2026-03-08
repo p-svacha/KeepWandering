@@ -1,37 +1,33 @@
-using UnityEngine;
-
 public class HC_ArmFracture : HealthCondition
 {
-    public float BoneHealth { get; private set; } // [0-1] how fractures the bones are, 1 = healthy, 0 = dead
+    public bool IsRightArm { get; private set; }
+    public LimbRenderer Renderer { get; private set; }
 
-    protected override void OnInit()
+    public void SetSide(bool isRightArm)
     {
-        BoneHealth = 1f;
+        IsRightArm = isRightArm;
+        if (IsRightArm) Renderer = PlayerRenderer.RightArm;
+
+        if (Renderer != null) Renderer.Render(ActiveStageIndex);
     }
 
-    public override void OnUpdate()
+    protected override void OnActiveStageChanged()
     {
-        if (BoneHealth <= 0.2f) SetActiveStage(2);
-        else if (BoneHealth <= 0.5f) SetActiveStage(1);
-        else if (BoneHealth <= 0.9f) SetActiveStage(0);
-        else SetActiveStage(null);
+        if (Renderer != null) Renderer.Render(ActiveStageIndex);
     }
 
-    public override void OnEndDay(Game game, MorningReport morningReport)
+    public override float GetNaturalHealing()
     {
-        bool canRegenBone = !Player.HasUntendedBruiseWound;
-        if (canRegenBone) Player.ModifyLegBoneHealth(PlayerCharacter.BASE_BONE_REGEN_PER_DAY);
+        float baseHealing = 0.5f;
+
+        // Reduce by 0.2 for each untended bruise
+        baseHealing -= 0.2f * Player.UntendedBruiseWounds.Count;
+        if (baseHealing < 0f) baseHealing = 0f;
+        return baseHealing;
     }
 
-    public override string IsFatal()
+    public override string GetReportLabel()
     {
-        if (BoneHealth <= 0f) return "You died due to exreme fractures.";
-        return "";
-    }
-
-    public void ModifyBoneHealth(float value)
-    {
-        BoneHealth += value;
-        if (BoneHealth > 1f) BoneHealth = 1f;
+        return base.GetReportLabel() + (IsRightArm ? " (Right)" : " (Left)");
     }
 }

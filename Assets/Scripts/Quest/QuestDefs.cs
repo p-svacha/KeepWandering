@@ -12,6 +12,11 @@ public static class QuestDefs
         },
         new QuestDef()
         {
+            DefName = "DeliverMedicineToR",
+            Description = "R's partner is sick. R needs medicine to get better.",
+        },
+        new QuestDef()
+        {
             DefName = "GoToUnpoweredFence",
             Description = "There is a border tile where the electric fence is not unpowered. With a fence cutter it is possible to cut through the fence and get to the other side.",
         }

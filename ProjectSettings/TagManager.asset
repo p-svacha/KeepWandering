@@ -44,6 +44,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: PlayerCharacter
+    uniqueID: 2265643711
+    locked: 0
   - name: Overlay
     uniqueID: 508708611
     locked: 0

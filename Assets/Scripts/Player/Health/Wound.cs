@@ -10,71 +10,132 @@ public abstract class Wound : HealthCondition
     public Sprite SpriteInfectMajor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMajor");
     public Sprite SpriteTended => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Tended");
 
+    public const float NATURAL_HEALING_UNTENDED = 0.2f;
+    public const float NATURAL_HEALING_TENDED = 1f;
 
-    private int OriginDay;
-    private int MinorInfectionDay;
-    private int TendDay;
-    
+
     public bool IsTended { get; private set; }
-    public InfectionStage InfectionStage { get; private set; }
+    public bool IsTreated { get; private set; }
+
+    public InfectionStage InfectionStage => (InfectionStage)ActiveStageIndex;
     public bool IsInfected => InfectionStage != InfectionStage.None;
-
-    private const float InfectChancePerDay = 0.1f; // Every day, the chance for the to infection gets higher by this value when untended
-    private const float MajorInfectChancePerDay = 0.1f; // Every day, the chance for the to infection to get worse gets higher by this value
-    private const float FatalInfectChance = 0.5f; // Every day, this is the chance to die when having a major infection
-
-    private const float HealChancePerDay = 0.25f; // Every daym the chance for a tended uninfected wound to heal gets higher by this value
 
     public WoundRenderer Renderer { get; private set; }
 
-    protected override void OnInit()
+    // Def override
+    public override float InitialSeverity => 1.5f;
+    public override float MaxSeverity => 13;
+    public override List<HealthConditionStage> Stages => WoundStages;
+
+    // Base effects
+    private Dictionary<StatDef, int> BaseUntendedStatModifiers => new Dictionary<StatDef, int>()
     {
-        IsTended = false;
-        InfectionStage = InfectionStage.None;
-        OriginDay = Game.Instance.Day;
+        { StatDefOf.Combat, -2 },
+        { StatDefOf.Charisma, -2 },
+    };
+    private Dictionary<StatDef, int> BaseTendedStatModifiers => new Dictionary<StatDef, int>()
+    {
+        { StatDefOf.Combat, -1 },
+        { StatDefOf.Charisma, -1 },
+    };
+
+    // Infection stages
+    private List<HealthConditionStage> WoundStages = new List<HealthConditionStage>()
+    {
+        new HealthConditionStage()
+        {
+            Label = "not infected",
+            SeverityThreshold = 0,
+            Color = ResourceManager.Color_Text_Negative
+        },
+        new HealthConditionStage()
+        {
+            Label = "infected",
+            Description = "The wound is infected and needs to be treated with antibiotics to heal.",
+            SeverityThreshold = 4f,
+            StatModifiers = new Dictionary<StatDef, int>()
+            {
+                { StatDefOf.Combat, -2 },
+                { StatDefOf.Strength, -2 },
+                { StatDefOf.Agility, -2 },
+            },
+            Color = ResourceManager.Color_Text_Negative
+        },
+        new HealthConditionStage()
+        {
+            Label = "majorly infected",
+            Description = "The wound is infected and needs to be treated with antibiotics to heal.",
+            SeverityThreshold = 7f,
+            StatModifiers = new Dictionary<StatDef, int>()
+            {
+                { StatDefOf.Combat, -3 },
+                { StatDefOf.Strength, -3 },
+                { StatDefOf.Agility, -3 },
+            },
+            Color = ResourceManager.Color_Text_VeryNegative
+        },
+        new HealthConditionStage()
+        {
+            Label = "critically infected",
+            Description = "The wound is infected and needs to be treated with antibiotics to heal.",
+            SeverityThreshold = 10f,
+            StatModifiers = new Dictionary<StatDef, int>()
+            {
+                { StatDefOf.Combat, -5 },
+                { StatDefOf.Strength, -5 },
+                { StatDefOf.Agility, -5 },
+            },
+            Color = ResourceManager.Color_Text_ExtremelyNegative
+        },
+    };
+
+    public override float GetNaturalHealing()
+    {
+        if (IsTended) return NATURAL_HEALING_TENDED;
+        else return NATURAL_HEALING_UNTENDED;
     }
 
-    public override void OnUpdate() { }
-
-    public override void OnEndDay(Game game, MorningReport morningReport)
+    protected override void OnActiveStageChanged()
     {
-        // Chance to get minor infection
-        if(!IsTended && InfectionStage == InfectionStage.None)
+        if (Renderer != null) Renderer.Refresh();
+    }
+
+    protected override void OnEndDay(MorningReport morningReport)
+    {
+        InfectionStage beforeStage = (InfectionStage)ActiveStageIndex;
+
+        // If the wound is untended or infected and untreated, increase severity random amount between 0.5 and 1.5.
+        if (!IsTended || (IsInfected && !IsTreated))
         {
-            float infectionChance = ((game.Day) - OriginDay) * InfectChancePerDay;
-            if (Random.value < infectionChance)
-            {
-                InfectionStage = InfectionStage.Minor;
-                MinorInfectionDay = game.Day;
-                morningReport.NightEvents.Add($"Your {LabelCapWord} got infected.");
-            }
-        }
-        // Chance to get major infection
-        else if(InfectionStage == InfectionStage.Minor)
-        {
-            float infectionChance = ((game.Day) - MinorInfectionDay) * MajorInfectChancePerDay;
-            if (Random.value < infectionChance)
-            {
-                InfectionStage = InfectionStage.Major;
-                morningReport.NightEvents.Add($"The infection of your {LabelCapWord} got worse and needs be dealt with immeadiately.");
-            }
-        }
-        // Chance to get fatal infection
-        else if(InfectionStage == InfectionStage.Major)
-        {
-            if (Random.value < FatalInfectChance) InfectionStage = InfectionStage.Fatal;
+            float severityIncrease = Random.Range(0.5f, 1.5f);
+            ModifySeverity(severityIncrease);
         }
 
-        // Chance to go away when tended
-        if(IsTended && InfectionStage == InfectionStage.None)
+        InfectionStage afterStage = (InfectionStage)ActiveStageIndex;
+
+        if (beforeStage == InfectionStage.None && afterStage != InfectionStage.None)
         {
-            float infectionChance = ((game.Day) - TendDay) * HealChancePerDay;
-            if (Random.value < infectionChance)
-            {
-                Game.Instance.RemoveWound(this);
-                morningReport.NightEvents.Add($"Your {LabelCapWord} has fully healed.");
-            }
+            morningReport.NightEvents.Add($"Your {Def.Label} got infected.");
         }
+        else if (beforeStage >= InfectionStage.Minor && afterStage > beforeStage)
+        {
+            morningReport.NightEvents.Add($"The infection of your {Def.Label} got worse and needs be dealt with immeadiately.");
+        }
+        else if (beforeStage >= InfectionStage.Minor && afterStage == InfectionStage.None && SeverityValue > 0)
+        {
+            morningReport.NightEvents.Add($"Your {Def.Label} has healed from the infection.");
+        }
+        else if (beforeStage >= InfectionStage.Minor && afterStage < beforeStage)
+        {
+            morningReport.NightEvents.Add($"The infection of your {Def.Label} has improved.");
+        }
+    }
+
+    public override Dictionary<StatDef, int> GetCurrentModifiers()
+    {
+        Dictionary<StatDef, int> modifiers = new(ActiveStage.StatModifiers); // Copy to avoid modifying the original
+        modifiers.IncrementMultiple(IsTended ? BaseTendedStatModifiers : BaseUntendedStatModifiers);
+        return modifiers;
     }
 
     public void SetRenderer(WoundRenderer renderer)
@@ -82,22 +143,18 @@ public abstract class Wound : HealthCondition
         Renderer = renderer;
     }
 
-    public override string IsFatal()
-    {
-        if (InfectionStage == InfectionStage.Fatal) return "You died of an infection.";
-        return "";
-    }
-
-    public void Tend(Game game)
+    public void Tend()
     {
         IsTended = true;
-        TendDay = game.Day;
+    }
+    public void Treat()
+    {
+        IsTreated = true;
     }
 
-    public void HealInfection(Game game)
+    public override void OnRemoved()
     {
-        InfectionStage = InfectionStage.None;
-        OriginDay = game.Day;
+        Renderer.SetWound(null);
     }
 
     public void SetHightlighted(bool value)
@@ -106,37 +163,35 @@ public abstract class Wound : HealthCondition
         else UiDisplayElement.BackgroundImage.color = Color.clear;
     }
 
-    public void Render() => Renderer.Refresh();
-
     public override string GetReportLabel()
     {
         // Name
-        string label = LabelCapWord;
-        string infectionName = InfectionStage == InfectionStage.None ? "" : InfectionStage.ToString();
         string tendName = IsTended ? "Tended" : "Untended";
-        return $"{infectionName} {tendName} {label}".Trim();
+        string label = $"{tendName} {Def.LabelCap}";
+        if (IsInfected)
+        {
+            label += $" ({ActiveStage.Label}";
+            if (IsTreated) label += ", treated";
+            label += ")";
+        }
+        return label;
     }
 
     protected abstract string GetUntendedEffectString();
     public override string GetReportDescription()
     {
-        string description = "";
-        if (IsTended)
-        {
-            if (InfectionStage == InfectionStage.None) description = "A tended wound that will heal with time.";
-            if (InfectionStage == InfectionStage.Minor) description = "A tended but infected wound. Needs antibiotics.";
-            if (InfectionStage == InfectionStage.Major) description = "A tended but severely infected wound. Needs antibiotics urgently.";
-        }
-        else if (!IsTended)
-        {
-            string tendingText = IsTended ? "tended" : "untended";
-            description = $"An {tendingText} {Label} wound. {GetUntendedEffectString()}";
-            if (InfectionStage == InfectionStage.None) description += " Tend this wound with bandages, the wound might get infected.";
-            if (InfectionStage == InfectionStage.Minor) description += " The wound is infected and needs antibiotics.";
-            if (InfectionStage == InfectionStage.Major) description += " The wound is severely infected. If not tended with antibiotics immediately, it will likely be fatal.";
-        }
-
+        string description = Def.Description;
+        if (!IsTended) description += $"\nNeeds to be tended to heal. {GetUntendedEffectString()}";
+        if (IsInfected) description += $"\n{ActiveStage.Description}";
         return description;
     }
         
+}
+
+public enum InfectionStage
+{
+    None = 0,
+    Minor = 1,
+    Major = 2,
+    Critical = 3,
 }

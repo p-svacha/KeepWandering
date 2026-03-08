@@ -12,6 +12,7 @@ public class WoundRenderer : MonoBehaviour
     public void SetWound(Wound wound)
     {
         Wound = wound;
+        Refresh();
     }
 
     public void Refresh()

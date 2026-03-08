@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class Item
 {
@@ -9,6 +10,7 @@ public class Item
     public Game Game { get; private set; }
     public ItemDef Def { get; private set; }
     public bool IsPlayerOwned { get; private set; }
+    public bool IsDestroyed { get; private set; }
 
 
     // Visual
@@ -29,6 +31,11 @@ public class Item
     public void SetIsPlayerOwned(bool isPlayerOwned)
     {
         IsPlayerOwned = isPlayerOwned;
+    }
+    public void Destroy()
+    {
+        IsDestroyed = true;
+        GameObject.Destroy(Renderer.gameObject);
     }
 
     private void HighlightWound(Wound wound)
@@ -68,14 +75,14 @@ public class Item
         {
             foreach (Wound wound in Game.Player.TendableWounds)
             {
-                options.Add(new InteractionOption($"Tend {wound.LabelCapWord}", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                options.Add(new InteractionOption($"Tend {wound.Def.Label}", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
         if (Def.CanHealInfections)
         {
-            foreach (Wound wound in Game.Player.InfectedWounds)
+            foreach (Wound wound in Game.Player.TreatableWounds)
             {
-                options.Add(new InteractionOption($"Heal {wound.LabelCapWord} Infection", () => Game.HealInfection(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
+                options.Add(new InteractionOption($"Treat {wound.Def.Label}", () => Game.TreatWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
         

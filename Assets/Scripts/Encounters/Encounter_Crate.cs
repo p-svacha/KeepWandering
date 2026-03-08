@@ -133,7 +133,7 @@ public class Encounter_Crate : LocationEncounter
             text = $"You successfully maneuver the {VisibleCrateItem.Label} through the hole.";
             TakeVisibleItem();
 
-            TakeAllInvisibleItems();
+            
             if (InvisibleCrateItems.Count > 0)
             {
                 string itemText = $"{InvisibleCrateItems[0].Label}";
@@ -144,6 +144,7 @@ public class Encounter_Crate : LocationEncounter
             {
                 text += " You also manage to see that there are no more items in the crate.";
             }
+            TakeAllInvisibleItems();
         }
 
         if (outcome == OptionOutcomeDefOf.Success)
@@ -321,7 +322,7 @@ public class Encounter_Crate : LocationEncounter
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
-            text = "While peeking through the whole, something bit you!";
+            text = "While peeking through the hole, something bit you!";
             Game.AddCutWound();
         }
 

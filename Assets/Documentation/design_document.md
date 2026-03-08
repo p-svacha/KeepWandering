@@ -61,69 +61,159 @@ Temporary modifiers are bound to a condition, and are active, such as long as th
 
 Permanent modifiers are usually the result of specific encounter option outcomes, such as "gain 1 strength permanently". These modifiers are active for the rest of the game and can not be removed or expire. Permanent modifiers can also be the result of fulfilling quests, such as "fulfill quest X to gain 2 charisma permanently". On a technical level, and also communicated in-game, these permanent modifiers simply change the base value of the stat, which is 0 at the start of the game.
 
-Stats are capped at -20/20.
+Stats are capped at -30/30.
 
 ## Health Conditions
-The health system tracks the player's physical and mental condition, including injuries, illnesses, wounds etc. Health is NOT tracked as a number or health bar, but rather as a collection of conditions that the player can have. Conditions can have severity levels and each condition has their own behaviours, effects and ways of treatment.
+The health system tracks the player's physical and mental condition, including injuries, illnesses, wounds etc. Health is NOT tracked as a global number or health bar, but rather as a collection of conditions that the player can have. Conditions can have severity levels and each condition has their own behaviours, effects and ways of treatment.
 
-Health conditions often affect player stats, and can also have other effects such as affecting encounter options, causing night events, etc.
-Most causes of death are related to health conditions.
+All health conditions have a severity value, which is a meter that is hidden to the player. How that value behaves differs for each condition, but the general rule is that the higher the severity value, the bigger the effect of the condition.
 
-Conditions are split into two main technical categories: Permanent and Temporary
+Health conditions have a "Natural Healing" value. Each night, the severity value of each condition is automatically reduced by that natural healing value (with a small random variation). This healing is also applied when the player chooses the "Rest" action in the morning.
 
-### Permanent Health Conditions
-Permanent health conditions describe conditions that are always present on the player. They are usually tracking some sort of hidden meter that increases or decreases based on the current game state, such as hunger, thirst, blood loss etc. These conditions usually have severity stages based on the value of the hidden meter, and each stage has its own effects on the player.
-Even though these conditions are technically "permanent", that does not mean they are always active. For example, if hunger is above a certain threshold, the condition is not active, therefore has no effect and is not shown to the player.
+All health conditions also have defined set of stages. The active stage depends on the current severity value.
+There's also single-stage conditions, which are either present or not. They have a fixed effect that does not depend on severity, and they usually have a specific way of treatment that instantly cures the condition, instead of reducing severity gradually.
 
-Permanent health conditions are:
+Health conditions can have a Lethal Threshold. If the severity value reaches that threshold, the player dies and the game is over.
+
+Health conditions often affect player stats, and can also have other effects, such as causing night events. The exact behaviours often depends on the current stage.
+Most causes of death are related to health conditions. But there are also positive health conditions.
+
+In the stages descriptions, the first value is always inlusive, and the second value up to the next integer value. So for example "Hungry: 8-10" means that the player is in the "Hungry" stage if the severity value of the Hunger condition is equal or greater than 8, and less than 11.
+
+Conditions are split into two categories: Needs and Conditions
+
+### Needs
+Needs are health conditions that are permanently present on the player. A special property of needs is that, unlike Conditions, they are not necessarily shown on the health report, only if reaching a certain severity threshold.
+
+The following needs exist:
 
 #### Hunger
-Increases every night.
-Stages are "Hungry", "Very hungry" and "Starving". If the hunger meter reaches a limit, the player dies.
-Affects morale, strength, intelligence.
-Lethal
+Severity increases by 1 every night. Starts at 5.
+
+Stages:
+- Well Fed: 0-2, +5 morale
+- Nothing: 3-7, no effect, hidden in health report
+- Hungry: 8-10, -2 morale
+- Very Hungry: 11-13, -5 morale, -2 strength, -1 intelligence
+- Starving: 14-16, -10 morale, -5 strength, -3 intelligence
+- Lethal at 17
+
+Severity can be reduced by consuming items that give nutrition.
 
 #### Thirst
-Increases every night.
-Stages are "Thirsty", "Very thirsty" and "Dehydrated". If the thirst meter reaches a limit, the player dies.
-Affects dexterity, agility, perception.
-Lethal
+Severity increases by 1 every night. Starts at 5.
 
-#### Blood loss
-Increases each night for each untended cut wound.
-Heals naturally over time.
-Affects combat, strength, agility.
-Lethal
+Stages:
+- Hydrated: 0-1, +3 morale
+- Nothing: 2-6, no effect, hidden in health report
+- Thirsty: 7-8, -2 dexterity
+- Very Thirsty: 9-10, -5 dexterity, -2 agility, -1 perception
+- Dehydrated: 11-12, -10 dexterity, -5 agility, -3 perception
+- Lethal at 13
 
-#### Leg bones health
-Stages are "Strained", "Cracked" and "Broken".
-Affects agility, combat.
-Heals naturally over time, but can also be healed faster with treatment.
-In the "Broken" stage, the player cannot move to different tiles on the world map in the morning.
+Severity can be reduced by consuming items that give hydration.
 
-#### Arm bones health
-Stages are "Strained", "Cracked" and "Broken".
-Affects combat, strength, dexterity.
-Heals naturally over time, but can also be healed faster with treatment.
+### Conditions
+Conditions are health conditions that can be gained and lost throughout the game. They are always shown in the health report, and therefore should have some effect at all stages. When a condition is applied, it is always applied with a specific initial severity value.
 
-### Temporary Health Conditions
-Temporary health conditions are conditions that can be gained and lost throughout the game. They usually represent injuries, illnesses, wounds etc. that the player can get during encounters, and can be treated and healed with items or by resting.
+Conditions have a maximum instance amount. This amount defines how many instances of the condition type the player can have at the same time. If the player gains a condition that would put them over the maximum amount, this severity is instead added to a random existing instance of that condition.
+
+If the severity of a condition reaches 0, it is considered healed and removed from the player.
+
+#### Blood Loss
+Max instances: 1
+Natural Healing: 0.5
+
+Stages:
+- Stable: 0-1, no effect, invisible in health report
+- Light Blood Loss: 2-4, -2 combat, -2 strength, -2 agility
+- Heavy Blood Loss: 5-7, -5 combat, -5 strength, -5 agility
+- Critical Blood Loss: 8-9, -8 combat, -8 strength, -8 agility
+- Lethal at 10
+
+Treatment: none - only heals naturally.
+
+#### Leg Fracture
+Max instances: 2
+Natural Healing: 0.5
+
+Stages:
+- Sprained Leg: 0-3, -3 agility, -1 combat
+- Cracked Leg: 4-7, -5 agility, -3 combat
+- Broken Leg: 8+, -10 agility, -5 combat. Cannot move to different tiles on the world map in the morning.
+- Capped at 10.
+
+Treatment: Natural Healing can be increased by applying an item with the splint flag. Consumes the item.
+
+Fractures have their own instancing logic, where each time a fracture is applied, a random side (left or right) is chosen. If a fracture already exists, the severity is added. Else a new one is created.
+
+#### Arm Fracture
+Max instances: 2
+Natural Healing: 0.5
+
+Stages:
+- Sprained Arm: 0-3 -2 combat, -2 strength, -2 dexterity
+- Cracked Arm: 4-7, -4 combat, -4 strength, -4 dexterity
+- Broken Arm: 8+, -6 combat, -6 strength, -6 dexterity
+- Capped at 10.
+
+Treatment: Natural Healing can be increased by applying an item with the splint flag. Consumes the item.
+
+Fractures have their own instancing logic, where each time a fracture is applied, a random side (left or right) is chosen. If a fracture already exists, the severity is added. Else a new one is created.
+
+#### Electrocution
+Max instances: 1
+Natural Healing: 1
+
+Stages:
+- Stunned: 0-3, -3 dexterity, -3 agility, -1 combat, -1 perception
+- Shocked: 4-7, -5 dexterity, -5 agility, -3 combat, -3 perception. 20% chance to gain Heart Arrhythmia condition during the night
+- Severly Shocked: 8-9, -5 dexterity, -5 agility, -5 combat, -5 perception, -5 strength, -5 morale. 40% chance to gain Heart Arrhythmia condition during the night
+- Lethal at 10
+
+Treatment: none - only heals naturally.
+
+#### Heart Arrhythmia
+Max instances: 1
+Natural Healing: none
+
+Single Stage Condition: -3 agility, -3 morale
+
+Treatment: Instantly cured with a defibrillator or heart medication, which consumes the item.
 
 #### Wounds
-Wounds are a special subcategory of temporary health conditions. They all share some logic regarding tending and infection.
-Wounds need to be tended with bandages. If left untended, they have a chance to get infected each night, increasing each day.
-If tended, they have a chance to heal each night, increasing each day.
-If infected, they need to be treated with antibiotics, which heals the infection but does not tend the wound. If left infected for too long, there is a chance that the infection worsens, eventually leading to death.
-Wounds that have been treated with antibiotics cannot infect again.
+Max instances: 5 (per wound type)
+Natural Healing: 0.2 if untended, 1 if tended
+
+Wounds are a special subcategory of conditions. They all share some logic regarding tending and infection. The severity value is used for the infection state. Additionally, wounds have a "tended" and "treated" flag.
+
+Wound can be tended by using items with the bandage flag, which consumes the item and sets the "tended" flag to true.
+
+Wounds can be treated by using items with the antiseptic flag, which consumes the item and sets the "treated" flag to true.
+
+Additionally to natural healing, the severity changes each night according to these rules (multiple can apply):
+- If the wound is untended or infected and untreated, it will increase by a random amount between 0.5 and 1.5.
+
+The effect of a wound is the combination of the base effects, infection effects and wound-specific effects. Infection (severity) works the same for all wounds.
+
+Base effects:
+Untended: -2 combat, -2 charisma
+Tended: -1 combat, -1 charisma
+
+Stages:
+- Not Infected: 0-3, no effect
+- Minor Infection: 4-6, -1 combat, -1 strength, -1 dexterity
+- Major Infection: 7-9, -3 combat, -3 strength, -3 dexterity
+- Critical Infection: 10-12, -5 combat, -5 strength, -5 dexterity
+- Lethal at 13
 
 ##### Cut Wounds
-Untended cut wounds increase blood loss.
+Additional effect while untended: +0.5 blood loss each night.
+Additional effect while tended: none
 
 ##### Bruise Wounds
-If a bruise wound is gained, that will always also decrease bone health by a certain amount.
-
-#### Poisoning
-The player can be poisoned, which reduces charisma and has a chance to worsen each night, eventually leading to death. Poisoning can be treaded with antidotes, which will heal the poisoning instantly.
+Additional effect while untended: Slows healing of all fractures by 0.2.
+Additional effect while tended: none
 
 
 # Inventory
@@ -165,16 +255,19 @@ Each biome also has a specific loot table, which is often used in encounters tha
 The following biomes exist:
 
 ### Woods
-
-### Swamp
+Most important stats: Intelligence, Perception, Dexterity
 
 ### City
+Most important stats: Combat, Charisma, Perception
 
 ### Mountains
+Most important stats: Agility, Strength, Intelligence
 
 ### Desert
+Most important stats: Agility, Perception, Morale
 
-### Farmland
+### Outskirts
+Most important stats: Charisma, Strength, Dexterity
 
 ### Lake
 Impassable biome that cannot be entered. Mostly acts as a way to make the world map more interesting and to create natural borders and paths for the player to follow.
@@ -192,7 +285,7 @@ The world is is a pointy top hex tile map that is procedurally generated at the 
 
 1. The shape of the quarantine zone is generated. This is done by first expanding 12 tiles in a radius around the starting tile, and then generating some random protrusions (200 tiles) look more natural. After the protrusions, the shape is once again expanded by 1 tiles in a radius to smoothen the shape a bit. This generated area is the quarantine zone, enclosed by a fence.
 2. An additional ring of tiles outside the fence is added that represent freedom. Reaching one of these tiles is a way to win the game.
-3. The base "natural" biomes are generated (like farmland, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Farmland > Lake > Woods.
+3. The base "natural" biomes are generated (like outskirts, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Outskirts > Lake > Woods.
 4. 5 Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached (3-10). All tiles in a city get assigned the city biome. Cities are areas.
 5. Now that all biomes are set, clusters of adjacent tiles sharing the same biome above a certain size are grouped together into areas. This creates named areas like forests and lakes that can be used in quests.
 6. Each tile adjacent to the quarantine fence gets assigned the "fence" encounter. This is simply an encounter where the player faces the electric quarantine fence. 
@@ -335,8 +428,7 @@ In the morning, the player is presented with 3 options:
 
 - Travel to an adjacent world tile: This shows the world map with the adjacent world map tiles that the player can move to being highlighted. Choosing one of the tiles will end the morning and transition to the afternoon on the selected tile.
 - Stay on the current tile: This simply ends the morning and transitions to the afternoon on the same tile, presenting the player with the same Location Encounter as the day before, in the same state as they left it.
-- Rest: Skips the afternoon and transitions the game into the evening. When resting, many injuries have a chance to heal or get better. When resting, events can also happen during the transition of morning -> evening like companions finding items.
-
+- Rest: Skips the afternoon and transitions the game into the evening. When resting, all health conditions apply their natural healing (same effect as during the night).
 
 ## Afternoon
 At the start of the afternoon, the player is always confronted with the daily Location Encounter. If the location encounter on that tile has already been set (either by visiting the tile before, or by a quest), the player encounters the same encounter again, in the same state as they left it.

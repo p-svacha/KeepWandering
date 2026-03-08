@@ -61,6 +61,10 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         return new LootTable(newChances);
     }
 
+    public ItemDef Resolve()
+    {
+        return HelperFunctions.GetWeightedRandomElement(Items);
+    }
     public Item GetItem(bool hidden = false, bool frozen = true)
     {
         ItemDef type = HelperFunctions.GetWeightedRandomElement(Items);
