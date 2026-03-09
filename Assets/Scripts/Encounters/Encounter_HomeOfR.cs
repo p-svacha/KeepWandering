@@ -46,8 +46,6 @@ public class Encounter_HomeOfR : LocationEncounter
         return true;
     }
 
-    protected override void OnEnd() { }
-
 
     // Options
     private EncounterOption GetInitialTalkOption()

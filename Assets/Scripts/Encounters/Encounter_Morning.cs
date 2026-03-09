@@ -7,7 +7,7 @@ public class Encounter_Morning : Encounter
     public string GetMorningText()
     {
         string text = "";
-        if (Game.Day == 1) text = "After you saw the news you knew that you have to get out of the quarantine zone. You ran outside, grabbed your handcart and so starts your journey.";
+        if (Game.Day == 1) text = "After you saw the news you knew that you have to get out of the quarantine zone. You grabbed everything you could find and left. Your journey begins...";
         else if (Game.LatestMorningReport.NightEvents.Count == 0) text = "You wake after an uneventful night.";
         else
         {
@@ -76,7 +76,6 @@ public class Encounter_Morning : Encounter
         return GetMorningText();
     }
 
-    protected override void OnEnd() { }
     protected override void OnInitialize() { }
     protected override string OnStart() => GetMorningText();
     protected override void RefreshSprites() { }

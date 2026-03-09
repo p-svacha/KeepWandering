@@ -216,26 +216,35 @@ Additional effect while untended: Slows healing of all fractures by 0.2.
 Additional effect while tended: none
 
 
-# Inventory
+# Inventory / Items
 The player carries a wooden cart behind them, which represents their inventory. Each item is a physics sprite in the cart, affected by gravity so it stays in the cart. Items can be dragged and dropped freely in the cart, and also into item slots for encounter options.
 If an item is added to the player, it spawns above the cart and falls into it. If an item is removed from the player, it simply vanishes.
 If an item falls out of the cart, it respawns back above the cart, so they cannot accidentally be lost. Hovering over an item shows a tooltip with the name and short description. Clicking on an item may give options such as "eat", "drink" if applicable.
 There is a limit of how much the player can carry, but how that limit is implemented is still to be determined and needs to be experimented with.
+
+
+
+## Loot Tables
+Loot tables define weighted random item selections. They are used throughout the game whenever random items need to be generated, such as searching areas, opening containers, or receiving rewards.
+
+A loot table maps items (and optionally other loot tables as sub-entries) to weight values. When resolved, an item is randomly selected based on the relative weights. Sub-tables allow an entire category of items to compete as a single weighted entry.
+
+There are general-purpose loot tables (Food, Drinks, Medical, Tools, Weapons, Trash) that are used across the game. Each biome also has its own loot table that is used in biome-specific encounters like scavenging. Biome loot tables typically reference the general tables as sub-entries. When an encounter uses items from a biome loot table, it can combine the biome table with an encounter-specific table to create a union of both.
 
 ## Gaining Items
 The player starts with 4 items in the cart: 1 random food item, 1 random drink item and 1 random medical item, and 1 random miscellaneous item.
 The main ways of gaining items are:
 
 - During encounters.
-- Gaining items as a reward for completing quests.
 - Companions can find items during the night, which are added to the cart and shown in the morning as a night event.
-- Biome encounters often have options to search the area for items, which can add items to the cart.
+- Biome encounters often have options to search the area for items (e.g. Scavenge).
 
 
 # Companions
-The player can have companions that travel with them. Companions can affect stats or encounter options, as well as night events. Companions can be gained or lost through encounters.
-Companions can have their own health conditions, which are usually simplified (i.e. dogs only need food, a plant only needs water).
+The player can have companions that travel with them. Companions can affect stats or encounter options, as well as cause night events. Companions can be gained or lost through encounters.
+Companions do not have their own health or inventory. Mechanically they act purely as buffs.
 When a companion dies, this usually has a big temporary negative effect on the player's morale.
+
 
 # World Map
 The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is either predetermined through a quest/landmark/rumour or determined when the player first steps on that tile. The afternoon each day is always the location encounter of the tile the player is currently on.
@@ -243,10 +252,11 @@ The world map is a grid of hex tiles that represent different locations in the q
 ## Quarantine Zone Borders
 A big area of the world map is enclosed by an electrified quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
 
-## Exposure
-Each tile has a persistent exposure level. That level is shown to the player. The exposure level affects the likelyhood of bad night encounters happening during the night. Exposure levels are "very safe", "safe", "caution", "danger" and "extreme danger".
-The calculation of the exposure level is very simple. It starts at "safe" on each tile. AFTER each night, the exposure level on the tile the player is on increases by 1 level.
+## Danger Level
+Each tile has a persistent danger level. That level is shown to the player. The danger level affects the likelyhood and severity of bad night encounters happening during the night. Danger levels are "very safe", "safe", "caution", "danger" and "extreme danger".
+The calculation of the danger level is very simple. It starts at "safe" on each tile. AFTER each night, the danger level on the tile the player is on increases by 1 level.
 This mechanic is there to encourage the player to keep moving and exploring new tiles, instead of staying on the same tile and resting all the time.
+The danger level can also be affected by encounters.
 
 ## Biomes
 Each tile has a biome, which determines the types of Location Encounters that can be encountered on that tile and also the Biome Encounter, which are the options that the player can choose from in the evening. For encounters that can appear in multiple biomes, the biome can also affect the encounter itself, by adding biome specific options or changing the outcome or difficulty of certain options.
@@ -264,10 +274,12 @@ Most important stats: Combat, Charisma, Perception
 Most important stats: Agility, Strength, Intelligence
 
 ### Desert
-Most important stats: Agility, Perception, Morale
+Most important stats: Agility, Perception, Combat
 
 ### Outskirts
 Most important stats: Charisma, Strength, Dexterity
+
+**Evening encounter**: In addition to standard options, the player may **Flag down passerby** to trade items or information for coins (always available at roadside ditch, 50% elsewhere).
 
 ### Lake
 Impassable biome that cannot be entered. Mostly acts as a way to make the world map more interesting and to create natural borders and paths for the player to follow.
@@ -302,6 +314,8 @@ On a technical level, quests are defined via QuestDefs. For each QuestDef, the s
 # Encounters
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
 Different encounters can work in very different ways, with different numbers of steps, different options, and different outcomes. For example, one encounter can be a simple one-step encounter with only one option, while another encounter can be a complex multi-step encounter with many options at each step and various branching paths.
+Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until succes, or any other behaviour.
+There's really not a lot of restrictions in the design space of encounters.
 
 ## Encounter Types
 There are three types of encounters:
@@ -314,7 +328,17 @@ However, some encounters can be predetermined, meaning that they are generated b
 Predetermined encounters are usually a way to directly or indirectly progress the story, and are there to give the player some direction and goals to work towards.
 
 ### Biome encounters
-These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.
+These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning that players can not come back to a specific biome encounter and a new instance is created every evening. Biome encounters are not meant to be narratively significant, but rather to give the player some control, as most other things in the game are very random and out of the player's control.
+
+Biome encounters work on an "evening action" system: the player is presented with a set of options for how to spend the evening, but only one can be chosen. Once chosen, that action may either end the encounter immediately or lead to follow-up options depending on the action.
+
+Some evening actions are standardized and available across multiple biomes (controlled by the biome subclass):
+
+- **Rest early** (FixedOutcome): Turn in early for some extra natural healing (0.5x). Always available.
+- **Fortify** (SkillCheck): Reinforce the sleeping spot to reduce the night's danger level. Uses Strength, Dexterity, and Intelligence. Difficulty varies by biome. Accepts building materials and tools in item slots to reduce difficulty. On critical success, grants a random stat improvement and morale boost. Available when the biome defines a fortify difficulty.
+- **Scavenge** (SkillCheck): Search the area for items from the biome's loot table. Uses Dexterity and Perception. Accepts scavenging items in an item slot. On success, adds an item from the biome loot table to the inventory. Available when the biome supports scavenging.
+
+Each biome encounter subclass can also define additional biome-specific options (e.g. flagging down a passerby in the outskirts). Some of these biome-specific options can lead to follow-up steps with further choices (e.g. trading with a passerby after successfully flagging them down).
 
 ### Night encounters
 These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
@@ -403,14 +427,13 @@ Difficulty is capped at 5 minimum and 200 maximum. This means that no matter how
 ### Option Outcomes
 There are many things that can happen as a result of an option outcome. The most common are:
 
-- Next step: The encounter progresses to a different step.
-- Encouter ends: The encounter can end.
 - Stat changes: The player's stats can increase or decrease.
 - Item changes: The player can gain or lose items.
 - Health changes: The player's health can change (gain injuries / tend injuries / heal infections / heal poisoning etc.)
 - Companion changes: The player can gain or lose companions.
 - Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest.
-- Exposure level changes: The exposure level of the current tile or other tiles can increase or decrease.
+- Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
+- Revealing location encouters: Encounters on other tiles on the world map can be revealed
 
 
 # Gameplay Loop
@@ -435,12 +458,14 @@ At the start of the afternoon, the player is always confronted with the daily Lo
 If the location encounter on that tile has not been set yet, a new Location Encounter is generated based on the biome of that tile and the current game state, and the player encounters that.
 
 ## Evening
-In the evening, the player is presented with the Biome Encounter, that is fixed depending on the biome the player is in.
+In the evening, the player is presented with the Biome Encounter for the biome of the current tile. Each biome has a defined evening encounter type. If no specific encounter is defined for a biome, a fallback encounter is used.
+
+A new biome encounter instance is created each evening — they are not persistent across days. The encounter presents the player with a set of options for how to spend the evening (see Biome encounters above). Only one evening action can be chosen, after which the encounter either ends immediately or continues with follow-up options specific to that action.
 
 ## Night
 Each night, it is randomly rolled if the player has any Night Encounters. These are special encounters that the player can not come back to on the world map later. Multiple night encounters may happen in a night.
-The likelihood of having a bad night encounter is based on the exposure level of the tile the player is currently on, with higher exposure levels increasing the chances of having bad night encounter.
-There is also the chance of neutral night encounters, that can happen randomly regardless of the exposure level.
+The likelihood of having a bad night encounter is based on the danger level of the tile the player is currently on, with higher danger levels increasing the chances of having bad night encounter.
+There is also the chance of neutral night encounters, that can happen randomly regardless of the danger level.
 
 If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
 
@@ -448,32 +473,11 @@ During the night, separate from the night encounter, night events can happen as 
 They are purely based on the current game state and can have various effects on the player. For example, if the player has an untended injury, there is a chance that the injury gets infected. Or if the player has a certain companion, there is a chance that the companion finds an item during the night.
 Night events are shown to the player in the morning as text.
 
-# Ways to Win
+
+# Ways to Win / Story Progression
 The main goal of the game is to escape the quarantine zone.
 
 ## Cutting through the fence
 At the start of the game, one random tile adjacent to the quarantine fence will have its fence encounter altered, so that the electricity on the fence doesn't work. This allows the player to cut through the fence and escape.
-The location of that tile can be found at the radio tower landmark when listening to the transmission.
-The fence cutter can be received by R, who will have a predetermined, initially hidden encounter in a random city. The city, where R lives, can be found in the radio tower on a note. R needs someone to escape for him to deliver a message to the outside world, so he gives the player the fence cutter if they agree to escape for him.
-
-
-# Location Encounter List
-Location encounters are encounters that are tied to specific tiles on the world map. They are persistent, meaning that they can be returned to later with the same state as they were left in.
-
-## Random Encounters
-These are encounters that can be generated on any tile that doesn't have a predetermined encounter. They are based on the biome of the tile and the current game state, and are generated when the player first steps on the tile or when they are revealed.
-
-### Wooden Crate
-A locked container where players can peek inside to identify hidden loot before deciding to squeeze items through a hole, pry it open with tools, or smash it at the risk of destroying the contents.
-
-## Landmarks
-Landmarks are location encounters, that are predetermined during world generation and are visible from the start.
-
-### Radio Tower
-A tall radio tower with a locked door and a blinking red light. A note taped to the door directs the player to find R in a specific city. The tower can be explored in multiple ways: the door can be forced open (easier with a crowbar) to collect supplies inside, or the tower can be climbed (easier with a rope) to reveal nearby encounter markers and gain permanent stat bonuses. Listening to the radio transmission can reveal the location of an unpowered fence segment, which is a prerequisite for one of the ways to escape the quarantine zone.
-
-## Hidden Predetermined Encounters
-These are encounters that are predetermined during world generation, but are not visible to the player until they are revealed, either through exploration or through fulfilling certain conditions. They are usually used for quest chains, where the player has to discover and complete a series of encounters to progress in the quest.
-
-### Quarantine Fence
-Every tile adjacent to the quarantine fence has this encounter. The only options are to cut the fence or leave. Cutting the fence requires having the fence cutter item, and has a fixed modifier "Electrified" with +200 difficulty, so it's impossible to succeed. One random tile adjacent to the fence is not powered.
+The location of that tile can be found at one randomly determined radio tower landmark when listening to the transmission.
+The fence cutter can be received by R, who will have a predetermined, initially hidden encounter in a random city. The city, where R lives, can be found at the same radio tower on a note. R has a sick partner. In exchange for medicine, they give the player the fence cutter and exact location of the unpowered fence.

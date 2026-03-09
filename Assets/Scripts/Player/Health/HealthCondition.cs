@@ -97,21 +97,20 @@ public abstract class HealthCondition
 
     public void ExecuteEndDayEffect(MorningReport morningReport)
     {
-        // Natural healing
-        ApplyNaturalHealing();
-
         // Specific effects
         OnEndDay(morningReport);
     }
 
-    public void ApplyNaturalHealing()
+    public void ApplyNaturalHealing(float healingFactor = 1f)
     {
         float naturalHealing = GetNaturalHealing();
+        naturalHealing *= healingFactor;
         float randomOffset = Random.Range(-NATURAL_HEALING_RANDOM_OFFSET, NATURAL_HEALING_RANDOM_OFFSET);
+
         naturalHealing *= 1 + randomOffset;
         if (naturalHealing > 0f)
         {
-            Debug.Log("Applying natural healing of " + naturalHealing + " to " + Def.DefName);
+            Debug.Log($"Applying natural healing of {naturalHealing} to {Def.DefName} with a healing factor of {healingFactor}.");
             ModifySeverity(-naturalHealing);
         }
     }

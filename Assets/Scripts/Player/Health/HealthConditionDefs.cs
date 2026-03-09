@@ -4,6 +4,8 @@ public static class HealthConditionDefs
 {
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
+
+        // Needs
         new HealthConditionDef()
         {
             DefName = "Hunger",
@@ -137,6 +139,8 @@ public static class HealthConditionDefs
             }
         },
 
+
+        // Unique conditions
         new HealthConditionDef()
         {
             DefName = "BloodLoss",
@@ -195,6 +199,7 @@ public static class HealthConditionDefs
             }
         },
 
+        // Fractures
         new HealthConditionDef()
         {
             DefName = "LegFracture",
@@ -297,6 +302,7 @@ public static class HealthConditionDefs
         },
 
 
+        // Wounds
         new HealthConditionDef()
         {
             DefName = "Cut",

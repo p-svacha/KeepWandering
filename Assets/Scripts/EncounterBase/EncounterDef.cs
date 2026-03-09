@@ -99,6 +99,7 @@ public class EncounterDef : Def
             if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
             if (Biomes != null && Biomes.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
             if (MinDistanceBetween != -1) throw new System.Exception("Biome encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
+            if (DefName != "EveningFallback" && !EncounterClass.IsSubclassOf(typeof(BiomeEncounter))) throw new System.Exception("EncounterClass must be a subclass of BiomeEncounter.");
         }
 
         if (Type == EncounterType.Night)

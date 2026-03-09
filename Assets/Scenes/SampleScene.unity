@@ -24627,7 +24627,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2098803877}
   m_Layer: 0
-  m_Name: Farmland
+  m_Name: Outskirts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -12,12 +12,13 @@ public abstract class Encounter
     public WorldMap WorldMap => WorldMap.Instance;
     public EncounterDef Def { get; private set; }
     public Quest Mission { get; private set; }
+    public LootTable BiomeLootTable => Game.CurrentPosition.Biome.LootTable;
 
     // Persistence
     private List<Item> EncounterItems = new List<Item>();
 
     // During encounter
-    private bool IsEncounterDone;
+    private bool IsEncounterDone; // If set to true, the next step will have no more options (will default to "continue journey")
     private List<GameObject> EncounterSprites = new List<GameObject>();
     private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
 
@@ -34,7 +35,7 @@ public abstract class Encounter
     /// </summary>
     protected LootTable GetBiomeLootTable(LootTable table)
     {
-        return table.Union(Game.CurrentPosition.Biome.LootTable);
+        return table.Union(BiomeLootTable);
     }
 
     public EncounterStep StartEncounter()
@@ -61,15 +62,15 @@ public abstract class Encounter
         return new EncounterStep(text, _GetOptions());
     }
 
-    public void SetMission(Quest mission)
+    /// <summary>
+    /// Gets called when the player has chosen an option, after the effect of the option has been executed and before the next step is generated.
+    /// </summary>
+    public virtual void OnOptionChosen(EncounterOption option)
     {
-        Mission = mission;
-    }
-
-    public void MarkOptionUsed(EncounterOption option)
-    {
+        // If the option is once per day, add it to the used options so it won't be available again today.
         if (option.OncePerDay) UsedOncePerDayOptions.Add(option.Text);
     }
+
 
     /// <summary>
     /// Generates an item belonging to this encounter, that will automatically shown when the encounter starts and hidden when the encounter ends.
@@ -95,11 +96,11 @@ public abstract class Encounter
             options.RemoveAll(o => o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text));
             if (IsMoveOnOptionAvailable())
             {
-                // Ignore
+                // Move on
                 options.Add(new FixedOutcomeOption()
                 {
                     Text = "Move on",
-                    Action = () => EndEncounter("You move on.")
+                    Action = MoveOn
                 });
             }
             return options;
@@ -135,7 +136,7 @@ public abstract class Encounter
     /// <summary>
     /// Gets called when the encounter is over.
     /// </summary>
-    protected abstract void OnEnd();
+    protected virtual void OnEnd() { }
 
     /// <summary>
     /// Makes a gameobject belonging to this encounter visible. The gameobject will be hidden when the encounter ends.
@@ -176,13 +177,10 @@ public abstract class Encounter
         OnEnd();
     }
 
-    /// <summary>
-    /// Called from subclass as the action of an option that leads to the end of the encounter.
-    /// </summary>
-    public string EndEncounter(string endText)
+    private string MoveOn()
     {
         IsEncounterDone = true;
-        return endText;
+        return "You move on.";
     }
 
     #region Getters

@@ -32,6 +32,7 @@ public class Game : MonoBehaviour
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
+    public bool IsEarlyResting; // If true, some extra natural healing is applied when going to sleep.
     public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
     public WorldMapTile CurrentPosition { get; private set; } // Position the player is currently at.
     public WorldMapTile TargetPosition { get; private set; } // Position the player is moving towards.
@@ -430,8 +431,10 @@ public class Game : MonoBehaviour
         string nextEncounterStepText = selectedOption.Execute(out OptionOutcomeDef outcome);
         if (CurrentEncounter == null) return; // Option may have ended the encounter
 
-        CurrentEncounter.MarkOptionUsed(selectedOption);
+        // Inform encounter about chosen option
+        CurrentEncounter.OnOptionChosen(selectedOption);
 
+        // Generate and display next step
         EncounterStep nextEncounterStep = CurrentEncounter.GetNextEncounterStep(nextEncounterStepText);
         if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome); // Can be null on time of day transitions
     }
@@ -493,10 +496,25 @@ public class Game : MonoBehaviour
 
         LatestMorningReport = new MorningReport(Day);
 
+        // End of day effects
+        if (Day > 0)
+        {
+            float naturalHealingFactor = 1f;
+            if (IsEarlyResting)
+            {
+                naturalHealingFactor += 0.5f;
+                Debug.Log("Early resting bonus! Natural healing increased by 50% for this night.");
+            }
+            ApplyNaturalHealing(naturalHealingFactor);
+            IsEarlyResting = false;
+            Player.OnEndDay(this, LatestMorningReport);
+        }
+
+        // Start next day
         Day++;
         Debug.Log($"--- Start Day {Day} ---");
 
-        if (Day > 1) Player.OnEndDay(this, LatestMorningReport);
+        
         /*
         List<Companion> companionsCopy = new List<Companion>();
         foreach (Companion c in Companions) companionsCopy.Add(c);
@@ -628,10 +646,7 @@ public class Game : MonoBehaviour
         EndCurrentEncounter();
 
         // If player rested, apply healing
-        if(DayAction == DayAction.Rest)
-        {
-            foreach (HealthCondition hc in Player.HealthConditions) hc.ApplyNaturalHealing();
-        }
+        if (DayAction == DayAction.Rest) ApplyNaturalHealing();
 
         // Time of Day
         SetTimeOfDay(TimeOfDayDefOf.Evening);
@@ -724,6 +739,13 @@ public class Game : MonoBehaviour
 
         OnGameStateChanged();
     }
+    public void RemoveRandomItemFromInventory()
+    {
+        Item item = Inventory.RandomElement();
+        DestroyOwnedItem(item);
+    }
+
+
     /// <summary>
     /// Destroys multiple items of the player of the same type. Returns a list containing the destroyed items.
     /// </summary>
@@ -766,6 +788,11 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void ApplyNaturalHealing(float healingFactor = 1f)
+    {
+        foreach (HealthCondition hc in Player.HealthConditions) hc.ApplyNaturalHealing(healingFactor);
+    }
+
     public void ApplyRandomFracture(float severity)
     {
         Player.ApplyRandomFracture(severity);
@@ -789,11 +816,23 @@ public class Game : MonoBehaviour
 
     public void ApplyBruiseDamage(float fractureSeverity)
     {
-        AddBruiseWound();
+        ApplyBruiseWound();
         ApplyRandomFracture(fractureSeverity);
     }
-    public void AddBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
-    public void AddCutWound() => AddWound(HealthConditionDefOf.Cut);
+    public void ApplyCutDamage(float bloodLoss)
+    {
+        ApplyCutWound();
+        ApplyBloodLoss(bloodLoss);
+    }
+
+    public void ApplyRandomWound()
+    {
+        List<HealthConditionDef> possibleWounds = new List<HealthConditionDef>() { HealthConditionDefOf.Bruise, HealthConditionDefOf.Cut };
+        HealthConditionDef selectedWound = possibleWounds.RandomElement();
+        AddWound(selectedWound);
+    }
+    public void ApplyBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
+    public void ApplyCutWound() => AddWound(HealthConditionDefOf.Cut);
     private void AddWound(HealthConditionDef woundDef)
     {
         // Validate

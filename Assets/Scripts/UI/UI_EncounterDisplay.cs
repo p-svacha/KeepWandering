@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using TMPro;
@@ -62,10 +63,34 @@ public class UI_EncounterDisplay : MonoBehaviour
         OptionDisplays = new Dictionary<EncounterOption, UI_EncounterStepOption>();
         if (step.IsFinalStep)
         {
-            FixedOutcomeOption endDayOption = new FixedOutcomeOption() { Text = "Continue journey", Description = "Continue your day.", Action = EndEncounter };
+            string endEncounterOptionText;
+            string endEncounterOptionDesc;
+
+            if (Game.TimeOfDay == TimeOfDayDefOf.Afternoon)
+            {
+                endEncounterOptionText = "Keep Wandering";
+                endEncounterOptionDesc = "Continue your day.";
+            }
+            else if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
+            {
+                endEncounterOptionText = "Sleep";
+                endEncounterOptionDesc = "Go to sleep and hope for a calm night.";
+            }
+            else if (Game.TimeOfDay == TimeOfDayDefOf.Night)
+            {
+                endEncounterOptionText = "Sleep";
+                endEncounterOptionDesc = "Go back to sleep and hope for a calm rest of the night.";
+            }
+            else throw new System.Exception("Unexpected time of day for encounter end option.");
+
+            FixedOutcomeOption endEncounterOption = new FixedOutcomeOption() {
+                Text = endEncounterOptionText,
+                Description = endEncounterOptionDesc,
+                Action = EndEncounter
+            };
             UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
-            optionDisplay.Init(this, endDayOption);
-            OptionDisplays.Add(endDayOption, optionDisplay);
+            optionDisplay.Init(this, endEncounterOption);
+            OptionDisplays.Add(endEncounterOption, optionDisplay);
         }
         else
         {

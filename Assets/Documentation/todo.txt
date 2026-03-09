@@ -1,57 +1,71 @@
-/ R encounter
-/ make first real way to win the game
-
-/ note icon for complete and fail mission
-/ general way of handling encounter items
-
-/ HEALTH CONDITIONS REDESIGN
-/ new torso sprites
-
-/ bind visuals to health condition stages
-/ wounds affect combart stats
-/ game over logic
-/ natural healing logic
-/ natural healing when resting
-/ give all healthconditions a "value" for representing the severity. conditions can use this value of they want
-/ light blood loss should affect stats
-/ reduce blood loss of untended cut wounds
-/ blood loss should have invisible stage at first without effect
-/ player color gets reset if torso changes (needs persisting)
-/ align bruise wound descruption and real logic (make it slow down bone healing)
-/ should become thirsty before becoming hungry, thirst reducing quicker than hunger
-/ make infection stages to defs. use that label and description for the dynamic wound report label and description
-/ fix health condition text color
-
+TODOS:
+==============================================
 
 - electrocution health condition
+- fence will electrocute
 - new content piece that can electrocute
 
-- new general encounter
+- new general location encounter
 
 - 2nd way to get fence cutter
 
 - add another item that can bandage
 
-
 - outcome notes for bone damage, blood loss
 - sprites for health conditions
 - outcome notes when a health condition disappears
 
-- rumor encounter "smoke rising" (can happen as night event)
+- "rumors": when learning a rumour, an encounter from a rumour pool is placed on the map and revealed
+  -> add to outskirts encounter when implemented
 
-- define and show important stats for each biome (in world map)
-- evening/biome encounters
+- encounter reveal "smoke rising" (can happen as night event)
 
-- biome loot tables
-- exposure mechanic
+- show biome important maps in world map
+
+- woods biome loot table + evening encounter
+- city biome loot table + evening encounter
+
+- add item with "scavenging" tag: flashlight (also introduces "light source" tag)
+
+- exhausted health condition: -2 to all stats, removed after sleeping.
+
+- new items: empty water bottle (trash), water bottle (untreated), water purification tablets
+- water bottle have a chance to turn into empty bottle when drinking
+- empty bottles can be filled at water sources or rain -> turn into untreated water bottle
+
+- fuel items: newspaper (low, trash), canister (high, rare)
+
+- new item: supply crate (must be opened, high value loot)
 
 - items to permanently increase stats
+
+- add "home" encounter to start position. probably just as a marker on the world map, and impassable. could later be expanded so the game actually starts in this encounter, with some basic tutorial elements and where you choose starting items.
+
+- re-add longdog companion (simplify companion system, no health system for companions, they are simply a buff with no downside (except when they die))
 
 - health condition description should show affected stats
 
 - make health condition text a little bigger
 - make tooltip text a little bit bigger
 - sound
+
+- render mouth differently based on morale (smile, neutral, frown)
+
+- rename farmland to outskirts
+
+- poisoning health condition
+- way to get poisoning health condition
+
+- flashlight (tags "light source", "scavenging")
+
+- exposure mechanic
+- revert naming to "danger level"
+- add first night encounter (bandits, all biomes)
+
+- weather system
+
+- when choosing a skill check, implement a short flashy animation showing the rolled number (on a horizontal bar, with the outcome chances (critical failure/failure/partial success/success/critical success) represented by colored segments on it). This also allows for additional gameplay effects in this phase, with visual representation. Would also make skill checks a little more exciting.
+ --> Add effect for "Heart arrythmia condition": 10% chance to reduce rolled number by 10 on every skillcheck.
 
 - Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.
 - Dragging items onto SpriteRenderers on the player. I.e. I might wanna add that dragging a bandage on a wound sprite on the player tends it (as if selecting "tend" in the context menu)

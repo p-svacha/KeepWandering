@@ -41,5 +41,23 @@ public static class ItemTagDefs
             Label = "For Dogs",
             Description = "Items that are specifically for dogs, such as dog food or dog toys.",
         },
+        new ItemTagDef()
+        {
+            DefName = "BuildingMaterial",
+            Label = "Building Material",
+            Description = "Items that can be used as building materials, such as wood, metal, stone etc.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Scavenging",
+            Label = "Scavenging",
+            Description = "Items that useful for scavenging.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Trash",
+            Label = "Trash",
+            Description = "Items that can be generally found among trash. They're usually not great, still have their uses.",
+        },
     };
 }

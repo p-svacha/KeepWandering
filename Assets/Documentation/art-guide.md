@@ -9,6 +9,8 @@ with very slight color dynamics (6% brightness jitter, 3% hue jitter) and a low 
 Make 256x256 canvas in Photoshop. draw into it according to item size, small items like coin are 40x40, bigger ones like medkit 150x170. does not have to be square.
 
 ## Drawing
+Item sprites are generally diagonally angled from bottom left to top right.
+
 Make 2 layers: Outlines in front and Fill in back.
 
 OUTLINE

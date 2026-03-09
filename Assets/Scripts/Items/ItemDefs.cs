@@ -49,7 +49,7 @@ public static class ItemDefs
             DefName = "Bone",
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
-            Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs },
+            Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs, ItemTagDefOf.Trash },
         },
 
         new ItemDef()
@@ -101,7 +101,7 @@ public static class ItemDefs
             DefName = "Crowbar",
             Label = "crowbar",
             Description = "Very useful for opening things that were not meant to be opened.",
-            Tags = { ItemTagDefOf.Tool },
+            Tags = { ItemTagDefOf.Tool, ItemTagDefOf.Weapon },
         },
 
         new ItemDef()
@@ -109,6 +109,7 @@ public static class ItemDefs
             DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
+            Tags = { ItemTagDefOf.BuildingMaterial },
         },
 
         new ItemDef()

@@ -38,7 +38,11 @@ public static class HelperFunctions
             Dictionary<T, float> normalizedProbabilites = weightDictionary.ToDictionary(x => x.Key, x => x.Value / probabilitySum * 100f);
             string probabilites = "Probabilites for " + typeof(T).FullName;
             probabilites += "\n------------------------------";
-            foreach (KeyValuePair<T, float> kvp in normalizedProbabilites.Where(x => x.Value > 0).OrderByDescending(x => x.Value)) probabilites += "\n" + (kvp.Key.Equals(chosenValue) ? "* " : "") + kvp.Key.ToString() + ": " + kvp.Value.ToString("0.0") + "%";
+            foreach (KeyValuePair<T, float> kvp in normalizedProbabilites.Where(x => x.Value > 0).OrderByDescending(x => x.Value))
+            {
+                string label = kvp.Key.ToString();
+                probabilites += "\n" + (kvp.Key.Equals(chosenValue) ? "* " : "") + label + ": " + kvp.Value.ToString("0.0") + "%";
+            }
             probabilites += "\n------------------------------";
             Debug.Log(probabilites);
         }

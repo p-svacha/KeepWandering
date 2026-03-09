@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -11,6 +12,7 @@ public class BiomeDef : Def
 
     public bool IsPassable { get; init; } = true;
     public LootTable LootTable { get; init; } = new LootTable();
+    public List<StatDef> MostImportantStats { get; init; } = new List<StatDef>();
 
     public override void OnLoadingDefsDone()
     {

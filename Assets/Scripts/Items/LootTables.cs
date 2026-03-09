@@ -1,0 +1,45 @@
+using UnityEngine;
+
+/// <summary>
+/// Contains some general loot tables that can be used in different encounters and be referenced in other loot tables. These are not biome-specific, but they can be modified by the biome loot tables when used in encounters.
+/// </summary>
+public static class LootTables
+{
+    public static LootTable Food = new LootTable
+    {
+        { ItemDefOf.Beans, 10 },
+        { ItemDefOf.NutSnack, 8 },
+    };
+
+    public static LootTable Drinks = new LootTable
+    {
+        { ItemDefOf.WaterBottle, 10 },
+    };
+
+    public static LootTable Medical = new LootTable
+    {
+        { ItemDefOf.Bandage, 10 },
+        { ItemDefOf.Antibiotics, 6 },
+        { ItemDefOf.MedicalKit, 3 },
+        { ItemDefOf.Antidote, 2 },
+    };
+
+    public static LootTable Tools = new LootTable
+    {
+        { ItemDefOf.Crowbar, 10 },
+        { ItemDefOf.Rope, 5 },
+        { ItemDefOf.Knife, 5 },
+        { ItemDefOf.FenceCutter, 0.1f },
+    };
+
+    public static LootTable Weapons = new LootTable
+    {
+        { ItemDefOf.Knife, 10 },
+    };
+
+    public static LootTable Trash = new LootTable
+    {
+        { ItemDefOf.Bone, 5 },
+        { ItemDefOf.Coin, 2 }
+    };
+}

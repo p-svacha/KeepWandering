@@ -15,6 +15,7 @@ public class Encounter_RadioTower : LocationEncounter
     }
 
     // Flag if this is quest relevant for the "Go to unpowered fence" quest and finding R
+    // Only one radio tower will have this
     public bool HasNoteOnDoor;
     
     private PlayerPosition CurrentPlayerPosition;
@@ -45,8 +46,6 @@ public class Encounter_RadioTower : LocationEncounter
 
         return text;
     }
-
-    protected override void OnEnd() { }
 
     protected override List<EncounterOption> GetOptions()
     {
