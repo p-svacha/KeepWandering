@@ -44,6 +44,15 @@ public static class EncounterDefs
             DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
+        new EncounterDef()
+        {
+            DefName = "BiomeEncounter_City",
+            EncounterClass = typeof(BiomeEncounter_City),
+            Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
+            DevNotes = "Evening encounter for the city biome. Randomly selects one of four settings (abandoned apartment, parking garage, boarded-up shop, alleyway) which affects step text and difficulties. Rest early is not available in the city. In addition to standard options, offers 'Keep watch' (Perception/Combat check, reduces danger level on success, increases it on critical failure, difficulty varies by setting) and 'Eavesdrop' (Perception/Charisma check, reveals nearby encounters or creates a supply stash, always available at apartment and parking garage, 50% at shop, never in alleyway).",
+        },
+
         #endregion
 
         #region Location Encounters

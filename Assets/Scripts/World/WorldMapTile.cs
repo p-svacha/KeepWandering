@@ -61,6 +61,8 @@ public class WorldMapTile
 
     #region Getters
 
+    public bool HasEncounter => Encounter != null;
+
     /// <summary>
     /// Returns the adjacent tile in a specified direction
     /// </summary>
@@ -156,6 +158,17 @@ public class WorldMapTile
         }
 
         return prevRingTiles;
+    }
+
+    public List<WorldMapTile> GetTilesInHexRadius(int radius, bool includeSelf = false)
+    {
+        List<WorldMapTile> tilesInRadius = new List<WorldMapTile>();
+        if (includeSelf) tilesInRadius.Add(this);
+        for (int r = 0; r <= radius; r++)
+        {
+            tilesInRadius.AddRange(GetTilesInHexRing(r));
+        }
+        return tilesInRadius;
     }
 
     public override string ToString() => $"{Coordinates} {Biome.LabelCapWord}";

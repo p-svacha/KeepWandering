@@ -343,6 +343,8 @@ Some evening actions are standardized and available across multiple biomes (cont
 
 Each biome encounter subclass can also define additional biome-specific options (e.g. flagging down a passerby in the outskirts). Some of these biome-specific options can lead to follow-up steps with further choices (e.g. trading with a passerby after successfully flagging them down).
 
+Biome encounters usually have a setting. The setting is a randomly rolled place where the player is setting up camp for the night. The setting can affect the base difficulty of the evening actions, or can have other biome-specific effects.
+
 ### Night encounters
 These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
 
@@ -465,7 +467,8 @@ In the evening, the player is presented with the Biome Encounter for the biome o
 
 A new biome encounter instance is created each evening — they are not persistent across days. The encounter presents the player with a set of options for how to spend the evening (see Biome encounters above). Only one evening action can be chosen, after which the encounter either ends immediately or continues with follow-up options specific to that action.
 
-The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. Each trap has the following effect:
+### Trap System
+The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. They see how many traps are set in the UI. Each trap has the following effect:
 
 - If there is a combat encounter during the night, each trap will reduce the difficulty of the encounter by 20. In case of multiple night encounters, traps protect from them all.
 - If a trap wasn't used for an encounter, it has a X% chance trigger on an animal, giving the player an item. X is based on the biome.

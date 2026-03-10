@@ -916,6 +916,14 @@ public class Game : MonoBehaviour
         List<WorldMapTile> adjacentTiles = tile.GetAdjacentTiles();
         foreach (WorldMapTile adjTile in adjacentTiles) RevealEncounter(adjTile, showInOutcomeNote: true);
     }
+    public void RevealRandomNearbyLocationEncounter()
+    {
+        int maxRadius = 3;
+        List<WorldMapTile> nearbyTiles = CurrentPosition.GetTilesInHexRadius(maxRadius);
+        List<WorldMapTile> candidateTiles = nearbyTiles.Where(t => !t.HasEncounter).ToList();
+        WorldMapTile chosenTile = candidateTiles.RandomElement();
+        RevealEncounter(chosenTile, showInOutcomeNote: true);
+    }
 
     public void PlaceEveningTrap()
     {

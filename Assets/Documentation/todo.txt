@@ -14,6 +14,12 @@ TODOS:
 
 - make editor tool/button to auto-reposition camera based on its zoom/orthoSize
 
+- supply stash encounter
+  - purely positive encounter where the player simply finds a stash with items
+  - can occur naturally (very rare)
+  - can be generated and revealed in encounters
+  - hook to city eavesdrop success
+
 - improve outcome notes for health conditions
   - outcome notes for bone damage, blood loss
   - sprites for health conditions
@@ -25,24 +31,22 @@ TODOS:
   - learning a rumour reveals a location encounter somewhere on the world map and adds a quest to the quest log with that location linked
   - when learning a rumour, the player receives a quest
   - add to outskirts encounter when implemented
+  - hook to city eavesdrop success
 
 - encounter reveal + new quest: "you see smoke rising" (can happen as night event)
 
 - show biome important maps in world map
 
-- sprites / visuals for outskirts evening encounter (currently just a text encounter)
-- woods biome loot table + evening encounter
-- city biome loot table + evening encounter
-
 - add item with "scavenging" tag: flashlight (also introduces "light source" tag)
 
-- exhausted health condition: -2 to all stats, removed after sleeping.
+- exhausted health condition: -1 to all stats, removed after sleeping. can also be applied for following day during evening/night encounter
+  - hook to failure of keep watch in city encounter.
 
 - new items: empty water bottle (trash), water bottle (untreated), water purification tablets
 - water bottle have a chance to turn into empty bottle when drinking
 - empty bottles can be filled at water sources or rain -> turn into untreated water bottle
 
-- new item: supply crate (must be opened, high value loot)
+- new item: supply box (must be opened, high value loot)
 
 - diary: basic in-game readonly UI element that basically acts as a flavourful log of everything that happened during the game.
 
@@ -68,7 +72,7 @@ TODOS:
   - night as possible/optional time of day
   - danger level mechanic
   - add first night encounter (bandits, all biomes)
-  - implement danger level change in biome "fortify" option
+  - implement danger level change in biome "fortify" option, city keep watch option, also check for other "todo" in code
 
 - weather system
 
