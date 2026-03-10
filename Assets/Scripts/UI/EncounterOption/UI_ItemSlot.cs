@@ -112,8 +112,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
         if (ShowDestroyedIndicator)
         {
-            string text = ItemSlot.DestructionChance == 1f ? "X" : "X?";
-            DestroyedText.text = text;
+            DestroyedText.text = (int)(ItemSlot.DestructionChance * 100) + "%";
         }
     }
 

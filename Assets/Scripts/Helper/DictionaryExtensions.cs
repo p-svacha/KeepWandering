@@ -15,15 +15,35 @@ public static class DictionaryExtensions
     public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, int> weightDictionary)
     {
         int probabilitySum = weightDictionary.Sum(x => x.Value);
+        if (probabilitySum == 0) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
+
         int rng = UnityEngine.Random.Range(0, probabilitySum);
         int tmpSum = 0;
+        TKey chosenValue = default;
         foreach (var kvp in weightDictionary)
         {
             tmpSum += kvp.Value;
             if (rng < tmpSum)
-                return kvp.Key;
+            {
+                chosenValue = kvp.Key;
+                break;
+            }
         }
-        throw new Exception("No element selected. Check the dictionary for valid weights.");
+
+        if (Game.DEBUG_RANDOM_CHOICES)
+        {
+            string output = "Probabilities for " + typeof(TKey).FullName;
+            output += "\n------------------------------";
+            foreach (var kvp in weightDictionary.Where(x => x.Value > 0).OrderByDescending(x => x.Value))
+            {
+                float pct = kvp.Value / (float)probabilitySum * 100f;
+                output += "\n" + (kvp.Key.Equals(chosenValue) ? "* " : "  ") + kvp.Key + ": " + pct.ToString("0.0") + "%";
+            }
+            output += "\n------------------------------";
+            Debug.Log(output);
+        }
+
+        return chosenValue;
     }
 
     /// <summary>
@@ -36,15 +56,35 @@ public static class DictionaryExtensions
     public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, float> weightDictionary)
     {
         float probabilitySum = weightDictionary.Sum(x => x.Value);
-        float rng = UnityEngine.Random.Range(0, probabilitySum);
-        float tmpSum = 0;
+        if (probabilitySum == 0f) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
+
+        float rng = UnityEngine.Random.Range(0f, probabilitySum);
+        float tmpSum = 0f;
+        TKey chosenValue = default;
         foreach (var kvp in weightDictionary)
         {
             tmpSum += kvp.Value;
             if (rng < tmpSum)
-                return kvp.Key;
+            {
+                chosenValue = kvp.Key;
+                break;
+            }
         }
-        throw new Exception("No element selected. Check the dictionary for valid weights.");
+
+        if (Game.DEBUG_RANDOM_CHOICES)
+        {
+            string output = "Probabilities for " + typeof(TKey).FullName;
+            output += "\n------------------------------";
+            foreach (var kvp in weightDictionary.Where(x => x.Value > 0).OrderByDescending(x => x.Value))
+            {
+                float pct = kvp.Value / probabilitySum * 100f;
+                output += "\n" + (kvp.Key.Equals(chosenValue) ? "* " : "  ") + kvp.Key + ": " + pct.ToString("0.0") + "%";
+            }
+            output += "\n------------------------------";
+            Debug.Log(output);
+        }
+
+        return chosenValue;
     }
 
     /// <summary>

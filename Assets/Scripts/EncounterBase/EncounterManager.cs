@@ -95,7 +95,7 @@ public class EncounterManager
         {
             eventTable.Add(def, GetEncounterProbability(def, tile));
         }
-        EncounterDef chosenEncounterDef = HelperFunctions.GetWeightedRandomElement(eventTable);
+        EncounterDef chosenEncounterDef = eventTable.GetWeightedRandomElement();
         return chosenEncounterDef;
     }
 

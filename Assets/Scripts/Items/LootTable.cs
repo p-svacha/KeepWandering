@@ -99,12 +99,12 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         return new LootTable(newItems, newSubTables);
     }
 
-    public ItemDef Resolve()
+    public ItemDef Resolve(bool debug = true)
     {
         if (SubTables.Count == 0)
         {
             ItemDef resolvedItem = Items.GetWeightedRandomElement();
-            if (DEBUG) DebugChances(resolvedItem);
+            if (DEBUG && debug) DebugChances(resolvedItem);
             return resolvedItem;
         }
 
@@ -124,7 +124,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
             if (rng < tmpSum)
             {
                 ItemDef resolvedItem = kvp.Key;
-                if (DEBUG) DebugChances(resolvedItem);
+                if (DEBUG && debug) DebugChances(resolvedItem);
                 return resolvedItem;
             }
         }
@@ -134,8 +134,8 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
             tmpSum += kvp.Value;
             if (rng < tmpSum)
             {
-                ItemDef resolvedItem = kvp.Key.Resolve();
-                if (DEBUG) DebugChances(resolvedItem);
+                ItemDef resolvedItem = kvp.Key.Resolve(debug: false);
+                if (DEBUG && debug) DebugChances(resolvedItem);
                 return resolvedItem;
             }
         }

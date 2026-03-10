@@ -78,7 +78,8 @@ public abstract class BiomeEncounter : Encounter
     protected virtual bool IsRestEarlyAvailable() => true;
     protected virtual int GetFortifyDifficulty() => -1;
     private bool IsFortifyAvailable() => GetFortifyDifficulty() >= 0;
-    protected virtual bool IsScavengeAvailable() => false;
+    protected virtual int GetScavengeDifficulty() => -1;
+    protected bool IsScavengeAvailable() => GetScavengeDifficulty() >= 0;
 
     #region Options
 
@@ -134,18 +135,25 @@ public abstract class BiomeEncounter : Encounter
     {
         if (outcome == OptionOutcomeDefOf.CriticalSuccess)
         {
-            // Improve stats
-            List<StatDef> improvableStats = new List<StatDef>() { StatDefOf.Strength, StatDefOf.Dexterity, StatDefOf.Intelligence };
-            StatDef statToImprove = improvableStats.RandomElement();
-            int improvementAmount = Random.Range(1, 3 + 1);
-            Game.ModifyStatBaseValue(statToImprove, improvementAmount);
-
             // Morale boost
             Game.ModifyStatBaseValue(StatDefOf.Morale, 2);
 
-            // todo: Danger Level decrease by 2
+            // Decrease danger level by 2
+            // todo
 
-            return "You build an excellent shelter, improving your skills. You feel safe tonight.";
+            // 25% to set a trap for the night
+            if (Random.value < 0.25f)
+            {
+                Game.PlaceEveningTrap();
+                return "You build an excellent shelter and even manage to set up a trap that will help defend against attacks in the night, or maybe catch something useful.";
+            }
+
+            // 75% to imporve a skill
+            else
+            {
+                Game.ModifyRandomStat(1, 2, StatDefOf.Strength, StatDefOf.Dexterity, StatDefOf.Intelligence);
+                return "You build an excellent shelter, improving your skills. You feel safe tonight.";
+            }           
         }
         if (outcome == OptionOutcomeDefOf.Success)
         {
@@ -175,7 +183,7 @@ public abstract class BiomeEncounter : Encounter
         {
             Text = "Scavenge",
             Description = "Search the area for anything useful.",
-            Difficulty = 45,
+            Difficulty = GetScavengeDifficulty(),
             Action = Scavenge,
             RelevantStats = new Dictionary<StatDef, float>()
             {

@@ -129,7 +129,7 @@ public class WorldMapRenderer : MonoBehaviour
         if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) Game.UI.ContextMenu.Hide();
 
         // Update tile info text
-        Game.UI.WorldMapMenu.TileInfoText.text = HoveredTile == null ? "" : HoveredTile.ToString();
+        Game.UI.WorldMapMenu.TileInfoText.text = HoveredTile == null ? "" : HoveredTile.GetWorldMapInfo();
     }
 
     /// <summary>

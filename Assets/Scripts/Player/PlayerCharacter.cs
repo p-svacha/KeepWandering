@@ -97,8 +97,8 @@ public class PlayerCharacter
         foreach (HealthCondition hc in healthConditions) hc.ExecuteEndDayEffect(morningReport);
     }
 
-    public void ModifyNutrition(float value) => Hunger.ModifySeverity(value);
-    public void ModifyHydration(float value) => Thirst.ModifySeverity(value);
+    public void ModifyHunger(float value) => Hunger.ModifySeverity(value);
+    public void ModifyThirst(float value) => Thirst.ModifySeverity(value);
 
     public void ApplyBloodLoss(float severity) => ApplyHealthCondition(HealthConditionDefOf.BloodLoss, severity);
 

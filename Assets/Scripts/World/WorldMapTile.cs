@@ -158,7 +158,9 @@ public class WorldMapTile
         return prevRingTiles;
     }
 
-    public override string ToString()
+    public override string ToString() => $"{Coordinates} {Biome.LabelCapWord}";
+
+    public string GetWorldMapInfo()
     {
         string info = $"{Coordinates} {Biome.LabelCapWord}";
         if (Encounter != null && !Encounter.IsHidden) info += ", " + Encounter.Label;

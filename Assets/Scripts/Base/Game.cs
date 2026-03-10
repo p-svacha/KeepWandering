@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ public class Game : MonoBehaviour
     public MorningReport LatestMorningReport { get; private set; }
     public Encounter CurrentEncounter;
     public EncounterStep CurrentEventStep;
+    public int NumEveningTraps {  get; private set; }
 
     // Encounter Step Outcome
     public List<Item> ItemsUsedInOption = new List<Item>();
@@ -119,9 +121,9 @@ public class Game : MonoBehaviour
         Player = new PlayerCharacter(this);
 
         // Start with 1 food item, 1 drink item, 1 medical item and 1 random item in inventory
-        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Food));
-        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Drink));
-        AddNewItemToInventory(GetRandomItemDefWithTag(ItemTagDefOf.Medical));
+        LootTables.Food.AddItemToInventory();
+        LootTables.Drinks.AddItemToInventory();
+        LootTables.Medical.AddItemToInventory();
         AddNewItemToInventory(GetRandomItemDef());
 
         // Init UI
@@ -511,6 +513,7 @@ public class Game : MonoBehaviour
         }
 
         // Start next day
+        SetBackground(CurrentPosition.Biome.BackgroundSprite); // Reset background
         Day++;
         Debug.Log($"--- Start Day {Day} ---");
 
@@ -771,13 +774,23 @@ public class Game : MonoBehaviour
     {
         if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
 
-        Player.ModifyNutrition(-item.Def.OnConsumptionNutrition);
-        Player.ModifyHydration(-item.Def.OnConsumptionHydration);
+        Player.ModifyHunger(-item.Def.OnConsumptionNutrition);
+        Player.ModifyThirst(-item.Def.OnConsumptionHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
         OnGameStateChanged();
     }
 
+    public void ModifyRandomStat(int minModifyAmount, int maxModifyAmount, params StatDef[] possibleStats)
+    {
+        int value = Random.Range(minModifyAmount, maxModifyAmount + 1);
+        ModifyRandomStat(value, possibleStats);
+    }
+    public void ModifyRandomStat(int value, params StatDef[] possibleStats)
+    {
+        StatDef stat = possibleStats.ToList().RandomElement();
+        ModifyStatBaseValue(stat, value);
+    }
     public void ModifyStatBaseValue(StatDef stat, int value)
     {
         if (value == 0) return;
@@ -790,8 +803,21 @@ public class Game : MonoBehaviour
 
     public void ApplyNaturalHealing(float healingFactor = 1f)
     {
-        foreach (HealthCondition hc in Player.HealthConditions) hc.ApplyNaturalHealing(healingFactor);
+        List<HealthCondition> healthConditionsCopy = new List<HealthCondition>(Player.HealthConditions);
+        foreach (HealthCondition hc in healthConditionsCopy) hc.ApplyNaturalHealing(healingFactor);
     }
+
+    public void ModifyHunger(float value)
+    {
+        Player.ModifyHunger(value);
+        OnGameStateChanged();
+    }
+    public void ModifyThirst(float value)
+    {
+        Player.ModifyThirst(value);
+        OnGameStateChanged();
+    }
+
 
     public void ApplyRandomFracture(float severity)
     {
@@ -891,6 +917,12 @@ public class Game : MonoBehaviour
         foreach (WorldMapTile adjTile in adjacentTiles) RevealEncounter(adjTile, showInOutcomeNote: true);
     }
 
+    public void PlaceEveningTrap()
+    {
+        NumEveningTraps++;
+        OnGameStateChanged();
+    }
+
     public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != QuestState.Inactive;
     public bool IsQuestActive(QuestDef quest) => QuestStates[quest] == QuestState.Active;
     public bool IsQuestCompleted(QuestDef quest) => QuestStates[quest] == QuestState.Completed || QuestStates[quest] == QuestState.Failed;
@@ -958,10 +990,7 @@ public class Game : MonoBehaviour
     public void SetPosition(WorldMapTile tile)
     {
         // Background
-        Background0.sprite = tile.Biome.BackgroundSprite;
-        Background1.sprite = tile.Biome.BackgroundSprite;
-        Background2.sprite = tile.Biome.BackgroundSprite;
-        Background3.sprite = tile.Biome.BackgroundSprite;
+        SetBackground(tile.Biome.BackgroundSprite);
 
         if (CurrentPosition != null) CurrentPosition.Biome.Visuals.SetActive(false);
         CurrentPosition = tile;
@@ -972,7 +1001,13 @@ public class Game : MonoBehaviour
         CheckGameOver();
     }
 
-
+    public void SetBackground(Sprite sprite)
+    {
+        Background0.sprite = sprite;
+        Background1.sprite = sprite;
+        Background2.sprite = sprite;
+        Background3.sprite = sprite;
+    }
 
     private void OnGameStateChanged()
     {

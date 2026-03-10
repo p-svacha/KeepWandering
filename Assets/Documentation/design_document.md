@@ -317,6 +317,9 @@ Different encounters can work in very different ways, with different numbers of 
 Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until succes, or any other behaviour.
 There's really not a lot of restrictions in the design space of encounters.
 
+## Item Interactions
+During encounters, item interactions (like "eat beans", "apply bandage") are disabled. They can only be done on the final step of an encounter, after the encounter has ended (when the player is only left with the option "Move On" / "Sleep", etc.). An exception to this is the morning encounter. During the morning, items can be used freely.
+
 ## Encounter Types
 There are three types of encounters:
 
@@ -462,20 +465,35 @@ In the evening, the player is presented with the Biome Encounter for the biome o
 
 A new biome encounter instance is created each evening — they are not persistent across days. The encounter presents the player with a set of options for how to spend the evening (see Biome encounters above). Only one evening action can be chosen, after which the encounter either ends immediately or continues with follow-up options specific to that action.
 
+The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. Each trap has the following effect:
+
+- If there is a combat encounter during the night, each trap will reduce the difficulty of the encounter by 20. In case of multiple night encounters, traps protect from them all.
+- If a trap wasn't used for an encounter, it has a X% chance trigger on an animal, giving the player an item. X is based on the biome.
+- If a trap was neither used for an encounter nor triggered on an animal, it has a 80% chance to be returned to the player's cart in the morning, and a 20% chance to be lost.
+
+These effects are communicated as night events in the morning report.
+
+
 ## Night
 Each night, it is randomly rolled if the player has any Night Encounters. These are special encounters that the player can not come back to on the world map later. Multiple night encounters may happen in a night.
-The likelihood of having a bad night encounter is based on the danger level of the tile the player is currently on, with higher danger levels increasing the chances of having bad night encounter.
-There is also the chance of neutral night encounters, that can happen randomly regardless of the danger level.
+The likelihood of having a bad night encounter is based on the danger level of the tile the player is currently on, with higher danger levels increasing the chances of having bad night encounter. Night encounters are usually some form of attack on your sleeping spot.
 
 If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
 
 During the night, separate from the night encounter, night events can happen as well. These are events that happen without any player input and without any visual representation.
 They are purely based on the current game state and can have various effects on the player. For example, if the player has an untended injury, there is a chance that the injury gets infected. Or if the player has a certain companion, there is a chance that the companion finds an item during the night.
-Night events are shown to the player in the morning as text.
+Night events are shown to the player in the morning as bullet points in the morning report (First encounter step in the morning when choosing action for the day).
 
 
 # Ways to Win / Story Progression
 The main goal of the game is to escape the quarantine zone.
+
+The design philosophy here is to have multiple ways to win the game. And these ways are not clear linear quest lines. The setup should be modular, so multiple paths can lead to the same information/quests/ways to win. For example a location of something important could be revealed through finding a note somewhere, hearing it through a rumour, or just stumbling upon it while exploring.
+As an example, to win by cutting through the fence, the player needs to be on the correct tile with a fence cutter. How the player knows of that tile or how they got the fence cutter is not 100% scripted.
+Of course there should always be predetermined encounters / story beats / guidance mechanicms in place to make sure the player can find their way to the different ways to win, but these "guidance ways" don't prevent the player of achieving the same goal through other means.
+In that sense the game takes some inspitation from Immersive Sim games, where the world is designed in a way that allows the player to find their own way through the story, without being forced down a specific path.
+
+On a technical level, a StoryManager tracks the story progression and the different ways to win. It also tracks the state of important quests and story beats, and can trigger certain encounters or events based on that state. It also places predetermined, often hidden encounters on the world map for important story beats, quests, and ways to win, so the player can find them and progress the story.
 
 ## Cutting through the fence
 At the start of the game, one random tile adjacent to the quarantine fence will have its fence encounter altered, so that the electricity on the fence doesn't work. This allows the player to cut through the fence and escape.

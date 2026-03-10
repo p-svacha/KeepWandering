@@ -17,8 +17,9 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         { SettingType.CrumblingWall, 0.2f },
         { SettingType.OldShed, 0.1f }
     };
-
     private SettingType Setting;
+
+
     private bool IsPasserbyOptionAvailable;
 
     private bool IsTradingWithPasserby;
@@ -28,14 +29,36 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
     {
         return Setting switch
         {
-            SettingType.AbandonedFarmstead => 30,
+            SettingType.AbandonedFarmstead => 25,
             SettingType.RoadsideDitch => 60,
             SettingType.CrumblingWall => 45,
-            SettingType.OldShed => 25,
+            SettingType.OldShed => 35,
             _ => throw new System.Exception("Invalid setting")
         };
     }
-    protected override bool IsScavengeAvailable() => true;
+    protected override int GetScavengeDifficulty()
+    {
+        return Setting switch
+        {
+            SettingType.AbandonedFarmstead => 35,
+            SettingType.RoadsideDitch => 55,
+            SettingType.CrumblingWall => 55,
+            SettingType.OldShed => 30,
+            _ => throw new System.Exception("Invalid setting")
+        };
+    }
+
+    protected int GetFlagDownPasserbyDifficulty()
+    {
+        return Setting switch
+        {
+            SettingType.AbandonedFarmstead => 70,
+            SettingType.RoadsideDitch => 40,
+            SettingType.CrumblingWall => 50,
+            SettingType.OldShed => 60,
+            _ => throw new System.Exception("Invalid setting")
+        };
+    }
 
     protected override void OnInitialize()
     {
@@ -56,7 +79,21 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         return text;
     }
 
-    protected override void RefreshSprites() { }
+    protected override void RefreshSprites()
+    {
+        SetEncounterSpriteVisibility("Path", IsPasserbyOptionAvailable);
+        SetEncounterSpriteVisibility("DistantPerson", IsPasserbyOptionAvailable && !IsTradingWithPasserby);
+        SetEncounterSpriteVisibility("Farmhouse", Setting == SettingType.AbandonedFarmstead);
+        SetEncounterSpriteVisibility("Ditch", Setting == SettingType.RoadsideDitch);
+        SetEncounterSpriteVisibility("Wall", Setting == SettingType.CrumblingWall);
+        SetEncounterSpriteVisibility("Shed", Setting == SettingType.OldShed);
+        SetEncounterSpriteVisibility("Passerby", IsTradingWithPasserby);
+    }
+
+    protected override void OnMoveOn()
+    {
+        IsTradingWithPasserby = false;
+    }
 
 
 
@@ -88,9 +125,9 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         return new SkillCheckOption()
         {
             Text = "Flag down passerby",
-            Description = "Wait at the roadside for someone passing through, to trade or receive information.",
+            Description = "You see someone in the distance. Maybe you can get their attention in order to trade or get information.",
             Action = FlagDownPasserby,
-            Difficulty = 55,
+            Difficulty = GetFlagDownPasserbyDifficulty(),
             RelevantStats = new Dictionary<StatDef, float>()
             {
                 { StatDefOf.Charisma, 3f }

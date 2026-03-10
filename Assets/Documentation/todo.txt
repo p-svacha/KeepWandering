@@ -1,27 +1,36 @@
 TODOS:
 ==============================================
+- implement evening trap system (see GDD)
+
+- implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
 
 - electrocution health condition
 - fence will electrocute
 - new content piece that can electrocute
 
-- new general location encounter
+- new general location encounter (currently only having crate encounter is very repetitive)
 
 - 2nd way to get fence cutter
 
-- add another item that can bandage
+- make editor tool/button to auto-reposition camera based on its zoom/orthoSize
 
-- outcome notes for bone damage, blood loss
-- sprites for health conditions
-- outcome notes when a health condition disappears
+- improve outcome notes for health conditions
+  - outcome notes for bone damage, blood loss
+  - sprites for health conditions
+  - outcome notes when a health condition disappears
 
-- "rumors": when learning a rumour, an encounter from a rumour pool is placed on the map and revealed
-  -> add to outskirts encounter when implemented
+- rumour system 
+  - players can learn rumours (can happen as outcome of encounters)
+  - there is a rumour pool of possible rumours (some unique (story progression), some repeatable)
+  - learning a rumour reveals a location encounter somewhere on the world map and adds a quest to the quest log with that location linked
+  - when learning a rumour, the player receives a quest
+  - add to outskirts encounter when implemented
 
-- encounter reveal "smoke rising" (can happen as night event)
+- encounter reveal + new quest: "you see smoke rising" (can happen as night event)
 
 - show biome important maps in world map
 
+- sprites / visuals for outskirts evening encounter (currently just a text encounter)
 - woods biome loot table + evening encounter
 - city biome loot table + evening encounter
 
@@ -33,9 +42,9 @@ TODOS:
 - water bottle have a chance to turn into empty bottle when drinking
 - empty bottles can be filled at water sources or rain -> turn into untreated water bottle
 
-- fuel items: newspaper (low, trash), canister (high, rare)
-
 - new item: supply crate (must be opened, high value loot)
+
+- diary: basic in-game readonly UI element that basically acts as a flavourful log of everything that happened during the game.
 
 - items to permanently increase stats
 
@@ -47,22 +56,23 @@ TODOS:
 
 - make health condition text a little bigger
 - make tooltip text a little bit bigger
-- sound
+- sound (game currently has no sound at all)
 
 - render mouth differently based on morale (smile, neutral, frown)
 
-- rename farmland to outskirts
-
 - poisoning health condition
-- way to get poisoning health condition
+  - design condition
+  - hook up to critical failure in woods foraging
 
-- flashlight (tags "light source", "scavenging")
-
-- exposure mechanic
-- revert naming to "danger level"
-- add first night encounter (bandits, all biomes)
+- night system (danger level / night encounters):
+  - night as possible/optional time of day
+  - danger level mechanic
+  - add first night encounter (bandits, all biomes)
+  - implement danger level change in biome "fortify" option
 
 - weather system
+
+- minor UI bug: when selecting option that ends time of day, the step text disappears while the screen fades to black.
 
 - when choosing a skill check, implement a short flashy animation showing the rolled number (on a horizontal bar, with the outcome chances (critical failure/failure/partial success/success/critical success) represented by colored segments on it). This also allows for additional gameplay effects in this phase, with visual representation. Would also make skill checks a little more exciting.
  --> Add effect for "Heart arrythmia condition": 10% chance to reduce rolled number by 10 on every skillcheck.

@@ -69,10 +69,20 @@
 
         new EncounterDef()
         {
-            DefName = "Outskirts_EveningEncounter",
+            DefName = "BiomeEncounter_Outskirts",
             EncounterClass = typeof(BiomeEncounter_Outskirts),
             Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
+        },
+
+        new EncounterDef()
+        {
+            DefName = "BiomeEncounter_Woods",
+            EncounterClass = typeof(BiomeEncounter_Woods),
+            Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
+            DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
         #endregion
@@ -213,25 +223,23 @@
 --- ItemDefs.cs ---
     public static List<ItemDef> Defs => new List<ItemDef>()
     {
+
         new ItemDef()
         {
-            DefName = "Beans",
-            Label = "can of beans",
-            Description = "Provides a good amount of nutrition and a small amount of hydration.",
-            Tags = { ItemTagDefOf.Food },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
-            OnConsumptionNutrition = 3f,
-            OnConsumptionHydration = 1f,
+            DefName = "Antibiotics",
+            Label = "antibiotics",
+            Description = "Treats infections.",
+            Tags = { ItemTagDefOf.Medical },
+            CanHealInfections = true,
         },
 
         new ItemDef()
         {
-            DefName = "WaterBottle",
-            Label = "bottle of water",
-            Description = "Provides water for about 3 days.",
-            Tags = { ItemTagDefOf.Drink },
-            ConsumptionType = ConsumptionTypeDefOf.Drink,
-            OnConsumptionHydration = 3f,
+            DefName = "Antidote",
+            Label = "antidote",
+            Description = "Heals poisoning.",
+            Tags = { ItemTagDefOf.Medical },
+            CanHealPoisoning = true,
         },
 
         new ItemDef()
@@ -245,11 +253,24 @@
 
         new ItemDef()
         {
-            DefName = "Antibiotics",
-            Label = "antibiotics",
-            Description = "Treats infections.",
-            Tags = { ItemTagDefOf.Medical },
-            CanHealInfections = true,
+            DefName = "Beans",
+            Label = "can of beans",
+            Description = "Provides a good amount of nutrition and a small amount of hydration.",
+            Tags = { ItemTagDefOf.Food },
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
+            OnConsumptionHydration = 1f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Berries",
+            Label = "berries",
+            Description = "Provides a small amount of nutrition and hydration.",
+            Tags = { ItemTagDefOf.Food, ItemTagDefOf.Plant },
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 1f,
+            OnConsumptionHydration = 0.5f,
         },
 
         new ItemDef()
@@ -258,43 +279,6 @@
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
             Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs, ItemTagDefOf.Trash },
-        },
-
-        new ItemDef()
-        {
-            DefName = "Knife",
-            Label = "knife",
-            Description = "Both useful as a weapon and as a tool.",
-            Tags = { ItemTagDefOf.Weapon },
-        },
-
-        new ItemDef() {
-            DefName = "NutSnack",
-            Label = "nut snack",
-            Description = "Provides a good amount of nutrition.",
-            Tags = { ItemTagDefOf.Food },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
-            OnConsumptionNutrition = 3f,
-        },
-
-        new ItemDef()
-        {
-            DefName = "MedicalKit",
-            Label = "medical kit",
-            Description = "Can be used to tend or heal a variety of medical issues.",
-            Tags = { ItemTagDefOf.Medical },
-            CanTendWounds = true,
-            CanHealInfections = true,
-            CanHealPoisoning = true,
-        },
-
-        new ItemDef()
-        {
-            DefName = "Antidote",
-            Label = "antidote",
-            Description = "Heals poisoning.",
-            Tags = { ItemTagDefOf.Medical },
-            CanHealPoisoning = true,
         },
 
         new ItemDef()
@@ -314,6 +298,52 @@
 
         new ItemDef()
         {
+            DefName = "FenceCutter",
+            Label = "fence cutter",
+            Description = "There's a specific type of fence this could be very useful for.",
+            Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
+            IsQuestItem = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "Knife",
+            Label = "knife",
+            Description = "Both useful as a weapon and as a tool.",
+            Tags = { ItemTagDefOf.Weapon },
+        },
+
+        new ItemDef()
+        {
+            DefName = "MedicalKit",
+            Label = "medical kit",
+            Description = "Can be used to tend or heal a variety of medical issues.",
+            Tags = { ItemTagDefOf.Medical },
+            CanTendWounds = true,
+            CanHealInfections = true,
+            CanHealPoisoning = true,
+        },
+
+        new ItemDef()
+        {
+            DefName = "MedicinalHerbs",
+            Label = "medicinal herbs",
+            Description = "Can be used to slightly lower the severity of many health conditions.",
+            Tags = { ItemTagDefOf.Medical, ItemTagDefOf.Plant },
+            SeverityReduction = 1f,
+        },
+
+        new ItemDef() {
+            DefName = "NutSnack",
+            Label = "nut snack",
+            Description = "Provides a good amount of nutrition.",
+            Tags = { ItemTagDefOf.Food },
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3f,
+        },
+
+        new ItemDef()
+        {
             DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
@@ -322,12 +352,20 @@
 
         new ItemDef()
         {
-            DefName = "FenceCutter",
-            Label = "fence cutter",
-            Description = "There's a specific type of fence this could be very useful for.",
-            Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
-            IsQuestItem = true,
-        }
+            DefName = "Trap",
+            Label = "trap",
+            Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
+        },
+
+        new ItemDef()
+        {
+            DefName = "WaterBottle",
+            Label = "bottle of water",
+            Description = "Provides water for about 3 days.",
+            Tags = { ItemTagDefOf.Drink },
+            ConsumptionType = ConsumptionTypeDefOf.Drink,
+            OnConsumptionHydration = 3f,
+        },
     };
 
 --- ItemTagDefs.cs ---
@@ -335,9 +373,9 @@
     {
         new ItemTagDef()
         {
-            DefName = "Food",
-            Label = "Food",
-            Description = "Items that can be eaten to provide nutrition and/or hydration.",
+            DefName = "BuildingMaterial",
+            Label = "Building Material",
+            Description = "Items that can be used as building materials, such as wood, metal, stone etc.",
         },
         new ItemTagDef()
         {
@@ -347,21 +385,9 @@
         },
         new ItemTagDef()
         {
-            DefName = "Medical",
-            Label = "Medical",
-            Description = "Items that can be used for medical purposes, such as tending wounds or healing infections.",
-        },
-        new ItemTagDef()
-        {
-            DefName = "Weapon",
-            Label = "Weapon",
-            Description = "Items that can be used as weapons to defend against threats.",
-        },
-        new ItemTagDef()
-        {
-            DefName = "Tool",
-            Label = "Tool",
-            Description = "General tag for all kinds of items commonly used as tools of some kind.",
+            DefName = "Food",
+            Label = "Food",
+            Description = "Items that can be eaten to provide nutrition and/or hydration.",
         },
         new ItemTagDef()
         {
@@ -371,9 +397,15 @@
         },
         new ItemTagDef()
         {
-            DefName = "BuildingMaterial",
-            Label = "Building Material",
-            Description = "Items that can be used as building materials, such as wood, metal, stone etc.",
+            DefName = "Medical",
+            Label = "Medical",
+            Description = "Items that can be used for medical purposes, such as tending wounds or healing infections.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Plant",
+            Label = "Plant",
+            Description = "Items that are plants or plant-based, such as herbs, fruits, vegetables etc.",
         },
         new ItemTagDef()
         {
@@ -383,9 +415,21 @@
         },
         new ItemTagDef()
         {
+            DefName = "Tool",
+            Label = "Tool",
+            Description = "General tag for all kinds of items commonly used as tools of some kind.",
+        },
+        new ItemTagDef()
+        {
             DefName = "Trash",
             Label = "Trash",
             Description = "Items that can be generally found among trash. They're usually not great, still have their uses.",
+        },
+        new ItemTagDef()
+        {
+            DefName = "Weapon",
+            Label = "Weapon",
+            Description = "Items that can be used as weapons to defend against threats.",
         },
     };
 

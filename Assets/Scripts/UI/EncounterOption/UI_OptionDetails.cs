@@ -8,6 +8,7 @@ public class UI_OptionDetails : MonoBehaviour
     public SkillCheckOption CurrentOption { get; private set; }
 
     [Header("Outcome Panel")]
+    public GameObject OutcomesPanel;
     public GameObject OutcomeBarContainer;
     public GameObject OutcomeLabelContainer;
 
@@ -16,6 +17,7 @@ public class UI_OptionDetails : MonoBehaviour
 
 
     [Header("Difficulty Panel")]
+    public GameObject DifficultyPanel;
     public TextMeshProUGUI DifficultyValueText;
     public GameObject DifficultyModifiersContainer;
 
@@ -29,6 +31,9 @@ public class UI_OptionDetails : MonoBehaviour
 
     public void Refresh()
     {
+        OutcomesPanel.SetActive(true);
+        DifficultyPanel.SetActive(true);
+
         List<SkillCheckOutcomeChance> outcomes = CurrentOption.GetOutcomeChances();
 
         // Outcome bar

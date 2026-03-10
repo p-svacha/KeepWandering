@@ -257,6 +257,7 @@ public class Encounter_Crate : LocationEncounter
                 {
                     IsRequired = true,
                     SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
+                    DestructionChance = 0.15f,
                 }
             },
             Action = OpenCrate,

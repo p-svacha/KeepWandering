@@ -28,10 +28,20 @@ public static class EncounterDefs
 
         new EncounterDef()
         {
-            DefName = "Outskirts_EveningEncounter",
+            DefName = "BiomeEncounter_Outskirts",
             EncounterClass = typeof(BiomeEncounter_Outskirts),
             Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
+        },
+
+        new EncounterDef()
+        {
+            DefName = "BiomeEncounter_Woods",
+            EncounterClass = typeof(BiomeEncounter_Woods),
+            Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
+            DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
         #endregion

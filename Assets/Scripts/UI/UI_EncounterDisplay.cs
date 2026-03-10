@@ -111,7 +111,11 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     private string EndEncounter()
     {
-        if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
+        if (Game.CurrentEncounter.Def.Type == EncounterType.Biome)
+        {
+            Game.EndEveningEncounter();
+        }
+        else if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
         {
             // End night encounter
         }
@@ -149,6 +153,17 @@ public class UI_EncounterDisplay : MonoBehaviour
             GameUI.Instance.HightlightStat(StatDefOf.Morale, ResourceManager.Color_Highlight_LowImpact); // Morale is always relevant for skill checks
             // Show option details
             ShowOptionDetails(skillCheckOption);
+        }
+
+        // Fixed outcome
+        else if (option is FixedOutcomeOption fixedOutcomeOption)
+        {
+            // Activate container (for item slot details)
+            OptionDetailsPanel.gameObject.SetActive(true);
+
+            // Don't show anything skill check related
+            OptionDetailsPanel.OutcomesPanel.SetActive(false);
+            OptionDetailsPanel.DifficultyPanel.SetActive(false);
         }
     }
 

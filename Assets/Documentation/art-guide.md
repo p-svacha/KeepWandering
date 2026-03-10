@@ -31,6 +31,7 @@ When done, Image > Trim > Transparent Pixels, then export as png. place in Asset
 Outline full black, 10px, 100% hardness,opacity,flow - NO PRESSURE FOR SIZE
 
 
+
 # Encounter Markers
 64x64 px transparent Canvas
 Use only grayscale colors, except for quest markers, 6px brush, 100% hardness, 100% opacity, and 100% flow. Pen pressure for size.
@@ -49,3 +50,9 @@ sky needs to be transparent. sky sprite is set according to time of day / weathe
 
 ## Drawing
 no black outlines, use more desaturated colors. flowy brush strokes, make use of opacity, color and shape dynamics for organic looks.
+
+
+
+# Encounter Sprites
+Outline full black, 8-16px, 100% hardness,opacity,flow, pressure for size
+pretty free

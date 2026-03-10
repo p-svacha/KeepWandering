@@ -7,14 +7,17 @@ public static class ItemDefOf
     public static ItemDef Antidote;
     public static ItemDef Bandage;
     public static ItemDef Beans;
+    public static ItemDef Berries;
     public static ItemDef Bone;
     public static ItemDef Coin;
     public static ItemDef Crowbar;
     public static ItemDef FenceCutter;
     public static ItemDef Knife;
     public static ItemDef MedicalKit;
+    public static ItemDef MedicinalHerbs;
     public static ItemDef NutSnack;
     public static ItemDef Rope;
+    public static ItemDef Trap;
     public static ItemDef WaterBottle;
 
 }

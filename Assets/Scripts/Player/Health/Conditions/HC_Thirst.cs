@@ -11,6 +11,6 @@ public class HC_Thirst : HealthCondition
     protected override void OnEndDay(MorningReport morningReport)
     {
         // Increase thirst
-        Player.ModifyHydration(PlayerCharacter.THIRST_INCREASE_PER_DAY);
+        Player.ModifyThirst(PlayerCharacter.THIRST_INCREASE_PER_DAY);
     }
 }

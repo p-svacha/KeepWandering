@@ -8,6 +8,7 @@ public static class ItemTagDefOf
     public static ItemTagDef Food;
     public static ItemTagDef ForDogs;
     public static ItemTagDef Medical;
+    public static ItemTagDef Plant;
     public static ItemTagDef Scavenging;
     public static ItemTagDef Tool;
     public static ItemTagDef Trash;

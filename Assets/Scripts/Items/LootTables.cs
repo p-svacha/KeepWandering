@@ -24,6 +24,12 @@ public static class LootTables
         { ItemDefOf.Antidote, 2 },
     };
 
+    public static LootTable Plants = new LootTable
+    {
+        { ItemDefOf.Berries, 10 },
+        { ItemDefOf.MedicinalHerbs, 8 },
+    };
+
     public static LootTable Tools = new LootTable
     {
         { ItemDefOf.Crowbar, 10 },

@@ -21,7 +21,7 @@ public class BiomeDef : Def
         Visuals = Game.Instance.BiomeBackgroundContainer.transform.Find(DefName).gameObject;
         WorldMapTile = TileFactory.CreateTileFromTexture(ResourceManager.LoadTexture("Biomes/" + DefName));
 
-        if (DefDatabase<EncounterDef>.TryGetNamed(DefName + "_EveningEncounter", out var encounter))
+        if (DefDatabase<EncounterDef>.TryGetNamed($"BiomeEncounter_{DefName}", out var encounter))
         {
             EveningEncounter = encounter;
         }

@@ -21,6 +21,8 @@ public class ItemDef : Def
 
 
     // Medical
+    public float SeverityReduction { get; init; } = 0f;
+    public bool CanReduceSeverity => SeverityReduction > 0f;
     public bool CanTendWounds { get; init; } = false;
     public bool CanHealInfections { get; init; } = false;
     public bool CanHealPoisoning { get; init; } = false;

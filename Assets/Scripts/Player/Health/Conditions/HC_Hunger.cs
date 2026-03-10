@@ -11,6 +11,6 @@ public class HC_Hunger : HealthCondition
     protected override void OnEndDay(MorningReport morningReport)
     {
         // Increase hunger
-        Player.ModifyNutrition(PlayerCharacter.HUNGER_INCREASE_PER_DAY);
+        Player.ModifyHunger(PlayerCharacter.HUNGER_INCREASE_PER_DAY);
     }
 }

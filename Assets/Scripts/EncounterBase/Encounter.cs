@@ -134,6 +134,11 @@ public abstract class Encounter
     protected abstract bool IsMoveOnOptionAvailable();
 
     /// <summary>
+    /// Called when the player chooses the "Move On" option, before the encounter is ended. Usually used to clean up visuals.
+    /// </summary>
+    protected virtual void OnMoveOn() { }
+
+    /// <summary>
     /// Gets called when the encounter is over.
     /// </summary>
     protected virtual void OnEnd() { }
@@ -159,7 +164,12 @@ public abstract class Encounter
     {
         if (show) ShowEncounterSprite(spriteName);
         else HideEncounterSprite(spriteName);
-    } 
+    }
+    protected void SetBackground(string backgroundName)
+    {
+        Sprite sprite = ResourceManager.LoadSprite($"Backgrounds/{backgroundName}");
+        Game.SetBackground(sprite);
+    }
     protected void ShowPlayerCharacter(bool value) => Game.ShowPlayerCharacter(value);
 
     /// <summary>
@@ -179,6 +189,7 @@ public abstract class Encounter
 
     private string MoveOn()
     {
+        OnMoveOn();
         IsEncounterDone = true;
         return "You move on.";
     }
