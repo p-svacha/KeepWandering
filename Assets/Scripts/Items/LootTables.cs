@@ -9,6 +9,7 @@ public static class LootTables
     {
         { ItemDefOf.Beans, 10 },
         { ItemDefOf.NutSnack, 8 },
+        { ItemDefOf.RawMeat, 3 },
     };
 
     public static LootTable Drinks = new LootTable
@@ -47,5 +48,11 @@ public static class LootTables
     {
         { ItemDefOf.Bone, 5 },
         { ItemDefOf.Coin, 2 }
+    };
+
+    public static LootTable TrapLoot = new LootTable
+    {
+        { ItemDefOf.RawMeat, 40 },
+        { ItemDefOf.Bone, 25 },
     };
 }

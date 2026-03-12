@@ -15,6 +15,9 @@ public class WorldMapTile
     public BiomeDef Biome { get; private set; }
     public LocationEncounter Encounter { get; private set; }
     public Quest Mission { get; private set; }
+    public DangerLevelDef DangerLevel { get; private set; }
+    public int NumVisits { get; private set; }
+    public bool HasBeenVisited => NumVisits > 0;
 
     public List<Area> Areas { get; private set; }
     public Area City => Areas.FirstOrDefault(a => a.Type == AreaType.City);
@@ -28,8 +31,24 @@ public class WorldMapTile
         Coordinates = coordinates;
         WorldPosition = WorldMapRenderer.Instance.GetWorldPosition(coordinates);
         Areas = new List<Area>();
+        DangerLevel = DangerLevelDefOf.Safe;
+        NumVisits = 0;
 
         DistanceFromStart = GetDistanceFromTile(Vector2Int.zero);
+    }
+
+    public void AddVisit() => NumVisits++;
+
+    public void ModifyDangerLevel(int amount)
+    {
+        // Calculate target level
+        int targetDangerLevel = (int)DangerLevel.DangerLevel + amount;
+        if (targetDangerLevel < 0) targetDangerLevel = 0;
+        int maxDangerLevel = DefDatabase<DangerLevelDef>.AllDefs.Max(dl => (int)dl.DangerLevel);
+        if (targetDangerLevel > maxDangerLevel) targetDangerLevel = maxDangerLevel;
+
+        // Set new level
+        DangerLevel = DefDatabase<DangerLevelDef>.AllDefs.First(dl => (int)dl.DangerLevel == targetDangerLevel);
     }
 
     public int GetDistanceFromTile(Vector2Int coordinates)
@@ -180,6 +199,7 @@ public class WorldMapTile
         if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
         // info += "\nDistance from start: " + DistanceFromStart; // debug
         info += $", Distance: {GetDistanceFromTile(Game.Instance.CurrentPosition.Coordinates)}";
+        if (HasBeenVisited) info += $", {DangerLevel.Label}";
         return info;
     }
 

@@ -58,6 +58,15 @@ TODOS:
 
 - health condition description should show affected stats
 
+- improve path history rendering (the dashed line on the world map showing your path)
+  - currently the points used for the line renderer are always the center of hexes
+  - that means if a tile is visited twice, the lines overlap perfectly, which looks weird
+  - find a solution to make it look nice and dynamic
+
+- cooking system:
+  - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition
+  - give raw meat chance to apply poisoning
+
 - make health condition text a little bigger
 - make tooltip text a little bit bigger
 - sound (game currently has no sound at all)

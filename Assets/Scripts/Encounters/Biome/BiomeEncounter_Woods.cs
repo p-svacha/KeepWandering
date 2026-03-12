@@ -70,7 +70,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
             text = "You reach the bank of a small stream. The sound of flowing water is soothing.";
         }
-        text += "\n\nHow would you like to spend the evening?";
+        text += SPEND_EVENING_TEXT;
         return text;
     }
 

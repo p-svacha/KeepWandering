@@ -55,6 +55,23 @@ public static class EncounterDefs
 
         #endregion
 
+        #region Night Encounters
+
+        new EncounterDef()
+        {
+            DefName = "Bandits",
+            EncounterClass = typeof(NightEncounter_Bandits),
+            Type = EncounterType.Night,
+            BaseProbability = 5,
+            BiomeProbabilityOverrides = new Dictionary<BiomeDef, float>()
+            {
+                { BiomeDefOf.City, 10 }
+            },
+            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+        },
+
+        #endregion
+
         #region Location Encounters
 
         new EncounterDef()
@@ -64,12 +81,6 @@ public static class EncounterDefs
             EncounterClass = typeof(Encounter_Crate),
             Type = EncounterType.Location,
             BaseProbability = 6,
-            Biomes = new Dictionary<BiomeDef, float>()
-            {
-                {BiomeDefOf.Outskirts, 1.1f},
-                {BiomeDefOf.City, 0.2f},
-                {BiomeDefOf.Woods, 0.9f},
-            },
             CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
             DevNotes = "A locked wooden crate with one visible item and potentially hidden items inside. The player can try to squeeze the visible item through a hole (dexterity check), smash the crate (strength check, may destroy contents), pry it open with a crowbar, or peek inside to learn what's hidden. Outcomes range from getting everything intact to destroying all items or injuring yourself. The encounter tracks whether the crate has been opened, smashed, or looted and adjusts options accordingly on revisits.",
         },

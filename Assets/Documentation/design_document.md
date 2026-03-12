@@ -253,10 +253,20 @@ The world map is a grid of hex tiles that represent different locations in the q
 A big area of the world map is enclosed by an electrified quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
 
 ## Danger Level
-Each tile has a persistent danger level. That level is shown to the player. The danger level affects the likelyhood and severity of bad night encounters happening during the night. Danger levels are "very safe", "safe", "caution", "danger" and "extreme danger".
+Each tile has a persistent danger level. That level is shown to the player. The danger level affects the likelihood and intensity of night encounters happening during the night. Danger levels are "very safe", "safe", "precarious", "dangerous" and "very dangerous".
 The calculation of the danger level is very simple. It starts at "safe" on each tile. AFTER each night, the danger level on the tile the player is on increases by 1 level.
 This mechanic is there to encourage the player to keep moving and exploring new tiles, instead of staying on the same tile and resting all the time.
-The danger level can also be affected by encounters.
+The danger level of tiles can also be affected by encounters.
+
+The chances of a night encounter occuring are (broken down by intensity):
+
+| Danger Level   | No Encounter | Intensity 1 | Intensity 2 | Intensity 3 |
+|----------------|--------------|-------------|-------------|-------------|
+| Very Safe      | 100%         | 0%          | 0%          | 0%          |
+| Safe           | 95%          | 5%          | 0%          | 0%          |
+| Precarious     | 75%          | 20%         | 5%          | 0%          |
+| Dangerous      | 50%          | 20%         | 20%         | 10%         |
+| Very Dangerous | 20%          | 10%         | 35%         | 35%         |
 
 ## Biomes
 Each tile has a biome, which determines the types of Location Encounters that can be encountered on that tile and also the Biome Encounter, which are the options that the player can choose from in the evening. For encounters that can appear in multiple biomes, the biome can also affect the encounter itself, by adding biome specific options or changing the outcome or difficulty of certain options.
@@ -317,8 +327,11 @@ Different encounters can work in very different ways, with different numbers of 
 Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until succes, or any other behaviour.
 There's really not a lot of restrictions in the design space of encounters.
 
-## Item Interactions
-During encounters, item interactions (like "eat beans", "apply bandage") are disabled. They can only be done on the final step of an encounter, after the encounter has ended (when the player is only left with the option "Move On" / "Sleep", etc.). An exception to this is the morning encounter. During the morning, items can be used freely.
+During encounters, free item use is disabled (i.e. for eating / bandaging). Items can only be used for encounter step options.
+At the end of an encounter, after it ends, the player can freely use items in their cart (i.e. to eat / drink / heal injuries etc.) again. After that, the player can choose to end the current time of day and transition to the next one.
+An exception to this is the morning encounter. During the morning, items can be used freely.
+
+Encounters only ever take place within a single time of day.
 
 ## Encounter Types
 There are three types of encounters:
@@ -346,12 +359,18 @@ Each biome encounter subclass can also define additional biome-specific options 
 Biome encounters usually have a setting. The setting is a randomly rolled place where the player is setting up camp for the night. The setting can affect the base difficulty of the evening actions, or can have other biome-specific effects.
 
 ### Night encounters
-These are special encounters that can be randomly encountered during the night. They are not tied to any specific location on the world map.
+These are special encounters that happen during the night. They are not persistent and cannot be returned to after an encounter.
 
-During encounters, free item use is restricted (i.e. for eating / bandaging). Items can only be used for encounter step options.
-At the end of an encounter, after it ends, the player can freely use items in their cart (i.e. to eat / drink / heal injuries etc.) again. After that, the player can choose to end the current time of day and transition to the next one.
+Night encounter are designed as a threat to the player, as a consequence of being in high danger level areas, and are therefore overwhelmingly negative in their outcomes. Different than other encounters where good outcomes lead to positive effects, night encounters are more about avoiding negative effects (although (critical) success can still provide some benefits).
+Night encounters are usually some form of attack on your sleeping spot/camp.
 
-Encounters only ever take place within a single time of day.
+#### Intensity
+Night encounters have a special additional property called "intensity". The intensity is determined when the encounter is initialized and is calculated based on the danger level of the current tile and some variation.
+
+If the player has placed traps during the evening, each trap reduces the intensity of the encounter by 1.
+
+Intensity is a value from 1 to 3. It usually shows itself in the amount or size/strength of the attackers but how exactly it affects the encounter is based on the individual night encounter.
+
 
 ## Design Philosophy
 First design priority of all encounters is to provide the player with interesting and meaningful choices.
@@ -434,12 +453,12 @@ There are many things that can happen as a result of an option outcome. The most
 
 - Stat changes: The player's stats can increase or decrease.
 - Item changes: The player can gain or lose items.
-- Health changes: The player's health can change (gain injuries / tend injuries / heal infections / heal poisoning etc.)
+- Health changes: The player can gain new health conditions or change existing health conditions in all kind of ways.
 - Companion changes: The player can gain or lose companions.
-- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest.
+- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest. This includes rumours.
 - Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
-- Revealing location encouters: Encounters on other tiles on the world map can be revealed
-
+- World location encouters: Encounters on other tiles on the world map can be generated and/or revealed.
+- Placing traps (evening only): In the evening traps can be placed to reduce night encounter intensity.
 
 # Gameplay Loop
 The player must somehow escape the quarantine zone. If the player character dies, the game is over. When the player dies, the screen fades to black showing the reason of death. The player can then choose to start a new game, which generates a new world and resets all progress, or quit to the main menu.
@@ -470,7 +489,7 @@ A new biome encounter instance is created each evening — they are not persiste
 ### Trap System
 The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. They see how many traps are set in the UI. Each trap has the following effect:
 
-- If there is a combat encounter during the night, each trap will reduce the difficulty of the encounter by 20. In case of multiple night encounters, traps protect from them all.
+- If there is a night encounter, each trap will reduce the intensity of the encounter by 1. If this reduces the intensity below 1, it nullifies the encounter entirely.
 - If a trap wasn't used for an encounter, it has a X% chance trigger on an animal, giving the player an item. X is based on the biome.
 - If a trap was neither used for an encounter nor triggered on an animal, it has a 80% chance to be returned to the player's cart in the morning, and a 20% chance to be lost.
 
@@ -478,8 +497,7 @@ These effects are communicated as night events in the morning report.
 
 
 ## Night
-Each night, it is randomly rolled if the player has any Night Encounters. These are special encounters that the player can not come back to on the world map later. Multiple night encounters may happen in a night.
-The likelihood of having a bad night encounter is based on the danger level of the tile the player is currently on, with higher danger levels increasing the chances of having bad night encounter. Night encounters are usually some form of attack on your sleeping spot.
+Each night, there is a chance for a night encounter to happen, based on the danger level of the tile the player is currently on. (see Night Encounters chapter for more info).
 
 If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
 

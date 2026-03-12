@@ -43,6 +43,80 @@
 
     };
 
+--- DangerLevelDefs.cs ---
+    public static List<DangerLevelDef> Defs => new List<DangerLevelDef>()
+    {
+        new DangerLevelDef()
+        {
+            DefName = "VerySafe",
+            Label = "Very Safe",
+            Description = "Noone will attack during the night.",
+            DangerLevel = DangerLevel.VerySafe,
+            Color = ResourceManager.Color_Text_VeryPositive,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 100 },
+            },
+        },
+        new DangerLevelDef()
+        {
+            DefName = "Safe",
+            Label = "Safe",
+            Description = "There is a very small chance of a small attack happening at night.",
+            DangerLevel = DangerLevel.Safe,
+            Color = ResourceManager.Color_Text_Positive,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 95 },
+                { 1, 5 },
+            },
+        },
+        new DangerLevelDef()
+        {
+            DefName = "Precarious",
+            Label = "Precarious",
+            Description = "There is a small chance of an attack happening at night.",
+            DangerLevel = DangerLevel.Precarious,
+            Color = ResourceManager.Color_Text_Negative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 75 },
+                { 1, 20 },
+                { 2, 5 },
+            },
+        },
+        new DangerLevelDef()
+        {
+            DefName = "Dangerous",
+            Label = "Dangerous",
+            Description = "There is a significant chance of an attack happening at night.",
+            DangerLevel = DangerLevel.Dangerous,
+            Color = ResourceManager.Color_Text_VeryNegative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 50 },
+                { 1, 20 },
+                { 2, 20 },
+                { 3, 10 },
+            },
+        },
+        new DangerLevelDef()
+        {
+            DefName = "VeryDangerous",
+            Label = "Very Dangerous",
+            Description = "There is a very high chance of a potentially devastating attack happening at night.",
+            DangerLevel = DangerLevel.VeryDangerous,
+            Color = ResourceManager.Color_Text_ExtremelyNegative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 20 },
+                { 1, 10 },
+                { 2, 35 },
+                { 3, 35 },
+            },
+        }
+    };
+
 --- EncounterDefs.cs ---
     public static List<EncounterDef> Defs => new List<EncounterDef>()
     {
@@ -85,6 +159,32 @@
             DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
+        new EncounterDef()
+        {
+            DefName = "BiomeEncounter_City",
+            EncounterClass = typeof(BiomeEncounter_City),
+            Type = EncounterType.Biome,
+            CameraZoomLevel = 8f,
+            DevNotes = "Evening encounter for the city biome. Randomly selects one of four settings (abandoned apartment, parking garage, boarded-up shop, alleyway) which affects step text and difficulties. Rest early is not available in the city. In addition to standard options, offers 'Keep watch' (Perception/Combat check, reduces danger level on success, increases it on critical failure, difficulty varies by setting) and 'Eavesdrop' (Perception/Charisma check, reveals nearby encounters or creates a supply stash, always available at apartment and parking garage, 50% at shop, never in alleyway).",
+        },
+
+        #endregion
+
+        #region Night Encounters
+
+        new EncounterDef()
+        {
+            DefName = "Bandits",
+            EncounterClass = typeof(NightEncounter_Bandits),
+            Type = EncounterType.Night,
+            BaseProbability = 5,
+            BiomeProbabilityOverrides = new Dictionary<BiomeDef, float>()
+            {
+                { BiomeDefOf.City, 10 }
+            },
+            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+        },
+
         #endregion
 
         #region Location Encounters
@@ -96,12 +196,6 @@
             EncounterClass = typeof(Encounter_Crate),
             Type = EncounterType.Location,
             BaseProbability = 6,
-            Biomes = new Dictionary<BiomeDef, float>()
-            {
-                {BiomeDefOf.Outskirts, 1.1f},
-                {BiomeDefOf.City, 0.2f},
-                {BiomeDefOf.Woods, 0.9f},
-            },
             CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
             DevNotes = "A locked wooden crate with one visible item and potentially hidden items inside. The player can try to squeeze the visible item through a hole (dexterity check), smash the crate (strength check, may destroy contents), pry it open with a crowbar, or peek inside to learn what's hidden. Outcomes range from getting everything intact to destroying all items or injuring yourself. The encounter tracks whether the crate has been opened, smashed, or looted and adjusts options accordingly on revisits.",
         },
@@ -339,7 +433,17 @@
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
-            OnConsumptionNutrition = 3f,
+            OnConsumptionNutrition = 2.5f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "RawMeat",
+            Label = "raw meat",
+            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Tags = { ItemTagDefOf.Food },
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3.5f,
         },
 
         new ItemDef()
@@ -787,6 +891,16 @@
             Label = "woods",
             Description = "A place of many wild animals and plants.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Intelligence, StatDefOf.Perception, StatDefOf.Dexterity },
+            LootTable = new LootTable
+            {
+                { LootTables.Food, 10 },
+                { LootTables.Plants, 12 },
+                { LootTables.Drinks, 9 },
+                { LootTables.Tools, 5 },
+                { ItemDefOf.Rope, 5 },
+                { LootTables.Medical, 1 },
+            },
+            TrapTriggerChance = 0.5f,
         },
 
         new BiomeDef()
@@ -800,8 +914,11 @@
                 { LootTables.Trash, 10 },
                 { LootTables.Food, 7 },
                 { LootTables.Drinks, 7 },
+                { LootTables.Medical, 5 },
                 { LootTables.Tools, 5 },
+                { LootTables.Plants, 5 },
             },
+            TrapTriggerChance = 0.3f,
         },
 
         new BiomeDef()
@@ -810,6 +927,17 @@
             Label = "city",
             Description = "A bustling urban area with many buildings and people.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Combat, StatDefOf.Charisma, StatDefOf.Perception },
+            LootTable = new LootTable
+            {
+                { LootTables.Trash, 18 },
+                { LootTables.Food, 15 },
+                { LootTables.Drinks, 15 },
+                { LootTables.Tools, 10 },
+                { LootTables.Weapons, 12 },
+                { LootTables.Medical, 20 },
+                { ItemDefOf.Coin, 10 },
+            },
+            TrapTriggerChance = 0.1f,
         },
 
         new BiomeDef()

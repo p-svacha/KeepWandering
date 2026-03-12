@@ -5,13 +5,17 @@ using UnityEngine;
 public enum GameState
 {
     Initializing,
+
     InDayTransition,
     DayTransitionFadeIn,
     DayTransitionFadeOut,
+
     EndEncounterTransitionIn,
     EndEncounterTransitionOut,
+
     EndMorningReportTransitionIn,
     EndMorningReportTransitionOut,
+
     InGame,
     GameOver
 }

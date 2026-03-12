@@ -14,7 +14,7 @@ public class UI_Tooltip : MonoBehaviour
     }
 
     private Vector3 MOUSE_OFFSET = new Vector3(0.2f, -0.2f, 0f);
-    private const float SCREEN_EDGE_OFFSET = 0f;
+    private const int SCREEN_EDGE_OFFSET = 10; // px
 
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
@@ -99,11 +99,13 @@ public class UI_Tooltip : MonoBehaviour
         Vector3 worldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
         worldPos.z = 0f;
         transform.position = worldPos + MOUSE_OFFSET;
+        ClampToScreen();
     }
 
     public void UpdatePosition(Item item)
     {
         transform.position = item.Renderer.transform.position + new Vector3(0.1f, -0.1f, 0f);
+        ClampToScreen();
     }
 
     public void UpdatePositionAtUi(GameObject uiObject)
@@ -113,17 +115,41 @@ public class UI_Tooltip : MonoBehaviour
         rect.GetWorldCorners(rectCorners);
 
         Vector2 bottomLeftCorner = rectCorners[0];
-        Vector2 tooltipPosition = bottomLeftCorner;
+        transform.position = (Vector3)bottomLeftCorner;
+        ClampToScreen();
+    }
 
-        // Make sure full tooltip is on screen
-        Vector2 positionScreen = Game.Instance.MainCamera.WorldToScreenPoint(tooltipPosition);
-        Vector2 tooltipEdge = Game.Instance.MainCamera.ScreenToWorldPoint(new Vector2(positionScreen.x + GetComponent<RectTransform>().rect.width, positionScreen.y + GetComponent<RectTransform>().rect.height));
-        Vector2 tooltipDimensions = tooltipEdge - tooltipPosition;
-        Vector2 screenDimensions = Game.Instance.MainCamera.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
+    private void ClampToScreen()
+    {
+        Camera cam = Game.Instance.MainCamera;
+        RectTransform tooltipRect = GetComponent<RectTransform>();
+        Vector3[] corners = new Vector3[4];
+        tooltipRect.GetWorldCorners(corners);
 
-        if (tooltipEdge.x > screenDimensions.x) tooltipPosition.x = screenDimensions.x - tooltipDimensions.x - SCREEN_EDGE_OFFSET;
-        //if (position.y - tooltipDimensions.y < 0) position.y = tooltipDimensions.y + SCREEN_EDGE_OFFSET;
+        Vector2 screenMin = cam.WorldToScreenPoint(corners[0]);
+        Vector2 screenMax = cam.WorldToScreenPoint(corners[2]);
 
-        transform.position = tooltipPosition;
+        float dx = 0f;
+        float dy = 0f;
+
+        if (screenMax.x > Screen.width - SCREEN_EDGE_OFFSET)
+            dx = (Screen.width - SCREEN_EDGE_OFFSET) - screenMax.x;
+        if (screenMin.x + dx < SCREEN_EDGE_OFFSET)
+            dx = SCREEN_EDGE_OFFSET - screenMin.x;
+
+        if (screenMax.y > Screen.height - SCREEN_EDGE_OFFSET)
+            dy = (Screen.height - SCREEN_EDGE_OFFSET) - screenMax.y;
+        if (screenMin.y + dy < SCREEN_EDGE_OFFSET)
+            dy = SCREEN_EDGE_OFFSET - screenMin.y;
+
+        if (dx != 0f || dy != 0f)
+        {
+            Vector3 screenPos = cam.WorldToScreenPoint(transform.position);
+            screenPos.x += dx;
+            screenPos.y += dy;
+            Vector3 newPos = cam.ScreenToWorldPoint(screenPos);
+            newPos.z = 0f;
+            transform.position = newPos;
+        }
     }
 }

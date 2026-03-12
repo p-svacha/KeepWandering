@@ -14,6 +14,9 @@ public class GameUI : MonoBehaviour
     [Header("Day Panel")]
     public TextMeshProUGUI DayText;
     public TextMeshProUGUI DayTimeText;
+    public TextMeshProUGUI DangerLevelText;
+    public UI_TooltipTarget DangerLevelTooltipTarget;
+
     public Button MapButton;
     public Button SettingsButton;
     public Button DiaryButton;
@@ -141,7 +144,19 @@ public class GameUI : MonoBehaviour
 
     #endregion
 
-    #region Misc
+    #region Refresh
+
+    public void UpdateDayPanel()
+    {
+        // Danger level
+        DangerLevelText.text = Game.CurrentPosition.DangerLevel.Label;
+        DangerLevelText.color = Game.CurrentPosition.DangerLevel.Color;
+        
+        string tooltipTitle = $"Danger Level: {Game.CurrentPosition.DangerLevel.Label}";
+        string tooltipDescription = Game.CurrentPosition.DangerLevel.Description;
+        tooltipDescription += $"\n\nThe danger level increases after each night or when staying in the same location.";
+        DangerLevelTooltipTarget.Init(tooltipTitle, tooltipDescription);
+    }
 
     public void UpdateHealthReports()
     {

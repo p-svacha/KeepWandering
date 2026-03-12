@@ -10,9 +10,25 @@ public class BiomeDef : Def
     public Tile WorldMapTile { get; private set; }
     public EncounterDef EveningEncounter { get; private set; }
 
+    /// <summary>
+    /// If the player can move on this tile.
+    /// </summary>
     public bool IsPassable { get; init; } = true;
+
+    /// <summary>
+    /// General loot table for encounters that happen in this biome. This is used to add biome-specific items to the loot tables of encounters that happen in this biome, without having to modify the encounter defs themselves.
+    /// </summary>
     public LootTable LootTable { get; init; } = new LootTable();
+
+    /// <summary>
+    /// Set of most important stats. Not directly used for anything at the moment, but can be used by encounters or the UI to determine which stats to show or emphasize for this biome.
+    /// </summary>
     public List<StatDef> MostImportantStats { get; init; } = new List<StatDef>();
+
+    /// <summary>
+    /// Chance that placed evening traps trigger on wildlife during the night.
+    /// </summary>
+    public float TrapTriggerChance { get; init; } = 0f;
 
     public override void OnLoadingDefsDone()
     {

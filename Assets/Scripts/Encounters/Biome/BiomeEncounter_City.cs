@@ -76,7 +76,7 @@ public class BiomeEncounter_City : BiomeEncounter
         if (Setting == SettingType.ParkingGarage) text = "You take shelter in a parking garage. The concrete echoes every sound, but you can see anyone coming from far away.";
         if (Setting == SettingType.BoardedUpShop) text = "You squeeze into a boarded-up shop through a gap in the planks. The shelves are mostly empty, but it's dry and hidden.";
         if (Setting == SettingType.Alleyway) text = "You duck into a narrow alley between two buildings. It's cramped and smells bad, but nobody's likely to look here.";
-        text += "\n\nHow would you like to spend the evening?";
+        text += SPEND_EVENING_TEXT;
         return text;
     }
 

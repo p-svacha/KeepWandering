@@ -16,6 +16,7 @@ public static class ItemDefOf
     public static ItemDef MedicalKit;
     public static ItemDef MedicinalHerbs;
     public static ItemDef NutSnack;
+    public static ItemDef RawMeat;
     public static ItemDef Rope;
     public static ItemDef Trap;
     public static ItemDef WaterBottle;

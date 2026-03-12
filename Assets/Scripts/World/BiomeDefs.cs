@@ -20,6 +20,7 @@ public static class BiomeDefs
                 { ItemDefOf.Rope, 5 },
                 { LootTables.Medical, 1 },
             },
+            TrapTriggerChance = 0.5f,
         },
 
         new BiomeDef()
@@ -37,6 +38,7 @@ public static class BiomeDefs
                 { LootTables.Tools, 5 },
                 { LootTables.Plants, 5 },
             },
+            TrapTriggerChance = 0.3f,
         },
 
         new BiomeDef()
@@ -55,6 +57,7 @@ public static class BiomeDefs
                 { LootTables.Medical, 20 },
                 { ItemDefOf.Coin, 10 },
             },
+            TrapTriggerChance = 0.1f,
         },
 
         new BiomeDef()

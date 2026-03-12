@@ -19,6 +19,7 @@ public class Game : MonoBehaviour
     public Encounter CurrentEncounter;
     public EncounterStep CurrentEventStep;
     public int NumEveningTraps {  get; private set; }
+    public NightEncounter NightEncounter { get; private set; }
 
     // Encounter Step Outcome
     public List<Item> ItemsUsedInOption = new List<Item>();
@@ -310,6 +311,7 @@ public class Game : MonoBehaviour
         switch (newState)
         {
             case GameState.InDayTransition:
+                if (Day > 0) EndDay();
                 StartMorning();
                 UI.HoldBlackTransition(GameUI.TRANSITION_HOLD_TIME);
                 break;
@@ -333,7 +335,8 @@ public class Game : MonoBehaviour
                 break;
 
             case GameState.EndEncounterTransitionOut:
-                StartEveningEncounter();
+                if (TimeOfDay == TimeOfDayDefOf.Evening) StartNightEncounter();
+                else StartEveningEncounter();
                 EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
@@ -490,39 +493,14 @@ public class Game : MonoBehaviour
 
     private void StartMorning()
     {
-        // End previous encounter
-        if (Day > 0) EndCurrentEncounter();
-
         SetTimeOfDay(TimeOfDayDefOf.Morning);
         EncounterCamera.Instance.SetDefaultZoom();
-
-        LatestMorningReport = new MorningReport(Day);
-
-        // End of day effects
-        if (Day > 0)
-        {
-            float naturalHealingFactor = 1f;
-            if (IsEarlyResting)
-            {
-                naturalHealingFactor += 0.5f;
-                Debug.Log("Early resting bonus! Natural healing increased by 50% for this night.");
-            }
-            ApplyNaturalHealing(naturalHealingFactor);
-            IsEarlyResting = false;
-            Player.OnEndDay(this, LatestMorningReport);
-        }
 
         // Start next day
         SetBackground(CurrentPosition.Biome.BackgroundSprite); // Reset background
         Day++;
         Debug.Log($"--- Start Day {Day} ---");
 
-        
-        /*
-        List<Companion> companionsCopy = new List<Companion>();
-        foreach (Companion c in Companions) companionsCopy.Add(c);
-        foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
-        */
         OnGameStateChanged();
 
         // Day UI Updates
@@ -653,7 +631,6 @@ public class Game : MonoBehaviour
 
         // Time of Day
         SetTimeOfDay(TimeOfDayDefOf.Evening);
-        EncounterCamera.Instance.SetDefaultZoom();
 
         // Start encounter
         Encounter eveningBiomeEncounter = EncounterManager.GenerateEncounter(CurrentPosition.Biome.EveningEncounter) as Encounter;
@@ -665,16 +642,139 @@ public class Game : MonoBehaviour
         // UI
         UI.CloseAllWindows();
 
-        SwitchState(GameState.DayTransitionFadeIn);
+        // Initialize morning report (things happening from here can be part of the report)
+        LatestMorningReport = new MorningReport(Day);
+
+        // Decide if there should be a night encounter
+        int nightEncounterIntensity = CurrentPosition.DangerLevel.NightEncounterIntensities.GetWeightedRandomElement();
+        if (nightEncounterIntensity == 0)
+        {
+            // No night encounter happening -> End day
+            SwitchState(GameState.DayTransitionFadeIn);
+        }
+
+        // Night encounter happening
+        else
+        {
+            // Reduce intensity based on traps
+            int numTrapsUsedToDefend = 0;
+            while (nightEncounterIntensity > 0 && NumEveningTraps > 0)
+            {
+                nightEncounterIntensity--;
+                NumEveningTraps--;
+                numTrapsUsedToDefend++;
+            }
+
+            // If intensity was reduced to 0, mention in morning report and end day
+            if (nightEncounterIntensity == 0)
+            {
+                string trap = numTrapsUsedToDefend == 1 ? "trap was" : "traps were";
+                LatestMorningReport.AddNightEvent($"{numTrapsUsedToDefend} {trap} used during the night to successfully defend against an attack.");
+                SwitchState(GameState.DayTransitionFadeIn);
+            }
+
+            // Else start night encounter with remaining intensity
+            else
+            {
+                EncounterDef def = EncounterManager.SelectNightEncounterDefFor(CurrentPosition);
+                NightEncounter = EncounterManager.GenerateEncounter(def) as NightEncounter;
+                NightEncounter.Init(this, def, nightEncounterIntensity);
+                SwitchState(GameState.EndEncounterTransitionIn);
+            }
+        }
     }
 
     #endregion
 
     #region Night
 
+    private void StartNightEncounter()
+    {
+        // End previous encounter
+        EndCurrentEncounter();
+
+        // Time of Day
+        SetTimeOfDay(TimeOfDayDefOf.Night);
+
+        // Start encounter
+        SetCurrentEncounter(NightEncounter);
+    }
+
+    public void EndNightEncounter()
+    {
+        // UI
+        UI.CloseAllWindows();
+
+        // Start day transition 
+        SwitchState(GameState.DayTransitionFadeIn);
+    }
+
+    public void EndDay()
+    {
+        // End previous encounter
+        EndCurrentEncounter();
+        NightEncounter = null;
+
+        // Trigger remaining traps
+        int numTriggeredTraps = 0;
+        for(int i = 0; i < NumEveningTraps; i++)
+        {
+            // Chance for triggering on wildlife
+            bool triggeredOnWildlife = Random.value < CurrentPosition.Biome.TrapTriggerChance;
+            if (triggeredOnWildlife)
+            {
+                ItemDef item = LootTables.TrapLoot.Resolve();
+                LatestMorningReport.AddNightEvent($"A trap was triggered during the night. You found {item.Label}.");
+                numTriggeredTraps++;
+                continue;
+            }
+
+            // Chance for breaking
+            float breakChance = 0.2f;
+            if (Random.value < breakChance)
+            {
+                LatestMorningReport.AddNightEvent($"A trap was triggered during the night but didn't catch anything.");
+                numTriggeredTraps++;
+                continue;
+            }
+        }
+
+        // Add remaining traps to inventory
+        int remainingTraps = NumEveningTraps - numTriggeredTraps;
+        AddNewItemsToInventory(ItemDefOf.Trap, remainingTraps);
+        string trap = remainingTraps == 1 ? "trap was" : "traps were";
+        LatestMorningReport.AddNightEvent($"{remainingTraps} {trap} set during the evening were not triggered. You collect them.");
+
+        NumEveningTraps = 0;
+
+        // Apply natural healing
+        float naturalHealingFactor = 1f;
+        if (IsEarlyResting)
+        {
+            naturalHealingFactor += 0.5f;
+            Debug.Log("Early resting bonus! Natural healing increased by 50% for this night.");
+        }
+        ApplyNaturalHealing(naturalHealingFactor);
+        IsEarlyResting = false;
+
+        // End of day effects of health conditions
+        Player.OnEndDay(this, LatestMorningReport);
+
+        /*
+        List<Companion> companionsCopy = new List<Companion>();
+        foreach (Companion c in Companions) companionsCopy.Add(c);
+        foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
+        */
+
+        // Increase danger level on current tile
+        ModifyDangerLevel(CurrentPosition, +1);
+    }
+
     #endregion
 
     #region Game Actions
+
+    #region Items
 
     public Item CreateItem(ItemTagDef itemTag, bool hidden = false, bool frozen = true)
     {
@@ -778,6 +878,14 @@ public class Game : MonoBehaviour
         Player.ModifyThirst(-item.Def.OnConsumptionHydration);
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
+        OnGameStateChanged();
+    }
+
+    #endregion
+
+    public void ModifyDangerLevel(WorldMapTile tile, int amount)
+    {
+        tile.ModifyDangerLevel(amount);
         OnGameStateChanged();
     }
 
@@ -1030,6 +1138,7 @@ public class Game : MonoBehaviour
     /// </summary>
     private void RefreshUI()
     {
+        UI.UpdateDayPanel();
         UI.UpdateHealthReports();
         UI.RefreshStats();
         UI.UpdateQuestDisplay();

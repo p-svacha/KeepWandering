@@ -25,6 +25,8 @@ public static class DefDatabaseRegistry
         ClearAllDatabases();
 
         DefDatabase<TimeOfDayDef>.AddDefs(TimeOfDayDefs.Defs);
+        DefDatabase<DangerLevelDef>.AddDefs(DangerLevelDefs.Defs);
+
         DefDatabase<QuestDef>.AddDefs(QuestDefs.Defs);
         DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
@@ -38,6 +40,7 @@ public static class DefDatabaseRegistry
         DefDatabase<BiomeDef>.AddDefs(BiomeDefs.Defs);
         DefDatabase<EncounterDef>.AddDefs(EncounterDefs.Defs);
 
+        ValidateDefOfAttributes();
         ValidateDefOfs();
         ResolveAllReferences();
         OnLoadingDone();
@@ -116,6 +119,25 @@ public static class DefDatabaseRegistry
         }
 
         DefDumpUtility.DumpAllDefs();
+    }
+
+    /// <summary>
+    /// Checks that all classes whose name ends with "DefOf" have the [DefOf] attribute.
+    /// Throws an exception if any such class is missing it.
+    /// </summary>
+    private static void ValidateDefOfAttributes()
+    {
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var assembly in assemblies)
+        {
+            foreach (var type in assembly.GetTypes())
+            {
+                if (type.Name != "DefOf" && type.Name.EndsWith("DefOf") && !type.GetCustomAttributes(typeof(DefOf), inherit: false).Any())
+                {
+                    throw new System.Exception($"Class '{type.FullName}' has a name ending with 'DefOf' but is missing the [DefOf] attribute. Add the [DefOf] attribute to ensure its fields are automatically bound.");
+                }
+            }
+        }
     }
 
     /// <summary>

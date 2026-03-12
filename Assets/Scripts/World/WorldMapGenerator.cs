@@ -360,9 +360,9 @@ public static class WorldMapGenerator
                     }
 
                     // Biome modifier
-                    if (landmark.Biomes.Count > 0)
+                    if (landmark.BiomeProbabilityOverrides.Count > 0)
                     {
-                        if (landmark.Biomes.ContainsKey(tile.Biome)) candidateTiles.Add(tile, landmark.Biomes[tile.Biome]);
+                        if (landmark.BiomeProbabilityOverrides.ContainsKey(tile.Biome)) candidateTiles.Add(tile, landmark.BiomeProbabilityOverrides[tile.Biome]);
                     }
                     else candidateTiles.Add(tile, 1f); // If no biome requirements, all tiles are valid with equal probability
                 }

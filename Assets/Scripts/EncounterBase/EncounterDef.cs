@@ -28,9 +28,9 @@ public class EncounterDef : Def
     public float BaseProbability { get; init; } = 0f;
 
     /// <summary>
-    /// The biomes in which this encounter can occur, along with a multiplier to the base probability for each biome. If a biome is not listed here, the encounter cannot occur in that biome.
+    /// Can be used to override the base probability of this encounter in specific biomes.
     /// </summary>
-    public Dictionary<BiomeDef, float> Biomes { get; init; } = new Dictionary<BiomeDef, float>();
+    public Dictionary<BiomeDef, float> BiomeProbabilityOverrides { get; init; } = new Dictionary<BiomeDef, float>();
 
     /// <summary>
     /// If set to a positive number, this encounter can only occur up to this many times in a single playthrough. If -1 (the default), there is no limit to the number of times this encounter can occur.
@@ -77,7 +77,7 @@ public class EncounterDef : Def
         if (Type == EncounterType.Landmark)
         {
             if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
-            if (BaseProbability != 0f) throw new System.Exception("Landmark encounters cannot have a probability, as their placement depends purely on Min and MaxOccurences.");
+            if (BaseProbability != 0f) throw new System.Exception("Landmark encounters cannot have a probability, as their placement depends purely on Min and MaxOccurences. For biome preferences, use BiomeProbabilityOverrides.");
             if (MaxOccurences <= 0) throw new System.Exception("Landmark encounters must have a positive maximum number of occurences.");
             if (MaxOccurences < MinOccurences) throw new System.Exception("MaxOccurences cannot be less than MinOccurences.");
         }
@@ -86,7 +86,7 @@ public class EncounterDef : Def
         {
             if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
             if (BaseProbability != 0f) throw new System.Exception("Special encounters cannot have a probability, as they are only force placed.");
-            if (Biomes.Count > 0) throw new System.Exception("Special encounters cannot have biome-specific probabilities, as they are only force placed.");
+            if (BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Special encounters cannot have biome-specific probabilities, as they are only force placed.");
             if (MaxOccurences != -1) throw new System.Exception("Special encounters cannot be limited, as they are only force placed.");
             if (MinDistanceFromStart != -1) throw new System.Exception("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
             if (MinDistanceBetween != -1) throw new System.Exception("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
@@ -97,15 +97,18 @@ public class EncounterDef : Def
             if (MinDistanceFromStart != -1) throw new System.Exception("Biome encounters cannot have a minimum distance from the starting tile.");
             if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited.");
             if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
-            if (Biomes != null && Biomes.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
+            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
             if (MinDistanceBetween != -1) throw new System.Exception("Biome encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
             if (DefName != "EveningFallback" && !EncounterClass.IsSubclassOf(typeof(BiomeEncounter))) throw new System.Exception("EncounterClass must be a subclass of BiomeEncounter.");
         }
 
         if (Type == EncounterType.Night)
         {
+            if (!EncounterClass.IsSubclassOf(typeof(NightEncounter))) throw new System.Exception("EncounterClass must be a subclass of NightEncounter.");
             if (BaseProbability == 0f) throw new System.Exception("Night encounters must have a base probability set.");
             if (MinDistanceBetween != -1) throw new System.Exception("Night encounters cannot have a minimum distance between occurences, as they happen independently from location in the world.");
+            if (MinOccurences != 0) throw new System.Exception("Night encounters cannot have a minimum number of occurences.");
+            if (MaxOccurences != -1) throw new System.Exception("Night encounters cannot be limited, as they are selected randomly each night based on their probability.");
         }
 
         return base.Validate();

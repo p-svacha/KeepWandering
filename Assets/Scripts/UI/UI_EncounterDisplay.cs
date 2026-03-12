@@ -25,6 +25,12 @@ public class UI_EncounterDisplay : MonoBehaviour
     public UI_OptionDetails OptionDetailsPanel;
     public UI_ItemSlotDetailsBox ItemSlotDetailsBox;
 
+    [Header("Trap Display")]
+    public GameObject TrapDisplay;
+    public TextMeshProUGUI TrapNumText;
+    public UI_TooltipTarget TrapImageTooltipTarget;
+    public UI_TooltipTarget TrapTextTooltipTarget;
+
     [Header("Prefabs")]
     public UI_EncounterStepOption EncounterOptionPrefab;
     public UI_EncounterOutcomeNote OutcomeNotePrefab;
@@ -102,9 +108,23 @@ public class UI_EncounterDisplay : MonoBehaviour
             }
         }
 
+        // Option details
         HideOptionDetails();
         HoveredOptionDescriptionText.gameObject.SetActive(false);
+
+        // Outcome notes
         InitEncounterStepOutcomeNotes();
+
+        // Trap display
+        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.NumEveningTraps > 0);
+        if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
+        {
+            TrapNumText.text = Game.NumEveningTraps.ToString();
+            string tooltipTitle = "Traps";
+            string tooltipText = "Traps help defending against attacks in the night, or may catch wildlife, providing resources.";
+            TrapImageTooltipTarget.Init(tooltipTitle, tooltipText);
+            TrapTextTooltipTarget.Init(tooltipTitle, tooltipText);
+        }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
@@ -117,7 +137,7 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         else if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
         {
-            // End night encounter
+            Game.EndNightEncounter();
         }
         else // It is afternoon
         {

@@ -121,7 +121,17 @@ public static class ItemDefs
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
-            OnConsumptionNutrition = 3f,
+            OnConsumptionNutrition = 2.5f,
+        },
+
+        new ItemDef()
+        {
+            DefName = "RawMeat",
+            Label = "raw meat",
+            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Tags = { ItemTagDefOf.Food },
+            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            OnConsumptionNutrition = 3.5f,
         },
 
         new ItemDef()

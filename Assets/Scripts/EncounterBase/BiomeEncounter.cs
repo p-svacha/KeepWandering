@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public abstract class BiomeEncounter : Encounter
 {
+    private const string SET_TRAP_TEXT = "Place Trap";
+    protected const string SPEND_EVENING_TEXT = "\n\nHow would you like to spend the evening?";
     private string EveningAction;
     private bool IsEveningActionChosen = false;
 
@@ -15,7 +17,7 @@ public abstract class BiomeEncounter : Encounter
         base.OnOptionChosen(option);
 
         // Set the evening action if it hasn't been chosen yet.
-        if (!IsEveningActionChosen)
+        if (!IsEveningActionChosen && option.Text != SET_TRAP_TEXT)
         {
             IsEveningActionChosen = true;
             EveningAction = option.Text;
@@ -51,6 +53,9 @@ public abstract class BiomeEncounter : Encounter
 
         // Rest early
         if (IsRestEarlyAvailable()) options.Add(GetRestEarlyOption());
+
+        // Place trap
+        options.Add(GetPlaceTrapOption());
 
         // Fortify
         if (IsFortifyAvailable()) options.Add(GetFortifyOption());
@@ -96,6 +101,31 @@ public abstract class BiomeEncounter : Encounter
     {
         Game.IsEarlyResting = true;
         return "You lie down early. The extra rest will help a little. Now is the last chance to use items before going to sleep.";
+    }
+
+    
+    private EncounterOption GetPlaceTrapOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = SET_TRAP_TEXT,
+            Description = "Set up a trap to catch something useful or defend against attacks in the night.\nPlacing a trap will still allow you to do something else.",
+            Action = PlaceTrap,
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = true,
+                    SpecificItems = new List<ItemDef>() { ItemDefOf.Trap },
+                    DestructionChance = 1f,
+                },
+            }
+        };
+    }
+    private string PlaceTrap()
+    {
+        Game.PlaceEveningTrap();
+        return "You set up a trap for the night." + SPEND_EVENING_TEXT;
     }
 
 

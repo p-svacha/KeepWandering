@@ -75,7 +75,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         if (Setting == SettingType.RoadsideDitch) text = "You make camp in a ditch alongside a cracked road. Not comfortable, but it'll do.";
         if (Setting == SettingType.CrumblingWall) text = "You find the remains of an old stone wall. Good enough to lean against for the night.";
         if (Setting == SettingType.OldShed) text = "A small shed stands crooked in the tall grass. The door hangs open.";
-        text += "\n\nHow would you like to spend the evening?";
+        text += SPEND_EVENING_TEXT;
         return text;
     }
 

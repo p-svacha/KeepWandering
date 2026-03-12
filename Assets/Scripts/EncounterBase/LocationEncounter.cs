@@ -15,12 +15,13 @@ public abstract class LocationEncounter : Encounter
     public new void Init(Game game, EncounterDef def) => throw new System.InvalidOperationException("Use the Init method that includes a WorldMapTile parameter.");
     public void Init(Game game, EncounterDef def, WorldMapTile tile)
     {
-        base.Init(game, def);
         Tile = tile;
         Tile.SetEncounter(this);
 
         IsHidden = true;
         NumVisits = 0;
+
+        base.Init(game, def);
     }
 
     public void Reveal()

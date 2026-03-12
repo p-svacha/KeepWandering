@@ -1,16 +1,7 @@
 using UnityEngine;
 
-public class CompanionDefOf : MonoBehaviour
+[DefOf]
+public static class CompanionDefOf
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
