@@ -22,8 +22,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
 
     private bool IsPasserbyOptionAvailable;
 
-    private bool IsTradingWithPasserby;
-    private ItemDef OfferedTradeItem;
+    private List<ItemDef> OfferedTradeItems;
 
     protected override int GetFortifyDifficulty()
     {
@@ -63,6 +62,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
     protected override void OnInitialize()
     {
         Setting = SettingWeights.GetWeightedRandomElement();
+        OfferedTradeItems = BiomeLootTable.ResolveMultiple(1);
 
         if (Setting == SettingType.RoadsideDitch) IsPasserbyOptionAvailable = true;
         else IsPasserbyOptionAvailable = Random.value < 0.5f;
@@ -82,24 +82,16 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
     protected override void RefreshSprites()
     {
         SetEncounterSpriteVisibility("Path", IsPasserbyOptionAvailable);
-        SetEncounterSpriteVisibility("DistantPerson", IsPasserbyOptionAvailable && !IsTradingWithPasserby);
+        SetEncounterSpriteVisibility("DistantPerson", IsPasserbyOptionAvailable && !IsTrading);
         SetEncounterSpriteVisibility("Farmhouse", Setting == SettingType.AbandonedFarmstead);
         SetEncounterSpriteVisibility("Ditch", Setting == SettingType.RoadsideDitch);
         SetEncounterSpriteVisibility("Wall", Setting == SettingType.CrumblingWall);
         SetEncounterSpriteVisibility("Shed", Setting == SettingType.OldShed);
-        SetEncounterSpriteVisibility("Passerby", IsTradingWithPasserby);
+        SetEncounterSpriteVisibility("Passerby", IsTrading);
     }
-
-    protected override void OnMoveOn()
-    {
-        IsTradingWithPasserby = false;
-    }
-
-
 
     #region Options
 
-    protected override bool IsMoveOnOptionAvailable() => IsTradingWithPasserby;
     protected override List<EncounterOption> GetAdditionalInitialOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
@@ -108,16 +100,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
 
         return options;
     }
-    protected override List<EncounterOption> GetFollowUpOptions()
-    {
-        List<EncounterOption> options = new List<EncounterOption>();
-        if (IsTradingWithPasserby)
-        {
-            options.Add(GetBuyItemOption());
-            options.Add(GetBuyInformationOption());
-        }
-        return options;
-    }
+    protected override List<EncounterOption> GetFollowUpOptions() => new List<EncounterOption>();
 
 
     private EncounterOption GetFlagDownPasserbyOption()
@@ -155,9 +138,8 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         }
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            IsTradingWithPasserby = true;
-            OfferedTradeItem = BiomeLootTable.Resolve();
-            return "A traveler stops. You exchange a few words. They offer you a trade.";
+            string text = "A traveler stops. You exchange a few words. They offer you a trade.";
+            return InitiateTrade(text, OfferedTradeItems, canBuyRumour: true);
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
@@ -181,57 +163,6 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             return "A hostile stranger. They shove you down and grab something from your cart before running off.";
         }
         throw new System.Exception("Invalid outcome");
-    }
-
-
-
-    private EncounterOption GetBuyItemOption()
-    {
-        return new FixedOutcomeOption()
-        {
-            Text = $"Buy {OfferedTradeItem.Label} for 1 coin.",
-            Action = BuyItem,
-            OncePerDay = true,
-            ItemSlots = new List<ItemSlot>()
-            {
-                new ItemSlot()
-                {
-                    Item = ItemDefOf.Coin,
-                    IsRequired = true,
-                    DestructionChance = 1f
-                }
-            }
-        };
-    }
-    private string BuyItem()
-    {
-        Game.AddNewItemToInventory(OfferedTradeItem);
-        return $"You trade a coin for {OfferedTradeItem.Label}.";
-    }
-
-    private EncounterOption GetBuyInformationOption()
-    {
-        return new FixedOutcomeOption()
-        {
-            Text = "Buy information for 1 coin.",
-            Description = "The traveler offers to share some information for a price.",
-            Action = BuyInformation,
-            OncePerDay = true,
-            ItemSlots = new List<ItemSlot>()
-            {
-                new ItemSlot()
-                {
-                    Item = ItemDefOf.Coin,
-                    IsRequired = true,
-                    DestructionChance = 1f
-                }
-            }
-        };
-    }
-    private string BuyInformation()
-    {
-        // todo: add a rumour reveal
-        return $"You trade a coin for a piece of information.";
     }
 
     #endregion

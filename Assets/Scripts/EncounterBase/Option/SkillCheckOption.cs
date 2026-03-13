@@ -46,7 +46,6 @@ public class SkillCheckOption : EncounterOption
         // Validate
         if (Action == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
         if (Difficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
-        foreach (ItemSlot slot in ItemSlots) slot.Validate();
     }
 
 

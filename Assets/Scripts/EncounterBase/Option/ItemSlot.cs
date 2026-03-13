@@ -57,7 +57,6 @@ public class ItemSlot
     /// <summary>
     /// Returns false if all accepted items reduce the option difficulty by the same amount, true if there are specific items that reduce the option difficulty by different amounts (either by slot override, or item tag override).
     /// </summary>
-    /// <returns></returns>
     public bool HasMultipleDifficultyReductions()
     {
         foreach (ItemDef itemDef in GetSlottableItemDefs())

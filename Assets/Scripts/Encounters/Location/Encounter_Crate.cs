@@ -33,7 +33,7 @@ public class Encounter_Crate : LocationEncounter
     protected override void OnInitialize()
     {
         // Visible crate item
-        VisibleCrateItem = GetBiomeLootTable(ItemTable).GetItem(hidden: true);
+        VisibleCrateItem = GetBiomeAlteredLootTable(ItemTable).GetItem(hidden: true);
         VisibleCrateItem.Renderer.SetPosition(7.5f, -2.5f);
         VisibleCrateItem.Renderer.SetRandomRotation();
         VisibleCrateItem.Renderer.SetSortingOrder(0);
@@ -43,7 +43,7 @@ public class Encounter_Crate : LocationEncounter
         InvisibleCrateItems = new List<Item>();
         for (int i = 0; i < numInvisibleItems; i++)
         {
-            Item item = GetBiomeLootTable(ItemTable).GetItem(hidden: true);
+            Item item = GetBiomeAlteredLootTable(ItemTable).GetItem(hidden: true);
             item.Renderer.SetPosition(3f, 0f);
             item.Renderer.SetRandomRotation();
             InvisibleCrateItems.Add(item);

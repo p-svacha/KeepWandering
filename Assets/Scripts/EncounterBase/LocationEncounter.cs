@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 /// <summary>
 /// An instance of a location encounter that is bound to a world tile.
@@ -10,6 +9,8 @@ public abstract class LocationEncounter : Encounter
     public bool IsHidden { get; private set; }
     public int NumVisits { get; private set; }
     protected bool IsFirstVisit => NumVisits == 1;
+    public int LastVisitDay { get; private set; }
+    public int DaysSinceLastVisit => Game.Day - LastVisitDay;
 
 
     public new void Init(Game game, EncounterDef def) => throw new System.InvalidOperationException("Use the Init method that includes a WorldMapTile parameter.");
@@ -34,5 +35,6 @@ public abstract class LocationEncounter : Encounter
     {
         base.OnStartExtension();
         NumVisits++;
+        LastVisitDay = Game.Day;
     }
 }

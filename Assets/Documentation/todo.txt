@@ -1,46 +1,34 @@
 TODOS:
 ==============================================
-- item tag expansion
-  - tags are used solely for item slots, so commit to that and use more tags to describe HOW items can be used (i.e. scavenging, combat, fortifying)
-  - traditional tags like i.e. "food", "tool" still need to exist, as they can still be used for more general item slots
-  - since tags aren't communicated to the player, it's no problem to have many/specific/overlapping/technical tags, as long as they make sense from a design perspective
-  - allow items to have optional "tag value modifiers", that can be used if an item is particularly good or bad at a certain tag
-  - if this modifier is present, the difficulty modifier of slots will be adjusted by that value if filled with this item
-  - i.e. a bone can be used for combat, but its not very good at it. so it does have the combat tag, but with -5 modifier. so if its dragged into a combat slot with diffiuculty reduction of 20, the effective difficulty reduction would be 15.
-  - or i.e. a flashlight can be used for scavenging, and is very good at it, so it has a +5 modifier for the scavenging tag. so if its dragged into a scavenging slot with difficulty reduction of 10, the effective difficulty reduction would be 15.
-  - difficulty reduction overrides for specific items can still be done in a slot just as before, still with 1st priority
-  - add new validations for item defs and item slots for the new system
-  - main goal of this is to allow for more variety in items, and to make it easier to create high value items without having to change every slot in every encounter option
-  - also creates new strategic tradeoffs (should i use this item with a -5 combat modifier, or should i save it for scavenging where it has a +5 bonus?)
-  - reflect all changes in the GDD
-
-- hook supply stash encounter reveal to city eavesdrop success
-
-- An encounter with a social/NPC element — something like a lone survivor, a wounded stranger, or a suspicious trader. This would be the first location encounter that uses Charisma meaningfully and creates moral dilemmas (help them and spend resources? Rob them? Trade?). It fills a gap in the encounter variety since the crate is purely physical/mechanical, and the supply stash is purely loot. A social encounter rounds out the triangle. This could also be a natural place to introduce the rumor system, since an NPC could share information.
 
 - An environmental hazard encounter — something like a collapsed building, a flooded area, or an old minefield. This would test Agility, Perception, and Intelligence — stats that the crate doesn't really exercise. It also gives you a natural hook for the electrocution health condition (exposed wiring in a collapsed building, for example), which would knock out two todo items at once.
 
 - implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
 
-- add "value" property (int) to itemDefs
-  - represents the value of the item in amount of coins
-  - can be used in encounters (i.e. trading encounters)
-  - hook up to trading step in city biome encounter
-
 - implement electrocution health condition
   - including heart arrythmia
   - hook it to fail of cutting fence
+
+- implement supply stash revealing
+  - hook to city eavesdrop success
+  - hook to wounded stranger gaining knowledge
+  - in "reveal" outcome note, when exactly 1 location encounter is revealed, show the name and coordinates in the tooltip of the note.
 
 - rumour system 
   - players can learn rumours (can happen as outcome of encounters)
   - there is a rumour pool of possible rumours (some unique (story progression), some repeatable (like learning the location of a supply stash)
   - learning a rumour reveals a specific location encounter somewhere on the world map and adds a quest to the quest log with that location linked
+  - rumours can also be learned in a partial way. In that case, the quest and the location is still revealed, but not is not learned what the rumour is about (what to expect at that location).
   - when learning a rumour, the player receives a quest
+  - BIG OPEN QUESTION: how are rumours communicated to the player? Encounter step texts are currently purely determined by the encounter. and just through an outcome not doesn't seem worthy enough for such an important gameplay element. Maybe find a way to standardize the text of learning a rumour to certain format, that can then be hooked into encounter step texts:
+    - for example, the rumour text could be general like "You have learned a rumour: {rumourText}. A new quest has been added to your quest log." and then the specific rumour text is determined by the rumour itself. This way, the encounter can still have its own outcome text, but the rumour learning is also highlighted in a standardized way.
   - quest system also needs expanding to support quests that are repeatable
     - rule that only one quest of the same Def can be active should probably stay
     - repeatable would just go back to the "inactive" state rather than "completed/failed" when finished.
-  - add to outskirts encounter (flag down critical success)
+  - make item stash the first repeatable rumor
+  - hook to outskirts encounter (flag down critical success)
   - hook to city eavesdrop success
+  - hook to wounded stranger gaining knowledge
 
 - dev feature: make editor tool/button to auto-reposition camera based on its zoom/orthoSize
 
@@ -67,9 +55,16 @@ TODOS:
 
 - diary: basic in-game readonly UI element that basically acts as a flavourful log of everything that happened during the game.
 
+- more option icons (same as skill check icon):
+  - UI: mark options that can only be done once per day with a clock icon
+  - UI: mark options that can only be done once ever with a star icon
+  - add tooltips to these icons explaining what they mean
+
 - items to permanently increase stats
 
 - add "home" encounter to start position. probably just as a marker on the world map, and impassable. could later be expanded so the game actually starts in this encounter, with some basic tutorial elements and where you choose starting items.
+
+- expand and improve name generation for cities, forests and lakes
 
 - re-add longdog companion (simplify companion system, no health system for companions, they are simply a buff with no downside (except when they die))
 
@@ -108,6 +103,11 @@ TODOS:
   - hook up to critical failure in woods foraging
   - hook up to ItemDef for raw mean (ConsumptionPoisoningChance)
 
+- dynamic map markers and encounter labels
+  - currently each encounter has a fixed label and encounter marker, which is both shown on the world map
+  - it would be cool if the label and marker reflects the state of the encounter that the player left it in. For example, if the player successfully looted a crate, the crate encounter marker could change to a "looted crate" marker, and the label could change to reflect that as well.
+  - this would make moving around the map in areas the player has already been be more engaging, since the player can see the impact of their actions on the world. It also adds a lot of flavour and immersion, since the world feels more reactive and alive.
+
 - weather system
   - could integrate nicely with skill check options. (Options could have difficulty modifiers based on weather)
   - the availability of some options in encounters could be affected by weather
@@ -125,4 +125,3 @@ TODOS:
 - So it should be easily doable to highlight sprite rendereds as well (potential targets) while dragging something
 
 - red circle around quest tiles and areas on world map
-- dynamic map marker set by the encounter (with default, virtual)

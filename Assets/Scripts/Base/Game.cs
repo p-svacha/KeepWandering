@@ -845,6 +845,11 @@ public class Game : MonoBehaviour
         }
         return addedItems;
     }
+    public void AddNewItemsToInventory(List<ItemDef> itemDefs)
+    {
+        foreach (var itemDef in itemDefs) AddNewItemToInventory(itemDef);
+    }
+
     public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
     {
         if (showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
@@ -971,6 +976,12 @@ public class Game : MonoBehaviour
         OnGameStateChanged();
     }
 
+    public void ApplyRandomDamage(float severity)
+    {
+        int damageType = Random.Range(0, 2);
+        if (damageType == 0) ApplyBruiseDamage(severity);
+        else ApplyCutDamage(severity);
+    }
     public void ApplyBruiseDamage(float fractureSeverity)
     {
         ApplyBruiseWound();

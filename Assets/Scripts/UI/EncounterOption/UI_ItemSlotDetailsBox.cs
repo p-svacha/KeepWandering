@@ -34,7 +34,7 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
         TitleText.text = $"Item Slot ({(Slot.IsRequired ? "REQUIRED" : "OPTIONAL")})";
 
         // Accepted items
-        if (Slot.DifficultyReduction == 0) AcceptedItemsText.text = "Accepted Items";
+        if (Slot.DifficultyReduction == 0 || !Slot.HasMultipleDifficultyReductions()) AcceptedItemsText.text = "Accepted Items";
         else AcceptedItemsText.text = "Accepted Items\n<color=#666666>Difficulty Reduction</color>";
 
         HelperFunctions.DestroyAllChildredImmediately(AcceptedItemsContainer);

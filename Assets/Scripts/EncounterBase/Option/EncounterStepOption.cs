@@ -20,6 +20,11 @@ public abstract class EncounterOption
     public bool OncePerDay { get; init; } = false;
 
     /// <summary>
+    /// When true, the option can only be selected once ever. It will automatically be hidden after being selected once, with no reset when revisiting the encounter.
+    /// </summary>
+    public bool OnceEver { get; init; } = false;
+
+    /// <summary>
     /// The definition of all item slots that are part of this encounter step option. The player can drag items from their inventory into these slots to meet the requirements of the option and/or reduce the option difficulty.
     /// </summary>
     public List<ItemSlot> ItemSlots { get; init; } = new List<ItemSlot>();
@@ -37,7 +42,8 @@ public abstract class EncounterOption
     {
         // Validate
         if (string.IsNullOrEmpty(Text)) throw new System.Exception("Encounter option text cannot be null or empty.");
-        
+        if (OncePerDay && OnceEver) throw new System.Exception("Encounter option cannot be both once per day and once ever.");
+        foreach (ItemSlot slot in ItemSlots) slot.Validate();
 
         // Initialize
         foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);

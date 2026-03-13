@@ -69,4 +69,15 @@ public static class LootTables
         { Drinks, 6 },
         { Medical, 4 },
     };
+
+    public static LootTable Civilian = new LootTable
+    {
+        { Food, 10 },
+        { Drinks, 10 },
+        { ItemDefOf.Coin, 10 },
+        { Tools, 5 },
+        { Medical, 5 },
+        { Trash, 5 },
+        { Plants, 2 },
+    };
 }

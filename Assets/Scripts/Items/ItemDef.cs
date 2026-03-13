@@ -11,8 +11,9 @@ public class ItemDef : Def
     /// </summary>
     public bool IsQuestItem { get; init; }
 
-    // Tags
+    // General
     public ItemTagCollection Tags { get; init; } = new ItemTagCollection();
+    public int Value { get; init; } = 0;
 
 
     // Consumption

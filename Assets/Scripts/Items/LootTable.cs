@@ -65,36 +65,11 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         return new LootTable(newItems, newSubTables);
     }
 
-    /// <summary>
-    /// Returns the intersection of two LootTables as a new LootTable that contains the multiplied chances of all items and sub-tables.
-    /// </summary>
-    public LootTable Intersect(LootTable other)
+    public List<ItemDef> ResolveMultiple(int amount, bool debug = true)
     {
-        Dictionary<ItemDef, float> newItems = new Dictionary<ItemDef, float>(Items);
-
-        foreach(var kvp in newItems)
-        {
-            if (!other.Items.ContainsKey(kvp.Key)) newItems.Remove(kvp.Key);
-        }
-
-        foreach (var kvp in other.Items)
-        {
-            if (newItems.ContainsKey(kvp.Key)) newItems[kvp.Key] *= kvp.Value;
-        }
-
-        Dictionary<LootTable, float> newSubTables = new Dictionary<LootTable, float>(SubTables);
-
-        foreach(var kvp in newSubTables)
-        {
-            if (!other.SubTables.ContainsKey(kvp.Key)) newSubTables.Remove(kvp.Key);
-        }
-
-        foreach (var kvp in other.SubTables)
-        {
-            if (newSubTables.ContainsKey(kvp.Key)) newSubTables[kvp.Key] *= kvp.Value;
-        }
-
-        return new LootTable(newItems, newSubTables);
+        List<ItemDef> resolved = new List<ItemDef>();
+        for (int i = 0; i < amount; i++) resolved.Add(Resolve(debug));
+        return resolved;
     }
 
     public ItemDef Resolve(bool debug = true)

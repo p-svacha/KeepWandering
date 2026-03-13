@@ -420,6 +420,8 @@ For example if the player selects a "Smash Crate" option, and the outcome is a s
 
 Even though the screen is fixed, encounters can affect the zoom level of the camera, to allow for some different scale of encounters. For example, when encountering a crate, the camera size will be quite small, since it just needs to show the player and the crate. But for example when encountering a radio tower, the camera size will be much bigger, since it needs to show the player and the whole base of the tower. This can be used to give a nice sense of scale and variety to the encounters, even though they all happen on the same screen. Orthographic size should usually be in the range of 5.4 - 12.
 
+Encounters can be affected by specific biomes in specific ways, for when the encounter happens in that biome. This can be something completely individual to the encounter, or by using biome difficulty modifiers in skill check options. What should be avoided are cases where each existing biome has to be factored in separately and handled manually for something, as that would create a lot of extra work and complexity.
+
 ## Encounter Steps
 Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounter steps and their options are often created dynamically based on the current game state, and more importantly, the current state of the encounter itself.
 
@@ -502,6 +504,21 @@ There are many things that can happen as a result of an option outcome. The most
 - Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
 - World location encouters: Encounters on other tiles on the world map can be generated and/or revealed.
 - Placing traps (evening only): In the evening traps can be placed to reduce night encounter intensity.
+- Initiating trade: An option outcome can initiate a trading session (see Trading below).
+
+## Trading
+Any encounter can initiate a trading session as part of an option outcome by calling `InitiateTrade`. When trading is initiated, the encounter enters a special trading mode that temporarily replaces the normal encounter options with a set of trading options. The encounter defines which items are available for buying and selling, and whether buying information (rumours) is available.
+
+While in trading mode, the following options are presented to the player:
+
+- **Buy [item]** (one per buyable item): Costs coins equal to the item's value. Each coin must be placed in a required item slot. Purchasing adds the item to the player's inventory.
+- **Sell [item]** (one per sellable item): The item to sell must be placed in a required item slot. Selling adds coins equal to the item's value to the player's inventory.
+- **Buy information** (if enabled, once per day): Costs 3 coins placed in required item slots. Reveals a rumour.
+- **Done trading**: Exits trading mode and returns to the encounter's normal options.
+
+Items with a value of 0 or less, and coins themselves, are excluded from buy/sell lists.
+
+Trading can be initiated from both location encounters and biome encounters. For example, the Outskirts biome encounter uses it when the player successfully flags down a passerby, and the Wounded Stranger location encounter uses it when a grateful stranger offers to trade.
 
 # Gameplay Loop
 The player must somehow escape the quarantine zone. If the player character dies, the game is over. When the player dies, the screen fades to black showing the reason of death. The player can then choose to start a new game, which generates a new world and resets all progress, or quit to the main menu.

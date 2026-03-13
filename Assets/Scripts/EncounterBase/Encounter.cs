@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 /// <summary>
 /// An instance of an encounter.
@@ -21,6 +20,7 @@ public abstract class Encounter
     protected bool IsEncounterDone; // If set to true, the next step will have no more options (will default to "continue journey" (or similar based on time of day))
     private List<GameObject> EncounterSprites = new List<GameObject>();
     private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
+    private HashSet<string> UsedOnceEverOptions = new HashSet<string>();
 
     public Encounter() { } // Empty constructor for activator
     public void Init(Game game, EncounterDef def)
@@ -33,7 +33,7 @@ public abstract class Encounter
     /// <summary>
     /// Returns the modified version of a loot table taking in account the current biome.
     /// </summary>
-    protected LootTable GetBiomeLootTable(LootTable table)
+    protected LootTable GetBiomeAlteredLootTable(LootTable table)
     {
         return table.Union(BiomeLootTable);
     }
@@ -69,6 +69,9 @@ public abstract class Encounter
     {
         // If the option is once per day, add it to the used options so it won't be available again today.
         if (option.OncePerDay) UsedOncePerDayOptions.Add(option.Text);
+
+        // If the option is once ever, add it to the used options so it won't be available again.
+        if (option.OnceEver) UsedOnceEverOptions.Add(option.Text);
     }
 
 
@@ -90,10 +93,11 @@ public abstract class Encounter
     private List<EncounterOption> _GetOptions()
     {
         if (IsEncounterDone) return new List<EncounterOption>();
+        else if (IsTrading) return GetTradingOptions();
         else
         {
             List<EncounterOption> options = GetOptions();
-            options.RemoveAll(o => o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text));
+            options.RemoveAll(o => (o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text)) || (o.OnceEver && UsedOnceEverOptions.Contains(o.Text)));
             if (IsMoveOnOptionAvailable())
             {
                 // Move on
@@ -168,7 +172,7 @@ public abstract class Encounter
     protected void SetSprite(string objectName, string spriteName)
     {
         SpriteRenderer renderer = Game.EncounterContainer.transform.Find($"{Def.DefName}/{objectName}").gameObject.GetComponent<SpriteRenderer>();
-        Sprite sprite = ResourceManager.LoadSprite($"Encounters/{Def.DefName}/{spriteName}");
+        Sprite sprite = ResourceManager.LoadSprite($"Encounters/{Def.DefName}/{Def.DefName}_{spriteName}");
         renderer.sprite = sprite;
     }
     protected void SetBackground(string backgroundName)
@@ -189,6 +193,9 @@ public abstract class Encounter
         // Hide encounter sprites
         foreach (GameObject sprite in EncounterSprites) sprite.gameObject.SetActive(false);
 
+        // Reset some state flags
+        IsTrading = false;
+
         EncounterSprites.Clear();
         OnEnd();
     }
@@ -199,6 +206,142 @@ public abstract class Encounter
         IsEncounterDone = true;
         return "You move on. You can now freely use items again before continuing your journey.";
     }
+
+    #region Trading Interface
+
+    protected string InitiateTrade(string text, List<ItemDef> itemsToBuy, List<ItemDef> itemsToSell = null, bool canBuyRumour = false)
+    {
+        IsTrading = true;
+        ItemsToBuy = itemsToBuy;
+        ItemsToSell = itemsToSell ?? new List<ItemDef>();
+        CanBuyRumour = canBuyRumour;
+        return text;
+    }
+
+    protected bool IsTrading { get; private set; }
+    private List<ItemDef> ItemsToBuy = new List<ItemDef>();
+    private List<ItemDef> ItemsToSell = new List<ItemDef>();
+    private bool CanBuyRumour;
+
+    private List<EncounterOption> GetTradingOptions()
+    {
+        List<EncounterOption> options = new List<EncounterOption>();
+        foreach (ItemDef itemDef in ItemsToBuy)
+        {
+            if (itemDef == ItemDefOf.Coin) continue;
+            if (itemDef.Value <= 0) continue;
+            options.Add(GetBuyItemOption(itemDef));
+        }
+        foreach (ItemDef itemDef in ItemsToSell)
+        {
+            if (itemDef == ItemDefOf.Coin) continue;
+            if (itemDef.Value <= 0) continue;
+            options.Add(GetSellItemOption(itemDef));
+        }
+        if (CanBuyRumour) options.Add(GetBuyInformationOption());
+        options.Add(GetDoneTradingOption());
+        return options;
+    }
+    private EncounterOption GetBuyItemOption(ItemDef itemDef)
+    {
+        List<ItemSlot> itemSlots = new List<ItemSlot>();
+        for(int i = 0; i < itemDef.Value; i++)
+        {
+            itemSlots.Add(new ItemSlot()
+            {
+                Item = ItemDefOf.Coin,
+                IsRequired = true,
+                DestructionChance = 1f
+            });
+        }
+
+        return new FixedOutcomeOption()
+        {
+            Text = $"Buy {itemDef.Label}.",
+            Action = () => BuyItem(itemDef),
+            ItemSlots = itemSlots,
+        };
+    }
+    private string BuyItem(ItemDef itemDef)
+    {
+        Game.AddNewItemToInventory(itemDef);
+        return $"You trade {itemDef.Value} {"coin".Pluralize(itemDef.Value)} for {itemDef.Label}.";
+    }
+
+    private EncounterOption GetSellItemOption(ItemDef itemDef)
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = $"Sell {itemDef.Label}.",
+            Action = () => SellItem(itemDef),
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    Item = itemDef,
+                    IsRequired = true,
+                    DestructionChance = 1f
+                }
+            }
+        };
+    }
+    private string SellItem(ItemDef itemDef)
+    {
+        Game.AddNewItemsToInventory(ItemDefOf.Coin, itemDef.Value);
+        return $"You trade {itemDef.Label} for {itemDef.Value} {"coin".Pluralize(itemDef.Value)}.";
+    }
+
+    private EncounterOption GetBuyInformationOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Buy information for 3 coins.",
+            Action = BuyInformation,
+            OncePerDay = true,
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    Item = ItemDefOf.Coin,
+                    IsRequired = true,
+                    DestructionChance = 1f
+                },
+                new ItemSlot()
+                {
+                    Item = ItemDefOf.Coin,
+                    IsRequired = true,
+                    DestructionChance = 1f
+                },
+                new ItemSlot()
+                {
+                    Item = ItemDefOf.Coin,
+                    IsRequired = true,
+                    DestructionChance = 1f
+                },
+            }
+        };
+    }
+    private string BuyInformation()
+    {
+        // todo: add a rumour reveal
+        return $"You trade a coin for a piece of information.";
+    }
+
+    private EncounterOption GetDoneTradingOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Done trading",
+            Action = DoneTrading,
+        };
+    }
+    private string DoneTrading()
+    {
+        IsTrading = false;
+        return "You finish trading.";
+    }
+
+    #endregion
 
     #region Getters
 
