@@ -110,7 +110,7 @@ public class Encounter_HomeOfR : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    SpecificItems = acceptedItems,
+                    AllowedItems = acceptedItems,
                 }
             }
         };

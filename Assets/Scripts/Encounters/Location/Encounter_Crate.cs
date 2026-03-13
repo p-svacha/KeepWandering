@@ -185,7 +185,7 @@ public class Encounter_Crate : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Weapon },
+                    Tag = ItemTagDefOf.Weapon,
                     DifficultyReduction = 50,
                     DestructionChance = 0.5f,
                 }
@@ -256,7 +256,7 @@ public class Encounter_Crate : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
+                    Item = ItemDefOf.Crowbar,
                     DestructionChance = 0.15f,
                 }
             },

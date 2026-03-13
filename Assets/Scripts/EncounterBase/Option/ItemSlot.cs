@@ -1,7 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using static UnityEditor.Progress;
 
 /// <summary>
 /// Options in an encounter step can have slots for dragging items into. This class represents a single active instance of such a slot of an option that is currently being displayed in the UI.
@@ -9,6 +6,8 @@ using static UnityEditor.Progress;
 /// </summary>
 public class ItemSlot
 {
+    public const int MIN_DIFFICULTY_REDUCTION = 5;
+
     /// <summary>
     /// The option this slot belongs to.
     /// </summary>
@@ -26,14 +25,19 @@ public class ItemSlot
     public bool IsRequired { get; init; }
 
     /// <summary>
-    /// List of all specific items that may be dragged into this slot.
+    /// The specific item that can be dragged into this slot.
     /// </summary>
-    public List<ItemDef> SpecificItems { get; init; } = new List<ItemDef>();
+    public ItemDef Item { get; init; } = null;
 
     /// <summary>
-    /// List of all item tags that an item dragged into this slot must have at least one of.
+    /// The custom set of allowed items that can be dragged into this slot.
     /// </summary>
-    public List<ItemTagDef> ItemTags { get; init; } = new List<ItemTagDef>();
+    public List<ItemDef> AllowedItems { get; init; } = null;
+
+    /// <summary>
+    /// The item tag that an item dragged into this slot must have.
+    /// </summary>
+    public ItemTagDef Tag { get; init; } = null;
 
     /// <summary>
     /// Chance that the item dragged into this slot will be destroyed when the option is selected. This is a value between 0 and 1, where 0 means the item will never be destroyed and 1 means it will always be destroyed.
@@ -49,22 +53,37 @@ public class ItemSlot
     /// Specific items that reduce the option difficulty by an amount that overrides the default difficulty reduction if dragged into this slot.
     /// </summary>
     public Dictionary<ItemDef, int> DifficultyReductionOverrides { get; init; } = new Dictionary<ItemDef, int>();
-    public bool HasCustomDifficultyReductions => DifficultyReductionOverrides.Count > 0;
 
-    public ItemSlot(bool isRequired = false, List<ItemDef> specificItems = null, List<ItemTagDef> itemTags = null, float destructionChance = 0f, int defaultDifficultyReduction = 0, Dictionary<ItemDef, int> difficultyReductionOverrides = null)
+    /// <summary>
+    /// Returns false if all accepted items reduce the option difficulty by the same amount, true if there are specific items that reduce the option difficulty by different amounts (either by slot override, or item tag override).
+    /// </summary>
+    /// <returns></returns>
+    public bool HasMultipleDifficultyReductions()
     {
-        IsRequired = isRequired;
-        SpecificItems = specificItems ?? new List<ItemDef>();
-        ItemTags = itemTags ?? new List<ItemTagDef>();
-        DestructionChance = destructionChance;
-        DifficultyReduction = defaultDifficultyReduction;
-        DifficultyReductionOverrides = difficultyReductionOverrides ?? new Dictionary<ItemDef, int>();
-
-        // Validate
-        if (DestructionChance < 0f || DestructionChance > 1f)
+        foreach (ItemDef itemDef in GetSlottableItemDefs())
         {
-            Debug.LogError("DestructionChance must be between 0 and 1.");
-            DestructionChance = Mathf.Clamp01(DestructionChance);
+            if (GetDifficultyReduction(itemDef) != DifficultyReduction) return true;
+        }
+        return false;
+    }
+
+    public void Validate()
+    {
+        if (Item != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a specific item and a specific tag.");
+        if (Item != null && AllowedItems != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
+        if (AllowedItems != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a list of allowed items and a specific tag.");
+        if (Item == null && Tag == null && AllowedItems == null) throw new System.Exception("ItemSlot must have either a specific item, a specific tag, or a list of allowed items.");
+
+
+        if (DestructionChance < 0f || DestructionChance > 1f) throw new System.Exception("DestructionChance must be between 0 and 1.");
+
+        foreach (var customValue in DifficultyReductionOverrides)
+        {
+            if (!CanAcceptItemDef(customValue.Key))
+            {
+                throw new System.Exception($"Difficulty reduction override for item {customValue.Key.Label} is invalid because the item does not match the slot requirements.");
+            }
+            if (customValue.Value < MIN_DIFFICULTY_REDUCTION) throw new System.Exception($"Difficulty reduction override for item {customValue.Key.Label} must be a positive integer.");
         }
     }
 
@@ -77,8 +96,7 @@ public class ItemSlot
     {
         // Validate
         if (item == null) throw new System.Exception("Cannot fill item slot with null item.");
-        if (!SpecificItems.Contains(item.Def) && !ItemTags.Exists(tag => item.Def.Tags.ToList().Contains(tag)))
-            throw new System.Exception("Item does not match slot requirements.");
+        if (!CanAcceptItem(item)) throw new System.Exception("Item does not match slot requirements.");
 
         // If already filled, empty the old item first
         if (IsFilled) Empty();
@@ -112,19 +130,31 @@ public class ItemSlot
 
     public int GetDifficultyReduction(ItemDef itemDef)
     {
+        // Priority 1: Item-specific override
         if (DifficultyReductionOverrides.ContainsKey(itemDef))
         {
             return DifficultyReductionOverrides[itemDef];
         }
-        else
+
+        // Priority 2: Default reduction adjusted by the item's tag value modifier
+        if (Tag != null)
         {
-            return DifficultyReduction;
+            if (itemDef.HasTag(Tag) && itemDef.Tags.HasModifier(Tag))
+            {
+                int newReduction = DifficultyReduction + itemDef.Tags.GetModifier(Tag);
+                if (newReduction < MIN_DIFFICULTY_REDUCTION) return MIN_DIFFICULTY_REDUCTION;
+                return newReduction;
+            }
         }
+
+        // Priority 3: Default reduction
+        return DifficultyReduction;
     }
 
-    public bool CanAcceptItem(Item item)
+    public bool CanAcceptItem(Item item) => CanAcceptItemDef(item.Def);
+    public bool CanAcceptItemDef(ItemDef itemDef)
     {
-        return GetSlottableItemDefs().Contains(item.Def);
+        return GetSlottableItemDefs().Contains(itemDef);
     }
 
     /// <summary>
@@ -136,7 +166,7 @@ public class ItemSlot
 
         foreach (Item item in Game.Instance.Inventory)
         {
-            if (SpecificItems.Contains(item.Def) || ItemTags.Exists(tag => item.Def.Tags.ToList().Contains(tag)))
+            if (CanAcceptItem(item))
             {
                 items.Add(item);
             }
@@ -150,11 +180,15 @@ public class ItemSlot
         List<ItemDef> itemDefs = new List<ItemDef>();
         foreach (ItemDef itemDef in DefDatabase<ItemDef>.AllDefs)
         {
-            if (SpecificItems.Contains(itemDef) || ItemTags.Exists(tag => itemDef.Tags.ToList().Contains(tag)))
-            {
-                itemDefs.Add(itemDef);
-            }
+            if (Item != null && itemDef != Item) continue;
+            if (Tag != null && !itemDef.HasTag(Tag)) continue;
+            if (AllowedItems != null && !AllowedItems.Contains(itemDef)) continue;
+            itemDefs.Add(itemDef);
         }
+
+        // Sort by difficulty reduction (lowest first)
+        itemDefs.Sort((a, b) => GetDifficultyReduction(a).CompareTo(GetDifficultyReduction(b)));
+
         return itemDefs;
     }
 }

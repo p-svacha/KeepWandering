@@ -150,7 +150,7 @@ public class Encounter_SupplyStash : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
+                    Tag = ItemTagDefOf.Tool,
                     DifficultyReduction = 20,
                     DestructionChance = 0.1f,
                 },
@@ -210,7 +210,7 @@ public class Encounter_SupplyStash : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Lockpicking },
+                    Tag = ItemTagDefOf.Lockpicking,
                     DifficultyReduction = 50,
                     DestructionChance = 0.1f,
                 },
@@ -262,7 +262,7 @@ public class Encounter_SupplyStash : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Digging },
+                    Tag = ItemTagDefOf.Digging,
                     DifficultyReduction = 25,
                     DestructionChance = 0.1f,
                 },

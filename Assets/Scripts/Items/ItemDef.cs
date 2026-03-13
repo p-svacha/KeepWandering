@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class ItemDef : Def
@@ -11,7 +10,10 @@ public class ItemDef : Def
     /// If true, this item will not appear in random selections.
     /// </summary>
     public bool IsQuestItem { get; init; }
-    public List<ItemTagDef> Tags { get; init; } = new List<ItemTagDef>();
+
+    // Tags
+    public ItemTagCollection Tags { get; init; } = new ItemTagCollection();
+
 
     // Consumption
     public ConsumptionTypeDef ConsumptionType { get; init; } = null;
@@ -32,5 +34,19 @@ public class ItemDef : Def
     public bool HasTag(ItemTagDef tag)
     {
         return Tags.Contains(tag);
+    }
+
+
+    public override bool Validate()
+    {
+        foreach(var mod in Tags.Modifiers)
+        {
+            if (!Tags.Contains(mod.Key))
+            {
+                throw new System.Exception($"ItemDef {DefName} has a tag value modifier for {mod.Key.DefName} but does not have that tag.");
+            }
+        }
+
+        return base.Validate();
     }
 }

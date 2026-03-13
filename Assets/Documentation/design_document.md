@@ -241,7 +241,7 @@ There are two broad categories of tags:
 - **General-purpose tags** describe what an item *is* (e.g. "Food", "Tool", "Medical", "Weapon", "Trash"). These are used for straightforward slot requirements such as "accepts any food item".
 - **Activity tags** describe what an item can be *used for* (e.g. "Combat", "Scavenging", "Fortifying", "Lockpicking", "Digging"). These allow slots to accept any item that is useful for a given activity, even if those items are otherwise very different from each other.
 
-An item can (and often should) have tags from both categories. Because tags are invisible to the player, it is fine to have many, specific, overlapping, or technical tags, as long as they make sense from a design perspective.
+An item can (and often should) have tags from both categories. Because tags are invisible to the player, it is fine to have many, specific, overlapping, or technical tags, as long as they make sense from a design perspective. From a technical perspective there is no difference between these two categories of tags, they are just a convention for how to use them in design.
 
 ### Tag Value Modifiers
 Items can optionally define a **tag value modifier** for any of their tags. This is a signed integer that expresses how particularly good or bad the item is at that tag's activity.
@@ -431,12 +431,17 @@ If the step is a final step, the options depend on the time of day, and not on t
 
 ### Item Slots
 Each option can have any number of item slots, which are slots that the player can drag items from their cart into. 
-Each slot can have the following properties:
+Each slot accepts items in exactly one of three modes (mutually exclusive):
 
-- Allowed items: A list of accepted item tags and/or specific items. An item is valid for the slot if it has at least one of the accepted tags, or is one of the explicitly listed items. This means a single slot can broadly accept "any item tagged *Combat*" while also accepting a specific quest item that lacks that tag.
+- **Specific item** — Only a single, explicitly defined item is accepted.
+- **Tag** — Any item that has the specified tag is accepted.
+- **Custom list** — A custom set of explicitly listed items is accepted.
+
+Each slot can additionally have the following properties:
+
 - Required: If the slot is required, the player has to fill that slot with a valid item in order to be able to choose that option.
 - Consumption Chance: If the slot is filled with a valid item, there is a chance that the item gets consumed on use, which would remove the item from the player's cart.
-- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced. The effective reduction follows a priority: (1) an item-specific override defined on the slot, (2) the slot's default reduction adjusted by the item's tag value modifier for the matching tag, or (3) the slot's default reduction unchanged. See *Item Tags > Difficulty Reduction Priority* for details.
+- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced. The effective reduction follows a priority: (1) an item-specific override defined on the slot, (2) the slot's default reduction adjusted by the item's tag value modifier for the matching tag (tag mode only), or (3) the slot's default reduction unchanged. See *Item Tags > Difficulty Reduction Priority* for details. The difficulty reduction will never go below 5.
 
 ### Option Types
 On a technical level, options fall into one of two categories: "Skillchecks" or "FixedOutcome"

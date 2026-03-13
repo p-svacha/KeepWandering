@@ -14,13 +14,11 @@ TODOS:
   - also creates new strategic tradeoffs (should i use this item with a -5 combat modifier, or should i save it for scavenging where it has a +5 bonus?)
   - reflect all changes in the GDD
 
-- supply stash encounter
-  - purely positive encounter where the player simply finds a stash with items
-  - can occur naturally (very rare)
-  - can be generated and revealed in encounters
-  - hook to city eavesdrop success
+- hook supply stash encounter reveal to city eavesdrop success
 
 - An encounter with a social/NPC element — something like a lone survivor, a wounded stranger, or a suspicious trader. This would be the first location encounter that uses Charisma meaningfully and creates moral dilemmas (help them and spend resources? Rob them? Trade?). It fills a gap in the encounter variety since the crate is purely physical/mechanical, and the supply stash is purely loot. A social encounter rounds out the triangle. This could also be a natural place to introduce the rumor system, since an NPC could share information.
+
+- An environmental hazard encounter — something like a collapsed building, a flooded area, or an old minefield. This would test Agility, Perception, and Intelligence — stats that the crate doesn't really exercise. It also gives you a natural hook for the electrocution health condition (exposed wiring in a collapsed building, for example), which would knock out two todo items at once.
 
 - implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
 
@@ -100,6 +98,8 @@ TODOS:
 
 - sound (game currently has no sound at all)
   - most impactful would probably be sound effects for encounter option outcomes
+
+- when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
 
 - render mouth differently based on morale (smile, neutral, frown)
 

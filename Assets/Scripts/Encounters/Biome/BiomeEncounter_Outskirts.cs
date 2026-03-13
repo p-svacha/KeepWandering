@@ -136,7 +136,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             {
                 new ItemSlot()
                 {
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Coin },
+                    Item = ItemDefOf.Coin,
                     DifficultyReduction = 25,
                     DestructionChance = 1f
                 },
@@ -196,7 +196,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             {
                 new ItemSlot()
                 {
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Coin },
+                    Item = ItemDefOf.Coin,
                     IsRequired = true,
                     DestructionChance = 1f
                 }
@@ -221,7 +221,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             {
                 new ItemSlot()
                 {
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Coin },
+                    Item = ItemDefOf.Coin,
                     IsRequired = true,
                     DestructionChance = 1f
                 }

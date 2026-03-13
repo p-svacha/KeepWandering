@@ -83,62 +83,6 @@ public class Game : MonoBehaviour
 
     void Start()
     {
-        /*
-        int minValue = int.MaxValue;
-        int maxValue = int.MinValue;
-        List<int> maxValues = new List<int>();
-        List<int> minValues = new List<int>();
-        int numSimulations = 100;
-        int numRolls = 100;
-        int numEntries = 10;
-        
-        Dictionary<int, int> streaks = new Dictionary<int, int>();
-        for (int i = 0; i < 20; i++) streaks.Add(i, 0);
-
-        for (int x = 0; x < numSimulations; x++)
-        {
-            Dictionary<int, int> d = new Dictionary<int, int>();
-            int lastRoll = -1;
-            int streak = 1;
-            
-            for (int i = 0; i < numRolls; i++)
-            {
-                int rng = Random.Range(1, numEntries + 1);
-                if (rng == lastRoll) streak++;
-                else
-                {
-                    streaks.Increment(streak);
-                    streak = 1;
-                }
-                d.Increment(rng);
-                lastRoll = rng;
-            }
-            for (int i = 1; i <= numEntries; i++)
-            {
-                int occurencs = d.ContainsKey(i) ? d[i] : 0;
-                if (occurencs > maxValue) maxValue = occurencs;
-                if (occurencs < minValue) minValue = occurencs;
-            }
-            maxValues.Add(d.Values.Max());
-            minValues.Add(d.Values.Min());
-        }
-        Debug.Log($"Num Rolls: {numRolls}");
-
-        Debug.Log($"RNG Min Value: {minValue}");
-        Debug.Log($"RNG Max Value: {maxValue}");
-
-        Debug.Log($"Min AVG: {minValues.Average()}");
-        Debug.Log($"Max AVG: {maxValues.Average()}");
-
-        string streakLog = "Streaks:\n";
-        foreach (var streak in streaks)
-        {
-            float avg = streak.Value / (numSimulations * 1f);
-            streakLog += $"{streak.Key}: {avg}\n";
-        }
-        Debug.Log(streakLog);
-        */
-
         State = GameState.Initializing;
         Instance = this;
 

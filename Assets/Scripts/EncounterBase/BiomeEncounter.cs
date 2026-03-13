@@ -116,7 +116,7 @@ public abstract class BiomeEncounter : Encounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Trap },
+                    Item = ItemDefOf.Trap,
                     DestructionChance = 1f,
                 },
             }
@@ -148,13 +148,13 @@ public abstract class BiomeEncounter : Encounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.BuildingMaterial },
+                    Tag = ItemTagDefOf.BuildingMaterial,
                     DifficultyReduction = 30,
                     DestructionChance = 0.5f,
                 },
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
+                    Tag = ItemTagDefOf.Tool,
                     DifficultyReduction = 20,
                     DestructionChance = 0.1f,
                 },
@@ -224,7 +224,7 @@ public abstract class BiomeEncounter : Encounter
             {
                 new ItemSlot()
                 {
-                    ItemTags = new List<ItemTagDef>() { ItemTagDefOf.Scavenging },
+                    Tag = ItemTagDefOf.Scavenging,
                     DifficultyReduction = 15,
                     DestructionChance = 0.1f,
                 },

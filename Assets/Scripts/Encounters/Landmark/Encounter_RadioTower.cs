@@ -187,7 +187,7 @@ public class Encounter_RadioTower : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = false,
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Crowbar },
+                    Item = ItemDefOf.Crowbar,
                     DifficultyReduction = 40,
                     DestructionChance = 0.1f,
                 }
@@ -232,7 +232,7 @@ public class Encounter_RadioTower : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = false,
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.Rope },
+                    Item = ItemDefOf.Rope,
                     DifficultyReduction = 30,
                 }
             }

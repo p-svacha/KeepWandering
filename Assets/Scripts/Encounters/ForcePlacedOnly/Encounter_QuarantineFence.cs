@@ -60,7 +60,7 @@ public class Encounter_QuarantineFence : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    SpecificItems = new List<ItemDef>() { ItemDefOf.FenceCutter },
+                    Item = ItemDefOf.FenceCutter,
                     DestructionChance = 1f,
                 }
             },
