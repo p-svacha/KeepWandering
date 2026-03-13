@@ -25,7 +25,7 @@ public enum EncounterType
     /// <summary>
     /// A special kind of location encounter that is created during world generation or the game on specific conditions. Location encounters of these do never appear naturally and only when they are specifically set on a tile.
     /// </summary>
-    Special,
+    ForcePlacedOnly,
 
     /// <summary>
     /// These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning they do not have a specific state, so they are always encountered in their default state. Biome encounters are not meant to be narratively significant, but rather to give some control to the player as most other things in the game are very random and out of the player's control.

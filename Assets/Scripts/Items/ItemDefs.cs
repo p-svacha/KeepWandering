@@ -6,36 +6,32 @@ public static class ItemDefs
     public static List<ItemDef> Defs => new List<ItemDef>()
     {
 
-        new ItemDef()
+        new ItemDef("Antibiotics")
         {
-            DefName = "Antibiotics",
             Label = "antibiotics",
             Description = "Treats infections.",
             Tags = { ItemTagDefOf.Medical },
             CanHealInfections = true,
         },
 
-        new ItemDef()
+        new ItemDef("Antidote")
         {
-            DefName = "Antidote",
             Label = "antidote",
             Description = "Heals poisoning.",
             Tags = { ItemTagDefOf.Medical },
             CanHealPoisoning = true,
         },
 
-        new ItemDef()
+        new ItemDef("Bandage")
         {
-            DefName = "Bandage",
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
             Tags = { ItemTagDefOf.Medical },
             CanTendWounds = true,
         },
 
-        new ItemDef()
+        new ItemDef("Beans")
         {
-            DefName = "Beans",
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Tags = { ItemTagDefOf.Food },
@@ -44,9 +40,8 @@ public static class ItemDefs
             OnConsumptionHydration = 1f,
         },
 
-        new ItemDef()
+        new ItemDef("Berries")
         {
-            DefName = "Berries",
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Tags = { ItemTagDefOf.Food, ItemTagDefOf.Plant },
@@ -55,49 +50,50 @@ public static class ItemDefs
             OnConsumptionHydration = 0.5f,
         },
 
-        new ItemDef()
+        new ItemDef("Bone")
         {
-            DefName = "Bone",
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
             Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs, ItemTagDefOf.Trash },
         },
 
-        new ItemDef()
+        new ItemDef("Coin")
         {
-            DefName = "Coin",
             Label = "coin",
             Description = "Commonly accepted as currency.",
         },
 
-        new ItemDef()
+        new ItemDef("Crowbar")
         {
-            DefName = "Crowbar",
             Label = "crowbar",
             Description = "Very useful for opening things that were not meant to be opened.",
             Tags = { ItemTagDefOf.Tool, ItemTagDefOf.Weapon },
         },
 
-        new ItemDef()
+        new ItemDef("FenceCutter")
         {
-            DefName = "FenceCutter",
             Label = "fence cutter",
             Description = "There's a specific type of fence this could be very useful for.",
             Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
             IsQuestItem = true,
         },
 
-        new ItemDef()
+        new ItemDef("Knife")
         {
-            DefName = "Knife",
             Label = "knife",
             Description = "Both useful as a weapon and as a tool.",
-            Tags = { ItemTagDefOf.Weapon },
+            Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.Tool },
         },
 
-        new ItemDef()
+        new ItemDef("Lockpick")
         {
-            DefName = "MedicalKit",
+            Label = "lockpick",
+            Description = "Useful for opening locked containers.",
+            Tags = { ItemTagDefOf.Lockpicking },
+        },
+
+        new ItemDef("MedicalKit")
+        {
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Tags = { ItemTagDefOf.Medical },
@@ -106,17 +102,15 @@ public static class ItemDefs
             CanHealPoisoning = true,
         },
 
-        new ItemDef()
+        new ItemDef("MedicinalHerbs")
         {
-            DefName = "MedicinalHerbs",
             Label = "medicinal herbs",
             Description = "Can be used to slightly lower the severity of many health conditions.",
             Tags = { ItemTagDefOf.Medical, ItemTagDefOf.Plant },
             SeverityReduction = 1f,
         },
 
-        new ItemDef() {
-            DefName = "NutSnack",
+        new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
@@ -124,9 +118,8 @@ public static class ItemDefs
             OnConsumptionNutrition = 2.5f,
         },
 
-        new ItemDef()
+        new ItemDef("RawMeat")
         {
-            DefName = "RawMeat",
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Tags = { ItemTagDefOf.Food },
@@ -134,24 +127,28 @@ public static class ItemDefs
             OnConsumptionNutrition = 3.5f,
         },
 
-        new ItemDef()
+        new ItemDef("Rope")
         {
-            DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
             Tags = { ItemTagDefOf.BuildingMaterial },
         },
 
-        new ItemDef()
+        new ItemDef("Shovel")
         {
-            DefName = "Trap",
+            Label = "shovel",
+            Description = "Useful for digging.",
+            Tags = { ItemTagDefOf.Digging },
+        },
+
+        new ItemDef("Trap")
+        {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
         },
 
-        new ItemDef()
+        new ItemDef("WaterBottle")
         {
-            DefName = "WaterBottle",
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Tags = { ItemTagDefOf.Drink },

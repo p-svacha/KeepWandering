@@ -3,21 +3,21 @@ using UnityEngine;
 
 public static class EncounterDefs
 {
+    // DEFAULT_CAMERA_SIZE = 5.4
+
     public static List<EncounterDef> Defs => new List<EncounterDef>()
     {
         #region Misc Encounters
 
-        new EncounterDef()
+        new EncounterDef("MorningEncounter")
         {
-            DefName = "MorningEncounter",
             EncounterClass = typeof(Encounter_Morning),
             Type = EncounterType.Morning,
             DevNotes = "This is the daily wake-up encounter that plays at the start of each day. On day one it delivers the game's premise (escaping a quarantine zone) and offers a single option to open the map. On subsequent days it reports any night events and gives the player three choices: move to a new location, stay to continue yesterday's encounters (increasing exposure), or rest to recover energy and heal (skipping the afternoon encounter). Both staying and resting come with a warning about increased exposure leading to nighttime attacks. It's a simple routing encounter with no skill checks — just narrative framing and a daily strategic decision.",
         },
 
-        new EncounterDef()
+        new EncounterDef("EveningFallback")
         {
-            DefName = "EveningFallback",
             EncounterClass = typeof(BiomeEncounter_Fallback),
             Type = EncounterType.Biome,
         },
@@ -26,27 +26,24 @@ public static class EncounterDefs
 
         #region Biome Encounters
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_Outskirts")
         {
-            DefName = "BiomeEncounter_Outskirts",
             EncounterClass = typeof(BiomeEncounter_Outskirts),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
         },
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_Woods")
         {
-            DefName = "BiomeEncounter_Woods",
             EncounterClass = typeof(BiomeEncounter_Woods),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_City")
         {
-            DefName = "BiomeEncounter_City",
             EncounterClass = typeof(BiomeEncounter_City),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
@@ -57,9 +54,8 @@ public static class EncounterDefs
 
         #region Night Encounters
 
-        new EncounterDef()
+        new EncounterDef("Bandits")
         {
-            DefName = "Bandits",
             EncounterClass = typeof(NightEncounter_Bandits),
             Type = EncounterType.Night,
             BaseProbability = 5,
@@ -67,16 +63,16 @@ public static class EncounterDefs
             {
                 { BiomeDefOf.City, 10 }
             },
-            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+            CameraZoomLevel = 7f,
+            DevNotes = "Bandits raid the player's camp during the night. Intensity determines the number of bandits (1 = lone bandit, 2 = pair, 3 = small group), which scales all option difficulties and the severity of negative outcomes. The player can fight (Combat/Strength, hardest at high intensity but keeps all items on success), sneak away (Dexterity/Agility, easier in woods, harder in outskirts, always loses some items), intimidate (Charisma/Combat, weapon slot is very effective, no critical failure), or hide (Perception/Dexterity, only available at intensity 1-2, failure leads to a second step where the player is caught and must fight at +15 difficulty or beg). Beg is a desperation option with three coin slots for scaling bribes. All outcomes scale item loss and injury severity with intensity.",
         },
 
         #endregion
 
         #region Location Encounters
 
-        new EncounterDef()
+        new EncounterDef("Crate")
         {
-            DefName = "Crate",
             Label = "Crate",
             EncounterClass = typeof(Encounter_Crate),
             Type = EncounterType.Location,
@@ -85,13 +81,22 @@ public static class EncounterDefs
             DevNotes = "A locked wooden crate with one visible item and potentially hidden items inside. The player can try to squeeze the visible item through a hole (dexterity check), smash the crate (strength check, may destroy contents), pry it open with a crowbar, or peek inside to learn what's hidden. Outcomes range from getting everything intact to destroying all items or injuring yourself. The encounter tracks whether the crate has been opened, smashed, or looted and adjusts options accordingly on revisits.",
         },
 
+        new EncounterDef("SupplyStash")
+        {
+            Label = "Supply Stash",
+            EncounterClass = typeof(Encounter_SupplyStash),
+            Type = EncounterType.Location,
+            BaseProbability = 0.2f,
+            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+            DevNotes = "A simple positive location encounter where the player finds a hidden stash of supplies. Randomly selects a container type (backpack, locked box, buried crate) which determines the opening method. Backpacks open freely with no check. Locked boxes can be forced open (Strength/Dexterity) or lockpicked (Dexterity, very hard without a lockpicking tool). Buried crates require digging (Strength, helped by digging tools). Loot is drawn from the biome loot table. On revisit, there is a chance the stash has been taken or looted by someone else, creating urgency to open it on first visit. Can spawn naturally (rare) or be generated by encounters like city eavesdrop.",
+        },
+
         #endregion
 
         #region Landmarks
 
-        new EncounterDef()
+        new EncounterDef("RadioTower")
         {
-            DefName = "RadioTower",
             Label = "Radio Tower",
             EncounterClass = typeof(Encounter_RadioTower),
             Type = EncounterType.Landmark,
@@ -107,22 +112,20 @@ public static class EncounterDefs
 
         #region Special (force-placed) Encounters
 
-        new EncounterDef()
+        new EncounterDef("QuarantineFence")
         {
-            DefName = "QuarantineFence",
             Label = "Quarantine Fence",
             EncounterClass = typeof(Encounter_QuarantineFence),
-            Type = EncounterType.Special,
+            Type = EncounterType.ForcePlacedOnly,
             CameraZoomLevel = 8.5f,
             DevNotes = "The quarantine fence is the game's final obstacle and win condition. It starts electrified with a massive difficulty spike, but becomes easy to cut if the player finds the unpowered segment through the quest chain. Cutting requires a fence cutter (always consumed on use), and failure on an electrified fence results in electrocution. Once a hole is cut, walking through ends the game in victory.",
         },
 
-        new EncounterDef()
+        new EncounterDef("HomeOfR")
         {
-            DefName = "HomeOfR",
             Label = "Home of R",
             EncounterClass = typeof(Encounter_HomeOfR),
-            Type = EncounterType.Special,
+            Type = EncounterType.ForcePlacedOnly,
             CameraZoomLevel = 6f,
             DevNotes = "The player meets an NPC named R whose partner is sick. After an initial conversation, the player can ask about a note found at the radio tower (completing a \"Find R\" quest) and learn about R's partner needing infection medicine. Delivering the right medicine rewards the player with a fence cutter and map coordinates for an unpowered fence segment, advancing the main storyline. It's essentially a quest hub that ties together the radio tower and fence-cutting objectives.",
         }

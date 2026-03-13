@@ -33,15 +33,20 @@ public static class LootTables
 
     public static LootTable Tools = new LootTable
     {
-        { ItemDefOf.Crowbar, 10 },
+        { ItemDefOf.Crowbar, 7 },
         { ItemDefOf.Rope, 5 },
         { ItemDefOf.Knife, 5 },
+        { ItemDefOf.Lockpick, 3 },
+        { ItemDefOf.Shovel, 3 },
+        { ItemDefOf.Trap, 1 },
         { ItemDefOf.FenceCutter, 0.1f },
     };
 
     public static LootTable Weapons = new LootTable
     {
         { ItemDefOf.Knife, 10 },
+        { ItemDefOf.Crowbar, 3 },
+        { ItemDefOf.Shovel, 1 },
     };
 
     public static LootTable Trash = new LootTable
@@ -54,5 +59,14 @@ public static class LootTables
     {
         { ItemDefOf.RawMeat, 40 },
         { ItemDefOf.Bone, 25 },
+    };
+
+    public static LootTable Bandit = new LootTable
+    {
+        { Weapons, 10 },
+        { Tools, 8 },
+        { Food, 6 },
+        { Drinks, 6 },
+        { Medical, 4 },
     };
 }

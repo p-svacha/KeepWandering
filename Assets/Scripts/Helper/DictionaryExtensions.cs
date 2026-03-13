@@ -12,7 +12,7 @@ public static class DictionaryExtensions
     /// <param name="weightDictionary">Dictionary mapping keys to integer weights.</param>
     /// <returns>A randomly selected key, where probability is proportional to its weight.</returns>
     /// <exception cref="Exception">Thrown if the dictionary is empty or all weights are zero.</exception>
-    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, int> weightDictionary)
+    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, int> weightDictionary, bool? debug = null)
     {
         int probabilitySum = weightDictionary.Sum(x => x.Value);
         if (probabilitySum == 0) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
@@ -30,7 +30,7 @@ public static class DictionaryExtensions
             }
         }
 
-        if (Game.DEBUG_RANDOM_CHOICES)
+        if (debug ?? Game.DEBUG_RANDOM_CHOICES)
         {
             string output = "Probabilities for " + typeof(TKey).FullName;
             output += "\n------------------------------";
@@ -53,7 +53,7 @@ public static class DictionaryExtensions
     /// <param name="weightDictionary">Dictionary mapping keys to float weights.</param>
     /// <returns>A randomly selected key, where probability is proportional to its weight.</returns>
     /// <exception cref="Exception">Thrown if the dictionary is empty or all weights are zero.</exception>
-    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, float> weightDictionary)
+    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, float> weightDictionary, bool? debug = null)
     {
         float probabilitySum = weightDictionary.Sum(x => x.Value);
         if (probabilitySum == 0f) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
@@ -71,7 +71,7 @@ public static class DictionaryExtensions
             }
         }
 
-        if (Game.DEBUG_RANDOM_CHOICES)
+        if (debug ?? Game.DEBUG_RANDOM_CHOICES)
         {
             string output = "Probabilities for " + typeof(TKey).FullName;
             output += "\n------------------------------";

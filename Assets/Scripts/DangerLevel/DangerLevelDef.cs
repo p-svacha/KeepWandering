@@ -19,4 +19,6 @@ public class DangerLevelDef : Def
     /// The probabilities for how likely it is for a night encounter to occur (and with what intensity) at the end of the day when the player is in a location with this danger level. Key of 0 means no encounter.
     /// </summary>
     public Dictionary<int, float> NightEncounterIntensities { get; init; } = null;
+
+    public DangerLevelDef(string defName) : base(defName) { }
 }

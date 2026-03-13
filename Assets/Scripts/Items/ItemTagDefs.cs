@@ -5,63 +5,63 @@ public static class ItemTagDefs
 {
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
-        new ItemTagDef()
+        new ItemTagDef("BuildingMaterial")
         {
-            DefName = "BuildingMaterial",
             Label = "Building Material",
             Description = "Items that can be used as building materials, such as wood, metal, stone etc.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Digging")
         {
-            DefName = "Drink",
+            Label = "Digging",
+            Description = "Items that can be used for digging.",
+        },
+        new ItemTagDef("Drink")
+        {
             Label = "Drink",
             Description = "Items that can be drunk to provide hydration.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Food")
         {
-            DefName = "Food",
             Label = "Food",
             Description = "Items that can be eaten to provide nutrition and/or hydration.",
         },
-        new ItemTagDef()
+        new ItemTagDef("ForDogs")
         {
-            DefName = "ForDogs",
             Label = "For Dogs",
             Description = "Items that are specifically for dogs, such as dog food or dog toys.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Lockpicking")
         {
-            DefName = "Medical",
+            Label = "Lockpicking",
+            Description = "Items that can be used for lockpicking, such as lockpicks, crowbars etc.",
+        },
+        new ItemTagDef("Medical")
+        {
             Label = "Medical",
             Description = "Items that can be used for medical purposes, such as tending wounds or healing infections.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Plant")
         {
-            DefName = "Plant",
             Label = "Plant",
             Description = "Items that are plants or plant-based, such as herbs, fruits, vegetables etc.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Scavenging")
         {
-            DefName = "Scavenging",
             Label = "Scavenging",
             Description = "Items that useful for scavenging.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Tool")
         {
-            DefName = "Tool",
             Label = "Tool",
             Description = "General tag for all kinds of items commonly used as tools of some kind.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Trash")
         {
-            DefName = "Trash",
             Label = "Trash",
             Description = "Items that can be generally found among trash. They're usually not great, still have their uses.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Weapon")
         {
-            DefName = "Weapon",
             Label = "Weapon",
             Description = "Items that can be used as weapons to defend against threats.",
         },

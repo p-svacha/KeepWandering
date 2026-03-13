@@ -18,7 +18,7 @@ public abstract class Encounter
     private List<Item> EncounterItems = new List<Item>();
 
     // During encounter
-    private bool IsEncounterDone; // If set to true, the next step will have no more options (will default to "continue journey")
+    protected bool IsEncounterDone; // If set to true, the next step will have no more options (will default to "continue journey" (or similar based on time of day))
     private List<GameObject> EncounterSprites = new List<GameObject>();
     private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
 
@@ -165,6 +165,12 @@ public abstract class Encounter
         if (show) ShowEncounterSprite(spriteName);
         else HideEncounterSprite(spriteName);
     }
+    protected void SetSprite(string objectName, string spriteName)
+    {
+        SpriteRenderer renderer = Game.EncounterContainer.transform.Find($"{Def.DefName}/{objectName}").gameObject.GetComponent<SpriteRenderer>();
+        Sprite sprite = ResourceManager.LoadSprite($"Encounters/{Def.DefName}/{spriteName}");
+        renderer.sprite = sprite;
+    }
     protected void SetBackground(string backgroundName)
     {
         Sprite sprite = ResourceManager.LoadSprite($"Backgrounds/{backgroundName}");
@@ -191,7 +197,7 @@ public abstract class Encounter
     {
         OnMoveOn();
         IsEncounterDone = true;
-        return "You move on.";
+        return "You move on. You can now freely use items again before continuing your journey.";
     }
 
     #region Getters

@@ -6,9 +6,8 @@ public static class HealthConditionDefs
     {
 
         // Needs
-        new HealthConditionDef()
+        new HealthConditionDef("Hunger")
         {
-            DefName = "Hunger",
             HealthConditionClass = typeof(HC_Hunger),
             IsNeed = true,
             InitialSeverity = 5,
@@ -75,9 +74,8 @@ public static class HealthConditionDefs
             },
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("Thirst")
         {
-            DefName = "Thirst",
             HealthConditionClass = typeof(HC_Thirst),
             IsNeed = true,
             InitialSeverity = 5,
@@ -141,9 +139,8 @@ public static class HealthConditionDefs
 
 
         // Unique conditions
-        new HealthConditionDef()
+        new HealthConditionDef("BloodLoss")
         {
-            DefName = "BloodLoss",
             HealthConditionClass = typeof(HC_BloodLoss),
             MaxInstances = 1,
             MaxSeverity = 10,
@@ -200,9 +197,8 @@ public static class HealthConditionDefs
         },
 
         // Fractures
-        new HealthConditionDef()
+        new HealthConditionDef("LegFracture")
         {
-            DefName = "LegFracture",
             HealthConditionClass = typeof(HC_LegFracture),
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -249,9 +245,8 @@ public static class HealthConditionDefs
             }
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("ArmFracture")
         {
-            DefName = "ArmFracture",
             HealthConditionClass = typeof(HC_ArmFracture),
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -303,9 +298,8 @@ public static class HealthConditionDefs
 
 
         // Wounds
-        new HealthConditionDef()
+        new HealthConditionDef("Cut")
         {
-            DefName = "Cut",
             Label = "cut",
             Description = "A cut wound.",
             HealthConditionClass = typeof(HC_CutWound),
@@ -314,9 +308,8 @@ public static class HealthConditionDefs
             // Everything else handled by Wound class
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("Bruise")
         {
-            DefName = "Bruise",
             Label = "bruise",
             Description = "A bruise wound.",
             HealthConditionClass = typeof(HC_BruiseWound),

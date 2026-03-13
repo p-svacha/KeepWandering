@@ -5,19 +5,16 @@ public static class QuestDefs
 {
     public static List<QuestDef> Defs => new List<QuestDef>()
     {
-        new QuestDef()
+        new QuestDef("FindR")
         {
-            DefName = "FindR",
             Description = "R lives on random tile in a specific city.",
         },
-        new QuestDef()
+        new QuestDef("DeliverMedicineToR")
         {
-            DefName = "DeliverMedicineToR",
             Description = "R's partner is sick. R needs medicine to get better.",
         },
-        new QuestDef()
+        new QuestDef("GoToUnpoweredFence")
         {
-            DefName = "GoToUnpoweredFence",
             Description = "There is a border tile where the electric fence is not unpowered. With a fence cutter it is possible to cut through the fence and get to the other side.",
         }
     };

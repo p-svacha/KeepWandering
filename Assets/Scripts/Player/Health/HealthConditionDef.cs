@@ -60,6 +60,8 @@ public class HealthConditionDef : Def
     /// </summary>
     public bool IsWound { get; init; } = false;
 
+    public HealthConditionDef(string defName) : base(defName) { }
+
 
     public override bool Validate()
     {

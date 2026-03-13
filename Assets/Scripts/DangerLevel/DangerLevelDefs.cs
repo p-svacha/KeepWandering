@@ -5,9 +5,8 @@ public static class DangerLevelDefs
 {
     public static List<DangerLevelDef> Defs => new List<DangerLevelDef>()
     {
-        new DangerLevelDef()
+        new DangerLevelDef("VerySafe")
         {
-            DefName = "VerySafe",
             Label = "Very Safe",
             Description = "Noone will attack during the night.",
             DangerLevel = DangerLevel.VerySafe,
@@ -17,9 +16,8 @@ public static class DangerLevelDefs
                 { 0, 100 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Safe")
         {
-            DefName = "Safe",
             Label = "Safe",
             Description = "There is a very small chance of a small attack happening at night.",
             DangerLevel = DangerLevel.Safe,
@@ -30,9 +28,8 @@ public static class DangerLevelDefs
                 { 1, 5 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Precarious")
         {
-            DefName = "Precarious",
             Label = "Precarious",
             Description = "There is a small chance of an attack happening at night.",
             DangerLevel = DangerLevel.Precarious,
@@ -44,9 +41,8 @@ public static class DangerLevelDefs
                 { 2, 5 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Dangerous")
         {
-            DefName = "Dangerous",
             Label = "Dangerous",
             Description = "There is a significant chance of an attack happening at night.",
             DangerLevel = DangerLevel.Dangerous,
@@ -59,9 +55,8 @@ public static class DangerLevelDefs
                 { 3, 10 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("VeryDangerous")
         {
-            DefName = "VeryDangerous",
             Label = "Very Dangerous",
             Description = "There is a very high chance of a potentially devastating attack happening at night.",
             DangerLevel = DangerLevel.VeryDangerous,

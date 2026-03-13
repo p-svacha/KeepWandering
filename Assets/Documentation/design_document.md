@@ -185,7 +185,7 @@ Treatment: Instantly cured with a defibrillator or heart medication, which consu
 Max instances: 5 (per wound type)
 Natural Healing: 0.2 if untended, 1 if tended
 
-Wounds are a special subcategory of conditions. They all share some logic regarding tending and infection. The severity value is used for the infection state. Additionally, wounds have a "tended" and "treated" flag.
+Wounds are a special subcategory of conditions. They all share some logic regarding tending and infection. The severity value is used for the infection state. Additionally, wounds have a "tended" and "treated" flag. Opposed to most other conditions, wounds are always applied with the same initial severity (1.5), as the severity is used to track the infection state.
 
 Wound can be tended by using items with the bandage flag, which consumes the item and sets the "tended" flag to true.
 
@@ -215,6 +215,17 @@ Additional effect while tended: none
 Additional effect while untended: Slows healing of all fractures by 0.2.
 Additional effect while tended: none
 
+## Taking Damage
+There's a few generalized ways of taking damage that are used in various encounters. These are additional to just gaining a specific condition (which is of course also possible).
+
+**Applying Random Wound**: This just applies a new wound out of a pool of possible wounds (usually bruise/cut).
+
+**Taking Bruise Damage**: The player can take bruise damage of a specific severity. This applies a new bruise wound and bone damage (fracture) to a random arm or leg with the given severity.
+
+**Taking Cut Damage**: The player can take cut damage of a specific severity. This applies a new cut wound and immediately increases blood loss by the given severity.
+
+**Taking Random Damage**: The player can take random damage of a specific severity. This just randomly chooses one of the above damage types and applies it with the given severity.
+
 
 # Inventory / Items
 The player carries a wooden cart behind them, which represents their inventory. Each item is a physics sprite in the cart, affected by gravity so it stays in the cart. Items can be dragged and dropped freely in the cart, and also into item slots for encounter options.
@@ -222,6 +233,32 @@ If an item is added to the player, it spawns above the cart and falls into it. I
 If an item falls out of the cart, it respawns back above the cart, so they cannot accidentally be lost. Hovering over an item shows a tooltip with the name and short description. Clicking on an item may give options such as "eat", "drink" if applicable.
 There is a limit of how much the player can carry, but how that limit is implemented is still to be determined and needs to be experimented with.
 
+## Item Tags
+Each item can have any number of tags. Tags are the primary mechanism for defining which items are accepted by which item slots in encounter options. They are never communicated to the player directly.
+
+There are two broad categories of tags:
+
+- **General-purpose tags** describe what an item *is* (e.g. "Food", "Tool", "Medical", "Weapon", "Trash"). These are used for straightforward slot requirements such as "accepts any food item".
+- **Activity tags** describe what an item can be *used for* (e.g. "Combat", "Scavenging", "Fortifying", "Lockpicking", "Digging"). These allow slots to accept any item that is useful for a given activity, even if those items are otherwise very different from each other.
+
+An item can (and often should) have tags from both categories. Because tags are invisible to the player, it is fine to have many, specific, overlapping, or technical tags, as long as they make sense from a design perspective.
+
+### Tag Value Modifiers
+Items can optionally define a **tag value modifier** for any of their tags. This is a signed integer that expresses how particularly good or bad the item is at that tag's activity.
+
+When an item with a tag value modifier is placed into a slot that accepts that tag, the slot's default difficulty reduction is adjusted by the modifier value. For example:
+
+- A **bone** has the *Combat* tag with a tag value modifier of **-5**. If placed in a combat slot whose default difficulty reduction is 20, the effective reduction becomes 15.
+- A **flashlight** has the *Scavenging* tag with a tag value modifier of **+5**. If placed in a scavenging slot whose default difficulty reduction is 10, the effective reduction becomes 15.
+
+This system makes it easy to add variety: a single tag can encompass many items of varying quality, and the modifier captures how well each item fits the role. It also creates strategic trade-offs for the player — using an item with a negative modifier in one slot frees up a better-suited item for another.
+
+#### Difficulty Reduction Priority
+When an item is placed in a slot, the effective difficulty reduction is determined by the following priority:
+
+1. **Item-specific override** — A slot can define a custom difficulty reduction for a specific item. If present, this value is used as-is (no further modifiers apply).
+2. **Tag value modifier** — If no item-specific override exists and the item has a tag value modifier for the slot's accepted tag, the slot's default difficulty reduction is adjusted by that modifier.
+3. **Default** — If neither of the above apply, the slot's default difficulty reduction is used unchanged.
 
 
 ## Loot Tables
@@ -396,10 +433,10 @@ If the step is a final step, the options depend on the time of day, and not on t
 Each option can have any number of item slots, which are slots that the player can drag items from their cart into. 
 Each slot can have the following properties:
 
-- Allowed items: A list of specific items that are allowed in the slot. This can be a specific item, an item with a specific tag, or any combination thereof.
+- Allowed items: A list of accepted item tags and/or specific items. An item is valid for the slot if it has at least one of the accepted tags, or is one of the explicitly listed items. This means a single slot can broadly accept "any item tagged *Combat*" while also accepting a specific quest item that lacks that tag.
 - Required: If the slot is required, the player has to fill that slot with a valid item in order to be able to choose that option.
 - Consumption Chance: If the slot is filled with a valid item, there is a chance that the item gets consumed on use, which would remove the item from the player's cart.
-- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced by a fixed amount. There is a default difficulty modifiers, but specific items may override that with a custom value.
+- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced. The effective reduction follows a priority: (1) an item-specific override defined on the slot, (2) the slot's default reduction adjusted by the item's tag value modifier for the matching tag, or (3) the slot's default reduction unchanged. See *Item Tags > Difficulty Reduction Priority* for details.
 
 ### Option Types
 On a technical level, options fall into one of two categories: "Skillchecks" or "FixedOutcome"
@@ -437,7 +474,7 @@ Additionally, if there are additional outcomes, they are calculated as follows:
 
 ##### Skill Check Difficulty Calculation
 Skillcheck options have a fixed base difficulty value (1-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
-The most common types of modifiers are (in rough order of importance):
+The most common types of modifiers are:
 
 - Morale: The morale stat is applied as a modifier to all options with a factor of 1.
 - Player stats: Most options have a specific stat (or multiple) associated with them, each with a defined factor. The player's value in that stat multiplied by the factor is reduced from the difficulty value.
@@ -445,6 +482,7 @@ The most common types of modifiers are (in rough order of importance):
 - Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
 - Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
 - Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
+- Other encounter-specific modifiers: Some options can have specific modifiers based on the current state of the encounter itself, such as previous choices made in the encounter, or specific things that happened during the encounter.
 
 Difficulty is capped at 5 minimum and 200 maximum. This means that no matter how good the player is, there is always a small chance of failure, and at max difficulty the only possible outcomes are failure and critical failure.
 
@@ -487,7 +525,7 @@ In the evening, the player is presented with the Biome Encounter for the biome o
 A new biome encounter instance is created each evening — they are not persistent across days. The encounter presents the player with a set of options for how to spend the evening (see Biome encounters above). Only one evening action can be chosen, after which the encounter either ends immediately or continues with follow-up options specific to that action.
 
 ### Trap System
-The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. They see how many traps are set in the UI. Each trap has the following effect:
+The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. They see how ma ny traps are set in the UI. Each trap has the following effect:
 
 - If there is a night encounter, each trap will reduce the intensity of the encounter by 1. If this reduces the intensity below 1, it nullifies the encounter entirely.
 - If a trap wasn't used for an encounter, it has a X% chance trigger on an animal, giving the player an item. X is based on the biome.

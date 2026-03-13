@@ -15,6 +15,9 @@ public class OptionOutcomeDef : Def
     public bool IsSuccess { get; init; }
 
     public Color Color { get; init; }
+
+
+    public OptionOutcomeDef(string defName) : base(defName) { }
 }
 
 public enum SuccessLevel

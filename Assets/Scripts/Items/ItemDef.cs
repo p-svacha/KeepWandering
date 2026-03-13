@@ -27,6 +27,8 @@ public class ItemDef : Def
     public bool CanHealInfections { get; init; } = false;
     public bool CanHealPoisoning { get; init; } = false;
 
+    public ItemDef(string defName) : base(defName) { }
+
     public bool HasTag(ItemTagDef tag)
     {
         return Tags.Contains(tag);

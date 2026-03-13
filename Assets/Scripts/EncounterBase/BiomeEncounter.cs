@@ -169,7 +169,7 @@ public abstract class BiomeEncounter : Encounter
             Game.ModifyStatBaseValue(StatDefOf.Morale, 2);
 
             // Decrease danger level by 2
-            // todo
+            Game.ModifyDangerLevel(-2);
 
             // 25% to set a trap for the night
             if (Random.value < 0.25f)
@@ -187,7 +187,7 @@ public abstract class BiomeEncounter : Encounter
         }
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            // todo: Danger Level decrease by 1
+            Game.ModifyDangerLevel(-1);
             return "You set up some decent cover and noise traps.";
         }
         if (outcome == OptionOutcomeDefOf.Failure)

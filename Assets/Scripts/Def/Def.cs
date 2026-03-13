@@ -29,7 +29,7 @@ public abstract class Def : ITooltipTarget
     /// <summary>
     /// The name of this Def. It is used as a unique identifier within the same type.
     /// </summary>
-    public string DefName { get; init; } = null;
+    public string DefName { get; private set; } = null;
 
     /// <summary>
     /// A globally unique identifier for this Def, combining its type name and DefName.
@@ -64,6 +64,11 @@ public abstract class Def : ITooltipTarget
     /// The path to the sprite that is used in UI elements for representing this Def.
     /// </summary>
     public virtual Sprite Sprite { get; init; } = null;
+
+    public Def(string defName)
+    {
+        DefName = defName;
+    }
 
 
     /// <summary>

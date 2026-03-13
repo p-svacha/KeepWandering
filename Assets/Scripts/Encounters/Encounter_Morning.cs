@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Encounter_Morning : Encounter
 {
+    private const string DANGER_LEVEL_WARNING = "\n\nThe danger level has increased by sleeping here.";
+
     public string GetMorningText()
     {
         string text = "";
@@ -32,7 +34,7 @@ public class Encounter_Morning : Encounter
         }
         else
         {
-            string exposureAppendix = ResourceManager.WarningText("\nThis will increase your exposure in this location, increasing the chance for attacks during the night!");
+            string exposureAppendix = ResourceManager.WarningText(DANGER_LEVEL_WARNING);
 
             options.Add(new FixedOutcomeOption()
             {

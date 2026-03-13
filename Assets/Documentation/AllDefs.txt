@@ -3,33 +3,29 @@
 --- TimeOfDayDefs.cs ---
     public static List<TimeOfDayDef> Defs => new List<TimeOfDayDef>()
     {
-        new TimeOfDayDef()
+        new TimeOfDayDef("Morning")
         {
-            DefName = "Morning",
             Label = "Morning",
             Description = "In the morning, the player can choose their action for the day. Move, Stay or Rest. They can use items freely.",
             SkyColor = new Color(0.66f, 0.75f, 0.78f),
             LightingAmbienceOverlayColor = new Color(0.94f, 0.90f, 0.55f, 0.08f),
         },
-        new TimeOfDayDef()
+        new TimeOfDayDef("Afternoon")
         {
-            DefName = "Afternoon",
             Label = "Afternoon",
             Description = "In the afternoon, the player encounters the Location Encounter of the world tile they are currently on. They can only use items when the encounter is over before moving on, except for encounter options.",
             SkyColor = new Color(0.53f, 0.81f, 0.92f),
             LightingAmbienceOverlayColor = new Color(1f, 1f, 1f, 0f),
         },
-        new TimeOfDayDef()
+        new TimeOfDayDef("Evening")
         {
-            DefName = "Evening",
             Label = "Evening",
             Description = "In the evening, the player encounters the Biome Encounter based on the biome they are in. They can only use items when the encounter is over before moving on, except for encounter options.",
             SkyColor = new Color(0.48f, 0.29f, 0.22f),
             LightingAmbienceOverlayColor = new Color(1f, 0.50f, 0.31f, 0.12f),
         },
-        new TimeOfDayDef()
+        new TimeOfDayDef("Night")
         {
-            DefName = "Night",
             Label = "Night",
             Description = "The night only comes if there is one or more Night Encounters. The player can only use items when the encounter is over before moving on, except for encounter options.",
             SkyColor = new Color(0.06f, 0.07f, 0.10f),
@@ -46,9 +42,8 @@
 --- DangerLevelDefs.cs ---
     public static List<DangerLevelDef> Defs => new List<DangerLevelDef>()
     {
-        new DangerLevelDef()
+        new DangerLevelDef("VerySafe")
         {
-            DefName = "VerySafe",
             Label = "Very Safe",
             Description = "Noone will attack during the night.",
             DangerLevel = DangerLevel.VerySafe,
@@ -58,9 +53,8 @@
                 { 0, 100 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Safe")
         {
-            DefName = "Safe",
             Label = "Safe",
             Description = "There is a very small chance of a small attack happening at night.",
             DangerLevel = DangerLevel.Safe,
@@ -71,9 +65,8 @@
                 { 1, 5 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Precarious")
         {
-            DefName = "Precarious",
             Label = "Precarious",
             Description = "There is a small chance of an attack happening at night.",
             DangerLevel = DangerLevel.Precarious,
@@ -85,9 +78,8 @@
                 { 2, 5 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("Dangerous")
         {
-            DefName = "Dangerous",
             Label = "Dangerous",
             Description = "There is a significant chance of an attack happening at night.",
             DangerLevel = DangerLevel.Dangerous,
@@ -100,9 +92,8 @@
                 { 3, 10 },
             },
         },
-        new DangerLevelDef()
+        new DangerLevelDef("VeryDangerous")
         {
-            DefName = "VeryDangerous",
             Label = "Very Dangerous",
             Description = "There is a very high chance of a potentially devastating attack happening at night.",
             DangerLevel = DangerLevel.VeryDangerous,
@@ -122,17 +113,15 @@
     {
         #region Misc Encounters
 
-        new EncounterDef()
+        new EncounterDef("MorningEncounter")
         {
-            DefName = "MorningEncounter",
             EncounterClass = typeof(Encounter_Morning),
             Type = EncounterType.Morning,
             DevNotes = "This is the daily wake-up encounter that plays at the start of each day. On day one it delivers the game's premise (escaping a quarantine zone) and offers a single option to open the map. On subsequent days it reports any night events and gives the player three choices: move to a new location, stay to continue yesterday's encounters (increasing exposure), or rest to recover energy and heal (skipping the afternoon encounter). Both staying and resting come with a warning about increased exposure leading to nighttime attacks. It's a simple routing encounter with no skill checks — just narrative framing and a daily strategic decision.",
         },
 
-        new EncounterDef()
+        new EncounterDef("EveningFallback")
         {
-            DefName = "EveningFallback",
             EncounterClass = typeof(BiomeEncounter_Fallback),
             Type = EncounterType.Biome,
         },
@@ -141,27 +130,24 @@
 
         #region Biome Encounters
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_Outskirts")
         {
-            DefName = "BiomeEncounter_Outskirts",
             EncounterClass = typeof(BiomeEncounter_Outskirts),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
         },
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_Woods")
         {
-            DefName = "BiomeEncounter_Woods",
             EncounterClass = typeof(BiomeEncounter_Woods),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
             DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
         },
 
-        new EncounterDef()
+        new EncounterDef("BiomeEncounter_City")
         {
-            DefName = "BiomeEncounter_City",
             EncounterClass = typeof(BiomeEncounter_City),
             Type = EncounterType.Biome,
             CameraZoomLevel = 8f,
@@ -172,9 +158,8 @@
 
         #region Night Encounters
 
-        new EncounterDef()
+        new EncounterDef("Bandits")
         {
-            DefName = "Bandits",
             EncounterClass = typeof(NightEncounter_Bandits),
             Type = EncounterType.Night,
             BaseProbability = 5,
@@ -182,16 +167,16 @@
             {
                 { BiomeDefOf.City, 10 }
             },
-            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+            CameraZoomLevel = 7f,
+            DevNotes = "Bandits raid the player's camp during the night. Intensity determines the number of bandits (1 = lone bandit, 2 = pair, 3 = small group), which scales all option difficulties and the severity of negative outcomes. The player can fight (Combat/Strength, hardest at high intensity but keeps all items on success), sneak away (Dexterity/Agility, easier in woods, harder in outskirts, always loses some items), intimidate (Charisma/Combat, weapon slot is very effective, no critical failure), or hide (Perception/Dexterity, only available at intensity 1-2, failure leads to a second step where the player is caught and must fight at +15 difficulty or beg). Beg is a desperation option with three coin slots for scaling bribes. All outcomes scale item loss and injury severity with intensity.",
         },
 
         #endregion
 
         #region Location Encounters
 
-        new EncounterDef()
+        new EncounterDef("Crate")
         {
-            DefName = "Crate",
             Label = "Crate",
             EncounterClass = typeof(Encounter_Crate),
             Type = EncounterType.Location,
@@ -200,13 +185,21 @@
             DevNotes = "A locked wooden crate with one visible item and potentially hidden items inside. The player can try to squeeze the visible item through a hole (dexterity check), smash the crate (strength check, may destroy contents), pry it open with a crowbar, or peek inside to learn what's hidden. Outcomes range from getting everything intact to destroying all items or injuring yourself. The encounter tracks whether the crate has been opened, smashed, or looted and adjusts options accordingly on revisits.",
         },
 
+        new EncounterDef("SupplyStash")
+        {
+            Label = "Supply Stash",
+            EncounterClass = typeof(Encounter_SupplyStash),
+            Type = EncounterType.Location,
+            BaseProbability = 0.2f,
+            CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+        },
+
         #endregion
 
         #region Landmarks
 
-        new EncounterDef()
+        new EncounterDef("RadioTower")
         {
-            DefName = "RadioTower",
             Label = "Radio Tower",
             EncounterClass = typeof(Encounter_RadioTower),
             Type = EncounterType.Landmark,
@@ -222,22 +215,20 @@
 
         #region Special (force-placed) Encounters
 
-        new EncounterDef()
+        new EncounterDef("QuarantineFence")
         {
-            DefName = "QuarantineFence",
             Label = "Quarantine Fence",
             EncounterClass = typeof(Encounter_QuarantineFence),
-            Type = EncounterType.Special,
+            Type = EncounterType.ForcePlacedOnly,
             CameraZoomLevel = 8.5f,
             DevNotes = "The quarantine fence is the game's final obstacle and win condition. It starts electrified with a massive difficulty spike, but becomes easy to cut if the player finds the unpowered segment through the quest chain. Cutting requires a fence cutter (always consumed on use), and failure on an electrified fence results in electrocution. Once a hole is cut, walking through ends the game in victory.",
         },
 
-        new EncounterDef()
+        new EncounterDef("HomeOfR")
         {
-            DefName = "HomeOfR",
             Label = "Home of R",
             EncounterClass = typeof(Encounter_HomeOfR),
-            Type = EncounterType.Special,
+            Type = EncounterType.ForcePlacedOnly,
             CameraZoomLevel = 6f,
             DevNotes = "The player meets an NPC named R whose partner is sick. After an initial conversation, the player can ask about a note found at the radio tower (completing a \"Find R\" quest) and learn about R's partner needing infection medicine. Delivering the right medicine rewards the player with a fence cutter and map coordinates for an unpowered fence segment, advancing the main storyline. It's essentially a quest hub that ties together the radio tower and fence-cutting objectives.",
         }
@@ -248,9 +239,8 @@
 --- OptionOutcomeDefs.cs ---
     public static List<OptionOutcomeDef> Defs => new List<OptionOutcomeDef>()
     {
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("CriticalSuccess")
         {
-            DefName = "CriticalSuccess",
             Label = "Critical Success",
             Description = "The player critically succeeds in the action they are trying to do. This is usually a better version of success, with an outcome that is even better than success.",
             Color = new Color(0.24f, 0.57f, 0f),
@@ -258,9 +248,8 @@
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("Success")
         {
-            DefName = "Success",
             Label = "Success",
             Description = "The player fully succeeds in the action they are trying to do.",
             Color = new Color(0.54f, 1f, 0.21f),
@@ -268,9 +257,8 @@
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("PartialSuccess")
         {
-            DefName = "PartialSuccess",
             Label = "Partial Success",
             Description = "The player partially succeeds in the action they are trying to do. This is usually a middle ground between success and failure, with an outcome that is better than failure but worse than success.",
             Color = new Color(1f, 0.96f, 0f),
@@ -278,9 +266,8 @@
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("Failure")
         {
-            DefName = "Failure",
             Label = "Failure",
             Description = "The player fails in the action they are trying to do.",
             Color = new Color(1f, 0.36f, 0f),
@@ -288,9 +275,8 @@
             IsSuccess = false,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("CriticalFailure")
         {
-            DefName = "CriticalFailure",
             Label = "Critical Failure",
             Description = "The player critically fails in the action they are trying to do. This is usually a worse version of failure, with an outcome that is even worse than failure.",
             Color = new Color(0.67f, 0.03f, 0f),
@@ -302,14 +288,12 @@
 --- ConsumptionTypeDefs.cs ---
     public static List<ConsumptionTypeDef> Defs => new List<ConsumptionTypeDef>()
     {
-        new ConsumptionTypeDef()
+        new ConsumptionTypeDef("Eat")
         {
-            DefName = "Eat",
             Label = "eat"
         },
-        new ConsumptionTypeDef()
+        new ConsumptionTypeDef("Drink")
         {
-            DefName = "Drink",
             Label = "drink"
         },
     };
@@ -318,36 +302,32 @@
     public static List<ItemDef> Defs => new List<ItemDef>()
     {
 
-        new ItemDef()
+        new ItemDef("Antibiotics")
         {
-            DefName = "Antibiotics",
             Label = "antibiotics",
             Description = "Treats infections.",
             Tags = { ItemTagDefOf.Medical },
             CanHealInfections = true,
         },
 
-        new ItemDef()
+        new ItemDef("Antidote")
         {
-            DefName = "Antidote",
             Label = "antidote",
             Description = "Heals poisoning.",
             Tags = { ItemTagDefOf.Medical },
             CanHealPoisoning = true,
         },
 
-        new ItemDef()
+        new ItemDef("Bandage")
         {
-            DefName = "Bandage",
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
             Tags = { ItemTagDefOf.Medical },
             CanTendWounds = true,
         },
 
-        new ItemDef()
+        new ItemDef("Beans")
         {
-            DefName = "Beans",
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Tags = { ItemTagDefOf.Food },
@@ -356,9 +336,8 @@
             OnConsumptionHydration = 1f,
         },
 
-        new ItemDef()
+        new ItemDef("Berries")
         {
-            DefName = "Berries",
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Tags = { ItemTagDefOf.Food, ItemTagDefOf.Plant },
@@ -367,49 +346,50 @@
             OnConsumptionHydration = 0.5f,
         },
 
-        new ItemDef()
+        new ItemDef("Bone")
         {
-            DefName = "Bone",
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
             Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.ForDogs, ItemTagDefOf.Trash },
         },
 
-        new ItemDef()
+        new ItemDef("Coin")
         {
-            DefName = "Coin",
             Label = "coin",
             Description = "Commonly accepted as currency.",
         },
 
-        new ItemDef()
+        new ItemDef("Crowbar")
         {
-            DefName = "Crowbar",
             Label = "crowbar",
             Description = "Very useful for opening things that were not meant to be opened.",
             Tags = { ItemTagDefOf.Tool, ItemTagDefOf.Weapon },
         },
 
-        new ItemDef()
+        new ItemDef("FenceCutter")
         {
-            DefName = "FenceCutter",
             Label = "fence cutter",
             Description = "There's a specific type of fence this could be very useful for.",
             Tags = new List<ItemTagDef>() { ItemTagDefOf.Tool },
             IsQuestItem = true,
         },
 
-        new ItemDef()
+        new ItemDef("Knife")
         {
-            DefName = "Knife",
             Label = "knife",
             Description = "Both useful as a weapon and as a tool.",
-            Tags = { ItemTagDefOf.Weapon },
+            Tags = { ItemTagDefOf.Weapon, ItemTagDefOf.Tool },
         },
 
-        new ItemDef()
+        new ItemDef("Lockpick")
         {
-            DefName = "MedicalKit",
+            Label = "lockpick",
+            Description = "Useful for opening locked containers.",
+            Tags = { ItemTagDefOf.Lockpicking },
+        },
+
+        new ItemDef("MedicalKit")
+        {
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Tags = { ItemTagDefOf.Medical },
@@ -418,17 +398,15 @@
             CanHealPoisoning = true,
         },
 
-        new ItemDef()
+        new ItemDef("MedicinalHerbs")
         {
-            DefName = "MedicinalHerbs",
             Label = "medicinal herbs",
             Description = "Can be used to slightly lower the severity of many health conditions.",
             Tags = { ItemTagDefOf.Medical, ItemTagDefOf.Plant },
             SeverityReduction = 1f,
         },
 
-        new ItemDef() {
-            DefName = "NutSnack",
+        new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Tags = { ItemTagDefOf.Food },
@@ -436,9 +414,8 @@
             OnConsumptionNutrition = 2.5f,
         },
 
-        new ItemDef()
+        new ItemDef("RawMeat")
         {
-            DefName = "RawMeat",
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Tags = { ItemTagDefOf.Food },
@@ -446,24 +423,28 @@
             OnConsumptionNutrition = 3.5f,
         },
 
-        new ItemDef()
+        new ItemDef("Rope")
         {
-            DefName = "Rope",
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
             Tags = { ItemTagDefOf.BuildingMaterial },
         },
 
-        new ItemDef()
+        new ItemDef("Shovel")
         {
-            DefName = "Trap",
+            Label = "shovel",
+            Description = "Useful for digging.",
+            Tags = { ItemTagDefOf.Digging },
+        },
+
+        new ItemDef("Trap")
+        {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
         },
 
-        new ItemDef()
+        new ItemDef("WaterBottle")
         {
-            DefName = "WaterBottle",
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Tags = { ItemTagDefOf.Drink },
@@ -475,63 +456,63 @@
 --- ItemTagDefs.cs ---
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
-        new ItemTagDef()
+        new ItemTagDef("BuildingMaterial")
         {
-            DefName = "BuildingMaterial",
             Label = "Building Material",
             Description = "Items that can be used as building materials, such as wood, metal, stone etc.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Digging")
         {
-            DefName = "Drink",
+            Label = "Digging",
+            Description = "Items that can be used for digging.",
+        },
+        new ItemTagDef("Drink")
+        {
             Label = "Drink",
             Description = "Items that can be drunk to provide hydration.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Food")
         {
-            DefName = "Food",
             Label = "Food",
             Description = "Items that can be eaten to provide nutrition and/or hydration.",
         },
-        new ItemTagDef()
+        new ItemTagDef("ForDogs")
         {
-            DefName = "ForDogs",
             Label = "For Dogs",
             Description = "Items that are specifically for dogs, such as dog food or dog toys.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Lockpicking")
         {
-            DefName = "Medical",
+            Label = "Lockpicking",
+            Description = "Items that can be used for lockpicking, such as lockpicks, crowbars etc.",
+        },
+        new ItemTagDef("Medical")
+        {
             Label = "Medical",
             Description = "Items that can be used for medical purposes, such as tending wounds or healing infections.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Plant")
         {
-            DefName = "Plant",
             Label = "Plant",
             Description = "Items that are plants or plant-based, such as herbs, fruits, vegetables etc.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Scavenging")
         {
-            DefName = "Scavenging",
             Label = "Scavenging",
             Description = "Items that useful for scavenging.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Tool")
         {
-            DefName = "Tool",
             Label = "Tool",
             Description = "General tag for all kinds of items commonly used as tools of some kind.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Trash")
         {
-            DefName = "Trash",
             Label = "Trash",
             Description = "Items that can be generally found among trash. They're usually not great, still have their uses.",
         },
-        new ItemTagDef()
+        new ItemTagDef("Weapon")
         {
-            DefName = "Weapon",
             Label = "Weapon",
             Description = "Items that can be used as weapons to defend against threats.",
         },
@@ -542,9 +523,8 @@
     {
 
         // Needs
-        new HealthConditionDef()
+        new HealthConditionDef("Hunger")
         {
-            DefName = "Hunger",
             HealthConditionClass = typeof(HC_Hunger),
             IsNeed = true,
             InitialSeverity = 5,
@@ -611,9 +591,8 @@
             },
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("Thirst")
         {
-            DefName = "Thirst",
             HealthConditionClass = typeof(HC_Thirst),
             IsNeed = true,
             InitialSeverity = 5,
@@ -677,9 +656,8 @@
 
 
         // Unique conditions
-        new HealthConditionDef()
+        new HealthConditionDef("BloodLoss")
         {
-            DefName = "BloodLoss",
             HealthConditionClass = typeof(HC_BloodLoss),
             MaxInstances = 1,
             MaxSeverity = 10,
@@ -736,9 +714,8 @@
         },
 
         // Fractures
-        new HealthConditionDef()
+        new HealthConditionDef("LegFracture")
         {
-            DefName = "LegFracture",
             HealthConditionClass = typeof(HC_LegFracture),
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -785,9 +762,8 @@
             }
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("ArmFracture")
         {
-            DefName = "ArmFracture",
             HealthConditionClass = typeof(HC_ArmFracture),
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -839,9 +815,8 @@
 
 
         // Wounds
-        new HealthConditionDef()
+        new HealthConditionDef("Cut")
         {
-            DefName = "Cut",
             Label = "cut",
             Description = "A cut wound.",
             HealthConditionClass = typeof(HC_CutWound),
@@ -850,9 +825,8 @@
             // Everything else handled by Wound class
         },
 
-        new HealthConditionDef()
+        new HealthConditionDef("Bruise")
         {
-            DefName = "Bruise",
             Label = "bruise",
             Description = "A bruise wound.",
             HealthConditionClass = typeof(HC_BruiseWound),
@@ -865,19 +839,16 @@
 --- QuestDefs.cs ---
     public static List<QuestDef> Defs => new List<QuestDef>()
     {
-        new QuestDef()
+        new QuestDef("FindR")
         {
-            DefName = "FindR",
             Description = "R lives on random tile in a specific city.",
         },
-        new QuestDef()
+        new QuestDef("DeliverMedicineToR")
         {
-            DefName = "DeliverMedicineToR",
             Description = "R's partner is sick. R needs medicine to get better.",
         },
-        new QuestDef()
+        new QuestDef("GoToUnpoweredFence")
         {
-            DefName = "GoToUnpoweredFence",
             Description = "There is a border tile where the electric fence is not unpowered. With a fence cutter it is possible to cut through the fence and get to the other side.",
         }
     };
@@ -885,9 +856,8 @@
 --- BiomeDefs.cs ---
     public static List<BiomeDef> Defs => new List<BiomeDef>()
     {
-        new BiomeDef()
+        new BiomeDef("Woods")
         {
-            DefName = "Woods",
             Label = "woods",
             Description = "A place of many wild animals and plants.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Intelligence, StatDefOf.Perception, StatDefOf.Dexterity },
@@ -903,9 +873,8 @@
             TrapTriggerChance = 0.5f,
         },
 
-        new BiomeDef()
+        new BiomeDef("Outskirts")
         {
-            DefName = "Outskirts",
             Label = "outskirts",
             Description = "A sparsely populated area that covers big areas around and between cities.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Charisma, StatDefOf.Strength, StatDefOf.Dexterity },
@@ -921,9 +890,8 @@
             TrapTriggerChance = 0.3f,
         },
 
-        new BiomeDef()
+        new BiomeDef("City")
         {
-            DefName = "City",
             Label = "city",
             Description = "A bustling urban area with many buildings and people.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Combat, StatDefOf.Charisma, StatDefOf.Perception },
@@ -940,9 +908,8 @@
             TrapTriggerChance = 0.1f,
         },
 
-        new BiomeDef()
+        new BiomeDef("Lake")
         {
-            DefName = "Lake",
             Label = "lake",
             Description = "A serene body of water surrounded by nature.",
             IsPassable = false,

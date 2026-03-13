@@ -134,13 +134,13 @@ public class BiomeEncounter_City : BiomeEncounter
     {
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            // todo: reduce danger level by 1
+            Game.ModifyDangerLevel(-1);
             BiomeLootTable.AddItemToInventory();
             return "You spot movement in the distance and identify a potential threat long before it arrives. You also notice a stash someone hid nearby.";
         }
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
-            // todo: reduce danger level by 1
+            Game.ModifyDangerLevel(-1);
             return "You keep a sharp eye out all evening. You know what's around you.";
         }
         if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
@@ -155,7 +155,7 @@ public class BiomeEncounter_City : BiomeEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            // todo: increase danger level by 1
+            Game.ModifyDangerLevel(+1);
             Game.ModifyStatBaseValue(StatDefOf.Morale, -2);
             return "You hear something and panic, knocking things over and making a lot of noise.";
         }

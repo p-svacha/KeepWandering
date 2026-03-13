@@ -4,9 +4,11 @@ using UnityEngine;
 public static class ItemTagDefOf
 {
     public static ItemTagDef BuildingMaterial;
+    public static ItemTagDef Digging;
     public static ItemTagDef Drink;
     public static ItemTagDef Food;
     public static ItemTagDef ForDogs;
+    public static ItemTagDef Lockpicking;
     public static ItemTagDef Medical;
     public static ItemTagDef Plant;
     public static ItemTagDef Scavenging;

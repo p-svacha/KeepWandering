@@ -5,14 +5,12 @@ public static class ConsumptionTypeDefs
 {
     public static List<ConsumptionTypeDef> Defs => new List<ConsumptionTypeDef>()
     {
-        new ConsumptionTypeDef()
+        new ConsumptionTypeDef("Eat")
         {
-            DefName = "Eat",
             Label = "eat"
         },
-        new ConsumptionTypeDef()
+        new ConsumptionTypeDef("Drink")
         {
-            DefName = "Drink",
             Label = "drink"
         },
     };

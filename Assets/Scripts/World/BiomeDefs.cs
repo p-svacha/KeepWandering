@@ -5,9 +5,8 @@ public static class BiomeDefs
 {
     public static List<BiomeDef> Defs => new List<BiomeDef>()
     {
-        new BiomeDef()
+        new BiomeDef("Woods")
         {
-            DefName = "Woods",
             Label = "woods",
             Description = "A place of many wild animals and plants.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Intelligence, StatDefOf.Perception, StatDefOf.Dexterity },
@@ -23,9 +22,8 @@ public static class BiomeDefs
             TrapTriggerChance = 0.5f,
         },
 
-        new BiomeDef()
+        new BiomeDef("Outskirts")
         {
-            DefName = "Outskirts",
             Label = "outskirts",
             Description = "A sparsely populated area that covers big areas around and between cities.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Charisma, StatDefOf.Strength, StatDefOf.Dexterity },
@@ -41,9 +39,8 @@ public static class BiomeDefs
             TrapTriggerChance = 0.3f,
         },
 
-        new BiomeDef()
+        new BiomeDef("City")
         {
-            DefName = "City",
             Label = "city",
             Description = "A bustling urban area with many buildings and people.",
             MostImportantStats = new List<StatDef>() { StatDefOf.Combat, StatDefOf.Charisma, StatDefOf.Perception },
@@ -60,9 +57,8 @@ public static class BiomeDefs
             TrapTriggerChance = 0.1f,
         },
 
-        new BiomeDef()
+        new BiomeDef("Lake")
         {
-            DefName = "Lake",
             Label = "lake",
             Description = "A serene body of water surrounded by nature.",
             IsPassable = false,

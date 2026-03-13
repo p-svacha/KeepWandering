@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +20,7 @@ public class Game : MonoBehaviour
     public Encounter CurrentEncounter;
     public EncounterStep CurrentEventStep;
     public int NumEveningTraps {  get; private set; }
+    public int NumTrapsUsedToDefendNightAttack { get; private set; }
     public NightEncounter NightEncounter { get; private set; }
 
     // Encounter Step Outcome
@@ -81,6 +83,62 @@ public class Game : MonoBehaviour
 
     void Start()
     {
+        /*
+        int minValue = int.MaxValue;
+        int maxValue = int.MinValue;
+        List<int> maxValues = new List<int>();
+        List<int> minValues = new List<int>();
+        int numSimulations = 100;
+        int numRolls = 100;
+        int numEntries = 10;
+        
+        Dictionary<int, int> streaks = new Dictionary<int, int>();
+        for (int i = 0; i < 20; i++) streaks.Add(i, 0);
+
+        for (int x = 0; x < numSimulations; x++)
+        {
+            Dictionary<int, int> d = new Dictionary<int, int>();
+            int lastRoll = -1;
+            int streak = 1;
+            
+            for (int i = 0; i < numRolls; i++)
+            {
+                int rng = Random.Range(1, numEntries + 1);
+                if (rng == lastRoll) streak++;
+                else
+                {
+                    streaks.Increment(streak);
+                    streak = 1;
+                }
+                d.Increment(rng);
+                lastRoll = rng;
+            }
+            for (int i = 1; i <= numEntries; i++)
+            {
+                int occurencs = d.ContainsKey(i) ? d[i] : 0;
+                if (occurencs > maxValue) maxValue = occurencs;
+                if (occurencs < minValue) minValue = occurencs;
+            }
+            maxValues.Add(d.Values.Max());
+            minValues.Add(d.Values.Min());
+        }
+        Debug.Log($"Num Rolls: {numRolls}");
+
+        Debug.Log($"RNG Min Value: {minValue}");
+        Debug.Log($"RNG Max Value: {maxValue}");
+
+        Debug.Log($"Min AVG: {minValues.Average()}");
+        Debug.Log($"Max AVG: {maxValues.Average()}");
+
+        string streakLog = "Streaks:\n";
+        foreach (var streak in streaks)
+        {
+            float avg = streak.Value / (numSimulations * 1f);
+            streakLog += $"{streak.Key}: {avg}\n";
+        }
+        Debug.Log(streakLog);
+        */
+
         State = GameState.Initializing;
         Instance = this;
 
@@ -110,7 +168,9 @@ public class Game : MonoBehaviour
         WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 10, numAdditionalTiles: 340, numCities: 5);
         //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
         WorldMapCamera.Init(this);
-        SetPosition(WorldMap.GetTile(Vector2Int.zero));
+        WorldMapTile startTile = WorldMap.GetTile(Vector2Int.zero);
+        SetPosition(startTile);
+        startTile.AddVisit();
         WorldMapRenderer.ResetCamera();
 
         // Init story
@@ -577,6 +637,8 @@ public class Game : MonoBehaviour
             TargetPosition = null;
         }
 
+        CurrentPosition.AddVisit();
+
         // If the tile already has a location encounter set, just take that and reveal it.
         if (CurrentPosition.Encounter != null)
         {
@@ -645,6 +707,9 @@ public class Game : MonoBehaviour
         // Initialize morning report (things happening from here can be part of the report)
         LatestMorningReport = new MorningReport(Day);
 
+        // Reset values
+        NumTrapsUsedToDefendNightAttack = 0;
+
         // Decide if there should be a night encounter
         int nightEncounterIntensity = CurrentPosition.DangerLevel.NightEncounterIntensities.GetWeightedRandomElement();
         if (nightEncounterIntensity == 0)
@@ -657,19 +722,18 @@ public class Game : MonoBehaviour
         else
         {
             // Reduce intensity based on traps
-            int numTrapsUsedToDefend = 0;
             while (nightEncounterIntensity > 0 && NumEveningTraps > 0)
             {
                 nightEncounterIntensity--;
                 NumEveningTraps--;
-                numTrapsUsedToDefend++;
+                NumTrapsUsedToDefendNightAttack++;
             }
 
             // If intensity was reduced to 0, mention in morning report and end day
             if (nightEncounterIntensity == 0)
             {
-                string trap = numTrapsUsedToDefend == 1 ? "trap was" : "traps were";
-                LatestMorningReport.AddNightEvent($"{numTrapsUsedToDefend} {trap} used during the night to successfully defend against an attack.");
+                string trap = NumTrapsUsedToDefendNightAttack == 1 ? "trap was" : "traps were";
+                LatestMorningReport.AddNightEvent($"{NumTrapsUsedToDefendNightAttack} {trap} used during the night to successfully defend against an attack.");
                 SwitchState(GameState.DayTransitionFadeIn);
             }
 
@@ -741,9 +805,13 @@ public class Game : MonoBehaviour
 
         // Add remaining traps to inventory
         int remainingTraps = NumEveningTraps - numTriggeredTraps;
-        AddNewItemsToInventory(ItemDefOf.Trap, remainingTraps);
-        string trap = remainingTraps == 1 ? "trap was" : "traps were";
-        LatestMorningReport.AddNightEvent($"{remainingTraps} {trap} set during the evening were not triggered. You collect them.");
+        if (remainingTraps > 0)
+        {
+            AddNewItemsToInventory(ItemDefOf.Trap, remainingTraps);
+            string trap = "trap".Pluralize(remainingTraps);
+            LatestMorningReport.AddNightEvent($"{remainingTraps} {trap} set during the evening were not triggered. You collect them.");
+        }
+        
 
         NumEveningTraps = 0;
 
@@ -767,7 +835,7 @@ public class Game : MonoBehaviour
         */
 
         // Increase danger level on current tile
-        ModifyDangerLevel(CurrentPosition, +1);
+        ModifyDangerLevel(+1);
     }
 
     #endregion
@@ -844,6 +912,7 @@ public class Game : MonoBehaviour
     }
     public void RemoveRandomItemFromInventory()
     {
+        if (Inventory.Count == 0) return;
         Item item = Inventory.RandomElement();
         DestroyOwnedItem(item);
     }
@@ -883,7 +952,8 @@ public class Game : MonoBehaviour
 
     #endregion
 
-    public void ModifyDangerLevel(WorldMapTile tile, int amount)
+    public void ModifyDangerLevel(int amount) => ModifyTileDangerLevel(CurrentPosition, amount);
+    public void ModifyTileDangerLevel(WorldMapTile tile, int amount)
     {
         tile.ModifyDangerLevel(amount);
         OnGameStateChanged();
@@ -908,6 +978,15 @@ public class Game : MonoBehaviour
 
         OnGameStateChanged();
     }
+
+    public void ModifyMorale(int value) => ModifyStatBaseValue(StatDefOf.Morale, value);
+    public void ModifyCombat(int value) => ModifyStatBaseValue(StatDefOf.Combat, value);
+    public void ModifyStrength(int value) => ModifyStatBaseValue(StatDefOf.Strength, value);
+    public void ModifyIntelligence(int value) => ModifyStatBaseValue(StatDefOf.Intelligence, value);
+    public void ModifyDexterity(int value) => ModifyStatBaseValue(StatDefOf.Dexterity, value);
+    public void ModifyPerception(int value) => ModifyStatBaseValue(StatDefOf.Perception, value);
+    public void ModifyCharisma(int value) => ModifyStatBaseValue(StatDefOf.Charisma, value);
+    public void ModifyAgility(int value) => ModifyStatBaseValue(StatDefOf.Agility, value);
 
     public void ApplyNaturalHealing(float healingFactor = 1f)
     {

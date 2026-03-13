@@ -27,8 +27,8 @@ Color choice is free.
 When done, Image > Trim > Transparent Pixels, then export as png. place in Assets/Sprites/Items and add to ItemDef in code. Name must match the DefName in ItemDef.
 
 
-# Character
-Outline full black, 10px, 100% hardness,opacity,flow - NO PRESSURE FOR SIZE
+# Characters
+Outline full black, 10px without pressure (or 14px with pressure), 100% hardness,opacity,flow
 
 
 
@@ -54,5 +54,5 @@ no black outlines, use more desaturated colors. flowy brush strokes, make use of
 
 
 # Encounter Sprites
-Outline full black, 8-16px, 100% hardness,opacity,flow, pressure for size
+Outline full black, 8-16px (usually 12px), 100% hardness,opacity,flow, pressure for size
 pretty free

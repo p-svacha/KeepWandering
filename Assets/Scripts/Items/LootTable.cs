@@ -9,8 +9,6 @@ using UnityEngine;
 /// </summary>
 public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
 {
-    private const bool DEBUG = true;
-
     private Dictionary<ItemDef, float> Items { get; init; }
     private Dictionary<LootTable, float> SubTables { get; init; }
 
@@ -103,8 +101,8 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
     {
         if (SubTables.Count == 0)
         {
-            ItemDef resolvedItem = Items.GetWeightedRandomElement();
-            if (DEBUG && debug) DebugChances(resolvedItem);
+            ItemDef resolvedItem = Items.GetWeightedRandomElement(debug: false);
+            if (Game.DEBUG_RANDOM_CHOICES && debug) DebugChances(resolvedItem);
             return resolvedItem;
         }
 
@@ -124,7 +122,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
             if (rng < tmpSum)
             {
                 ItemDef resolvedItem = kvp.Key;
-                if (DEBUG && debug) DebugChances(resolvedItem);
+                if (Game.DEBUG_RANDOM_CHOICES && debug) DebugChances(resolvedItem);
                 return resolvedItem;
             }
         }
@@ -135,7 +133,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
             if (rng < tmpSum)
             {
                 ItemDef resolvedItem = kvp.Key.Resolve(debug: false);
-                if (DEBUG && debug) DebugChances(resolvedItem);
+                if (Game.DEBUG_RANDOM_CHOICES && debug) DebugChances(resolvedItem);
                 return resolvedItem;
             }
         }
@@ -153,18 +151,27 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         float totalWeight = allProbabilities.Sum(x => x.Value);
         if (totalWeight == 0f) return;
 
-        Dictionary<ItemDef, float> normalizedProbabilities = allProbabilities.ToDictionary(
-            x => x.Key, 
-            x => x.Value / totalWeight * 100f
-        );
+        // Aggregate by DefName to merge entries that reference the same logical item from different sources (e.g. direct items and subtables)
+        Dictionary<string, float> aggregated = new Dictionary<string, float>();
+        foreach (var kvp in allProbabilities)
+        {
+            string name = kvp.Key.DefName;
+            if (aggregated.ContainsKey(name))
+                aggregated[name] += kvp.Value;
+            else
+                aggregated[name] = kvp.Value;
+        }
+
+        string pickedName = pickedItem.DefName;
 
         string output = "LootTable Probabilities";
         output += "\n------------------------------";
 
-        foreach (var kvp in normalizedProbabilities.OrderByDescending(x => x.Value))
+        foreach (var kvp in aggregated.OrderByDescending(x => x.Value))
         {
-            bool isPicked = kvp.Key == pickedItem;
-            output += "\n" + (isPicked ? "* " : "  ") + kvp.Key.DefName + ": " + kvp.Value.ToString("0.0") + "%";
+            float pct = kvp.Value / totalWeight * 100f;
+            bool isPicked = kvp.Key == pickedName;
+            output += "\n" + (isPicked ? "* " : "  ") + kvp.Key + ": " + pct.ToString("0.0") + "%";
         }
 
         output += "\n------------------------------";
@@ -239,6 +246,12 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
     {
         ItemDef def = Resolve();
         Game.Instance.AddNewItemToInventory(def);
+    }
+
+    public void AddItemsToInventory(int min, int max)
+    {
+        int amount = Random.Range(min, max + 1);
+        AddItemsToInventory(amount);
     }
     public void AddItemsToInventory(int amount)
     {

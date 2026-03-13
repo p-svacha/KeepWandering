@@ -5,9 +5,8 @@ public static class OptionOutcomeDefs
 {
     public static List<OptionOutcomeDef> Defs => new List<OptionOutcomeDef>()
     {
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("CriticalSuccess")
         {
-            DefName = "CriticalSuccess",
             Label = "Critical Success",
             Description = "The player critically succeeds in the action they are trying to do. This is usually a better version of success, with an outcome that is even better than success.",
             Color = new Color(0.24f, 0.57f, 0f),
@@ -15,9 +14,8 @@ public static class OptionOutcomeDefs
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("Success")
         {
-            DefName = "Success",
             Label = "Success",
             Description = "The player fully succeeds in the action they are trying to do.",
             Color = new Color(0.54f, 1f, 0.21f),
@@ -25,9 +23,8 @@ public static class OptionOutcomeDefs
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("PartialSuccess")
         {
-            DefName = "PartialSuccess",
             Label = "Partial Success",
             Description = "The player partially succeeds in the action they are trying to do. This is usually a middle ground between success and failure, with an outcome that is better than failure but worse than success.",
             Color = new Color(1f, 0.96f, 0f),
@@ -35,9 +32,8 @@ public static class OptionOutcomeDefs
             IsSuccess = true,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("Failure")
         {
-            DefName = "Failure",
             Label = "Failure",
             Description = "The player fails in the action they are trying to do.",
             Color = new Color(1f, 0.36f, 0f),
@@ -45,9 +41,8 @@ public static class OptionOutcomeDefs
             IsSuccess = false,
         },
 
-        new OptionOutcomeDef()
+        new OptionOutcomeDef("CriticalFailure")
         {
-            DefName = "CriticalFailure",
             Label = "Critical Failure",
             Description = "The player critically fails in the action they are trying to do. This is usually a worse version of failure, with an outcome that is even worse than failure.",
             Color = new Color(0.67f, 0.03f, 0f),

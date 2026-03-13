@@ -1,18 +1,18 @@
 TODOS:
 ==============================================
-- implement evening trap system (see GDD)
-
-- implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
-
-- electrocution health condition
-- fence will electrocute
-- new content piece that can electrocute
-
-- new general location encounter (currently only having crate encounter is very repetitive)
-
-- 2nd way to get fence cutter
-
-- make editor tool/button to auto-reposition camera based on its zoom/orthoSize
+- item tag expansion
+  - tags are used solely for item slots, so commit to that and use more tags to describe HOW items can be used (i.e. scavenging, combat, fortifying)
+  - traditional tags like i.e. "food", "tool" still need to exist, as they can still be used for more general item slots
+  - since tags aren't communicated to the player, it's no problem to have many/specific/overlapping/technical tags, as long as they make sense from a design perspective
+  - allow items to have optional "tag value modifiers", that can be used if an item is particularly good or bad at a certain tag
+  - if this modifier is present, the difficulty modifier of slots will be adjusted by that value if filled with this item
+  - i.e. a bone can be used for combat, but its not very good at it. so it does have the combat tag, but with -5 modifier. so if its dragged into a combat slot with diffiuculty reduction of 20, the effective difficulty reduction would be 15.
+  - or i.e. a flashlight can be used for scavenging, and is very good at it, so it has a +5 modifier for the scavenging tag. so if its dragged into a scavenging slot with difficulty reduction of 10, the effective difficulty reduction would be 15.
+  - difficulty reduction overrides for specific items can still be done in a slot just as before, still with 1st priority
+  - add new validations for item defs and item slots for the new system
+  - main goal of this is to allow for more variety in items, and to make it easier to create high value items without having to change every slot in every encounter option
+  - also creates new strategic tradeoffs (should i use this item with a -5 combat modifier, or should i save it for scavenging where it has a +5 bonus?)
+  - reflect all changes in the GDD
 
 - supply stash encounter
   - purely positive encounter where the player simply finds a stash with items
@@ -20,33 +20,52 @@ TODOS:
   - can be generated and revealed in encounters
   - hook to city eavesdrop success
 
+- An encounter with a social/NPC element — something like a lone survivor, a wounded stranger, or a suspicious trader. This would be the first location encounter that uses Charisma meaningfully and creates moral dilemmas (help them and spend resources? Rob them? Trade?). It fills a gap in the encounter variety since the crate is purely physical/mechanical, and the supply stash is purely loot. A social encounter rounds out the triangle. This could also be a natural place to introduce the rumor system, since an NPC could share information.
+
+- implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
+
+- add "value" property (int) to itemDefs
+  - represents the value of the item in amount of coins
+  - can be used in encounters (i.e. trading encounters)
+  - hook up to trading step in city biome encounter
+
+- implement electrocution health condition
+  - including heart arrythmia
+  - hook it to fail of cutting fence
+
+- rumour system 
+  - players can learn rumours (can happen as outcome of encounters)
+  - there is a rumour pool of possible rumours (some unique (story progression), some repeatable (like learning the location of a supply stash)
+  - learning a rumour reveals a specific location encounter somewhere on the world map and adds a quest to the quest log with that location linked
+  - when learning a rumour, the player receives a quest
+  - quest system also needs expanding to support quests that are repeatable
+    - rule that only one quest of the same Def can be active should probably stay
+    - repeatable would just go back to the "inactive" state rather than "completed/failed" when finished.
+  - add to outskirts encounter (flag down critical success)
+  - hook to city eavesdrop success
+
+- dev feature: make editor tool/button to auto-reposition camera based on its zoom/orthoSize
+
 - improve outcome notes for health conditions
   - outcome notes for bone damage, blood loss
   - sprites for health conditions
   - outcome notes when a health condition disappears
 
-- rumour system 
-  - players can learn rumours (can happen as outcome of encounters)
-  - there is a rumour pool of possible rumours (some unique (story progression), some repeatable)
-  - learning a rumour reveals a location encounter somewhere on the world map and adds a quest to the quest log with that location linked
-  - when learning a rumour, the player receives a quest
-  - add to outskirts encounter when implemented
-  - hook to city eavesdrop success
+- encounter reveal + new quest: "you see smoke rising" (can happen randomly as night event)
+  - add a new encounter at the location of the smoke
+  - somehow tie this to the story progression
 
-- encounter reveal + new quest: "you see smoke rising" (can happen as night event)
-
-- show biome important maps in world map
+- show biome important stats in world map
 
 - add item with "scavenging" tag: flashlight (also introduces "light source" tag)
+  - currently, scavenging has an item slot for that tag, but no item with the tag exists.
 
 - exhausted health condition: -1 to all stats, removed after sleeping. can also be applied for following day during evening/night encounter
   - hook to failure of keep watch in city encounter.
 
 - new items: empty water bottle (trash), water bottle (untreated), water purification tablets
-- water bottle have a chance to turn into empty bottle when drinking
-- empty bottles can be filled at water sources or rain -> turn into untreated water bottle
-
-- new item: supply box (must be opened, high value loot)
+  - water bottle have a chance to turn into empty bottle when drinking
+  - empty bottles can be filled at water sources or rain -> turn into untreated water bottle
 
 - diary: basic in-game readonly UI element that basically acts as a flavourful log of everything that happened during the game.
 
@@ -56,34 +75,45 @@ TODOS:
 
 - re-add longdog companion (simplify companion system, no health system for companions, they are simply a buff with no downside (except when they die))
 
-- health condition description should show affected stats
+- UI: health condition description should show affected stats
+  - it should also be located below the health report instead of next to it when hovering
+
+- crate encounter: when peeking, make it clear that you are looking for ADDITIONAL items to the visible one. And improve text of outcome. Also when coming back while having succesfully peeked before, write it that you remember what's inside.
+
+- in biome encounter, show setting as fixed difficulty modifier in fortify, scavenge etc.
+  - currently it just changes the base difficulty, but would be cool if the base difficulty of these options are fixed, and the setting shows as a modifier in the difficulty breakdown.
+  - same for biome-specific options
 
 - improve path history rendering (the dashed line on the world map showing your path)
   - currently the points used for the line renderer are always the center of hexes
   - that means if a tile is visited twice, the lines overlap perfectly, which looks weird
   - find a solution to make it look nice and dynamic
 
+- Visual: Setting background (the randomized setting of the biome encounter where the player sets up camp) of evening encounter should still be shown during night encounter
+
 - cooking system:
   - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition
   - give raw meat chance to apply poisoning
 
-- make health condition text a little bigger
-- make tooltip text a little bit bigger
+- UI: make health condition text a little bigger
+- UI: make tooltip text a little bit bigger
+
 - sound (game currently has no sound at all)
+  - most impactful would probably be sound effects for encounter option outcomes
 
 - render mouth differently based on morale (smile, neutral, frown)
 
-- poisoning health condition
+- implement poisoning health condition
   - design condition
   - hook up to critical failure in woods foraging
-
-- night system (danger level / night encounters):
-  - night as possible/optional time of day
-  - danger level mechanic
-  - add first night encounter (bandits, all biomes)
-  - implement danger level change in biome "fortify" option, city keep watch option, also check for other "todo" in code
+  - hook up to ItemDef for raw mean (ConsumptionPoisoningChance)
 
 - weather system
+  - could integrate nicely with skill check options. (Options could have difficulty modifiers based on weather)
+  - the availability of some options in encounters could be affected by weather
+  - if water is expanded on, rain could be a way to fill empty water bottles
+  - weather could have additional effects on the player (e.g. rain could cause a "damp" condition that reduces morale, or heat could increase thirst faster, wind could blow away items in the night, etc.)
+  - probably not 100% necessary for the core gameplay, so could be added later on as an interesting additional layer of depth
 
 - minor UI bug: when selecting option that ends time of day, the step text disappears while the screen fades to black.
 

@@ -30,6 +30,9 @@ public class BiomeDef : Def
     /// </summary>
     public float TrapTriggerChance { get; init; } = 0f;
 
+
+    public BiomeDef(string defName) : base(defName) { }
+
     public override void OnLoadingDefsDone()
     {
         base.OnLoadingDefsDone();

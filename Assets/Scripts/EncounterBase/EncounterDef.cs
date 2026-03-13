@@ -57,6 +57,8 @@ public class EncounterDef : Def
     /// </summary>
     public float CameraZoomLevel { get; init; } = EncounterCamera.DEFAULT_CAMERA_SIZE;
 
+    public EncounterDef(string defName) : base(defName) { }
+
 
     public override bool Validate()
     {
@@ -82,7 +84,7 @@ public class EncounterDef : Def
             if (MaxOccurences < MinOccurences) throw new System.Exception("MaxOccurences cannot be less than MinOccurences.");
         }
 
-        if (Type == EncounterType.Special)
+        if (Type == EncounterType.ForcePlacedOnly)
         {
             if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
             if (BaseProbability != 0f) throw new System.Exception("Special encounters cannot have a probability, as they are only force placed.");

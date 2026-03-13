@@ -26,6 +26,11 @@ public class SkillCheckOption : EncounterOption
     public Dictionary<string, int> FixedDifficultyModifiers { get; init; } = new Dictionary<string, int>();
 
     /// <summary>
+    /// Modifiers based on the biome the encounter is taking place in.
+    /// </summary>
+    public Dictionary<BiomeDef, int> BiomeDifficultyModifiers { get; init; } = new Dictionary<BiomeDef, int>();
+
+    /// <summary>
     /// Function that gets executed when choosing this option. Handles the logic of the outcome and returns the text displayed on the next step. The function takes in the outcome of the skill check as a parameter, so different outcomes can lead to different next steps.
     /// </summary>
     public Func<OptionOutcomeDef, string> Action { get; init; }
@@ -89,6 +94,13 @@ public class SkillCheckOption : EncounterOption
         // Morale modifier
         int moraleValue = Game.Instance.Player.Morale;
         if (moraleValue != 0) modifiers.Add("Morale", -moraleValue);
+
+        // Biome modifier
+        BiomeDef biome = Game.Instance.CurrentPosition.Biome;
+        if (BiomeDifficultyModifiers.TryGetValue(biome, out int biomeModifier) && biomeModifier != 0)
+        {
+            modifiers.Add($"Being in {biome.LabelCapWord}", biomeModifier);
+        }
 
         // Item slots
         foreach (ItemSlot slot in ItemSlots)

@@ -6,4 +6,6 @@ public class TimeOfDayDef : Def
 
     public Color SkyColor { get; init; }
     public Color LightingAmbienceOverlayColor { get; init; }
+
+    public TimeOfDayDef(string defName) : base(defName) { }
 }
