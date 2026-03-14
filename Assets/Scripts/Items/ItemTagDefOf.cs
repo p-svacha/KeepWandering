@@ -4,6 +4,7 @@ using UnityEngine;
 public static class ItemTagDefOf
 {
     public static ItemTagDef BuildingMaterial;
+    public static ItemTagDef Cutting;
     public static ItemTagDef Digging;
     public static ItemTagDef Drink;
     public static ItemTagDef Food;

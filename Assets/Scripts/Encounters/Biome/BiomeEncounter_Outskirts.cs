@@ -162,7 +162,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             Game.RemoveRandomItemFromInventory();
             return "A hostile stranger. They shove you down and grab something from your cart before running off.";
         }
-        throw new System.Exception("Invalid outcome");
+        throw new InvalidOutcomeException();
     }
 
     #endregion

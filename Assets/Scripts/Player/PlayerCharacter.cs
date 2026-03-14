@@ -199,6 +199,9 @@ public class PlayerCharacter
     public int GetHealthConditionAmount(HealthConditionDef def) => HealthConditions.Count(hc => hc.Def == def);
 
     public HC_Hunger Hunger => (HC_Hunger)HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Hunger);
+    public bool IsWellFed => Hunger.ActiveStageIndex == 0;
+    public bool IsVeryHungry => Hunger.ActiveStageIndex >= 3;
+
     public HC_Thirst Thirst => (HC_Thirst)HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Thirst);
 
     // Wounds

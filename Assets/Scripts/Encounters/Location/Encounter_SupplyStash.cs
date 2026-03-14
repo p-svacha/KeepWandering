@@ -191,7 +191,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Game.ApplyRandomWound();
             return "You slip and hurt yourself while trying to break it. The lock holds.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     private EncounterOption GetPickBoxLockOption()
@@ -242,7 +242,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Game.ModifyMorale(-2);
             return "You fail at picking the lock and get very frustrated.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -302,7 +302,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Game.ApplyRandomWound();
             return "You hurt yourself while trying to dig it out. You fail to find anything.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     #endregion

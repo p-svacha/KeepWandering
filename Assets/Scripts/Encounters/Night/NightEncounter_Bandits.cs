@@ -135,7 +135,7 @@ public class NightEncounter_Bandits : NightEncounter
             return $"You get completely overpowered and badly beaten.";
         }
 
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -206,7 +206,7 @@ public class NightEncounter_Bandits : NightEncounter
 
             return "You stumble right into them. They don't take kindly to that.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -276,7 +276,7 @@ public class NightEncounter_Bandits : NightEncounter
 
             return "They're not impressed. They shove you aside and help themselves.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -331,7 +331,7 @@ public class NightEncounter_Bandits : NightEncounter
             Game.ModifyMorale(-1);
             return "You panic and give yourself away. They drag you out.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -401,7 +401,7 @@ public class NightEncounter_Bandits : NightEncounter
             Game.ModifyMorale(-3);
             return "They laugh at you.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     #endregion

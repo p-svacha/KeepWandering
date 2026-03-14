@@ -11,7 +11,10 @@ public abstract class Encounter
     public WorldMap WorldMap => WorldMap.Instance;
     public EncounterDef Def { get; private set; }
     public Quest Mission { get; private set; }
-    public LootTable BiomeLootTable => Game.CurrentPosition.Biome.LootTable;
+    public WorldMapTile Tile { get; private set; }
+
+    public BiomeDef Biome => Tile.Biome;
+    public LootTable BiomeLootTable => Tile.Biome.LootTable;
 
     // Persistence
     private List<Item> EncounterItems = new List<Item>();
@@ -23,10 +26,11 @@ public abstract class Encounter
     private HashSet<string> UsedOnceEverOptions = new HashSet<string>();
 
     public Encounter() { } // Empty constructor for activator
-    public void Init(Game game, EncounterDef def)
+    public virtual void Init(Game game, EncounterDef def, WorldMapTile tile)
     {
         Game = game;
         Def = def;
+        Tile = tile;
         OnInitialize();
     }
 
@@ -47,7 +51,7 @@ public abstract class Encounter
         foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Show();
 
         // General subclass logic
-        OnStartExtension(); 
+        OnStartExtension();
 
         string startText = OnStart();
 
@@ -79,14 +83,54 @@ public abstract class Encounter
     /// Generates an item belonging to this encounter, that will automatically shown when the encounter starts and hidden when the encounter ends.
     /// <br/>Handles automatically if the item is destroyed or taken by the player during the encounter.
     /// </summary>
-    protected Item GenerateEncounterItem(ItemDef itemDef, Vector2? position = null, int? sortingOrder = null)
+    protected Item GenerateEncounterItem(ItemDef itemDef, Vector2? position = null, float? rotation = null, int? sortingOrder = null)
     {
         Item item = Game.CreateItem(itemDef, hidden: true);
         if (position.HasValue) item.Renderer.SetPosition(position.Value.x, position.Value.y);
+        if (rotation.HasValue) item.Renderer.SetRotation(rotation.Value);
         if (sortingOrder.HasValue) item.Renderer.SetSortingOrder(sortingOrder.Value);
 
         EncounterItems.Add(item);
         return item;
+    }
+
+    /// <summary>
+    /// Adds all of a list of encounter items to the player's inventory.
+    /// </summary>
+    protected void TakeAllItems(List<Item> items)
+    {
+        foreach (Item item in items)
+        {
+            Game.AddExistingItemToInventory(item);
+            if (EncounterItems.Contains(item)) EncounterItems.Remove(item);
+        }
+        items.Clear();
+    }
+
+    /// <summary>
+    /// Adds a random item from a list of encounter items to the player's inventory. Removes the item from the list and the encounter items list.
+    /// </summary>
+    protected void TakeRandomItem(List<Item> items)
+    {
+        if (items.Count == 0) return;
+
+        Item item = items.RandomElement();
+        Game.AddExistingItemToInventory(item);
+        if (EncounterItems.Contains(item)) EncounterItems.Remove(item);
+        items.Remove(item);
+    }
+
+    /// <summary>
+    /// Destroys all items in the specified list and removes them from the encounter items collection.
+    /// </summary>
+    protected void DestroyItems(List<Item> items)
+    {
+        foreach (Item item in items)
+        {
+            Game.DestroyItem(item);
+            if (EncounterItems.Contains(item)) EncounterItems.Remove(item);
+        }
+        items.Clear();
     }
 
 
@@ -245,7 +289,7 @@ public abstract class Encounter
     private EncounterOption GetBuyItemOption(ItemDef itemDef)
     {
         List<ItemSlot> itemSlots = new List<ItemSlot>();
-        for(int i = 0; i < itemDef.Value; i++)
+        for (int i = 0; i < itemDef.Value; i++)
         {
             itemSlots.Add(new ItemSlot()
             {

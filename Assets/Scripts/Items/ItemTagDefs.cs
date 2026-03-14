@@ -6,6 +6,7 @@ public static class ItemTagDefs
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
         new ItemTagDef("BuildingMaterial"),
+        new ItemTagDef("Cutting"),
         new ItemTagDef("Digging"),
         new ItemTagDef("Drink"),
         new ItemTagDef("Food"),

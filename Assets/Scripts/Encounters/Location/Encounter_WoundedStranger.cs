@@ -170,7 +170,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         {
             return "They turn away. They don't want to talk.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     private EncounterOption GetRobOption()
@@ -216,7 +216,7 @@ public class Encounter_WoundedStranger : LocationEncounter
 
             return "They pull a hidden knife. You weren't expecting that. They take something and crawl away.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -269,7 +269,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         {
             return "'I'm sorry, I need everything I have just to survive.' They look away.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     private EncounterOption GetTradeOption()

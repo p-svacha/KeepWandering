@@ -156,7 +156,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Game.ApplyRandomWound();
             return "The trap snaps shut on your hand.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
 
@@ -212,7 +212,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Game.ModifyHunger(+0.5f);
             return "You eat something you shouldn't have.";
         }
-        throw new System.Exception();
+        throw new InvalidOutcomeException();
     }
 
     #endregion

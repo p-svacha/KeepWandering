@@ -20,15 +20,15 @@ public class EncounterManager
         NightEncounterAppearances = new Dictionary<EncounterDef, int>();
     }
 
-    public Encounter GenerateEncounter(EncounterDef def)
+    public Encounter GenerateEncounter(EncounterDef def, WorldMapTile tile)
     {
         if(def == null) throw new System.Exception("Cannot generate encounter: def is null.");
 
         Encounter encounter = System.Activator.CreateInstance(def.EncounterClass) as Encounter;
 
-        if (encounter is LocationEncounter) return encounter; // Skip init, because Location encounters get initialized in Game.SetLocationEncounter
+        if (encounter is NightEncounter) return encounter; // Skip init, because Night encounters are initialized differently (intensity level)
 
-        encounter.Init(Game, def);
+        encounter.Init(Game, def, tile);
         return encounter;
     }
 

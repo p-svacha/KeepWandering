@@ -516,7 +516,7 @@ public class Game : MonoBehaviour
         foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMapRenderer.HighlightTileRed(nextPositionTarget);
 
         // Start encounter
-        Encounter morningEncounter = EncounterManager.GenerateEncounter(EncounterDefOf.MorningEncounter);
+        Encounter morningEncounter = EncounterManager.GenerateEncounter(EncounterDefOf.MorningEncounter, CurrentPosition);
         SetCurrentEncounter(morningEncounter);
     }
 
@@ -607,8 +607,7 @@ public class Game : MonoBehaviour
         if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
         if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
 
-        LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef) as LocationEncounter;
-        encounter.Init(this, encounterDef, tile);
+        LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef, tile) as LocationEncounter;
         if (!hidden) RevealEncounter(tile, showInOutcomeNote);
 
         Debug.Log($"Set encounter {encounter.Def.Label} on tile {tile.Coordinates}");
@@ -639,7 +638,7 @@ public class Game : MonoBehaviour
         SetTimeOfDay(TimeOfDayDefOf.Evening);
 
         // Start encounter
-        Encounter eveningBiomeEncounter = EncounterManager.GenerateEncounter(CurrentPosition.Biome.EveningEncounter) as Encounter;
+        Encounter eveningBiomeEncounter = EncounterManager.GenerateEncounter(CurrentPosition.Biome.EveningEncounter, CurrentPosition) as Encounter;
         SetCurrentEncounter(eveningBiomeEncounter);
     }
 
@@ -685,8 +684,8 @@ public class Game : MonoBehaviour
             else
             {
                 EncounterDef def = EncounterManager.SelectNightEncounterDefFor(CurrentPosition);
-                NightEncounter = EncounterManager.GenerateEncounter(def) as NightEncounter;
-                NightEncounter.Init(this, def, nightEncounterIntensity);
+                NightEncounter = EncounterManager.GenerateEncounter(def, CurrentPosition) as NightEncounter;
+                NightEncounter.Init(this, def, CurrentPosition, nightEncounterIntensity);
                 SwitchState(GameState.EndEncounterTransitionIn);
             }
         }

@@ -5,7 +5,6 @@ using UnityEngine;
 /// </summary>
 public abstract class LocationEncounter : Encounter
 {
-    public WorldMapTile Tile { get; private set; }
     public bool IsHidden { get; private set; }
     public int NumVisits { get; private set; }
     protected bool IsFirstVisit => NumVisits == 1;
@@ -13,16 +12,13 @@ public abstract class LocationEncounter : Encounter
     public int DaysSinceLastVisit => Game.Day - LastVisitDay;
 
 
-    public new void Init(Game game, EncounterDef def) => throw new System.InvalidOperationException("Use the Init method that includes a WorldMapTile parameter.");
-    public void Init(Game game, EncounterDef def, WorldMapTile tile)
+    public override void Init(Game game, EncounterDef def, WorldMapTile tile)
     {
-        Tile = tile;
-        Tile.SetEncounter(this);
+        base.Init(game, def, tile);
 
+        Tile.SetEncounter(this);
         IsHidden = true;
         NumVisits = 0;
-
-        base.Init(game, def);
     }
 
     public void Reveal()

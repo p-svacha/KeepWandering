@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class ItemDragDropManager
@@ -190,7 +191,7 @@ public static class ItemDragDropManager
         if (UI_EncounterDisplay.Instance == null) return;
 
         // Get all option displays (including fixed outcome options not in the dictionary)
-        UI_EncounterStepOption[] allOptionDisplays = UI_EncounterDisplay.Instance.EncounterOptionContainer.GetComponentsInChildren<UI_EncounterStepOption>();
+        List<UI_EncounterStepOption> allOptionDisplays = UI_EncounterDisplay.Instance.OptionDisplays.Values.ToList();
 
         foreach (UI_EncounterStepOption optionDisplay in allOptionDisplays)
         {

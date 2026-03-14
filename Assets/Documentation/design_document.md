@@ -13,7 +13,8 @@ The top side of the screen shows the all UI information:
 - In the center the current encounter step's text and options.
 - On the right the player's stats and current active quests.
 
-Everything is sprite based in an old-school flash art style, with a fixed position side-view camera and no animations. Sprites change depending on the situtation.
+Everything is sprite based in an old-school flash art style, with a fixed position fully side-view camera and no animations. Black outlines and strong colors in foreground (player + encounter), no outlines and more washed colors in background. Characters are represented by stick figures, with head and torso being volumized and extremities just being stick lines. Persepective and depth is kept to a minimum, strict 2D side view. Some shading can be used but very sparingly. Colors used are quite saturated. The player character and their cart with all their items on the left side, and the current encounter on the right side.
+Sprites change depending on the situation.
 For example, the player should be rendered differently based on their health:
 
 - If the player is hungry, the torso sprite is thinner.
@@ -361,7 +362,7 @@ On a technical level, quests are defined via QuestDefs. For each QuestDef, the s
 # Encounters
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
 Different encounters can work in very different ways, with different numbers of steps, different options, and different outcomes. For example, one encounter can be a simple one-step encounter with only one option, while another encounter can be a complex multi-step encounter with many options at each step and various branching paths.
-Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until succes, or any other behaviour.
+Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until success, or any other behaviour.
 There's really not a lot of restrictions in the design space of encounters.
 
 During encounters, free item use is disabled (i.e. for eating / bandaging). Items can only be used for encounter step options.

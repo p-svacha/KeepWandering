@@ -111,6 +111,7 @@ public static class ItemDefs
             Tags =
             {
                 ItemTagDefOf.Tool,
+                ItemTagDefOf.Cutting,
                 { ItemTagDefOf.Weapon, -10 },
             },
             IsQuestItem = true,
@@ -119,12 +120,13 @@ public static class ItemDefs
         new ItemDef("Knife")
         {
             Label = "knife",
-            Description = "Both useful as a weapon and as a tool.",
+            Description = "Very useful multi-purpose tool.",
             Value = 2,
             Tags =
             {
                 ItemTagDefOf.Weapon,
                 ItemTagDefOf.Tool,
+                ItemTagDefOf.Cutting,
                 { ItemTagDefOf.Scavenging, -10 },
                 { ItemTagDefOf.Lockpicking, -15 },
             },

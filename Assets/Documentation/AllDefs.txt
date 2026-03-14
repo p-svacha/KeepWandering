@@ -206,6 +206,22 @@
                 { BiomeDefOf.Woods, 1f },
             },
             CameraZoomLevel = EncounterCamera.DEFAULT_CAMERA_SIZE,
+            DevNotes = "A social location encounter where the player finds an injured stranger. The player can help (requires a medical item, sets the stranger to grateful, +2 morale), talk (Charisma/Perception check, critical success also makes them grateful, success extracts their knowledge directly), rob (low difficulty but -3 morale on success, critical failure results in the stranger wounding you and stealing an item), or leave. A grateful stranger offers follow-up options: ask what they know (rumor, supply stash location, or nothing — 50/30/20 chance), ask for supplies (Charisma check), or trade using the generalized trading system. The encounter is persistent — on revisit the stranger may be gone based on days elapsed. Can appear in all biomes.",
+        },
+
+        new EncounterDef("CollapsedBuilding")
+        {
+            Label = "Collapsed Building",
+            EncounterClass = typeof(Encounter_CollapsedBuilding),
+            Type = EncounterType.Location,
+            BaseProbability = 4f,
+            BiomeProbabilityOverrides = new Dictionary<BiomeDef, float>()
+            {
+                { BiomeDefOf.City, 8f },
+                { BiomeDefOf.Woods, 1f },
+            },
+            CameraZoomLevel = 12f,
+            DevNotes = "A partially collapsed building with visible and hidden loot, optional live wires, and a chance of a trapped survivor. Players can grab visible items (Dexterity/Agility), cut sparking wires to avoid electrocution (Dexterity/Intelligence), clear rubble (Strength/Intelligence) or crawl through a gap (Agility/Perception) to reach deeper supplies. Structural integrity degrades on bad rolls and can trigger a full collapse that destroys remaining loot and kills any trapped survivor; freeing the survivor rewards a rumour, item, or morale boost.",
         },
 
         #endregion
@@ -421,6 +437,7 @@
             Tags =
             {
                 ItemTagDefOf.Tool,
+                ItemTagDefOf.Cutting,
                 { ItemTagDefOf.Weapon, -10 },
             },
             IsQuestItem = true,
@@ -429,12 +446,13 @@
         new ItemDef("Knife")
         {
             Label = "knife",
-            Description = "Both useful as a weapon and as a tool.",
+            Description = "Very useful multi-purpose tool.",
             Value = 2,
             Tags =
             {
                 ItemTagDefOf.Weapon,
                 ItemTagDefOf.Tool,
+                ItemTagDefOf.Cutting,
                 { ItemTagDefOf.Scavenging, -10 },
                 { ItemTagDefOf.Lockpicking, -15 },
             },
@@ -552,6 +570,7 @@
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
         new ItemTagDef("BuildingMaterial"),
+        new ItemTagDef("Cutting"),
         new ItemTagDef("Digging"),
         new ItemTagDef("Drink"),
         new ItemTagDef("Food"),
