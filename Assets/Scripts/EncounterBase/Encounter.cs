@@ -367,8 +367,11 @@ public abstract class Encounter
     }
     private string BuyInformation()
     {
-        // todo: add a rumour reveal
-        return $"You trade a coin for a piece of information.";
+        string rumourText = Game.LearnRumour();
+        if (rumourText != null)
+            return $"You trade coins for a piece of information.{rumourText}";
+
+        return "You trade coins, but they don't have anything useful to share.";
     }
 
     private EncounterOption GetDoneTradingOption()

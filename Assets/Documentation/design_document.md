@@ -358,6 +358,34 @@ In the game quests are communicated in panel titled "Notes".
 
 On a technical level, quests are defined via QuestDefs. For each QuestDef, the state of that quest is tracked and is either "Inactive", "Active", "Completed" or "Failed". The state of quests can affect encounters. For example, an encounter that would usually give a specific quest, but that quest is already active/done, then the option that would result in giving that quest is not shown.
 
+QuestDefs can be marked as **repeatable**. A repeatable QuestDef can have multiple active Quest instances at the same time. When a repeatable quest is completed, its state returns to "Inactive" (instead of "Completed" or "Failed"), allowing new instances to be created. Non-repeatable quests work as before — only one instance can exist, and completing it permanently sets the state to "Completed".
+
+On a technical level, the active quests are stored as a flat `List<Quest>` rather than a dictionary keyed by QuestDef, so multiple instances of the same repeatable QuestDef can coexist.
+
+# Rumours
+Rumours are a system that allows the player to discover new locations and quests through various encounters. The player can learn rumours as outcomes of encounter options, through trading, or from NPCs.
+
+## Rumour Pool
+There is a pool of possible rumours defined via **RumourDefs**. Each RumourDef specifies:
+
+- **EncounterDef**: The type of location encounter that gets placed on the world map when the rumour is learned.
+- **RumourText / PartialRumourText**: The text shown to the player when they learn the rumour (fully or partially). These can contain `{0}` which is replaced with the coordinates of the placed encounter.
+- **QuestText / PartialQuestText**: The quest description text, also supporting `{0}` for coordinates.
+- **IsRepeatable**: Whether the rumour can be learned multiple times. Repeatable rumours (like supply stash locations) can generate new encounters and quests every time they are learned. Non-repeatable rumours are for unique story progression.
+- **MaxPlacementRadius**: The maximum hex radius from the player's current position where the encounter will be placed (default: 4).
+
+## Learning a Rumour
+When a rumour is learned, the following happens:
+
+1. A nearby empty tile (within the rumour's MaxPlacementRadius) is selected.
+2. The rumour's EncounterDef is placed on that tile as a location encounter and revealed on the world map.
+3. A quest is created pointing to that location and added to the player's quest log.
+4. A standardized text is appended to the encounter outcome: *"You learned a rumour: {rumourText}. A new quest has been added to your quest log."*
+
+Rumours can also be learned **partially**. In that case, the location and quest are still revealed, but the player does not know what to expect at the location (uses PartialRumourText and PartialQuestText instead of the full versions). This distinction allows encounters to give the player more or less useful information depending on the outcome.
+
+If no empty tile is found nearby, the rumour simply fails to generate (graceful fallback — the encounter text adjusts accordingly).
+
 
 # Encounters
 An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.

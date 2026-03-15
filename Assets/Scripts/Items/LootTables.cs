@@ -5,19 +5,19 @@ using UnityEngine;
 /// </summary>
 public static class LootTables
 {
-    public static LootTable Food = new LootTable
+    public static LootTable Food => new LootTable
     {
         { ItemDefOf.Beans, 10 },
         { ItemDefOf.NutSnack, 8 },
         { ItemDefOf.RawMeat, 3 },
     };
 
-    public static LootTable Drinks = new LootTable
+    public static LootTable Drinks => new LootTable
     {
         { ItemDefOf.WaterBottle, 10 },
     };
 
-    public static LootTable Medical = new LootTable
+    public static LootTable Medical => new LootTable
     {
         { ItemDefOf.Bandage, 10 },
         { ItemDefOf.Antibiotics, 6 },
@@ -25,13 +25,13 @@ public static class LootTables
         { ItemDefOf.Antidote, 2 },
     };
 
-    public static LootTable Plants = new LootTable
+    public static LootTable Plants => new LootTable
     {
         { ItemDefOf.Berries, 10 },
         { ItemDefOf.MedicinalHerbs, 8 },
     };
 
-    public static LootTable Tools = new LootTable
+    public static LootTable Tools => new LootTable
     {
         { ItemDefOf.Crowbar, 7 },
         { ItemDefOf.Rope, 5 },
@@ -42,26 +42,26 @@ public static class LootTables
         { ItemDefOf.FenceCutter, 0.1f },
     };
 
-    public static LootTable Weapons = new LootTable
+    public static LootTable Weapons => new LootTable
     {
         { ItemDefOf.Knife, 10 },
         { ItemDefOf.Crowbar, 3 },
         { ItemDefOf.Shovel, 1 },
     };
 
-    public static LootTable Trash = new LootTable
+    public static LootTable Trash => new LootTable
     {
         { ItemDefOf.Bone, 5 },
         { ItemDefOf.Coin, 2 }
     };
 
-    public static LootTable TrapLoot = new LootTable
+    public static LootTable TrapLoot => new LootTable
     {
         { ItemDefOf.RawMeat, 40 },
         { ItemDefOf.Bone, 25 },
     };
 
-    public static LootTable Bandit = new LootTable
+    public static LootTable Bandit => new LootTable
     {
         { Weapons, 10 },
         { Tools, 8 },
@@ -70,7 +70,7 @@ public static class LootTables
         { Medical, 4 },
     };
 
-    public static LootTable Civilian = new LootTable
+    public static LootTable Civilian => new LootTable
     {
         { Food, 12 },
         { Drinks, 10 },
@@ -81,7 +81,7 @@ public static class LootTables
         { Plants, 2 },
     };
 
-    public static LootTable Building = new LootTable
+    public static LootTable Building => new LootTable
     {
         { Tools, 10 },
         { Medical, 8 },

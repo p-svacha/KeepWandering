@@ -10,6 +10,9 @@ public class EncounterDefOf : MonoBehaviour
     // Landmarks
     public static EncounterDef RadioTower;
 
+    // Location
+    public static EncounterDef SupplyStash;
+
     // Special
     public static EncounterDef QuarantineFence;
     public static EncounterDef HomeOfR;

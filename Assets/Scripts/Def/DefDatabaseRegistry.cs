@@ -28,6 +28,7 @@ public static class DefDatabaseRegistry
         DefDatabase<DangerLevelDef>.AddDefs(DangerLevelDefs.Defs);
 
         DefDatabase<QuestDef>.AddDefs(QuestDefs.Defs);
+        DefDatabase<RumourDef>.AddDefs(RumourDefs.Defs);
         DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
         DefDatabase<HealthConditionDef>.AddDefs(HealthConditionDefs.Defs);

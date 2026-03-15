@@ -181,7 +181,7 @@ public class GameUI : MonoBehaviour
 
     public void UpdateQuestDisplay()
     {
-        MissionsDisplay.UpdateList(Game.ActiveQuests.Values.ToList());
+        MissionsDisplay.UpdateList(Game.ActiveQuests);
     }
 
     #endregion

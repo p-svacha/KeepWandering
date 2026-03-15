@@ -132,9 +132,12 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         {
             BiomeLootTable.AddItemToInventory();
             Game.ModifyStatBaseValue(StatDefOf.Morale, 1);
-            // todo: add a rumour reveal
 
-            return "A friendly traveler stops and shares generously, before continuing on their way.";
+            string text = "A friendly traveler stops and shares generously, before continuing on their way.";
+            string rumourText = Game.LearnRumour();
+            if (rumourText != null) text += rumourText;
+
+            return text;
         }
         if (outcome == OptionOutcomeDefOf.Success)
         {

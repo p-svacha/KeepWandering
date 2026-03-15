@@ -182,14 +182,18 @@ public class BiomeEncounter_City : BiomeEncounter
     {
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            // todo: add supply stash encounter to nearby empty tile on world map and reveal (max radius 4)
-            return "You overhear a detailed conversation about a supply stash nearby. This could be very useful.";
+            string text = "You overhear a detailed conversation about a supply stash nearby. This could be very useful.";
+            string rumourText = Game.LearnRumour(RumourDefOf.SupplyStash);
+            if (rumourText != null) text += rumourText;
+
+            return text;
         }
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
             Game.RevealRandomNearbyLocationEncounter();
             Game.RevealRandomNearbyLocationEncounter();
-            return "You catch fragments of a conversation. Enough to piece together some useful information.";
+
+            return "You catch fragments of a conversation. Enough to piece together some useful information about nearby locations.";
         }
         if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
         {

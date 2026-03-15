@@ -18,7 +18,7 @@ public class BiomeDef : Def
     /// <summary>
     /// General loot table for encounters that happen in this biome. This is used to add biome-specific items to the loot tables of encounters that happen in this biome, without having to modify the encounter defs themselves.
     /// </summary>
-    public LootTable LootTable { get; init; } = new LootTable();
+    public LootTable LootTable { get; init; } = null;
 
     /// <summary>
     /// Set of most important stats. Not directly used for anything at the moment, but can be used by encounters or the UI to determine which stats to show or emphasize for this biome.

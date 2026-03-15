@@ -1,37 +1,27 @@
 TODOS:
 ==============================================
 
-- implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
-
 - implement electrocution health condition
   - including heart arrythmia
   - hook it to fail of cutting fence
   - hook it to fail cutting wires in collapsed building encounter
 
+- add one more night encounter for variety
+
+- implement severity reduction effect of medicinal herb (ItemDefs with the "SeverityReduction" property > 0 can be "applied" to all health conditions that have natural healing. if applied, the severity is reduced by that amount instantly.
+
+- add "exhausted" health condition: -1 to all stats, removed after sleeping.
+  - can be applied for rest of current day (in afternoon encounter)
+  - can also be applied for following day during evening/night encounter
+  - hook to failure of keep watch in city encounter.
+  - hook to failure of rubble clearning in collapsed building encounter
+
+
+
 - supply stash needs to have own loot table mixed with biome loot table
   - currently loot is too bad
 
-- BUG: bone can't be dragged into "fight" and "intimidate" slot in bandit encounter. the slot correctly shows it as being valid, but the item is not highlighted and cant be dragged into. geenrally can't be dragged into slots. maybe not isPlayerOwned?  
-
-- NARRATIVE: it says "you wake up afer an uneventful night"even when there was a night encounter.
-
-- rumour system 
-  - players can learn rumours (can happen as outcome of encounters)
-  - there is a rumour pool of possible rumours (some unique (story progression), some repeatable (like learning the location of a supply stash)
-  - learning a rumour reveals a specific location encounter somewhere on the world map and adds a quest to the quest log with that location linked
-  - rumours can also be learned in a partial way. In that case, the quest and the location is still revealed, but not is not learned what the rumour is about (what to expect at that location).
-  - when learning a rumour, the player receives a quest
-  - BIG OPEN QUESTION: how are rumours communicated to the player? Encounter step texts are currently purely determined by the encounter. and just through an outcome not doesn't seem worthy enough for such an important gameplay element. Maybe find a way to standardize the text of learning a rumour to certain format, that can then be hooked into encounter step texts:
-    - for example, the rumour text could be general like "You have learned a rumour: {rumourText}. A new quest has been added to your quest log." and then the specific rumour text is determined by the rumour itself. This way, the encounter can still have its own outcome text, but the rumour learning is also highlighted in a standardized way.
-  - quest system also needs expanding to support questDef that are repeatable and/or where multiple quests of the same Def can be active at the same time.
-    - repeatable would just go back to the "inactive" state rather than "completed/failed" when finished.
-  - make item stash reveal the first repeatable rumor (item stash encounter is set on a nearby tile (max radius 4) and revealed.
-    - remove "item stash" as fixed outcome in city and wounded stranger encounters, and instead make it a rumour that can be learned in these encounters. keeps it flexible and new rumours are automatically integrated everywhere.
-  - hook to outskirts encounter (flag down critical success)
-  - hook to city eavesdrop success
-  - hook to wounded stranger gaining knowledge
-  - hook to collapsed building free stranger reward
-      
+- NARRATIVE: it says "you wake up afer an uneventful night"even when there was a night encounter.  
 
 - UI: if you have an item that fits in an item slot, highlight that slot a little
 
@@ -42,9 +32,11 @@ TODOS:
   - sprites for health conditions
   - outcome notes when a health condition disappears
 
-- encounter reveal + new quest: "you see smoke rising" (can happen randomly as night event)
-  - add a new encounter at the location of the smoke
-  - somehow tie this to the story progression
+- add a unique rumour relevant for story progression.
+  - add probabilities to RumourDefs
+  - fix IsRepeatable in RumourDefs
+  - RumourDefs that are not repeatable can link to a specific QuestDef in the RumourDef. Availability of the rumour is then also checked against the state of that quest (e.g. only available if quest is active, or only if quest is completed, etc.)
+  - The linked QuestDef is also the quest that is given to the player when they choose the rumour option (instead of generic InvestigateRumourQuest).
 
 - show biome important stats in world map
 
@@ -55,10 +47,6 @@ TODOS:
 
 - add item with "scavenging" tag: flashlight (also introduces "light source" tag)
   - currently, scavenging has an item slot for that tag, but no item with the tag exists.
-
-- exhausted health condition: -1 to all stats, removed after sleeping. can also be applied for following day during evening/night encounter
-  - hook to failure of keep watch in city encounter.
-  - hook to failure of rubble clearning in collapsed building encounter
 
 - new items: empty water bottle (trash), water bottle (untreated), water purification tablets
   - water bottle have a chance to turn into empty bottle when drinking

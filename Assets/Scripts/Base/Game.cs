@@ -45,7 +45,7 @@ public class Game : MonoBehaviour
 
     // Quests
     public Dictionary<QuestDef, QuestState> QuestStates;
-    public Dictionary<QuestDef, Quest> ActiveQuests;
+    public List<Quest> ActiveQuests;
     public string WinGameReason { get; private set; }
 
     // Elements
@@ -106,7 +106,7 @@ public class Game : MonoBehaviour
         {
             QuestStates.Add(questDef, global::QuestState.Inactive);
         }
-        ActiveQuests = new Dictionary<QuestDef, Quest>();
+        ActiveQuests = new List<Quest>();
 
         // Init world
         WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 10, numAdditionalTiles: 340, numCities: 5);
@@ -1077,25 +1077,118 @@ public class Game : MonoBehaviour
     public bool IsQuestCompleted(QuestDef quest) => QuestStates[quest] == QuestState.Completed || QuestStates[quest] == QuestState.Failed;
     public void StartQuest(Quest quest)
     {
-        if (IsQuestCompleted(quest.QuestDef))
+        if (!quest.QuestDef.IsRepeatable && IsQuestCompleted(quest.QuestDef))
         {
             Debug.LogWarning("Trying to add quest that is already completed! " + quest.QuestDef.Label);
             return;
         }
 
-        ActiveQuests[quest.QuestDef] = quest; // This also replaces the quest if it's already active, which is useful for updating the quest text or other properties without having to remove and re-add the quest.
+        if (!quest.QuestDef.IsRepeatable)
+        {
+            // For non-repeatable quests, replace any existing active instance
+            ActiveQuests.RemoveAll(q => q.QuestDef == quest.QuestDef);
+        }
+
+        ActiveQuests.Add(quest);
         QuestStates[quest.QuestDef] = QuestState.Active;
         NumAddedQuestsSinceLastStep++;
 
         OnGameStateChanged();
     }
-    public void CompleteQuest(QuestDef quest)
+    public void CompleteQuest(QuestDef questDef)
     {
-        QuestStates[quest] = QuestState.Completed;
+        Quest quest = ActiveQuests.Find(q => q.QuestDef == questDef);
+        if (quest != null) CompleteQuest(quest);
+    }
+    public void CompleteQuest(Quest quest)
+    {
+        ActiveQuests.Remove(quest);
 
-        if (ActiveQuests.ContainsKey(quest)) ActiveQuests.Remove(quest);
+        if (quest.QuestDef.IsRepeatable)
+        {
+            // Repeatable quests go back to Inactive when no instances remain
+            if (!ActiveQuests.Exists(q => q.QuestDef == quest.QuestDef))
+                QuestStates[quest.QuestDef] = QuestState.Inactive;
+        }
+        else
+        {
+            QuestStates[quest.QuestDef] = QuestState.Completed;
+        }
 
+        NumCompletedQuestsSinceLastStep++;
         OnGameStateChanged();
+    }
+
+    /// <summary>
+    /// Learns a random rumour from the pool and returns the standardized rumour text to append to the encounter outcome text.
+    /// Places the rumour's encounter on a nearby empty tile and creates a quest pointing to that location.
+    /// Returns null if no rumour could be learned (e.g. no empty tiles nearby).
+    /// </summary>
+    public string LearnRumour(RumourDef rumourDef = null)
+    {
+        return LearnRumourInternal(rumourDef, partial: false);
+    }
+
+    /// <summary>
+    /// Learns a rumour partially. The encounter location is still revealed and a quest is created,
+    /// but the player does not know what to expect at the location.
+    /// Returns null if no rumour could be learned (e.g. no empty tiles nearby).
+    /// </summary>
+    public string LearnPartialRumour(RumourDef rumourDef = null)
+    {
+        return LearnRumourInternal(rumourDef, partial: true);
+    }
+
+    private string LearnRumourInternal(RumourDef rumourDef, bool partial)
+    {
+        // Pick a rumour if none specified
+        if (rumourDef == null)
+        {
+            List<RumourDef> candidates = DefDatabase<RumourDef>.AllDefs;
+            if (candidates.Count == 0)
+            {
+                Debug.LogWarning("No rumour defs available.");
+                return null;
+            }
+            rumourDef = candidates.RandomElement();
+        }
+
+        // Find a nearby empty tile
+        WorldMapTile targetTile = GetNearbyEmptyTile(rumourDef.MaxPlacementRadius);
+        if (targetTile == null)
+        {
+            Debug.LogWarning("No empty tile found for rumour placement.");
+            return null;
+        }
+
+        // Place encounter on the tile and reveal it
+        SetLocationEncounter(targetTile, rumourDef.EncounterDef, showInOutcomeNote: true);
+
+        // Create quest
+        string coordinates = targetTile.Coordinates.ToString();
+        string questText = partial
+            ? string.Format(rumourDef.PartialQuestText, coordinates)
+            : string.Format(rumourDef.QuestText, coordinates);
+        Quest quest = new Quest(QuestDefOf.InvestigateRumour, questText, location: targetTile);
+        StartQuest(quest);
+
+        // Return standardized rumour text
+        string rumourText = partial
+            ? string.Format(rumourDef.PartialRumourText, coordinates)
+            : string.Format(rumourDef.RumourText, coordinates);
+        return $"\n\nYou learned a rumour: {rumourText} A new quest has been added to your quest log.";
+    }
+
+    /// <summary>
+    /// Finds a random empty tile within the given hex radius of the player's current position.
+    /// Returns null if no empty tile is found.
+    /// </summary>
+    private WorldMapTile GetNearbyEmptyTile(int maxRadius)
+    {
+        List<WorldMapTile> nearbyTiles = CurrentPosition.GetTilesInHexRadius(maxRadius);
+        List<WorldMapTile> candidateTiles = nearbyTiles.Where(t => !t.HasEncounter && t.Biome.IsPassable).ToList();
+        if (candidateTiles.Count == 0) return null;
+        return candidateTiles.RandomElement();
     }
 
     /*

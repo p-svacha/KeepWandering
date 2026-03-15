@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 /// <summary>
 /// Options in an encounter step can have slots for dragging items into. This class represents a single active instance of such a slot of an option that is currently being displayed in the UI.
@@ -188,6 +190,16 @@ public class ItemSlot
         // Sort by difficulty reduction (lowest first)
         itemDefs.Sort((a, b) => GetDifficultyReduction(a).CompareTo(GetDifficultyReduction(b)));
 
+        Debug.Log($"Found {itemDefs.Count} slottable item defs for slot {this}: {string.Join(", ", itemDefs.Select(x => x.DefName))}");
+
         return itemDefs;
+    }
+
+    public override string ToString()
+    {
+        if (Item != null) return $"Slot for {Item.DefName}";
+        if (Tag != null) return $"Slot for items with {Tag.DefName} tag";
+        if (AllowedItems != null) return $"Slot for specific items: {string.Join(", ", AllowedItems.Select(x => x.DefName))}";
+        return "Invalid slot";
     }
 }

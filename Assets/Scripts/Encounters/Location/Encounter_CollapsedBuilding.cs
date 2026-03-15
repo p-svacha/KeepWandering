@@ -422,8 +422,10 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         float rng = Random.value;
         if (rng < 0.4f)
         {
-            // todo: learn rumour
-            return "They tell you something they overheard before the building came down.";
+            string text = "They tell you something they overheard before the building came down.";
+            string rumourText = Game.LearnRumour();
+            if (rumourText != null) text += rumourText;
+            return text;
         }
         else if(rng < 0.7f)
         {

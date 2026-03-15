@@ -89,13 +89,19 @@ public class Encounter_WoundedStranger : LocationEncounter
         float rng = Random.value;
         if (rng < 0.5f) // 50%: rumour
         {
-            // todo: learn rumour
-            return "They share a rumour they heard."; // todo: append rumour text
+            string rumourText = Game.LearnPartialRumour();
+            if (rumourText != null)
+                return "They share something they heard." + rumourText;
+
+            return "They don't seem to know anything useful.";
         }
-        else if (rng < 0.8f) // 30%: supply stash
+        else if (rng < 0.8f) // 30%: supply stash rumour
         {
-            // todo: reveal supply stash
-            return "They tell you about a hidden supply stash nearby.";
+            string rumourText = Game.LearnRumour(RumourDefOf.SupplyStash);
+            if (rumourText != null)
+                return "They tell you about a hidden supply stash nearby." + rumourText;
+
+            return "They don't seem to know anything useful.";
         }
         else // 20%: nothing
         {

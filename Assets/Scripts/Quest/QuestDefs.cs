@@ -16,6 +16,11 @@ public static class QuestDefs
         new QuestDef("GoToUnpoweredFence")
         {
             Description = "There is a border tile where the electric fence is not unpowered. With a fence cutter it is possible to cut through the fence and get to the other side.",
+        },
+        new QuestDef("InvestigateRumour")
+        {
+            Description = "A quest created from learning a rumour. Multiple instances can be active at the same time.",
+            IsRepeatable = true,
         }
     };
 }

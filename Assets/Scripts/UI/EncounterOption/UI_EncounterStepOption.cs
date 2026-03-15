@@ -7,9 +7,9 @@ using UnityEngine.EventSystems;
 
 public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private UI_EncounterDisplay EncounterDisplay;
+    public UI_EncounterDisplay EncounterDisplay { get; private set; }
     private Game Game => EncounterDisplay.Game;
-    private EncounterOption Option;
+    public EncounterOption Option { get; private set; }
 
     [Header("Elements")]
     public TextMeshProUGUI EventOptionText;

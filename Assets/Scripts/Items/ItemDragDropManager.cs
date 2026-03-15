@@ -193,8 +193,12 @@ public static class ItemDragDropManager
         // Get all option displays (including fixed outcome options not in the dictionary)
         List<UI_EncounterStepOption> allOptionDisplays = UI_EncounterDisplay.Instance.OptionDisplays.Values.ToList();
 
+        Debug.Log($"Greying out invalid targets for {item.Label}, isPlayerOwned={item.IsPlayerOwned}, numOptionDisplays={allOptionDisplays.Count}, itemDef = {item.Def.DefName}");
+
         foreach (UI_EncounterStepOption optionDisplay in allOptionDisplays)
         {
+            Debug.Log($"Checking option display for option {optionDisplay.Option.Text}, numItemSlots={optionDisplay.ItemSlotDisplays.Count}");
+
             // Grey out the option button itself
             optionDisplay.SetDragGreyedOut(true);
             GreyedOutOptions.Add(optionDisplay);
@@ -202,6 +206,7 @@ public static class ItemDragDropManager
             // Grey out invalid slots, highlight valid ones
             foreach (UI_ItemSlot slot in optionDisplay.ItemSlotDisplays)
             {
+                Debug.Log($"Checking slot {slot.ItemSlot}, isFilled={slot.ItemSlot.IsFilled}, canAccept={slot.ItemSlot.CanAcceptItem(item)}");
                 if (!slot.ItemSlot.IsFilled && slot.ItemSlot.CanAcceptItem(item))
                 {
                     slot.SetDragHighlighted(true);

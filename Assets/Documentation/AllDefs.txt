@@ -916,7 +916,29 @@
         new QuestDef("GoToUnpoweredFence")
         {
             Description = "There is a border tile where the electric fence is not unpowered. With a fence cutter it is possible to cut through the fence and get to the other side.",
+        },
+        new QuestDef("InvestigateRumour")
+        {
+            Description = "A quest created from learning a rumour. Multiple instances can be active at the same time.",
+            IsRepeatable = true,
         }
+    };
+
+--- RumourDefs.cs ---
+    public static List<RumourDef> Defs => new List<RumourDef>()
+    {
+        new RumourDef("SupplyStash")
+        {
+            Label = "supply stash",
+            Description = "A hidden stash of supplies nearby.",
+            EncounterDef = EncounterDefOf.SupplyStash,
+            RumourText = "There's a hidden supply stash at {0}.",
+            PartialRumourText = "There's something hidden at {0}.",
+            QuestText = "Investigate the supply stash at {0}.",
+            PartialQuestText = "Investigate the location at {0}.",
+            IsRepeatable = true,
+            MaxPlacementRadius = 4,
+        },
     };
 
 --- BiomeDefs.cs ---
