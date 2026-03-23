@@ -182,8 +182,8 @@ public class BiomeEncounter_City : BiomeEncounter
     {
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            string text = "You overhear a detailed conversation about a supply stash nearby. This could be very useful.";
-            string rumourText = Game.LearnRumour(RumourDefOf.SupplyStash);
+            string text = "You overhear a detailed conversation about something interesting nearby.";
+            string rumourText = Game.LearnRumour();
             if (rumourText != null) text += rumourText;
 
             return text;

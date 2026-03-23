@@ -92,7 +92,7 @@ public class Encounter_HomeOfR : LocationEncounter
     }
     private string AskAboutSickPartner()
     {
-        Game.StartQuest(new Quest(QuestDefOf.DeliverMedicineToR, "Deliver something that can heal infections to R.", location: Tile));
+        Game.StartQuest(QuestDefOf.DeliverMedicineToR, location: Tile);
         return "R tells you that their partner needs something to treat infections. They would reward you with a fence cutter and some information.";
     }
 
@@ -120,7 +120,7 @@ public class Encounter_HomeOfR : LocationEncounter
         Game.AddExistingItemToInventory(FenceCutter);
         FenceCutter = null;
         Game.ModifyStatBaseValue(StatDefOf.Morale, 1);
-        Game.StartQuest(new Quest(QuestDefOf.GoToUnpoweredFence, $"The fence at {StoryManager.CuttableFenceTile.Coordinates} is unpowered and can be cut with a fence cutter.", location: StoryManager.CuttableFenceTile));
+        Game.StartQuest(QuestDefOf.GoToUnpoweredFence, location: StoryManager.CuttableFenceTile);
 
         return "R thanks you for the medicine and gives you a fence cutter. They also mark the exact location of the unpowered fence on your map.";
     }

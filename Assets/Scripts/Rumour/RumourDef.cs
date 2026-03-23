@@ -1,17 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Defines a rumour that the player can learn. Learning a rumour places a specific encounter on a nearby tile
-/// and creates a quest pointing to that location.
+/// Defines a rumour that the player can learn. A rumour is a randomized way to acquire a quest.
+/// <br/>Learning a rumour starts the referenced quest, which may automatically place an encounter on a nearby tile.
 /// </summary>
 public class RumourDef : Def
 {
     public override string DefTypeLabel => "Rumour";
 
     /// <summary>
-    /// The encounter that gets placed on the world map when this rumour is learned.
+    /// The DefName of the QuestDef that is given to the player when this rumour is learned.
+    /// <br/>Resolved to <see cref="QuestDef"/> after all Defs are loaded.
     /// </summary>
-    public EncounterDef EncounterDef { get; init; }
+    public string QuestDefName { get; init; }
+
+    /// <summary>
+    /// The resolved QuestDef that is started when this rumour is learned.
+    /// </summary>
+    public QuestDef QuestDef { get; private set; }
 
     /// <summary>
     /// The text describing the rumour, shown to the player when they learn it fully.
@@ -25,27 +31,15 @@ public class RumourDef : Def
     /// </summary>
     public string PartialRumourText { get; init; } = "";
 
-    /// <summary>
-    /// The quest text when the rumour is learned fully.
-    /// <br/>Can contain {0} which will be replaced with the coordinates of the placed encounter.
-    /// </summary>
-    public string QuestText { get; init; } = "";
-
-    /// <summary>
-    /// The quest text when the rumour is learned partially.
-    /// <br/>Can contain {0} which will be replaced with the coordinates of the placed encounter.
-    /// </summary>
-    public string PartialQuestText { get; init; } = "";
-
-    /// <summary>
-    /// Whether this rumour can be learned multiple times. Repeatable rumours can generate multiple active quests of the same type.
-    /// </summary>
-    public bool IsRepeatable { get; init; } = false;
-
-    /// <summary>
-    /// Maximum hex radius from the player's current position where the encounter will be placed.
-    /// </summary>
-    public int MaxPlacementRadius { get; init; } = 4;
-
     public RumourDef(string defName) : base(defName) { }
+
+    public override void OnLoadingDefsDone()
+    {
+        base.OnLoadingDefsDone();
+
+        if (QuestDefName != null && DefDatabase<QuestDef>.TryGetNamed(QuestDefName, out var questDef))
+            QuestDef = questDef;
+        else
+            throw new System.Exception($"RumourDef '{DefName}': Could not resolve QuestDef '{QuestDefName}'.");
+    }
 }

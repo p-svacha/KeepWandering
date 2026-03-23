@@ -1075,25 +1075,54 @@ public class Game : MonoBehaviour
     public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != QuestState.Inactive;
     public bool IsQuestActive(QuestDef quest) => QuestStates[quest] == QuestState.Active;
     public bool IsQuestCompleted(QuestDef quest) => QuestStates[quest] == QuestState.Completed || QuestStates[quest] == QuestState.Failed;
-    public void StartQuest(Quest quest)
+
+    /// <summary>
+    /// Starts a new quest from the given QuestDef. The quest text is taken from QuestDef.QuestText (or PartialQuestText if partial is true).
+    /// <br/>If the QuestDef has a PlacedEncounterDef and no location is provided, an encounter is automatically placed on a nearby empty tile.
+    /// <br/>Returns the created Quest instance, or null if the quest could not be started (e.g. no empty tile for auto-placement).
+    /// </summary>
+    public Quest StartQuest(QuestDef questDef, WorldMapTile location = null, Area area = null, bool partial = false)
     {
-        if (!quest.QuestDef.IsRepeatable && IsQuestCompleted(quest.QuestDef))
+        if (!questDef.IsRepeatable && IsQuestCompleted(questDef))
         {
-            Debug.LogWarning("Trying to add quest that is already completed! " + quest.QuestDef.Label);
-            return;
+            throw new System.Exception("Trying to add quest that is already completed! " + questDef.Label);
         }
 
-        if (!quest.QuestDef.IsRepeatable)
+        // Create quest with text from the QuestDef
+        string questText = partial ? questDef.PartialQuestText : questDef.QuestText;
+        Quest quest = new Quest(questDef, questText, location, area);
+
+        // Auto-place encounter if QuestDef requires it and no location is specified
+        if (questDef.PlacedEncounterDef != null && quest.Location == null)
+        {
+            WorldMapTile targetTile = GetNearbyEmptyTile(questDef.EncounterPlacementRadius);
+            if (targetTile == null)
+            {
+                Debug.LogWarning("No empty tile found for quest encounter placement.");
+                return null;
+            }
+            SetLocationEncounter(targetTile, questDef.PlacedEncounterDef, showInOutcomeNote: true);
+            quest.SetLocation(targetTile);
+        }
+
+        // Format quest text with location coordinates or area name if available
+        if (quest.Location != null)
+            quest.FormatText(quest.Location.Coordinates.ToString());
+        else if (quest.Area != null)
+            quest.FormatText(quest.Area.Name);
+
+        if (!questDef.IsRepeatable)
         {
             // For non-repeatable quests, replace any existing active instance
-            ActiveQuests.RemoveAll(q => q.QuestDef == quest.QuestDef);
+            ActiveQuests.RemoveAll(q => q.QuestDef == questDef);
         }
 
         ActiveQuests.Add(quest);
-        QuestStates[quest.QuestDef] = QuestState.Active;
+        QuestStates[questDef] = QuestState.Active;
         NumAddedQuestsSinceLastStep++;
 
         OnGameStateChanged();
+        return quest;
     }
     public void CompleteQuest(QuestDef questDef)
     {
@@ -1121,12 +1150,12 @@ public class Game : MonoBehaviour
 
     /// <summary>
     /// Learns a random rumour from the pool and returns the standardized rumour text to append to the encounter outcome text.
-    /// Places the rumour's encounter on a nearby empty tile and creates a quest pointing to that location.
+    /// Starts the rumour's quest, which may automatically place an encounter on a nearby tile.
     /// Returns null if no rumour could be learned (e.g. no empty tiles nearby).
     /// </summary>
-    public string LearnRumour(RumourDef rumourDef = null)
+    public string LearnRumour()
     {
-        return LearnRumourInternal(rumourDef, partial: false);
+        return LearnRumourInternal(partial: false);
     }
 
     /// <summary>
@@ -1134,48 +1163,29 @@ public class Game : MonoBehaviour
     /// but the player does not know what to expect at the location.
     /// Returns null if no rumour could be learned (e.g. no empty tiles nearby).
     /// </summary>
-    public string LearnPartialRumour(RumourDef rumourDef = null)
+    public string LearnPartialRumour()
     {
-        return LearnRumourInternal(rumourDef, partial: true);
+        return LearnRumourInternal(partial: true);
     }
 
-    private string LearnRumourInternal(RumourDef rumourDef, bool partial)
+    private string LearnRumourInternal(bool partial)
     {
-        // Pick a rumour if none specified
-        if (rumourDef == null)
+        // Pick a random rumour
+        List<RumourDef> candidates = DefDatabase<RumourDef>.AllDefs;
+        if (candidates.Count == 0)
         {
-            List<RumourDef> candidates = DefDatabase<RumourDef>.AllDefs;
-            if (candidates.Count == 0)
-            {
-                Debug.LogWarning("No rumour defs available.");
-                return null;
-            }
-            rumourDef = candidates.RandomElement();
-        }
-
-        // Find a nearby empty tile
-        WorldMapTile targetTile = GetNearbyEmptyTile(rumourDef.MaxPlacementRadius);
-        if (targetTile == null)
-        {
-            Debug.LogWarning("No empty tile found for rumour placement.");
+            Debug.LogWarning("No rumour defs available.");
             return null;
         }
+        RumourDef rumourDef = candidates.RandomElement();
 
-        // Place encounter on the tile and reveal it
-        SetLocationEncounter(targetTile, rumourDef.EncounterDef, showInOutcomeNote: true);
+        // Start quest (auto-placement and text formatting handled by StartQuest)
+        Quest quest = StartQuest(rumourDef.QuestDef, partial: partial);
+        if (quest == null) return null;
 
-        // Create quest
-        string coordinates = targetTile.Coordinates.ToString();
-        string questText = partial
-            ? string.Format(rumourDef.PartialQuestText, coordinates)
-            : string.Format(rumourDef.QuestText, coordinates);
-        Quest quest = new Quest(QuestDefOf.InvestigateRumour, questText, location: targetTile);
-        StartQuest(quest);
-
-        // Return standardized rumour text
-        string rumourText = partial
-            ? string.Format(rumourDef.PartialRumourText, coordinates)
-            : string.Format(rumourDef.RumourText, coordinates);
+        // Format and return rumour text
+        string coordinates = quest.Location?.Coordinates.ToString() ?? "";
+        string rumourText = string.Format(partial ? rumourDef.PartialRumourText : rumourDef.RumourText, coordinates);
         return $"\n\nYou learned a rumour: {rumourText} A new quest has been added to your quest log.";
     }
 

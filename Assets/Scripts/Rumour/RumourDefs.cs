@@ -9,13 +9,9 @@ public static class RumourDefs
         {
             Label = "supply stash",
             Description = "A hidden stash of supplies nearby.",
-            EncounterDef = EncounterDefOf.SupplyStash,
+            QuestDefName = "InvestigateSupplyStash",
             RumourText = "There's a hidden supply stash at {0}.",
             PartialRumourText = "There's something hidden at {0}.",
-            QuestText = "Investigate the supply stash at {0}.",
-            PartialQuestText = "Investigate the location at {0}.",
-            IsRepeatable = true,
-            MaxPlacementRadius = 4,
         },
     };
 }

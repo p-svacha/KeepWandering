@@ -362,29 +362,35 @@ QuestDefs can be marked as **repeatable**. A repeatable QuestDef can have multip
 
 On a technical level, the active quests are stored as a flat `List<Quest>` rather than a dictionary keyed by QuestDef, so multiple instances of the same repeatable QuestDef can coexist.
 
+## Quest Auto-Placement
+QuestDefs can optionally specify a `PlacedEncounterDefName` and `EncounterPlacementRadius`. When a quest with these properties is started (via `StartQuest`), the system automatically finds a nearby empty tile within the given radius, places the specified encounter on it, and sets the quest location to that tile. The quest text (which can contain `{0}` as a placeholder) is formatted with the tile coordinates.
+
+This auto-placement is optional — quests with fixed or dynamic locations (like story-driven quests) can still set the location manually in the Quest constructor without triggering auto-placement. The auto-placement only happens when `PlacedEncounterDef` is set and no location has been provided.
+
+QuestDefs also carry `QuestText` and `PartialQuestText` templates. The partial variant is used when the quest is started from a partial rumour, where the player knows the location but not the details.
+
 # Rumours
-Rumours are a system that allows the player to discover new locations and quests through various encounters. The player can learn rumours as outcomes of encounter options, through trading, or from NPCs.
+Rumours are a system that allows the player to discover new quests through various encounters. The rumour system is, at its core, a way to give the player quests in a randomized fashion, intended to keep runs interesting and different. However, quests can also be acquired through other means (like scripted story beats or hardcoded encounter outcomes).
 
 ## Rumour Pool
 There is a pool of possible rumours defined via **RumourDefs**. Each RumourDef specifies:
 
-- **EncounterDef**: The type of location encounter that gets placed on the world map when the rumour is learned.
-- **RumourText / PartialRumourText**: The text shown to the player when they learn the rumour (fully or partially). These can contain `{0}` which is replaced with the coordinates of the placed encounter.
-- **QuestText / PartialQuestText**: The quest description text, also supporting `{0}` for coordinates.
-- **IsRepeatable**: Whether the rumour can be learned multiple times. Repeatable rumours (like supply stash locations) can generate new encounters and quests every time they are learned. Non-repeatable rumours are for unique story progression.
-- **MaxPlacementRadius**: The maximum hex radius from the player's current position where the encounter will be placed (default: 4).
+- **QuestDefName**: The name of the QuestDef that is started when this rumour is learned. The QuestDef controls all quest-related properties: whether it's repeatable, what encounter is placed, the placement radius, and the quest text templates.
+- **RumourText**: The text shown to the player when they learn the rumour fully. Can contain `{0}` for coordinates.
+- **PartialRumourText**: The text shown when the rumour is learned partially. Can contain `{0}` for coordinates.
+
+All encounter placement, repeatability, and quest text logic is controlled by the referenced QuestDef, not the RumourDef.
 
 ## Learning a Rumour
-When a rumour is learned, the following happens:
+When `Game.LearnRumour()` or `Game.LearnPartialRumour()` is called (with no parameters — the randomization is the point), the following happens:
 
-1. A nearby empty tile (within the rumour's MaxPlacementRadius) is selected.
-2. The rumour's EncounterDef is placed on that tile as a location encounter and revealed on the world map.
-3. A quest is created pointing to that location and added to the player's quest log.
-4. A standardized text is appended to the encounter outcome: *"You learned a rumour: {rumourText}. A new quest has been added to your quest log."*
+1. A random RumourDef is picked from the pool.
+2. The referenced QuestDef is retrieved from the RumourDef.
+3. A Quest is created with the appropriate text template (full or partial).
+4. `StartQuest` is called, which handles auto-placement if the QuestDef has a `PlacedEncounterDef` (finding a nearby empty tile, placing the encounter, setting the quest location, and formatting the text with coordinates).
+5. A standardized text is returned: *"You learned a rumour: {rumourText}. A new quest has been added to your quest log."*
 
-Rumours can also be learned **partially**. In that case, the location and quest are still revealed, but the player does not know what to expect at the location (uses PartialRumourText and PartialQuestText instead of the full versions). This distinction allows encounters to give the player more or less useful information depending on the outcome.
-
-If no empty tile is found nearby, the rumour simply fails to generate (graceful fallback — the encounter text adjusts accordingly).
+If no empty tile is found nearby (when auto-placement is needed), the quest fails to start and the rumour is not learned (graceful fallback — the encounter text adjusts accordingly).
 
 
 # Encounters

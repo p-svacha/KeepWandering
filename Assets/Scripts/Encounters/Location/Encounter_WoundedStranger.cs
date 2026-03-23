@@ -87,7 +87,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         isKnowledgeExtracted = true;
 
         float rng = Random.value;
-        if (rng < 0.5f) // 50%: rumour
+        if (rng < 0.5f) // 50%: partial rumour
         {
             string rumourText = Game.LearnPartialRumour();
             if (rumourText != null)
@@ -95,11 +95,11 @@ public class Encounter_WoundedStranger : LocationEncounter
 
             return "They don't seem to know anything useful.";
         }
-        else if (rng < 0.8f) // 30%: supply stash rumour
+        else if (rng < 0.8f) // 30%: full rumour
         {
-            string rumourText = Game.LearnRumour(RumourDefOf.SupplyStash);
+            string rumourText = Game.LearnRumour();
             if (rumourText != null)
-                return "They tell you about a hidden supply stash nearby." + rumourText;
+                return "They tell you about something interesting nearby." + rumourText;
 
             return "They don't seem to know anything useful.";
         }
