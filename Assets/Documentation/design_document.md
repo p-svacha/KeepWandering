@@ -535,7 +535,7 @@ There are many things that can happen as a result of an option outcome. The most
 - Item changes: The player can gain or lose items.
 - Health changes: The player can gain new health conditions or change existing health conditions in all kind of ways.
 - Companion changes: The player can gain or lose companions.
-- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest. This includes rumours.
+- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest. This includes rumours. 
 - Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
 - World location encouters: Encounters on other tiles on the world map can be generated and/or revealed.
 - Placing traps (evening only): In the evening traps can be placed to reduce night encounter intensity.
