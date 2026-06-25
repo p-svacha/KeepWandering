@@ -7,6 +7,7 @@ using UnityEngine;
 public class EncounterCamera : MonoBehaviour
 {
     public const float DEFAULT_CAMERA_SIZE = 5.4f;
+    public const float MAIN_MENU_CAMERA_SIZE = 8.0f;
 
     public static EncounterCamera Instance { get; private set; }
     public Camera Camera { get; private set; }
@@ -88,4 +89,10 @@ public class EncounterCamera : MonoBehaviour
     }
 
     public void SetDefaultZoom() => SetZoom(DEFAULT_CAMERA_SIZE);
+
+    public void SetMainMenu()
+    {
+        SetZoom(MAIN_MENU_CAMERA_SIZE);
+        transform.position = new Vector3(transform.position.x, 25f, transform.position.z);
+    }
 }

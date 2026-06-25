@@ -1,6 +1,57 @@
 TODOS:
 ==============================================
 
+proper intro:
+A quarantine zone has been declared.
+
+Not because something happened,
+but because something will happen.
+
+A new weapon will be tested.
+A substance that disintegrates everything it touches.
+
+Deployment begins in 30 days.
+
+From then on,
+it will slowly spread.
+
+There is only one way to survive.
+
+Escape the Quarantine.
+
+actual interesting game mechanics
+
+generate all encounters from start
+make map more zoomed in / bigger and nicer tiles
+
+add at least 1 more biome
+more generic encounters
+go to specific biome
+ROUTING
+go to specific point
+paths/roads (allow to move 2/3 tiles)
+get a device that shows hex distance from target
+
+GATE ITEMS by LOCATION
+make it clear where to get items
+new item: item pinger (shows location of item)
+
+make encounters with more persistence across many days
+countdown locations
+
+more clearly show possible outcomes?
+
+
+- Replace destruction chance with "Uses Left" on items
+- In design philosophy, try to offer 3 options per encounter step
+- Replace individual item tag offsets with item tag levels. Levels have a fixed difficulty reduction across the game (lvl1 = 20, lvl2 = 40, lvl3 = 60)
+
+- rubble encounter:
+  - cutting wires should REQUIRE cutting tool
+  - text should make clear that clearing rubble gives access to all items
+
+- When fortifying, state that it reduced the danger level to X
+
 - implement electrocution health condition
   - including heart arrythmia
   - hook it to fail of cutting fence

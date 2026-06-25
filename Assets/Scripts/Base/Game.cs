@@ -5,11 +5,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Game : MonoBehaviour
+public class Game : Singleton<Game>
 {
     public EncounterManager EncounterManager { get; private set; }
-    public GameObject EncounterContainer { get; private set; }
-    public GameObject BiomeBackgroundContainer { get; private set; }
 
     // Game State
     public GameState State { get; private set; }
@@ -53,7 +51,11 @@ public class Game : MonoBehaviour
     public Camera MainCamera;
     public GameUI UI;
 
+    [Header("Encounter")]
+    public GameObject EncounterContainer;
+
     [Header("Background")]
+    public GameObject BiomeBackgroundContainer;
     public SpriteRenderer Background0;
     public SpriteRenderer Background1;
     public SpriteRenderer Background2;
@@ -84,20 +86,16 @@ public class Game : MonoBehaviour
     void Start()
     {
         State = GameState.Initializing;
-        Instance = this;
 
-        EncounterContainer = GameObject.Find("Encounters");
-        BiomeBackgroundContainer = GameObject.Find("BiomeBackgrounds");
-
-        ResourceManager.ClearCache();
-        DefDatabaseRegistry.InitDefs();
         WorldMapRenderer.Init(this);
 
-        StartGame();
+        HideAllEncounterSprites();
     }
 
-    private void StartGame()
+    public void StartNewGame()
     {
+        Program.Instance.EnterState(ProgramState.Game);
+
         EncounterManager = new EncounterManager(this);
 
         // Init quests
@@ -1293,7 +1291,6 @@ public class Game : MonoBehaviour
 
     public Item RandomInventoryItem => Inventory.RandomElement();
 
-    public static Game Instance;
 
     private List<ItemDef> RandomItemPool => DefDatabase<ItemDef>.AllDefs.Where(i => !i.IsQuestItem).ToList();
     public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => RandomItemPool.Where(x => x.HasTag(tag)).ToList().RandomElement();

@@ -5,10 +5,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 
-public class GameUI : MonoBehaviour
+public class GameUI : Singleton<GameUI>
 {
-    public static GameUI Instance;
-
     public Game Game { get; private set; }
 
     [Header("Day Panel")]
@@ -62,7 +60,6 @@ public class GameUI : MonoBehaviour
     /// </summary>
     public void Init(Game game)
     {
-        Instance = this;
         Game = game;
 
         StatPanel.Init(Game);

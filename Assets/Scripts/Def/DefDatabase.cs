@@ -95,7 +95,7 @@ public static class DefDatabase<T> where T : Def
 			}
 			catch (System.Exception e)
 			{
-				throw new System.Exception("Failed OnLoadingDone for Def '" + def.DefName + "' of type " + def.GetType() + ": " + e.Message);
+				throw new System.Exception("Failed OnLoadingDone for Def '" + def.DefName + "' of type " + def.GetType() + ": " + e.Message + "\n\nInner Stack Trace:\n" + e.StackTrace + "\n\n");
 			}
 		}
 	}

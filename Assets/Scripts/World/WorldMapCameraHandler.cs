@@ -49,6 +49,7 @@ public class WorldMapCameraHandler : MonoBehaviour
 
     private void Update()
     {
+        if (Program.Instance.State != ProgramState.Game) return;
         if (!Game.WorldMapRenderer.gameObject.activeSelf) return;
 
         

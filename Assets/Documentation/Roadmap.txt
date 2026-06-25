@@ -1,3 +1,15 @@
+
+
+
+
+
+
+
+
+
+Itch Tags:
+Point & Click, Adventure, Survival, Roguelike, resource-management, Procedural Generation, Meaningful Choices
+
 feature wheel:
 - add tiredness system
 	- evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)

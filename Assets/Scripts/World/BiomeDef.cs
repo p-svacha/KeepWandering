@@ -35,8 +35,6 @@ public class BiomeDef : Def
 
     public override void OnLoadingDefsDone()
     {
-        base.OnLoadingDefsDone();
-
         Visuals = Game.Instance.BiomeBackgroundContainer.transform.Find(DefName).gameObject;
         WorldMapTile = TileFactory.CreateTileFromTexture(ResourceManager.LoadTexture("Biomes/" + DefName));
 
