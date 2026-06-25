@@ -60,7 +60,6 @@ public class Game : Singleton<Game>
     public SpriteRenderer Background1;
     public SpriteRenderer Background2;
     public SpriteRenderer Background3;
-    public SpriteRenderer AmbienceOverlay;
 
     [Header("Items")]
     private Item CurrentHoverItem;
@@ -148,12 +147,14 @@ public class Game : Singleton<Game>
 
         // Lighting
         EncounterCamera.Instance.SetBackgroundColor(timeOfDay.SkyColor);
-        AmbienceOverlay.color = timeOfDay.LightingAmbienceOverlayColor;
+        EncounterCamera.Instance.SetAmbienceColor(timeOfDay.LightingAmbienceOverlayColor);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Program.Instance.State != ProgramState.Game) return;
+
         bool uiClick = EventSystem.current.IsPointerOverGameObject();
 
         // Escape - Escape menu
@@ -315,7 +316,14 @@ public class Game : Singleton<Game>
             case GameState.InDayTransition:
                 if (Day > 0) EndDay();
                 StartMorning();
-                UI.HoldBlackTransition(GameUI.TRANSITION_HOLD_TIME);
+                if (IntroSequenceManager.Instance != null && IntroSequenceManager.Instance.IsIntroRunning)
+                {
+                    State = GameState.InGame;
+                }
+                else
+                {
+                    UI.HoldBlackTransition(GameUI.TRANSITION_HOLD_TIME);
+                }
                 break;
 
             case GameState.DayTransitionFadeOut:
@@ -496,7 +504,10 @@ public class Game : Singleton<Game>
     private void StartMorning()
     {
         SetTimeOfDay(TimeOfDayDefOf.Morning);
-        EncounterCamera.Instance.SetDefaultZoom();
+        if (IntroSequenceManager.Instance == null || !IntroSequenceManager.Instance.IsIntroRunning)
+        {
+            EncounterCamera.Instance.SetDefaultZoom();
+        }
 
         // Start next day
         SetBackground(CurrentPosition.Biome.BackgroundSprite); // Reset background

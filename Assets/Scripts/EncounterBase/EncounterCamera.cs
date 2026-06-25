@@ -11,9 +11,10 @@ public class EncounterCamera : MonoBehaviour
 
     public static EncounterCamera Instance { get; private set; }
     public Camera Camera { get; private set; }
+    public SpriteRenderer AmbienceOverlay;
 
     // Zoom Transition
-    private bool IsTransitioning;
+    public bool IsTransitioning { get; private set; }
     private float TransitionDuration;
     private float TransitionCurrentTime;
     private Vector3 TransitionStartPosition;
@@ -88,11 +89,40 @@ public class EncounterCamera : MonoBehaviour
         Camera.backgroundColor = color;
     }
 
+    public void SetAmbienceColor(Color color)
+    {
+        AmbienceOverlay.color = color;
+    }
+
     public void SetDefaultZoom() => SetZoom(DEFAULT_CAMERA_SIZE);
 
     public void SetMainMenu()
     {
         SetZoom(MAIN_MENU_CAMERA_SIZE);
         transform.position = new Vector3(transform.position.x, 25f, transform.position.z);
+
+        SetBackgroundColor(TimeOfDayDefOf.Morning.SkyColor);
+        SetAmbienceColor(TimeOfDayDefOf.Morning.LightingAmbienceOverlayColor);
+    }
+
+    public void StartIntroCameraTransition(float duration)
+    {
+        if (Camera == null) Camera = GetComponent<Camera>();
+
+        // Target state is default zoom and default position (0, 0, z)
+        float targetZoomLevel = DEFAULT_CAMERA_SIZE;
+        float targetYPos = targetZoomLevel - DEFAULT_CAMERA_SIZE; // 0
+        float targetXPos = targetYPos * Camera.aspect; // 0
+        TransitionTargetPosition = new Vector3(targetXPos, targetYPos, Camera.transform.position.z);
+        TransitionTargetZoom = targetZoomLevel;
+
+        // Start state is current position and current zoom (8.0f, y = 25f)
+        TransitionStartPosition = Camera.transform.position;
+        TransitionStartZoom = Camera.orthographicSize;
+
+        // Start transition
+        TransitionCurrentTime = 0f;
+        TransitionDuration = duration;
+        IsTransitioning = true;
     }
 }

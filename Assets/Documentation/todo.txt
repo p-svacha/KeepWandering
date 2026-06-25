@@ -1,23 +1,14 @@
 TODOS:
 ==============================================
 
-proper intro:
-A quarantine zone has been declared.
+higher res clouds
+skip intro
 
-Not because something happened,
-but because something will happen.
-
-A new weapon will be tested.
-A substance that disintegrates everything it touches.
-
-Deployment begins in 30 days.
-
-From then on,
-it will slowly spread.
-
-There is only one way to survive.
-
-Escape the Quarantine.
+- Main Menu
+- Intro Sequence
+- Initial guidance quest
+- chance for no encounter
+- add 3 generic encounters
 
 actual interesting game mechanics
 

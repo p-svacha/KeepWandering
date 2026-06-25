@@ -37,9 +37,9 @@ public class CloudManager : Singleton<CloudManager>
     private float spawnTimer = 0f;
     private const int MaxCloudSpriteIndex = 14;
 
-    public void OnEnterMainMenu()
+    public void SetDefaultCloudSettings()
     {
-        baseSpeed = 1f;
+        baseSpeed = 0.4f;
         baseScale = 2f;
         baseGrayscale = 0.9f;
         cloudDensity = 10f;
@@ -112,11 +112,11 @@ public class CloudManager : Singleton<CloudManager>
 
         // Calculate and apply slight variations to properties
 
-        // 1. Y Position: variation between 7-30
-        float randomY = Random.Range(7f, 30f);
+        // Y Position
+        float randomY = Random.Range(4.5f, 40f);
         cloudObj.transform.position = new Vector3(startX, randomY, 0f);
 
-        // 2. Scale: variation of up to +/- 0.5 units around baseScale, clamped to requested boundaries (1.5-3.0)
+        // Scale
         float randomScale = baseScale + Random.Range(-0.5f, 0.5f);
         randomScale = Mathf.Clamp(randomScale, 1.5f, 3.0f);
         cloudObj.transform.localScale = new Vector3(randomScale, randomScale, 1f);
@@ -127,7 +127,11 @@ public class CloudManager : Singleton<CloudManager>
         sr.sortingLayerName = sortingLayerName;
         sr.sortingOrder = sortingOrder;
 
-        // 3. Color: slight variation in grayscale (tinting)
+        // Flip
+        sr.flipX = Random.value < 0.5f;
+        sr.flipY = Random.value < 0.5f;
+
+        // Color: slight variation in grayscale (tinting)
         float randomGray = baseGrayscale + Random.Range(-0.1f, 0.1f);
         randomGray = Mathf.Clamp01(randomGray);
         sr.color = new Color(randomGray, randomGray, randomGray, 1f);
