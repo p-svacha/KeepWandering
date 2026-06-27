@@ -1,87 +1,179 @@
+Roadmap with all to-do's for a v1.0 release
+-------------------------------------------
 
+Rework World Map:
+- Make hexes bigger and add actual texture / sprites to them
+- Make encounter icons bigger
+- Already add an encounter to every tile upon world generation, but only landmarks and special encounters are visible from the start. (Gives more control)
+- Add a road system
+  - Connects cities
+  - Conntects starting tile with fence gate
+  - If starting on road and ending on road, player can move 2 tiles
+- Add a toggle to show a danger level overlay, with simple color coded hexes showing the danger level everywhere.
 
+Completely implement 4 ways to win the game:
+1. Fence Gate: Bribe the Guard with 10 coins:
+  - Coins can be found or acquired through many means in standard encounters.
+2. Fence Gate: Let the Guard open the gate with a VIP license:
+  - License can be acquired in the town hall. It is in a locked safe that required a lockpick and dexterity 5 to open.
+3. Cut through fence:
+  - There is one fence tile that is not electrified and can be cut through with a fence cutter.
+  - Location of this fence tile and the fence cutter can be acquired from Eli in return for giving them a medical item.
+  - Location of Eli can be revelead in the radio tower. 
+4. Helicopter Escape:
+  - There is one tile in the zone with a helipad and a helicopter.
+  - Helicopter needs a Helicopter Key and a fuel canister to start.
+  - Location of Helipad can be revealed through a rumour.
+  - Location of the key can be revealed at the Helipad.
+  - Fuel can be acquired in standard encounters or at a fuel station.
 
+Make changes to encounters, also their design & philosophy:
+- Fully commit to the fully 2D sideview comic style art style with no 3D depth.
+- Change evening encounter to be a fully generic encounter with no encounter sprites.
+  - Fully remove the part where you encounter a random place in the evening (barn / wall / shed, etc.), since that would imply that these things are permanent as well, but you can't come back (since only day encounters are persistent). This is confusing as in 2 days on the same tile the evening encounter is different.
+  - Basically just "How would you like to spend your evening"? with the current options:
+    - Set trap (non-terminal)
+	- Fortify
+	- Scavenge
+	- Rest Early
+	- Find Trader
+  - Availability or chances of these options can still be affected by biome / tile, that is totally fine.
+  - The sprites of the current 12 different "encounter variants" of the current evening/biome encounters (alley, ditch, shed, tree, barn, etc.) can be reused for more generic (biome-specific) day encounters
+- Add more generic/simple day encounters. Many current day encounters are quite complex in that they give many different options and paths. Normal, random day encounters are allowed to be simple, with simple options and outcomes. Try not to give too many options at once. And if you do, make sure not more than 3 or available without any requirements.
+- Increase item effects. Currently there's many encounter options with item slots that don't have a big effect. Items should have a big effect generally (see item section for new system).
+- More fixed outcome options. Skill checks are cool, but don't overuse them. FixedOutcome options are often very fine too. Try to usually have both skill checks and fixed outcomes available.
+- Generally as a rule of thumb I think it would be good for an encounter step to have:
+  - 1 FixedOutcome option without requirements (safe, consistent option, usually with no, neutral, or slightly positive/negative effect)
+  - 1 SkillCheck option with an item slot for a tag for dynamic difficulty reduction (gambling option, but can be made safe if good item available, with strong positives on success and strong negatives on fail). If more than 1 available, they have to be very clearly distinct in what the success effects are!
+  - 1 FixedOutcome option with requirements (generally just safe "good" options, but locked behind requirements). If more than 1 available, both requirements and effect have to be clearly distict.
+  - Of course this a RULE OF THUMB. Other combinations are allowed depending on encounter and step, but this is a good basic guideline to follow for fun gameplay, strategic decisions.
+- Add more REQUIREMENTS. Options with requirements that make them unavailable if not met are cool, since they give a clear goal/mini-quest. Especially in FixedOutcome options they can be used to give a clear "best option" that requires specific criteria.
+  - Also add skills/stats as possible requirements (i.e. Dexterity 5)
+  - Maybe even remove requirements completely for Skill Check Options. If an option is gated behind a requirement, a success should maybe be guaranteed? Especially since they still have a fixed "cost" now with the durability system.
+  - With the new item tag level system, also add possibility to require a specific level (i.e. "Requires Lvl 3 Lockpick").
+  - Possibility of a requiring a SPECIFIC item should still stay. 
+- Add a system that makes it possible to bind encounter options to actual sprites in the encounter.
+  - Since this a point & click game, it would be cool to have some more interactions with the actual game screen.
+  - Currently all encounter options are always in the UI below the encounter text. The visual encounter sprites are purely visual and non-interactable.
+  - It would be cool to add interactions to the encounter sprites directly. I.e. "Pry Open Crate" would be possible by clicking on the top part of the crate.
+  - All interactable party would be highlighed somehow with an indicator (no hidden interactions). If clicked, the possible options would appear (i.e. for the crate "Pry Open" or "Smash"). The options would be displayed just like the current options in the UI, but visually directly on/near the relevant sprite. So i.e. to "Pry open" which requires a crowbar, the steps would be:
+    - You see that the crate is highlighted.
+	- You hover over it, to see that there are options to "Pry Open" or "Smash Crate"
+	- You click on it, which pins the 2 options on the screen. (Only 1 element of the encounter can be pinned at a time, basically a basic point & click interaction options system).
+	- "Pry open" is greyed out and non-interactable because requirements are not met (just like now, this system arleady works)
+	- You drag your crowbar into the crowbar slot of the "Pry Open" option.
+	- You click the now available "Pry Open".
+	- The option effect plays.
+  - Keep general options that can't be tied directly to a sprite in the UI below the encounter text like now, like i.e. "Move On".
+  - Move the encounter option description text to the encounter details box.
+  - With options like these also more can be offered without overwhelming the player, especially if some have requirements.
+- Make encounter options bigger, as they are the main intercation point
+- Make encounter options descriptions less cryptic, revealing more information about their intended effect (success effects) and risks (failure effects).
+- Remove the destruction chance on encounter options. It's a bad system with no strategic value and the only emotions it can cause is frustration from bad luck (since the expected outcome is usually always that an item DOESN'T break, with a small chance that it does)
+  - Instead replace with an item durability system. Each time an item is used in a slot, reduce it's durability by 1.
+- When picking a skill check, implement a short flashy animation showing the rolled number (on a horizontal bar, with the outcome chances (critical failure/failure/partial success/success/critical success) represented by colored segments on it), beofre the outcome effect plays.
+- 1.0 encounter scope:
+  - 20 "generic" day encounters (initially hidden, spread randomly around the map during generation according to commonness and biome biases)
+  - 5 night encounters. 1 specific for each biome and 2 that can happen anywhere
+  - As many unique special / quest encounters as needed for the endings (either initially hidden or initially visible or landmark-style based on encounter)
 
+General Design Philosophy:
+- All choices presented to the player should have clear different paths for different strategies and offer interesting choices and ways for progression. Design in favour of fun gameplay is more important than any realism. Many encounters should give inherent "mini-quests", basically simple requirements, chains of events that give the player always a clear next goal (don't even have to be REAL quests in the quest log, just inherent things the player will need/want to do). Also day encounters that directly have interconnections with location and time, rather than being fully isolated. The persistent encounter system should be used to its fullest extent here with routing, backtracking, etc. Some examples for this:
+  - Persisten traders as a day encounter that buy / sell specific items, so the player can also go back for that item or gold.
+  - A spot where something is buried. Only possible interaction is with a shovel, so player will want to come back with a shovel.
+  - A lit flare encounter that doesn't do anything, but the player learns that a care package will land here in 10 days.
+  - Landmarks that are visible from the start that give a very clear indicator of what could be found there (i.e. fuel station for fuel, supermarket for food, pharmacy for medical items, etc.)
+  - Simple choices like:
+    - Choose 1 out of 3 items to receive (or lose).
+  - Clear signals to the player of how a specific item can be acquired (maybe dedicated item pages in the handbook?)
+  - Clear signals to the player of how a specific stat can be increased (maybe dedicated stat pages in the handbook?)
 
+Items:
+- Rework the current tag system:
+  - Currently items have a tag and an optional "value modifier" on that tag to determine their effectiveness on that tag (i.e. bone has tag weapon, but -20 because it is a bad weapon).
+  - Currently encounter options determine how much difficulty an item slot reduces if filled (modified by that tag modifier)
+  - This works but can be reworked to a more elegant system:
+  - Instead of having a flat value modifier and encounter options determining item effectiveness/difficulty reduction, make a general level/tier system:
+    - Each tag on an item has a level/tier (1-5). (i.e. a knife is a lvl3 weapon, a lvl1 lockpick and lvl4 cutting tool).
+	- Encounter options no longer have to determine difficulty reduction per item slot
+	- Instead the level determines that. 1 = 20% difficulty reduction, 2 = 40%, 3 = 60%, 4 = 80%, 5 = 100%
+	- Should also make it way easier to understand, easier to display in the UI, and less work to design encounter options (as you only have to set the tag for an option, and the difficulty calculation is standardized from there).
+- Add durability system (see above)
+  - Initial durability is randomized between 1-4.
+- Make consumable effects more clear
+  - Consumable system is fully detached from tag level system.
+  - Just make it really clear in item description what happens / can happen if consumed (no cryptic information).
+  - Like exact calories, chance of food poisoning, etc.
+- Clean up loot tables so they are smaller and more varied between encounters / biomes
+- Individual items should all have their own identity and use cases.
+- Allow drag on drop from items that can tend wounds to tendable wounds.
+- Allow cooking food (maybe add this option to new generic evening encounter)
 
+Rumour / Quest system:
+- Remove partial rumours/quests
+  - Not really an intuitive system and it's very hard to design around.
+  - Else the current system works pretty well.
 
+Health Conditions:
+- Add electrocution health condition according to design doc
+- Remove heart arrythmia and corresponding items from design doc
+- Add any new health conditions if needed, but current ones already cover a great range.
+- Make health condition effects way clearer in the description. Currently very cryptic.
+- Make health condition colors way clearer.
 
+End-Game Substance Weapon:
+- As per the new intro, after 30 days a weapon is deployed (disintegrating spreading substance; reason for the quarantine)
+- After 20 days, mark tile on map where it is deployed.
+- Make tiles that are affected by substance impassable.
+- Each tile adjacent to a substance has a 50% chance to get affected during the night, having the substance as well.
+- Mark tiles that it will spread to next on the map.
+- If you stay on a tile where the substance spreads, you die. (in the end unavoidable)
+- Acts as a clear end-point of the game. Either escape by day X (where substance spread to you/whole map), or die.
 
-Itch Tags:
-Point & Click, Adventure, Survival, Roguelike, resource-management, Procedural Generation, Meaningful Choices
+Audio / FX:
+- Add SFX for everything
+- Add different "AmbientMoods", basically just an enum that encounters can set. Depending on enum, the AudioManager plays a different set of ambient tracks.
+- When changing mood, the old mood pauses/doesn't stop, so it can continue where it left off and the player doesn't constantly only hear the start of the tracks
+- Moods are:
+  - Default
+  - Tense
+  - Hopeful/Uplifting
+  - Desolate (maybe if necessary)
+  - Mystery (maybe if necessary)
+- In between day of time transitions, let the screen stay black for a short time and play a handcart moving + footstep sound (maybe different per biome) 
 
-feature wheel:
-- add tiredness system
-	- evening options (sleep > morning, forage > late evening + tired, continue to destination > late evening + tired)
-	- morning option to rest for the day (-tired and default encounter at afternoon)
-- location movement difficulty + possibility to not reach camp spot at evening
-- add pain system (pass out for the day when too many cuts or bruises)
-	- implement a system to avoid infinite cuts exploit
-	- get unconcious with too much pain (day ends, can lose random item)
-- points of interest on map (alternate locations, not forced events)
-	special grocery store place on map that can appear on city, when chosing location in morning you can chose between "go to city" and "go to grocery store"
-	grocery store for food (city)
-	pharmacy for medical stuff (city)
-- radiation spreading from nuclear plant every day > tiles can be irradiated low/medium/high. add radiation poisoning+death
-- position on map should not be centered on tile during afternoon when traveling there => add marker for where you are going
-- add new event
-- improve event (take random number and expand that event)
-- improve companion
-- fix E006 woodsbunker event (display required food and water after giving)
-- status effect description should use description box
-- add item interaction options for items not owned (trader)
-- add main road on map and as location (if starting on main road you can move two tiles on road)
-- add more detailed info box on world map of hovered tile (also include disance from current tile)
-- add flashlight and battery function (insert and remove battery from flashlight) (can be used in E009 to see items)
-- in E009 make bruise wound more severe (more bone damage) and change text to match it
-- in E009 add ability to throw items at traps
-- add small delay when adding multiple items to inventory at once (to avoid them being stuck in each other)
-- chose between 3 starting packs when starting the game containing random 3 items
-- use fighting stat in E003
-- use moving stat
-- use dexterity stat
-- use charisma stat in E003 and E007 to negotiate
-- make wounds affect stats
-- make companions affect stats
-- add to escape menu: exit button, add wounds, add companions
-- add poison system
-- art: decouple background from sky and add daytime variations for sky (morning, afternoon, evening, late evening, night)
-- fix item stash item is not hidden and open sprite, fix text so you don't know the item when taking
-- add e11 and e12 to base.psd
-- for map missions add mission title (gets displayed as hover info on map)
-- special areas (multiple polygons) with tags (i.e. dangerous) that can alter event chances
-- generalize injury system
-	- make injury abstract monobheaviour and add subclasses for each type handling behaviour
-	- then attach the subclasses to the injury sprites
-- add "dud" event, meaning that it's possible that nothing happens when staying at same location, can also appear randomly else (not likely)
-- make path history line smoother
-- make infections visible on event outcome notes
-- make it more clear that you are bleeding
-- add damage parameter to addbruisewound
-- create followup to E008
-- add reward for E011
-- add details to locations in map view (farmland = low danger/tools, city = high danger/high supplies, forest = medium danger/animals etc)
+UI:
+- Make tooltip a bit nicer. Differentiate title clearer from text.
 
-reward system (get a random reward that brings you closer to winning)
-	- apply to parrot reunion
-	- apply to distressed guy reunion
-		- add event first
-		- make it area based (he lives in x city)
-		- give city names
-		- improve map tile info
-	- apply to survivor looking for item reward
-	
-rewards are
-	- items
-	- special event location reveal
-	- can be chosen
+Handbook:
+- Add a diary with different sections that can be cycled through like a book with bookmarks at the top as a table of contents (like "The Forest")
+- First section is the Quest Log, basically a more in-depth version of the "Notes" section of the HUD, displaying all learned information and quests.
+- Second section is a list of all items. First all encountered ones, then all unencountered ones as a basic silhouette and no info. With a dropdown they can be filtered to a specific tag, and are then ordered by tag level.
+- Button for this already exists in UI
 
-special event warehouse
+Settings Page:
+- Simple settings with just audio sliders
+- Hook up to main menu and in-game settings button.
+- In-Game add a new debug button for the window that now appears with the settings button
 
+Save / Load System:
+- Autosave after each time of day transition.
+- If a run is saved, add option to load it.
+- Test if that even works on a web build. Else scrap that.
 
-content ideas:
-- add something with rats and disease
-- add cat as companion
-- e003 guy can be companion (will backstab after a while)
-- rare night events
-- care packages falling from sky (flare gun as item)
+Tutorial:
+- Option to enable tutorial when starting a game
+- Very simple. Just basic popups when things happen for the first time. Most of the game should be self-explanatory.
+
+Out of Scope for 1.0 (all these systems could still be implemented later and are not 100% necessary for the core experience):
+- Weather
+- Companions
+- Additional Biomes
+
+Personal Playtests
+
+PUBLISH TO ITCH
+
+Itch Genre: one of: Point & Click, Adventure, Strategy, Survival
+Itch Tags (10 additional to genre):
+Point & Click, Adventure, Strategy, Survival, Roguelike, resource-management, Procedural Generation, Meaningful Choices, Multiple Endings, Exploration, immersive-sim

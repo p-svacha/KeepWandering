@@ -50,10 +50,10 @@ public class WorldMap
         int minY = Tiles.Min(x => x.Key.y);
         int maxY = Tiles.Max(x => x.Key.y);
 
-        MinWorldX = minX * HelperFunctions.HEXAGON_SIDE2SIDE;
-        MaxWorldX = maxX * HelperFunctions.HEXAGON_SIDE2SIDE;
-        MinWorldY = minY * 0.75f;
-        MaxWorldY = maxY * 0.75f;
+        MinWorldX = minX * 0.75f;
+        MaxWorldX = maxX * 0.75f;
+        MinWorldY = minY * HelperFunctions.HEXAGON_SIDE2SIDE;
+        MaxWorldY = maxY * HelperFunctions.HEXAGON_SIDE2SIDE;
     }
 
     #region Getters

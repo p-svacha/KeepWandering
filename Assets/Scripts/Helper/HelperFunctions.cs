@@ -7,17 +7,20 @@ using UnityEngine;
 
 public static class HelperFunctions
 {
-    public static int mod(int x, int m)
+    /// <summary>
+    /// Modulo that handles negative values in a logical way.
+    /// </summary>
+    public static int Mod(int x, int m)
     {
         return (x % m + m) % m;
     }
 
-    #region Hex-Map
+    #region Hex-Map (flat-top)
 
     public const float HEXAGON_SIDE2SIDE = 0.866f;
     public static List<Direction> GetAdjacentHexDirections()
     {
-        return new List<Direction>() { Direction.NE, Direction.E, Direction.SE, Direction.SW, Direction.W, Direction.NW };
+        return new List<Direction>() { Direction.N, Direction.NE, Direction.SE, Direction.S, Direction.SW, Direction.NW };
     }
     public static List<Direction> GetAdjacentSquareDirections()
     {
@@ -28,33 +31,65 @@ public static class HelperFunctions
     {
         return dir switch
         {
-            Direction.NW => Direction.NE,
-            Direction.NE => Direction.E,
-            Direction.E => Direction.SE,
-            Direction.SE => Direction.SW,
-            Direction.SW => Direction.W,
-            Direction.W => Direction.NW,
+            Direction.N => Direction.NE,
+            Direction.NE => Direction.SE,
+            Direction.SE => Direction.S,
+            Direction.S => Direction.SW,
+            Direction.SW => Direction.NW,
+            Direction.NW => Direction.N,
+            _ => throw new System.Exception("Invalid hex direction")
+        };
+    }
+
+    public static Direction GetOppositeHexDirection(Direction dir)
+    {
+        return dir switch
+        {
+            Direction.N => Direction.S,
+            Direction.NE => Direction.SW,
+            Direction.SE => Direction.NW,
+            Direction.S => Direction.N,
+            Direction.SW => Direction.NE,
+            Direction.NW => Direction.SE,
+            _ => throw new System.Exception("Invalid hex direction")
+        };
+    }
+
+    public static Direction GetNextHexDirectionCounterClockwise(Direction dir)
+    {
+        return dir switch
+        {
+            Direction.N => Direction.NW,
+            Direction.NW => Direction.SW,
+            Direction.SW => Direction.S,
+            Direction.S => Direction.SE,
+            Direction.SE => Direction.NE,
+            Direction.NE => Direction.N,
             _ => throw new System.Exception("Invalid hex direction")
         };
     }
 
     public static Vector2Int GetAdjacentHexCoordinates(Vector2Int source, Direction dir)
     {
-        if (dir == Direction.E) return new Vector2Int(source.x + 1, source.y);
-        if (dir == Direction.W) return new Vector2Int(source.x - 1, source.y);
-        if (source.y % 2 == 0)
+        // N/S move along the row axis (cell-x) regardless of column parity
+        if (dir == Direction.N) return new Vector2Int(source.x + 1, source.y);
+        if (dir == Direction.S) return new Vector2Int(source.x - 1, source.y);
+
+        // Diagonal offsets depend on column parity (cell-y is the column axis)
+        bool isEvenColumn = Mod(source.y, 2) == 0;
+        if (isEvenColumn)
         {
-            if (dir == Direction.NW) return new Vector2Int(source.x - 1, source.y + 1);
             if (dir == Direction.NE) return new Vector2Int(source.x, source.y + 1);
+            if (dir == Direction.SE) return new Vector2Int(source.x - 1, source.y + 1);
             if (dir == Direction.SW) return new Vector2Int(source.x - 1, source.y - 1);
-            if (dir == Direction.SE) return new Vector2Int(source.x, source.y - 1);
+            if (dir == Direction.NW) return new Vector2Int(source.x, source.y - 1);
         }
         else
         {
-            if (dir == Direction.NW) return new Vector2Int(source.x, source.y + 1);
             if (dir == Direction.NE) return new Vector2Int(source.x + 1, source.y + 1);
+            if (dir == Direction.SE) return new Vector2Int(source.x, source.y + 1);
             if (dir == Direction.SW) return new Vector2Int(source.x, source.y - 1);
-            if (dir == Direction.SE) return new Vector2Int(source.x + 1, source.y - 1);
+            if (dir == Direction.NW) return new Vector2Int(source.x + 1, source.y - 1);
         }
 
         throw new System.Exception("Invalid direction adjacency for hex tiles!");

@@ -1,0 +1,4 @@
+MAP:
+
+radius: 9 + 60 random tiles attached
+total: 331 tiles within quarantine zone

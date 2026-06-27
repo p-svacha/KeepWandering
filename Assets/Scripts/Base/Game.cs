@@ -106,7 +106,7 @@ public class Game : Singleton<Game>
         ActiveQuests = new List<Quest>();
 
         // Init world
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 10, numAdditionalTiles: 340, numCities: 5);
+        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 9, numAdditionalTiles: 60, numCities: 3);
         //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
         WorldMapCamera.Init(this);
         WorldMapTile startTile = WorldMap.GetTile(Vector2Int.zero);

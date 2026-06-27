@@ -72,7 +72,7 @@ public class WorldMapCameraHandler : MonoBehaviour
         if (IsMouseWheelDown)
         {
             float speed = DRAG_SPEED * Camera.orthographicSize;
-            float canvasScaleFactor = Game.UI.GetComponent<Canvas>().scaleFactor;
+            float canvasScaleFactor = Game.UI.GetComponentInParent<Canvas>().scaleFactor;
             transform.position += new Vector3(-Input.GetAxis("Mouse X") * speed / canvasScaleFactor, -Input.GetAxis("Mouse Y") * speed / canvasScaleFactor, 0f);
         }
 

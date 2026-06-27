@@ -41,7 +41,7 @@ public class CloudManager : Singleton<CloudManager>
     {
         baseSpeed = 0.4f;
         baseScale = 2f;
-        baseGrayscale = 0.9f;
+        baseGrayscale = 0.93f;
         cloudDensity = 10f;
 
         ResetClouds();
@@ -132,7 +132,7 @@ public class CloudManager : Singleton<CloudManager>
         sr.flipY = Random.value < 0.5f;
 
         // Color: slight variation in grayscale (tinting)
-        float randomGray = baseGrayscale + Random.Range(-0.1f, 0.1f);
+        float randomGray = baseGrayscale + Random.Range(-0.04f, 0.04f);
         randomGray = Mathf.Clamp01(randomGray);
         sr.color = new Color(randomGray, randomGray, randomGray, 1f);
 

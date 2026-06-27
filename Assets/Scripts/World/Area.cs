@@ -135,7 +135,7 @@ public class Area
 
         // Take a starting point
         WorldMapTile currentTile = PerimeterTiles[0];
-        Direction nextStartDir = Direction.NW;
+        Direction nextStartDir = Direction.N;
         bool perimeterDone = false;
 
         // Follow the outside perimeter until reaching the first point again
@@ -198,18 +198,18 @@ public class Area
     }
 
     /// <summary>
-    /// Returns the the edge point of a tile that corresponds to the where the a fence needs to be drawn.
+    /// Returns the the edge point of a tile in the given direction.
     /// </summary>
     private Vector3 GetPerimeterPointForDirection(WorldMapTile tile, Direction dir)
     {
         return dir switch
         {
-            Direction.NW => tile.North,
-            Direction.NE => tile.NorthEast,
-            Direction.E => tile.SouthEast,
-            Direction.SE => tile.South,
-            Direction.SW => tile.SouthWest,
-            Direction.W => tile.NorthWest,
+            Direction.N => tile.CornerWorldPositions[Direction.NE],
+            Direction.NE => tile.CornerWorldPositions[Direction.E],
+            Direction.SE => tile.CornerWorldPositions[Direction.SE],
+            Direction.S => tile.CornerWorldPositions[Direction.SW],
+            Direction.SW => tile.CornerWorldPositions[Direction.W],
+            Direction.NW => tile.CornerWorldPositions[Direction.NW],
             _ => throw new System.Exception("Invalid hex direction")
         };
     }

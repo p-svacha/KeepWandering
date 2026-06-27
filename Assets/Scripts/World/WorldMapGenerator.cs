@@ -16,6 +16,8 @@ public static class WorldMapGenerator
     private static PerlinNoise CityNoise;
 
     private static Dictionary<Vector2Int, WorldMapTile> Tiles;
+    private static List<WorldMapTile> QuarantineZoneTiles;
+    private static List<WorldMapTile> OutsideZoneTiles;
     private static List<Area> Cities;
     private static List<Area> Forests;
     private static List<Area> Lakes;
@@ -27,7 +29,7 @@ public static class WorldMapGenerator
     public static WorldMap GenerateWorld(int zoneRadius, int numAdditionalTiles, int numCities)
     {
         // Initialize noisemaps
-        WaterNoise = new PerlinNoise(scale: 0.1f);
+        WaterNoise = new PerlinNoise(scale: 0.15f);
         ForestNoise = new PerlinNoise(scale: 0.15f);
         CityNoise = new PerlinNoise(scale: 0.3f);
 
@@ -36,15 +38,15 @@ public static class WorldMapGenerator
 
         AddTile(Vector2Int.zero);
 
-        // Create base perimeter to have minimum radius of zone
-        for (int i = 0; i < zoneRadius; i++) ExpandMapEdge();
+        // Create base perimeter to have minimum radius of zone (-1 because we will expand a final time after adding random additional tiles)
+        for (int i = 0; i < zoneRadius - 1; i++) ExpandMapEdge();
 
         // Expand random tiles along the perimeter
         for (int i = 0; i < numAdditionalTiles; i++) ExpandRandomTile();
 
         // Expand edge a final time to fill holes and smooth edges
         ExpandMapEdge();
-        List<WorldMapTile> quarantineZoneTiles = new List<WorldMapTile>(Tiles.Values); // all tiles generated so far will make up quarantine zone
+        QuarantineZoneTiles = new List<WorldMapTile>(Tiles.Values); // all tiles generated so far will make up quarantine zone
 
         // Create cities
         Cities = new List<Area>();
@@ -62,9 +64,13 @@ public static class WorldMapGenerator
 
         // Expand edge to create safety zone outside quarantine
         ExpandMapEdge();
+        OutsideZoneTiles = Tiles.Values.Except(QuarantineZoneTiles).ToList();
+
+        // Add roads
+        AddRoads();
 
         // Create and draw quarantine zone
-        Area quarantineZone = new Area("Quarantine Zone", AreaType.QuarantineZone, quarantineZoneTiles);
+        Area quarantineZone = new Area("Quarantine Zone", AreaType.QuarantineZone, QuarantineZoneTiles);
         quarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/FenceMaterial"), 0.4f);
 
         // Create world map
@@ -380,4 +386,70 @@ public static class WorldMapGenerator
             }
         }
     }
+
+    #region Roads
+
+    private static void AddRoads()
+    {
+        // Generate a road from the home center tile to a random tile outside the quarantine zone
+        WorldMapTile from = Tiles[Vector2Int.zero];
+        WorldMapTile to = OutsideZoneTiles.RandomElement();
+        List<WorldMapTile> homeRoad = FindPath(from, to);
+    }
+
+    private static void AddRoad(List<WorldMapTile> road)
+    {
+        foreach(WorldMapTile tile in road)
+        {
+            if (tile.HasRoad) break; // Merge and stop
+            tile.AddRoad();
+        }
+    }
+
+    /// <summary>
+    /// Returns the shortest path of passable tiles from 'from' to 'to' (inclusive of both),
+    /// or null if no passable path exists. All transitions are treated as equal cost.
+    /// </summary>
+    public static List<WorldMapTile> FindPath(WorldMapTile from, WorldMapTile to)
+    {
+        if (from == null || to == null) return null;
+        if (!from.IsPassable() || !to.IsPassable()) return null;
+        if (from == to) return new List<WorldMapTile> { from };
+
+        Queue<WorldMapTile> frontier = new Queue<WorldMapTile>();
+        Dictionary<WorldMapTile, WorldMapTile> cameFrom = new Dictionary<WorldMapTile, WorldMapTile>();
+
+        frontier.Enqueue(from);
+        cameFrom[from] = null;
+
+        while (frontier.Count > 0)
+        {
+            WorldMapTile current = frontier.Dequeue();
+            if (current == to) break; // early exit once target is reached
+
+            foreach (WorldMapTile next in current.GetAdjacentTiles())
+            {
+                if (!next.IsPassable()) continue;
+                if (cameFrom.ContainsKey(next)) continue; // already discovered
+                cameFrom[next] = current;
+                frontier.Enqueue(next);
+            }
+        }
+
+        if (!cameFrom.ContainsKey(to)) return null; // no path found
+
+        // Reconstruct path by walking parents back from the target
+        List<WorldMapTile> path = new List<WorldMapTile>();
+        WorldMapTile step = to;
+        while (step != null)
+        {
+            path.Add(step);
+            step = cameFrom[step];
+        }
+        path.Reverse();
+        return path;
+    }
+
+
+    #endregion
 }

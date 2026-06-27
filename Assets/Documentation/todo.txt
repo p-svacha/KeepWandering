@@ -1,14 +1,19 @@
 TODOS:
 ==============================================
 
-higher res clouds
-skip intro
-
-- Main Menu
-- Intro Sequence
+- road system
+- rework map
+- commit to 2d art style
+- simpler encounters
+- split encounter options into individual encounters
+- At very first morning, show house behind character
 - Initial guidance quest
+- Add more drag & drop and clicking on elements directly in encounter
+- Make evening encounter more generic
+- Resuse current evening sprites for day encounters
 - chance for no encounter
 - add 3 generic encounters
+
 
 actual interesting game mechanics
 

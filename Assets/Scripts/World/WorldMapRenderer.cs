@@ -89,6 +89,8 @@ public class WorldMapRenderer : MonoBehaviour
 
     private void Update()
     {
+        if (Program.Instance.State != ProgramState.Game) return;
+
         UpdatePlayerPosition();
         UpdatePathHistory();
         UpdateHoveredTile();

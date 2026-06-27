@@ -12,7 +12,10 @@ public class WorldMapTile
     public Vector2Int Coordinates { get; private set; }
     public int DistanceFromStart {  get; private set; }
     public Vector2 WorldPosition { get; private set; }
+    public Dictionary<Direction, Vector2> CornerWorldPositions { get; private set; }
+    public Dictionary<Direction, Vector2> SideMidpointWorldPositions { get; private set; }
     public BiomeDef Biome { get; private set; }
+    public bool HasRoad { get; private set; }
     public LocationEncounter Encounter { get; private set; }
     public Quest Mission { get; private set; }
     public DangerLevelDef DangerLevel { get; private set; }
@@ -35,6 +38,26 @@ public class WorldMapTile
         NumVisits = 0;
 
         DistanceFromStart = GetDistanceFromTile(Vector2Int.zero);
+
+        CornerWorldPositions = new Dictionary<Direction, Vector2>()
+        {
+            { Direction.NE, WorldPosition + new Vector2(0.25f, HelperFunctions.HEXAGON_SIDE2SIDE / 2f) },
+            { Direction.E, WorldPosition + new Vector2(0.5f, 0f) },
+            { Direction.SE,  WorldPosition + new Vector2(0.25f, -HelperFunctions.HEXAGON_SIDE2SIDE / 2f) },
+            { Direction.SW, WorldPosition + new Vector2(-0.25f, -HelperFunctions.HEXAGON_SIDE2SIDE / 2f) },
+            { Direction.W, WorldPosition + new Vector2(-0.5f, 0f) },
+            { Direction.NW, WorldPosition + new Vector2(-0.25f, HelperFunctions.HEXAGON_SIDE2SIDE / 2f) },
+        };
+
+        SideMidpointWorldPositions = new Dictionary<Direction, Vector2>()
+        {
+            { Direction.N, WorldPosition + new Vector2(0f, HelperFunctions.HEXAGON_SIDE2SIDE / 2f) },
+            { Direction.NE, WorldPosition + new Vector2(0.25f, HelperFunctions.HEXAGON_SIDE2SIDE / 4f) },
+            { Direction.SE, WorldPosition + new Vector2(0.25f, -HelperFunctions.HEXAGON_SIDE2SIDE / 4f) },
+            { Direction.S, WorldPosition + new Vector2(0f, -HelperFunctions.HEXAGON_SIDE2SIDE / 4f * 2f) },
+            { Direction.SW, WorldPosition + new Vector2(-0.25f, -HelperFunctions.HEXAGON_SIDE2SIDE / 4f) },
+            { Direction.NW, WorldPosition + new Vector2(-0.25f, HelperFunctions.HEXAGON_SIDE2SIDE / 4f) },
+        };
     }
 
     public void AddVisit() => NumVisits++;
@@ -53,17 +76,19 @@ public class WorldMapTile
 
     public int GetDistanceFromTile(Vector2Int coordinates)
     {
-        // Convert to cube coordinates (odd-r offset)
+        // Convert to cube coordinates (odd-q offset, flat-top)
         int col1 = Coordinates.x;
         int row1 = Coordinates.y;
-        int q1 = col1 - (row1 - (row1 & 1)) / 2;
-        int r1 = row1;
+        int q1 = col1;
+        int r1 = row1 - (col1 - (col1 & 1)) / 2;
         int s1 = -q1 - r1;
+
         int col2 = coordinates.x;
         int row2 = coordinates.y;
-        int q2 = col2 - (row2 - (row2 & 1)) / 2;
-        int r2 = row2;
+        int q2 = col2;
+        int r2 = row2 - (col2 - (col2 & 1)) / 2;
         int s2 = -q2 - r2;
+
         return (Mathf.Abs(q1 - q2) + Mathf.Abs(r1 - r2) + Mathf.Abs(s1 - s2)) / 2;
     }
 
@@ -72,6 +97,8 @@ public class WorldMapTile
         Biome = biome;
         WorldMapRenderer.Instance.FillTile(this);
     }
+
+    public void AddRoad() => HasRoad = true;
 
     public void SetEncounter(LocationEncounter encounter)
     {
@@ -119,13 +146,6 @@ public class WorldMapTile
     {
         return Biome.IsPassable;
     }
-
-    public Vector2 North => WorldPosition + new Vector2(0f, 0.5f);
-    public Vector2 NorthEast => WorldPosition + new Vector2(HelperFunctions.HEXAGON_SIDE2SIDE / 2f, 0.25f);
-    public Vector2 SouthEast => WorldPosition + new Vector2(HelperFunctions.HEXAGON_SIDE2SIDE / 2f, -0.25f);
-    public Vector2 South => WorldPosition + new Vector2(0f, -0.5f);
-    public Vector2 SouthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, -0.25f);
-    public Vector2 NorthWest => WorldPosition + new Vector2(-HelperFunctions.HEXAGON_SIDE2SIDE / 2f, 0.25f);
 
     /// <summary>
     /// Returns the city, forest or lake that is closest to this tile.

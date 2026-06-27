@@ -1,617 +1,487 @@
 # Keep Wandering
-A point and click adventure game where the player has to survive and escape a quarantined zone in a procedurally generated world by making choices in various encounters. The player has to manage their inventory, health, companions and quests to survive as long as possible and eventually escape the quarantine zone.
+
+A point-and-click adventure game where the player must survive and escape a quarantined zone in a procedurally generated world by making choices in various encounters. The player manages their inventory, health, and quests to survive and eventually escape before the zone is destroyed.
+
+This document describes the game's **systems and design**. Concrete content (specific items, health conditions, encounters, biomes, danger values, etc.) lives in the `Def` lists and is not duplicated here.
+
+---
 
 # Lore
-The games takes place in a quarantined zone, which is a large area that has been sealed off from the outside world due to a mysterious outbreak of 'something'. The player character is one of the survivors trapped inside the quarantine zone, and their goal is to survive and eventually find a way to escape.
 
+The game takes place in a quarantine zone: a large area sealed off from the outside world ahead of a weapon test. The "outbreak" the public was told about is a cover — the real reason for the quarantine is that a disintegrating, spreading substance is scheduled to be deployed inside the zone. The player character is one of the survivors trapped inside, and their goal is to escape before the substance reaches them.
+
+This gives the run a hard outer time limit: the substance is deployed on a fixed day and spreads from there, eventually consuming the entire zone (see *End-Game: The Substance*).
+
+---
 
 # Game Presentation
-The game mainly happens on the same screen, which shows the player character and their cart with all their items on the left side, and the current encounter step on the right side.
-The top side of the screen shows the all UI information:
 
-- On the left the day counter, button to show the world map and below the health report of the player (and companions).
-- In the center the current encounter step's text and options.
-- On the right the player's stats and current active quests.
+The game happens almost entirely on a single fixed screen. The player character and their handcart (inventory) occupy the left side; the current encounter occupies the right. The camera never pans and the player never moves position.
 
-Everything is sprite based in an old-school flash art style, with a fixed position fully side-view camera and no animations. Black outlines and strong colors in foreground (player + encounter), no outlines and more washed colors in background. Characters are represented by stick figures, with head and torso being volumized and extremities just being stick lines. Persepective and depth is kept to a minimum, strict 2D side view. Some shading can be used but very sparingly. Colors used are quite saturated. The player character and their cart with all their items on the left side, and the current encounter on the right side.
-Sprites change depending on the situation.
-For example, the player should be rendered differently based on their health:
+Top-of-screen UI:
 
-- If the player is hungry, the torso sprite is thinner.
-- Wounds show as sprites on the big head, with overlays for tending and infection.
-- Thirst shows as sweat drops on the head sprite.
-- Poisoning shows as greenish tint on the head sprite.
-- Blood loss shows as discoloring of torso sprite.
-- Broken legs show as a broken leg sprite instead of the normal legs sprite.
-- Broken arms show as a broken arm sprite instead of the normal arms sprite.
-- etc.
+- **Left:** day counter, world-map button, handbook button, settings button, and below them the health report.
+- **Centre:** the current encounter step's text and options.
+- **Right:** the player's stats and the "Notes" panel (active quests / learned information).
 
-The background is also a collection of sprites that change based on the current encounter step:
+## Art Direction
 
-- The main background depends on the current biome.
-- Sky sprites depend on the current weather and time of day.
-- Some particle sprites can be added based on the current weather. For example, if it's raining, rain particle sprites can be added to the background.
-- Additional background sprites can be added based on the current encounter step. For example, if the player is in a woods
-biome and the encounter step is "hiding in bushes", additional bush sprites can be added to the background to make it look like the player is hiding in bushes.
+Strictly **2D side-view comic style with no 3D depth or perspective**. Everything is sprite-based, hand-drawn, with no animation — state changes are communicated by swapping sprites, playing a sound, and simple effects rather than motion.
 
-And of course each encounter step has its own unique sprites showing the current state of the encounter.
+- Foreground (player + encounter): black outlines, strong saturated colours.
+- Background (biome + sky): no outlines, washed-out colours, minimal shading.
+- Characters are stick figures with a volumized head and torso and stick-line limbs.
 
-Game feel wise a it's a simple point and click game, with additional focus on dragging and dropping items. All items are physical objects in the players handcart, that can be dragged and dropped around freely. When an item falls offscreen, it simple spawns back above the cart again, so nothing gets lost.
-Items can also be dragged into encounter option item slots. Encounter options may also be connected to a sprite on screen, which will then have the same click/hover/item drag controls as the option itself. For example, if there is an option to "open crate", the crate sprite can be clicked/hovered/dragged into just like the option itself, and it will have the same effects.
-Item interactions (like "eat beans", "apply bandage") etc. can either be done through a context menu when right clicking the item, or by dragging the item onto an appropriate sprite on the screen. For example, if the player has a bandage item, they can either right click the bandage and select "apply to wound", or drag the item on the wound sprite on the player character to apply it.
+## Dynamic Sprites
 
+Sprites change to reflect state, giving immediate visual feedback without text:
+
+- The player's sprite reflects health (e.g. thinner torso when hungry, wound sprites on the head, broken-limb sprites, tint changes for other conditions).
+- The background's main layer depends on the current biome; the sky depends on the time of day.
+- Each encounter step has its own sprites showing the current state of that encounter.
+
+## Game Feel
+
+A point-and-click game with heavy emphasis on dragging and dropping items. Every item is a physics object resting in the cart and can be dragged freely; an item dragged offscreen respawns above the cart so nothing is ever lost.
+
+Items can be dragged into encounter option **item slots**, or directly onto relevant sprites — e.g. dragging a bandage onto a wound sprite tends it, dragging a crowbar onto a crate fills that option's slot. Item actions (eat, drink, apply) are available both via right-click context menu and via drag-and-drop onto an appropriate target.
+
+Encounter options can be **bound to sprites** in the scene (see *Encounters → Sprite-Bound Options*), so the player can interact with the world directly, not only through the option list.
+
+---
 
 # Player
-The player character is what the player controls and represents them in the game world. The player has an inventory, stats, health and can have companions.
+
+The player character has stats, health conditions, and an inventory.
 
 ## Stats
-The player has a fixed set of stats that have an integer value. The default value is 0. The stats act as a direct modifier to the difficulty of encounter options of that type. The stats are:
 
-- Combat: Affects combat options, such as fighting, defending, using weapons etc.
-- Strength: Affects physical options, such as fighting, carrying heavy items, breaking things etc.
-- Dexterity: Affects dexterous options, such as sneaking, picking locks, disarming traps etc.
-- Intelligence: Affects intellectual options, such as solving puzzles, crafting items, finding hidden things etc.
-- Charisma: Affects social options, such as persuading, intimidating, negotiating etc.
-- Agility: Affects options that require quick reactions, such as dodging, running away, etc.
-- Perception: Affects options that require noticing things, such as spotting hidden enemies, finding hidden items, noticing traps etc.
-- Morale: Affects all options, as a general representation of the player's mental state. Morale can be affected by various things, such as hunger, thirst, injuries, companions, quests etc. High morale can give a bonus to all options, while low morale can give a penalty to all options.
+Eight integer stats, default value 0, that act as direct modifiers to the difficulty of encounter options of their type:
 
-Stat Values can both be temporarily and permanently affected.
+- **Combat** — fighting, defending, using weapons.
+- **Strength** — physical force: fighting, carrying, breaking.
+- **Dexterity** — fine control: sneaking, lockpicking, disarming.
+- **Intelligence** — puzzles, crafting, finding hidden things.
+- **Charisma** — persuading, intimidating, negotiating.
+- **Agility** — quick reactions: dodging, running.
+- **Perception** — noticing hidden enemies, items, traps.
+- **Morale** — general mental state; applies to *all* options as a flat modifier. Affected by hunger, thirst, injuries, quests, and events.
 
-Temporary modifiers are bound to a condition, and are active, such as long as that condition is present (i.e. health conditions, companions, weather, biome, time of day).
+Stats can be modified **temporarily** (bound to an active condition such as a health condition, biome, or time of day) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the stat's base value, which starts at 0. Stats are clamped to **-30 / +30**.
 
-Permanent modifiers are usually the result of specific encounter option outcomes, such as "gain 1 strength permanently". These modifiers are active for the rest of the game and can not be removed or expire. Permanent modifiers can also be the result of fulfilling quests, such as "fulfill quest X to gain 2 charisma permanently". On a technical level, and also communicated in-game, these permanent modifiers simply change the base value of the stat, which is 0 at the start of the game.
+## Health System
 
-Stats are capped at -30/30.
+Health is not a single bar. It is a **collection of conditions** the player currently has, each with its own behaviour, effects, and treatment.
 
-## Health Conditions
-The health system tracks the player's physical and mental condition, including injuries, illnesses, wounds etc. Health is NOT tracked as a global number or health bar, but rather as a collection of conditions that the player can have. Conditions can have severity levels and each condition has their own behaviours, effects and ways of treatment.
+**Core mechanics shared by all conditions:**
 
-All health conditions have a severity value, which is a meter that is hidden to the player. How that value behaves differs for each condition, but the general rule is that the higher the severity value, the bigger the effect of the condition.
+- **Severity** — a hidden meter. In general, higher severity means a stronger effect. How severity behaves is defined per condition.
+- **Stages** — each condition defines stages keyed to severity thresholds; the active stage determines current effects. Single-stage conditions are simply present or absent with a fixed effect.
+- **Natural healing** — each night (and on the Rest action) severity is reduced by the condition's natural-healing value, with small random variation.
+- **Lethal threshold** — some conditions kill the player if severity reaches their lethal value, ending the run.
+- **Max instances** — how many instances of a condition type can coexist. Gaining one beyond the max instead adds its severity to a random existing instance.
+- A condition is removed when its severity reaches 0.
 
-Health conditions have a "Natural Healing" value. Each night, the severity value of each condition is automatically reduced by that natural healing value (with a small random variation). This healing is also applied when the player chooses the "Rest" action in the morning.
-
-All health conditions also have defined set of stages. The active stage depends on the current severity value.
-There's also single-stage conditions, which are either present or not. They have a fixed effect that does not depend on severity, and they usually have a specific way of treatment that instantly cures the condition, instead of reducing severity gradually.
-
-Health conditions can have a Lethal Threshold. If the severity value reaches that threshold, the player dies and the game is over.
-
-Health conditions often affect player stats, and can also have other effects, such as causing night events. The exact behaviours often depends on the current stage.
-Most causes of death are related to health conditions. But there are also positive health conditions.
-
-In the stages descriptions, the first value is always inlusive, and the second value up to the next integer value. So for example "Hungry: 8-10" means that the player is in the "Hungry" stage if the severity value of the Hunger condition is equal or greater than 8, and less than 11.
-
-Conditions are split into two categories: Needs and Conditions
+Conditions split into two categories:
 
 ### Needs
-Needs are health conditions that are permanently present on the player. A special property of needs is that, unlike Conditions, they are not necessarily shown on the health report, only if reaching a certain severity threshold.
 
-The following needs exist:
-
-#### Hunger
-Severity increases by 1 every night. Starts at 5.
-
-Stages:
-- Well Fed: 0-2, +5 morale
-- Nothing: 3-7, no effect, hidden in health report
-- Hungry: 8-10, -2 morale
-- Very Hungry: 11-13, -5 morale, -2 strength, -1 intelligence
-- Starving: 14-16, -10 morale, -5 strength, -3 intelligence
-- Lethal at 17
-
-Severity can be reduced by consuming items that give nutrition.
-
-#### Thirst
-Severity increases by 1 every night. Starts at 5.
-
-Stages:
-- Hydrated: 0-1, +3 morale
-- Nothing: 2-6, no effect, hidden in health report
-- Thirsty: 7-8, -2 dexterity
-- Very Thirsty: 9-10, -5 dexterity, -2 agility, -1 perception
-- Dehydrated: 11-12, -10 dexterity, -5 agility, -3 perception
-- Lethal at 13
-
-Severity can be reduced by consuming items that give hydration.
+Permanently present conditions whose severity rises over time and is reduced by consuming items (e.g. hunger reduced by nutrition, thirst by hydration). Unlike normal conditions, needs are only shown in the health report once they pass a visibility threshold.
 
 ### Conditions
-Conditions are health conditions that can be gained and lost throughout the game. They are always shown in the health report, and therefore should have some effect at all stages. When a condition is applied, it is always applied with a specific initial severity value.
 
-Conditions have a maximum instance amount. This amount defines how many instances of the condition type the player can have at the same time. If the player gains a condition that would put them over the maximum amount, this severity is instead added to a random existing instance of that condition.
+Gained and lost throughout the run, always shown in the health report, applied with a defined initial severity. Includes fractures (which choose a random limb side and have their own instancing), blood loss, electrocution, and others — all defined in `HealthConditionDefs`.
 
-If the severity of a condition reaches 0, it is considered healed and removed from the player.
+### Wounds
 
-#### Blood Loss
-Max instances: 1
-Natural Healing: 0.5
+A special subcategory of condition sharing common tending/infection logic. The severity value tracks **infection** rather than a damage amount, so wounds are always applied at the same initial severity. Each wound carries **tended** and **treated** flags:
 
-Stages:
-- Stable: 0-1, no effect, invisible in health report
-- Light Blood Loss: 2-4, -2 combat, -2 strength, -2 agility
-- Heavy Blood Loss: 5-7, -5 combat, -5 strength, -5 agility
-- Critical Blood Loss: 8-9, -8 combat, -8 strength, -8 agility
-- Lethal at 10
+- **Tending** (item with the appropriate medical tag) reduces ongoing harm and improves natural healing.
+- **Treating** (item with an antiseptic tag) protects against infection.
+- An untended/untreated wound's infection severity tends to worsen each night; infection progresses through stages with escalating penalties and is lethal at the top.
 
-Treatment: none - only heals naturally.
+Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while untended; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
 
-#### Leg Fracture
-Max instances: 2
-Natural Healing: 0.5
+### Generalized Damage Helpers
 
-Stages:
-- Sprained Leg: 0-3, -3 agility, -1 combat
-- Cracked Leg: 4-7, -5 agility, -3 combat
-- Broken Leg: 8+, -10 agility, -5 combat. Cannot move to different tiles on the world map in the morning.
-- Capped at 10.
+Encounters apply damage through standardized helpers rather than always targeting a specific condition:
 
-Treatment: Natural Healing can be increased by applying an item with the splint flag. Consumes the item.
+- **Apply Random Wound** — a new wound from a pool (typically cut/bruise).
+- **Take Bruise Damage (severity X)** — a bruise wound plus fracture damage to a random limb.
+- **Take Cut Damage (severity X)** — a cut wound plus an immediate blood-loss increase.
+- **Take Random Damage (severity X)** — randomly one of the above.
 
-Fractures have their own instancing logic, where each time a fracture is applied, a random side (left or right) is chosen. If a fracture already exists, the severity is added. Else a new one is created.
-
-#### Arm Fracture
-Max instances: 2
-Natural Healing: 0.5
-
-Stages:
-- Sprained Arm: 0-3 -2 combat, -2 strength, -2 dexterity
-- Cracked Arm: 4-7, -4 combat, -4 strength, -4 dexterity
-- Broken Arm: 8+, -6 combat, -6 strength, -6 dexterity
-- Capped at 10.
-
-Treatment: Natural Healing can be increased by applying an item with the splint flag. Consumes the item.
-
-Fractures have their own instancing logic, where each time a fracture is applied, a random side (left or right) is chosen. If a fracture already exists, the severity is added. Else a new one is created.
-
-#### Electrocution
-Max instances: 1
-Natural Healing: 1
-
-Stages:
-- Stunned: 0-3, -3 dexterity, -3 agility, -1 combat, -1 perception
-- Shocked: 4-7, -5 dexterity, -5 agility, -3 combat, -3 perception. 20% chance to gain Heart Arrhythmia condition during the night
-- Severly Shocked: 8-9, -5 dexterity, -5 agility, -5 combat, -5 perception, -5 strength, -5 morale. 40% chance to gain Heart Arrhythmia condition during the night
-- Lethal at 10
-
-Treatment: none - only heals naturally.
-
-#### Heart Arrhythmia
-Max instances: 1
-Natural Healing: none
-
-Single Stage Condition: -3 agility, -3 morale
-
-Treatment: Instantly cured with a defibrillator or heart medication, which consumes the item.
-
-#### Wounds
-Max instances: 5 (per wound type)
-Natural Healing: 0.2 if untended, 1 if tended
-
-Wounds are a special subcategory of conditions. They all share some logic regarding tending and infection. The severity value is used for the infection state. Additionally, wounds have a "tended" and "treated" flag. Opposed to most other conditions, wounds are always applied with the same initial severity (1.5), as the severity is used to track the infection state.
-
-Wound can be tended by using items with the bandage flag, which consumes the item and sets the "tended" flag to true.
-
-Wounds can be treated by using items with the antiseptic flag, which consumes the item and sets the "treated" flag to true.
-
-Additionally to natural healing, the severity changes each night according to these rules (multiple can apply):
-- If the wound is untended or infected and untreated, it will increase by a random amount between 0.5 and 1.5.
-
-The effect of a wound is the combination of the base effects, infection effects and wound-specific effects. Infection (severity) works the same for all wounds.
-
-Base effects:
-Untended: -2 combat, -2 charisma
-Tended: -1 combat, -1 charisma
-
-Stages:
-- Not Infected: 0-3, no effect
-- Minor Infection: 4-6, -1 combat, -1 strength, -1 dexterity
-- Major Infection: 7-9, -3 combat, -3 strength, -3 dexterity
-- Critical Infection: 10-12, -5 combat, -5 strength, -5 dexterity
-- Lethal at 13
-
-##### Cut Wounds
-Additional effect while untended: +0.5 blood loss each night.
-Additional effect while tended: none
-
-##### Bruise Wounds
-Additional effect while untended: Slows healing of all fractures by 0.2.
-Additional effect while tended: none
-
-## Taking Damage
-There's a few generalized ways of taking damage that are used in various encounters. These are additional to just gaining a specific condition (which is of course also possible).
-
-**Applying Random Wound**: This just applies a new wound out of a pool of possible wounds (usually bruise/cut).
-
-**Taking Bruise Damage**: The player can take bruise damage of a specific severity. This applies a new bruise wound and bone damage (fracture) to a random arm or leg with the given severity.
-
-**Taking Cut Damage**: The player can take cut damage of a specific severity. This applies a new cut wound and immediately increases blood loss by the given severity.
-
-**Taking Random Damage**: The player can take random damage of a specific severity. This just randomly chooses one of the above damage types and applies it with the given severity.
-
+---
 
 # Inventory / Items
-The player carries a wooden cart behind them, which represents their inventory. Each item is a physics sprite in the cart, affected by gravity so it stays in the cart. Items can be dragged and dropped freely in the cart, and also into item slots for encounter options.
-If an item is added to the player, it spawns above the cart and falls into it. If an item is removed from the player, it simply vanishes.
-If an item falls out of the cart, it respawns back above the cart, so they cannot accidentally be lost. Hovering over an item shows a tooltip with the name and short description. Clicking on an item may give options such as "eat", "drink" if applicable.
-There is a limit of how much the player can carry, but how that limit is implemented is still to be determined and needs to be experimented with.
+
+The player carries a wooden handcart representing their inventory. Items are physics sprites that settle in the cart and can be dragged freely; items added spawn above the cart and fall in; removed items vanish; items knocked offscreen respawn so they cannot be lost. Hovering shows a tooltip; clicking/right-clicking offers item actions (eat, drink, apply, etc.).
+
+There is a carry limit; its exact implementation is still being tuned.
 
 ## Item Tags
-Each item can have any number of tags. Tags are the primary mechanism for defining which items are accepted by which item slots in encounter options. They are never communicated to the player directly.
 
-There are two broad categories of tags:
+Each item can have any number of **tags**. Tags are the mechanism by which item slots decide which items they accept. Tags are never shown to the player directly as raw data, but the player learns an item's tags and levels through use and the handbook.
 
-- **General-purpose tags** describe what an item *is* (e.g. "Food", "Tool", "Medical", "Weapon", "Trash"). These are used for straightforward slot requirements such as "accepts any food item".
-- **Activity tags** describe what an item can be *used for* (e.g. "Combat", "Scavenging", "Fortifying", "Lockpicking", "Digging"). These allow slots to accept any item that is useful for a given activity, even if those items are otherwise very different from each other.
+Two conventions of tag:
 
-An item can (and often should) have tags from both categories. Because tags are invisible to the player, it is fine to have many, specific, overlapping, or technical tags, as long as they make sense from a design perspective. From a technical perspective there is no difference between these two categories of tags, they are just a convention for how to use them in design.
+- **General-purpose tags** describe what an item *is* (Food, Tool, Medical, Weapon, Trash).
+- **Activity tags** describe what an item is *used for* (Combat, Scavenging, Lockpicking, Digging, Cutting…).
 
-### Tag Value Modifiers
-Items can optionally define a **tag value modifier** for any of their tags. This is a signed integer that expresses how particularly good or bad the item is at that tag's activity.
+An item can carry tags from both. Technically there is no difference; it's a design convention. Because there are many tags, it's fine for them to be specific and overlapping.
 
-When an item with a tag value modifier is placed into a slot that accepts that tag, the slot's default difficulty reduction is adjusted by the modifier value. For example:
+### Tag Levels
 
-- A **bone** has the *Combat* tag with a tag value modifier of **-5**. If placed in a combat slot whose default difficulty reduction is 20, the effective reduction becomes 15.
-- A **flashlight** has the *Scavenging* tag with a tag value modifier of **+5**. If placed in a scavenging slot whose default difficulty reduction is 10, the effective reduction becomes 15.
+Each tag on an item has a **level from 1 to 5** expressing how good the item is at that role. (A knife might be a level-3 Weapon, level-1 Lockpick, level-4 Cutting tool.)
 
-This system makes it easy to add variety: a single tag can encompass many items of varying quality, and the modifier captures how well each item fits the role. It also creates strategic trade-offs for the player — using an item with a negative modifier in one slot frees up a better-suited item for another.
+When an item fills a skill-check slot that accepts one of its tags, the item's level for that tag determines a **standardized difficulty reduction**:
 
-#### Difficulty Reduction Priority
-When an item is placed in a slot, the effective difficulty reduction is determined by the following priority:
+| Level | Difficulty reduction |
+|-------|----------------------|
+| 1     | 20%                  |
+| 2     | 40%                  |
+| 3     | 60%                  |
+| 4     | 80%                  |
+| 5     | 100%                 |
 
-1. **Item-specific override** — A slot can define a custom difficulty reduction for a specific item. If present, this value is used as-is (no further modifiers apply).
-2. **Tag value modifier** — If no item-specific override exists and the item has a tag value modifier for the slot's accepted tag, the slot's default difficulty reduction is adjusted by that modifier.
-3. **Default** — If neither of the above apply, the slot's default difficulty reduction is used unchanged.
+This replaces the old per-slot value system: encounter options no longer specify how much each slot reduces difficulty. An option's slot only declares which tag (or specific item / custom list) it accepts; the item's level does the rest. This is easier to understand, easier to display in the UI, and far less work to author.
 
+### Item Slot Accept Modes
+
+Each slot accepts items in exactly one mode:
+
+- **Specific item** — only one explicitly defined item.
+- **Tag** — any item with the given tag (level drives the reduction).
+- **Custom list** — a custom set of explicitly listed items.
+
+## Requirements
+
+Options can carry **requirements** that gate availability — an option whose requirements aren't met is shown greyed-out and non-interactable, which doubles as a clear in-world goal ("come back with a shovel," "raise Dexterity"). Requirement types:
+
+- A **specific item** is present.
+- An item with a **tag at a minimum level** (e.g. "Lvl 3 Lockpick").
+- A **stat minimum** (e.g. "Dexterity 5").
+
+Requirements are especially useful on FixedOutcome options to define a clear "best option" locked behind a condition the player can work toward.
+
+## Durability
+
+Every item has a **durability** value, randomized **1–4** on creation. Each time an item is used in an encounter slot, its durability drops by 1; at 0 it breaks and is removed. This replaces the old random "chance to break," which had no strategic value and only produced bad-luck frustration. Durability is predictable: the player always knows a use has a real, finite cost.
+
+Currency and single-use items are consumed fully on use rather than ticking down durability (e.g. coins spent in trade, a fence cutter consumed on use).
+
+## Consumables
+
+The consumable system (eating, drinking, applying medical items) is fully separate from tag levels and durability. Consumable effects must be communicated **clearly and non-cryptically** in the item description — exact nutrition/hydration, any chance of negative effects such as food poisoning, etc. No hidden values.
+
+Cooking is supported as a way to transform raw food (e.g. raw meat) into a safer/better form, offered as an evening action and/or item interaction.
 
 ## Loot Tables
-Loot tables define weighted random item selections. They are used throughout the game whenever random items need to be generated, such as searching areas, opening containers, or receiving rewards.
 
-A loot table maps items (and optionally other loot tables as sub-entries) to weight values. When resolved, an item is randomly selected based on the relative weights. Sub-tables allow an entire category of items to compete as a single weighted entry.
+Loot tables are weighted random item selections used wherever random items are generated (searching, containers, rewards). A table maps items — and optionally other tables as sub-entries — to weights. Each biome has its own loot table, typically referencing the general tables. Loot tables should be kept small and varied between encounters and biomes so individual items retain distinct identity and use cases.
 
-There are general-purpose loot tables (Food, Drinks, Medical, Tools, Weapons, Trash) that are used across the game. Each biome also has its own loot table that is used in biome-specific encounters like scavenging. Biome loot tables typically reference the general tables as sub-entries. When an encounter uses items from a biome loot table, it can combine the biome table with an encounter-specific table to create a union of both.
-
-## Gaining Items
-The player starts with 4 items in the cart: 1 random food item, 1 random drink item and 1 random medical item, and 1 random miscellaneous item.
-The main ways of gaining items are:
-
-- During encounters.
-- Companions can find items during the night, which are added to the cart and shown in the morning as a night event.
-- Biome encounters often have options to search the area for items (e.g. Scavenge).
-
-
-# Companions
-The player can have companions that travel with them. Companions can affect stats or encounter options, as well as cause night events. Companions can be gained or lost through encounters.
-Companions do not have their own health or inventory. Mechanically they act purely as buffs.
-When a companion dies, this usually has a big temporary negative effect on the player's morale.
-
+---
 
 # World Map
-The world map is a grid of hex tiles that represent different locations in the quarantine zone. Each day, the player can move to a different adjacent tile on the world map. Each tile has a Location Encounter, that is either predetermined through a quest/landmark/rumour or determined when the player first steps on that tile. The afternoon each day is always the location encounter of the tile the player is currently on.
 
-## Quarantine Zone Borders
-A big area of the world map is enclosed by an electrified quarantine fence, which is an impassable border that the player cannot cross. The goal of the game is to somehow reach a tile outside of the quarantine fence, which represents escaping the quarantine zone. The player starts around the center of that zone.
+A grid of pointy-top hex tiles representing the quarantine zone. Each day the player moves to an adjacent tile (the default move distance is 1). Each tile has a **biome**, a persistent **danger level**, and a **location encounter**.
+
+## Location Encounters per Tile
+
+At world generation, **every tile is assigned a location encounter**, but only **landmarks and special/quest encounters are visible from the start**. Generic encounters remain hidden until the player first steps on the tile. Pre-assigning everything gives full control over content distribution (e.g. spreading the generic encounters across the map by commonness and biome bias) while preserving the feel of discovery.
+
+Location encounters are **persistent**: their state is saved, and revisiting a tile resumes the same encounter where it was left.
+
+## Quarantine Borders
+
+The zone is enclosed by an electrified quarantine fence — an impassable border. Outside the fence is a ring of "freedom" tiles; reaching one is a win. The player starts near the centre.
+
+## Roads
+
+Roads are drawn onto the map at generation and act as implicit guidance:
+
+- They connect the cities to each other.
+- They connect the starting tile to the **fence gate** (one of the escape routes), giving the player a natural breadcrumb toward a goal without an explicit quest.
+- **Movement bonus:** if the player both starts and ends their daily move on a road tile, they may move **2 tiles** instead of 1.
 
 ## Danger Level
-Each tile has a persistent danger level. That level is shown to the player. The danger level affects the likelihood and intensity of night encounters happening during the night. Danger levels are "very safe", "safe", "precarious", "dangerous" and "very dangerous".
-The calculation of the danger level is very simple. It starts at "safe" on each tile. AFTER each night, the danger level on the tile the player is on increases by 1 level.
-This mechanic is there to encourage the player to keep moving and exploring new tiles, instead of staying on the same tile and resting all the time.
-The danger level of tiles can also be affected by encounters.
 
-The chances of a night encounter occuring are (broken down by intensity):
+Each tile has a persistent danger level, shown to the player, that drives the chance and intensity of night encounters. It **starts at "safe"** and **increases by one level after each night the player spends on that tile**, which pushes the player to keep moving rather than camping. Encounters can also modify danger levels. The five levels and their exact night-encounter probabilities are defined in `DangerLevelDefs`.
 
-| Danger Level   | No Encounter | Intensity 1 | Intensity 2 | Intensity 3 |
-|----------------|--------------|-------------|-------------|-------------|
-| Very Safe      | 100%         | 0%          | 0%          | 0%          |
-| Safe           | 95%          | 5%          | 0%          | 0%          |
-| Precarious     | 75%          | 20%         | 5%          | 0%          |
-| Dangerous      | 50%          | 20%         | 20%         | 10%         |
-| Very Dangerous | 20%          | 10%         | 35%         | 35%         |
+A toggleable **danger overlay** colour-codes every tile by danger level for at-a-glance route planning.
 
 ## Biomes
-Each tile has a biome, which determines the types of Location Encounters that can be encountered on that tile and also the Biome Encounter, which are the options that the player can choose from in the evening. For encounters that can appear in multiple biomes, the biome can also affect the encounter itself, by adding biome specific options or changing the outcome or difficulty of certain options.
-Each biome also has a specific loot table, which is often used in encounters that involve randomized items of some kind, such as searching the area for items. The biome also affects the background sprites that are shown in encounters on that tile.
 
-The following biomes exist:
+A tile's biome determines which location encounters can appear there, the biome encounter used in the evening, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
 
-### Woods
-Most important stats: Intelligence, Perception, Dexterity
+Biomes for 1.0: **Woods, City, Outskirts**, plus **Lake** (impassable; used to shape the map and create natural paths/borders). Each biome defines its most important stats and its loot table in `BiomeDefs`.
 
-### City
-Most important stats: Combat, Charisma, Perception
+## Encounter Markers, Areas
 
-### Mountains
-Most important stats: Agility, Strength, Intelligence
-
-### Desert
-Most important stats: Agility, Perception, Combat
-
-### Outskirts
-Most important stats: Charisma, Strength, Dexterity
-
-**Evening encounter**: In addition to standard options, the player may **Flag down passerby** to trade items or information for coins (always available at roadside ditch, 50% elsewhere).
-
-### Lake
-Impassable biome that cannot be entered. Mostly acts as a way to make the world map more interesting and to create natural borders and paths for the player to follow.
-
-
-## Encounter Markers
-The Location Encounter on a tile is represented by a small sprite on the world map, that shows what type of encounter is on that tile and in what state it is, in a very simplified way. Obviously this only applies to to tiles that have a Location Encounter determined already (so either the player has stepped on the tile before, or a quest has predetermined the encounter).
-Location Encounter markers are always grayscale, while quest markers are colored. This way the player can easily distinguish the "important" tiles.
-
-## Area
-An area is simply a collection of hex tiles with a name. Examples of areas or the quarantine zone, cities, woods, lakes etc. Areas can be used in quests to specify locations in a more general way, such as "go to city XY" instead of "go to tile 3/4".
+A tile's known location encounter is shown on the map as a simplified marker indicating type and state. **Generic markers are grayscale; quest markers are coloured**, so important tiles stand out. An **area** is a named collection of tiles (the zone, a city, a forest, a lake) used by quests to reference locations generally ("go to city X" rather than a specific tile).
 
 ## World Generation
-The world is is a pointy top hex tile map that is procedurally generated at the start of each new game. Each day, the player (at default) moves 1 tile. The player starts at coordinates 0/0. The world generation follow these steps:
 
-1. The shape of the quarantine zone is generated. This is done by first expanding 12 tiles in a radius around the starting tile, and then generating some random protrusions (200 tiles) look more natural. After the protrusions, the shape is once again expanded by 1 tiles in a radius to smoothen the shape a bit. This generated area is the quarantine zone, enclosed by a fence.
-2. An additional ring of tiles outside the fence is added that represent freedom. Reaching one of these tiles is a way to win the game.
-3. The base "natural" biomes are generated (like outskirts, woods, lake etc.). This is done by assigning each of these biomes a perlin noise layer and a priority. Then for each tile, the biomes are iterated through by priority. The first biome that has a perlin value > 0.65f, is assigned to that tile, with priority 1 as fallback. Priorities are Outskirts > Lake > Woods.
-4. 5 Cities are generated. Cities start by picking a tile and then expanding randomly around that tile until a desired size is reached (3-10). All tiles in a city get assigned the city biome. Cities are areas.
-5. Now that all biomes are set, clusters of adjacent tiles sharing the same biome above a certain size are grouped together into areas. This creates named areas like forests and lakes that can be used in quests.
-6. Each tile adjacent to the quarantine fence gets assigned the "fence" encounter. This is simply an encounter where the player faces the electric quarantine fence. 
-7. Landmarks are placed depending on their definitions (where and how often they can appear). Landmarks are predetermined encounters visible from the start. During landmark generation, more tiles may get predetermined encounters for quest chains, some of which may be hidden.
+The map is generated per new game from the start tile at 0/0:
+
+1. Generate the **shape** of the quarantine zone (radius expansion, random protrusions for natural edges, a final smoothing pass). This enclosed area is the zone.
+2. Add an outer ring of **freedom tiles** beyond the fence.
+3. Assign **natural biomes** via per-biome perlin layers and priority, with a fallback biome.
+4. Generate **cities** (seed a tile, expand to a target size); all city tiles get the city biome; each city is an area.
+5. Group large same-biome clusters into named **areas**.
+6. Assign the **fence encounter** to every tile adjacent to the quarantine fence.
+7. Generate **roads** (city-to-city, start-to-fence-gate).
+8. Assign a **location encounter to every remaining tile** (hidden unless landmark/special).
+9. Place **landmarks** and the predetermined (often hidden) encounters for quest chains and escape routes via the StoryManager.
+
+---
 
 # Quests
-Quests are special tasks that the player can receive from certain encounters. They usually have a specific goal that the player has to achieve, such as reaching a specific location on the world map, bringing a specific item, meeting someone, etc. Quests can have various effects on the game state, such as unlocking new encounters, changing the state of existing encounters, giving the player new items or companions, etc.
-Quests usually require the player to go to a specific tile on the world map. When a quest is given, some location encounters of affected tiles are predetermined, so the player knows what they will encounter there. Functionally quest markers work as any other encounter marker on the world map, with the only difference that they are visible before stepping on the tile, so the player can plan their route accordingly.
-In the game quests are communicated in panel titled "Notes".
 
-On a technical level, quests are defined via QuestDefs. For each QuestDef, the state of that quest is tracked and is either "Inactive", "Active", "Completed" or "Failed". The state of quests can affect encounters. For example, an encounter that would usually give a specific quest, but that quest is already active/done, then the option that would result in giving that quest is not shown.
+Quests are tasks given by encounters — reach a tile, bring an item, meet someone, etc. — with effects on game state (unlocking encounters, changing existing ones, granting items). When given, a quest usually predetermines the location encounters of the affected tiles so the player can plan a route; quest markers are visible before stepping on the tile and are coloured. Quests are surfaced in the **Notes** panel.
 
-QuestDefs can be marked as **repeatable**. A repeatable QuestDef can have multiple active Quest instances at the same time. When a repeatable quest is completed, its state returns to "Inactive" (instead of "Completed" or "Failed"), allowing new instances to be created. Non-repeatable quests work as before — only one instance can exist, and completing it permanently sets the state to "Completed".
+Each `QuestDef` tracks state: Inactive, Active, Completed, or Failed. Quest state can affect encounters (e.g. an option that would grant an already-active quest is hidden).
 
-On a technical level, the active quests are stored as a flat `List<Quest>` rather than a dictionary keyed by QuestDef, so multiple instances of the same repeatable QuestDef can coexist.
+**Repeatable quests:** a `QuestDef` can be marked repeatable, allowing multiple active instances at once; completing a repeatable quest returns it to Inactive rather than Completed/Failed. Active quests are stored as a flat list so repeatable instances can coexist.
 
-## Quest Auto-Placement
-QuestDefs can optionally specify a `PlacedEncounterDefName` and `EncounterPlacementRadius`. When a quest with these properties is started (via `StartQuest`), the system automatically finds a nearby empty tile within the given radius, places the specified encounter on it, and sets the quest location to that tile. The quest text (which can contain `{0}` as a placeholder) is formatted with the tile coordinates.
+**Auto-placement:** a `QuestDef` can specify an encounter to place and a search radius. When such a quest starts, the system finds a nearby empty tile, places the encounter there, sets the quest location, and formats the quest text with the tile coordinates. Story-driven quests with fixed or manually-set locations skip auto-placement.
 
-This auto-placement is optional — quests with fixed or dynamic locations (like story-driven quests) can still set the location manually in the Quest constructor without triggering auto-placement. The auto-placement only happens when `PlacedEncounterDef` is set and no location has been provided.
-
-QuestDefs also carry `QuestText` and `PartialQuestText` templates. The partial variant is used when the quest is started from a partial rumour, where the player knows the location but not the details.
+---
 
 # Rumours
-Rumours are a system that allows the player to discover new quests through various encounters. The rumour system is, at its core, a way to give the player quests in a randomized fashion, intended to keep runs interesting and different. However, quests can also be acquired through other means (like scripted story beats or hardcoded encounter outcomes).
 
-## Rumour Pool
-There is a pool of possible rumours defined via **RumourDefs**. Each RumourDef specifies:
+Rumours randomize which quests a player discovers, keeping runs varied. (Quests can also come from scripted story beats or fixed encounter outcomes.)
 
-- **QuestDefName**: The name of the QuestDef that is started when this rumour is learned. The QuestDef controls all quest-related properties: whether it's repeatable, what encounter is placed, the placement radius, and the quest text templates.
-- **RumourText**: The text shown to the player when they learn the rumour fully. Can contain `{0}` for coordinates.
-- **PartialRumourText**: The text shown when the rumour is learned partially. Can contain `{0}` for coordinates.
+A pool of `RumourDef`s each reference a `QuestDef` (which owns all quest behaviour — repeatability, placed encounter, radius, text) plus the rumour text shown when learned. Calling `LearnRumour()` (with no parameters — the randomization is the point) picks a random rumour, creates and starts its quest (triggering auto-placement if defined), and returns a standardized "you learned a rumour…" message. If no empty tile can be found for placement, the rumour gracefully fails to take and the encounter text adapts.
 
-All encounter placement, repeatability, and quest text logic is controlled by the referenced QuestDef, not the RumourDef.
+Rumours are **always full** — the earlier partial-rumour variant (player knows location but not details) has been removed as unintuitive and hard to design around.
 
-## Learning a Rumour
-When `Game.LearnRumour()` or `Game.LearnPartialRumour()` is called (with no parameters — the randomization is the point), the following happens:
-
-1. A random RumourDef is picked from the pool.
-2. The referenced QuestDef is retrieved from the RumourDef.
-3. A Quest is created with the appropriate text template (full or partial).
-4. `StartQuest` is called, which handles auto-placement if the QuestDef has a `PlacedEncounterDef` (finding a nearby empty tile, placing the encounter, setting the quest location, and formatting the text with coordinates).
-5. A standardized text is returned: *"You learned a rumour: {rumourText}. A new quest has been added to your quest log."*
-
-If no empty tile is found nearby (when auto-placement is needed), the quest fails to start and the rumour is not learned (graceful fallback — the encounter text adjusts accordingly).
-
+---
 
 # Encounters
-An encounter is a situation that requires player input. Each day, the player will encounter a semi-random encounter during the afternoon. Depending on the current game state, additional encounters may be encountered during the night.
-Different encounters can work in very different ways, with different numbers of steps, different options, and different outcomes. For example, one encounter can be a simple one-step encounter with only one option, while another encounter can be a complex multi-step encounter with many options at each step and various branching paths.
-Also options can work in many different ways, with some options locking out others, some requiring others to succeed first, some options may only be available once, once per day, repeatable until success, or any other behaviour.
-There's really not a lot of restrictions in the design space of encounters.
 
-During encounters, free item use is disabled (i.e. for eating / bandaging). Items can only be used for encounter step options.
-At the end of an encounter, after it ends, the player can freely use items in their cart (i.e. to eat / drink / heal injuries etc.) again. After that, the player can choose to end the current time of day and transition to the next one.
-An exception to this is the morning encounter. During the morning, items can be used freely.
+An encounter is any situation requiring player input. The player always faces a location encounter in the afternoon, a biome encounter in the evening, and possibly a night encounter. Encounters vary widely: one step or many, one option or many, linear or branching. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open.
 
-Encounters only ever take place within a single time of day.
+During an encounter, free item use is disabled — items can only be used through option slots. Once the encounter ends, the player can freely use items again and then choose to advance the time of day. (The morning is an exception, with free item use throughout.) An encounter always resolves within a single time of day.
 
 ## Encounter Types
-There are three types of encounters:
 
 ### Location encounters
-These are the main encounters that the player encounters in the afternoon and are bound to a specific tile on the world map. Location encounters are persistent and can be returned to later with the same state as they were left in.
+The main afternoon encounters, bound to a tile and **persistent** — they keep their state and can be returned to. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
 
-Usually location encounters are generated when the player first steps on a tile, based on the biome of that tile and the current game state.
-However, some encounters can be predetermined, meaning that they are generated before the player steps on the tile, and the player can see their encounter marker on the world map before stepping on the tile. This can be the case for either quest related encounters, landmarks that are generated with the world at the start of the game, or temporary rumours (i.e. rising smoke) that can appear during the game.
-Predetermined encounters are usually a way to directly or indirectly progress the story, and are there to give the player some direction and goals to work towards.
+### Biome (evening) encounters
+The evening encounter, based purely on the current biome. **Not persistent** — a fresh instance each evening — so they carry no narrative weight and exist to give the player a moment of control.
 
-### Biome encounters
-These are the encounters that the player encounters in the evening. They are purely based on the biome of the current tile and are not persistent, meaning that players can not come back to a specific biome encounter and a new instance is created every evening. Biome encounters are not meant to be narratively significant, but rather to give the player some control, as most other things in the game are very random and out of the player's control.
+The evening is a **generic action menu** ("How would you like to spend your evening?") with **no scene-specific setting**.
 
-Biome encounters work on an "evening action" system: the player is presented with a set of options for how to spend the evening, but only one can be chosen. Once chosen, that action may either end the encounter immediately or lead to follow-up options depending on the action.
+Standard evening actions, with availability or chances varying by biome/tile:
 
-Some evening actions are standardized and available across multiple biomes (controlled by the biome subclass):
-
-- **Rest early** (FixedOutcome): Turn in early for some extra natural healing (0.5x). Always available.
-- **Fortify** (SkillCheck): Reinforce the sleeping spot to reduce the night's danger level. Uses Strength, Dexterity, and Intelligence. Difficulty varies by biome. Accepts building materials and tools in item slots to reduce difficulty. On critical success, grants a random stat improvement and morale boost. Available when the biome defines a fortify difficulty.
-- **Scavenge** (SkillCheck): Search the area for items from the biome's loot table. Uses Dexterity and Perception. Accepts scavenging items in an item slot. On success, adds an item from the biome loot table to the inventory. Available when the biome supports scavenging.
-
-Each biome encounter subclass can also define additional biome-specific options (e.g. flagging down a passerby in the outskirts). Some of these biome-specific options can lead to follow-up steps with further choices (e.g. trading with a passerby after successfully flagging them down).
-
-Biome encounters usually have a setting. The setting is a randomly rolled place where the player is setting up camp for the night. The setting can affect the base difficulty of the evening actions, or can have other biome-specific effects.
+- **Set Trap** *(non-terminal)* — place a trap for the night; returns to the menu so it can be combined with one terminal action.
+- **Fortify** *(skill check)* — reinforce the sleeping spot to reduce the night's danger. Accepts building materials/tools to lower difficulty; a critical success grants a bonus.
+- **Scavenge** *(skill check)* — search for an item from the biome loot table. Accepts scavenging items.
+- **Cook** — turn raw food into a safer/better form.
+- **Rest Early** *(fixed outcome)* — turn in for extra natural healing.
+- **Find Trader** — seek out a trader and enter a trade session.
 
 ### Night encounters
-These are special encounters that happen during the night. They are not persistent and cannot be returned to after an encounter.
+Threat encounters during the night, **not persistent**, overwhelmingly about *avoiding* bad outcomes rather than gaining good ones (though critical success can still help). Usually an attack on the camp.
 
-Night encounter are designed as a threat to the player, as a consequence of being in high danger level areas, and are therefore overwhelmingly negative in their outcomes. Different than other encounters where good outcomes lead to positive effects, night encounters are more about avoiding negative effects (although (critical) success can still provide some benefits).
-Night encounters are usually some form of attack on your sleeping spot/camp.
-
-#### Intensity
-Night encounters have a special additional property called "intensity". The intensity is determined when the encounter is initialized and is calculated based on the danger level of the current tile and some variation.
-
-If the player has placed traps during the evening, each trap reduces the intensity of the encounter by 1.
-
-Intensity is a value from 1 to 3. It usually shows itself in the amount or size/strength of the attackers but how exactly it affects the encounter is based on the individual night encounter.
-
+**Intensity** (1–3) is rolled from the tile's danger level. Each trap set in the evening reduces intensity by 1 (reducing it below 1 nullifies the encounter). Intensity typically scales the number/strength of attackers and the severity of outcomes.
 
 ## Design Philosophy
-First design priority of all encounters is to provide the player with interesting and meaningful choices.
 
-Encounter steps should visually give an immediate sense of what's happening. The main text on an encounter step should be short and concise, giving the player a clear idea of the situation, without much prose.
-Option texts should also be short, preferably just a verb and potentially a subject (i.e. "Persuade", "Open Crate"). The option descriptions should give a sense of the possible outcomes of that option. The descriptions are only shown while hovering an option, so they can be a bit longer.
+The first priority of every encounter is **interesting, meaningful choices**. Fun gameplay outranks realism.
 
-Encounters happen on a single screen. There are no camera controls in the game. The left side of the screen is always occupies by the player and their handcart (inventory). The encounter is on the right. This is important to factor in when designing encounters, as everything needs to fit that screen. The player character also visually never moves. Stop outcomes aren't animated, but rather represented by changing the sprites on the screen, sound effects, and maybe simple effects.
-For example if the player selects a "Smash Crate" option, and the outcome is a success, what happens is that the crate sprite gets replaced with a broken crate sprite, a sound effect of smashing is played, and the player gains some items in their cart (meaning they spawn above the cart and fall in). If the outcome is a failure, the crate sprite stays the same, a sound effect of failure is played, and maybe the player gets injured, which is represented by a wound sprite appearing on the player character.
+- **Steps read at a glance.** Step text is short and concrete; option text is a verb (+subject) like "Persuade" or "Open Crate". The longer description (shown in the details box) should state intended effects and risks plainly — **not cryptically**.
+- **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~5.4–12) for a sense of scale (a crate is tight; a radio tower is wide).
+- **Lightweight biome influence only**, never per-biome bespoke handling.
+- **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries — just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
 
-Even though the screen is fixed, encounters can affect the zoom level of the camera, to allow for some different scale of encounters. For example, when encountering a crate, the camera size will be quite small, since it just needs to show the player and the crate. But for example when encountering a radio tower, the camera size will be much bigger, since it needs to show the player and the whole base of the tower. This can be used to give a nice sense of scale and variety to the encounters, even though they all happen on the same screen. Orthographic size should usually be in the range of 5.4 - 12.
+### Step Composition (rule of thumb)
 
-Encounters can be affected by specific biomes in specific ways, for when the encounter happens in that biome. This can be something completely individual to the encounter, or by using biome difficulty modifiers in skill check options. What should be avoided are cases where each existing biome has to be factored in separately and handled manually for something, as that would create a lot of extra work and complexity.
+A good step often offers:
 
-## Encounter Steps
-Encounters are built in "steps", whereas exactly one step is active at a time. A step represents a specific point in the encounter, and the options available to the player at that point. Encounter steps and their options are often created dynamically based on the current game state, and more importantly, the current state of the encounter itself.
+- **One FixedOutcome option, no requirements** — safe and consistent, with neutral or mildly +/- effect.
+- **One SkillCheck option with a tag item slot** — the gamble: strong on success, painful on failure, made safer by a good item. If a step has more than one skill check, their success effects must be clearly distinct.
+- **One FixedOutcome option with requirements** — a safe "good" outcome gated behind an item/level/stat requirement. If more than one, requirements and effects must be clearly distinct.
 
-A step is considered the final step of an encounter if that step has no options defined. When reaching such a step, the encounter is considered to be ended, meaning the player can use items again and choose to transition to the next time of day.
- 
+This is guidance, not law. Keep the number of **unrequiremented** options to **at most 3** so steps don't overwhelm. Requirements let a step offer more total options without clutter, since locked ones read as goals rather than noise.
+
+## Steps
+
+Encounters are built from steps, exactly one active at a time, often generated dynamically from the encounter's current state. A step with **no options is a final step**: reaching it ends the encounter (free item use returns, and the player can advance the time of day).
+
 ## Options
-Each step (except final steps) has a defined set of options that the player can choose from. What options are available and shown depends on the current encounter state.
-If the step is a final step, the options depend on the time of day, and not on the encounter itself. Usually it's just one option to end the current time of day and transition to the next one.
+
+Each non-final step offers options determined by current state. Options are one of two technical types.
 
 ### Item Slots
-Each option can have any number of item slots, which are slots that the player can drag items from their cart into. 
-Each slot accepts items in exactly one of three modes (mutually exclusive):
 
-- **Specific item** — Only a single, explicitly defined item is accepted.
-- **Tag** — Any item that has the specified tag is accepted.
-- **Custom list** — A custom set of explicitly listed items is accepted.
+A slot accepts items by specific item, tag, or custom list (above). Slot properties:
 
-Each slot can additionally have the following properties:
+- **Required** — the option can't be chosen until the slot holds a valid item.
+- **Consumes on use** — for slots that fully consume the placed item (currency, single-use items). Otherwise, using an item in a slot ticks its durability down by 1.
+- **Difficulty reduction (skill checks)** — driven entirely by the placed item's tag level (see *Tag Levels*); the option doesn't specify a per-slot amount. Final difficulty never drops below 5.
 
-- Required: If the slot is required, the player has to fill that slot with a valid item in order to be able to choose that option.
-- Consumption Chance: If the slot is filled with a valid item, there is a chance that the item gets consumed on use, which would remove the item from the player's cart.
-- Difficulty Modifier (Skill Checks only): If the slot is filled with a valid item, the difficulty value of the option is reduced. The effective reduction follows a priority: (1) an item-specific override defined on the slot, (2) the slot's default reduction adjusted by the item's tag value modifier for the matching tag (tag mode only), or (3) the slot's default reduction unchanged. See *Item Tags > Difficulty Reduction Priority* for details. The difficulty reduction will never go below 5.
+### FixedOutcome options
+Always call the same outcome function. That function may include custom logic and randomness, but it doesn't use the success/failure ladder. Used for simple actions (skip, ignore) and for special outcomes that don't fit a skill check.
 
-### Option Types
-On a technical level, options fall into one of two categories: "Skillchecks" or "FixedOutcome"
+### SkillCheck options
+A standardized RPG-style check with a calculated difficulty and a rolled outcome.
 
-#### FixedOutcome options
-FixedOutcome options have a fixed outcome, meaning on a technical level, that choosing the options always calls the same function. That function can still have custom logic and random elements, but the outcome is always determined by that function. They are usually used for very simple options like ignoring/skipping something, or for options with special outcomes that don't fit into the classic success/partial success/failure outcome structure of a skill check.
+**Outcomes:** always Success or Failure; optionally Partial Success, Critical Success, Critical Failure — each calling its own outcome function.
 
-#### Skillcheck options
-Skillcheck options follow a classic, standardized RPG style skillcheck structure, where the option has a calculated difficulty value and a rolled outcome that is determined by the difficulty value and a random roll, where the difficulty can be affected by a variety of modifiers. They have different possible success levels, with each of these calling a different function that determines the outcome of that option.
+**Roll math:** roll 0–100.
+- Roll ≥ difficulty → **success**; otherwise **failure**.
+- In failure, roll > 50% of difficulty → **partial success** instead.
+- In failure, roll < 10% of difficulty → **critical failure** instead.
+- In success, roll in the top 10% of the range above difficulty → **critical success** instead.
 
-##### Skill Check Outcomes
-Each skill check option has the possible outcomes:
+**Roll animation:** when a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-- Success: The player fully succeeds in the action they are trying to do.
-- Failure: The player fails in the action they are trying to do.
-
-Depending on the option, there may also be additional outcomes:
-
-- Partial success: The player partially succeeds in the action they are trying to do. This is usually a middle ground between success and failure, with an outcome that is better than failure but worse than success.
-- Critical success: The player critically succeeds in the action they are trying to do. This is usually a better version of success, with an outcome that is even better than success.
-- Critical failure: The player critically fails in the action they are trying to do. This is usually a worse version of failure, with an outcome that is even worse than failure.
-
-##### Skill Check Outcome Calculation
-Skillcheck options have a rolled outcome, where the player rolls a random number from 0 to 100. The outcome depends on the rolled number and the calculated difficulty value of the option:
-
-- If the rolled number is equal or greater than the difficulty value, the player succeeds.
-- If the rolled number is less than the difficulty value, the player fails.
-
-Additionally, if there are additional outcomes, they are calculated as follows:
-
-- In failure, if the rolled number greater than 50% of the difficulty value, the player partially succeeds instead of fails.
-- In failure, if the rolled number is less than 10% of the difficulty value, the player critically fails instead of fails.
-- In success, if the rolled number is in the top 10% of the range above the difficulty value, the player critically succeeds instead of succeeds. (for example, if the difficulty value is 70, and the rolled number is greater than 97, the player critically succeeds instead of just succeeds)
-
-
-##### Skill Check Difficulty Calculation
-Skillcheck options have a fixed base difficulty value (1-100). On top of that, various modifiers can be added to the difficulty value based on the current game state. All modifiers are additive/subtractive (no multiplicative modifiers).
-The most common types of modifiers are:
-
-- Morale: The morale stat is applied as a modifier to all options with a factor of 1.
-- Player stats: Most options have a specific stat (or multiple) associated with them, each with a defined factor. The player's value in that stat multiplied by the factor is reduced from the difficulty value.
-- Item slots: Filled item slots can reduce the difficulty value based on their difficulty modifier property.
-- Companions: Some options have companion modifiers, where having a specific companion can increase or decrease the difficulty value. (usually decrease)
-- Weather: Some options have weather modifiers, where certain weather conditions can increase or decrease the difficulty value.
-- Biome: Some options have biome modifiers, where certain biomes can increase or decrease the difficulty value.
-- Other encounter-specific modifiers: Some options can have specific modifiers based on the current state of the encounter itself, such as previous choices made in the encounter, or specific things that happened during the encounter.
-
-Difficulty is capped at 5 minimum and 200 maximum. This means that no matter how good the player is, there is always a small chance of failure, and at max difficulty the only possible outcomes are failure and critical failure.
+**Difficulty calculation:** start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player stat(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by stats alone; at 200 only failure/critical failure remain. (The system is extensible to companion and weather modifiers — see *Out of Scope*.)
 
 ### Option Outcomes
-There are many things that can happen as a result of an option outcome. The most common are:
 
-- Stat changes: The player's stats can increase or decrease.
-- Item changes: The player can gain or lose items.
-- Health changes: The player can gain new health conditions or change existing health conditions in all kind of ways.
-- Companion changes: The player can gain or lose companions.
-- Quest changes: The player can gain new quests, fulfill them, fail them, etc. With effects based on the specific quest. This includes rumours. 
-- Danger level changes: The danger level of the current tile or other tiles can increase or decrease.
-- World location encouters: Encounters on other tiles on the world map can be generated and/or revealed.
-- Placing traps (evening only): In the evening traps can be placed to reduce night encounter intensity.
-- Initiating trade: An option outcome can initiate a trading session (see Trading below).
+Outcomes can: change stats; grant/remove items; add or modify health conditions; change quests/rumours; change tile danger levels; generate or reveal encounters on other tiles; place traps (evening); or initiate trade.
 
-## Trading
-Any encounter can initiate a trading session as part of an option outcome by calling `InitiateTrade`. When trading is initiated, the encounter enters a special trading mode that temporarily replaces the normal encounter options with a set of trading options. The encounter defines which items are available for buying and selling, and whether buying information (rumours) is available.
+## Sprite-Bound Options
 
-While in trading mode, the following options are presented to the player:
+Because this is a point-and-click game, options can be attached to the actual scene sprites rather than living only in the option list:
 
-- **Buy [item]** (one per buyable item): Costs coins equal to the item's value. Each coin must be placed in a required item slot. Purchasing adds the item to the player's inventory.
-- **Sell [item]** (one per sellable item): The item to sell must be placed in a required item slot. Selling adds coins equal to the item's value to the player's inventory.
-- **Buy information** (if enabled, once per day): Costs 3 coins placed in required item slots. Reveals a rumour.
-- **Done trading**: Exits trading mode and returns to the encounter's normal options.
+- Interactable sprites are **highlighted with an indicator** — there are no hidden interactions.
+- Hovering a highlighted sprite reveals its available options; clicking it **pins** those options on/near the sprite (only one element can be pinned at a time).
+- Pinned options behave exactly like list options — greyed out if requirements aren't met, accepting dragged items into their slots, then resolving on click.
+- General options that can't be tied to a sprite (e.g. "Move On") stay in the list below the encounter text.
 
-Items with a value of 0 or less, and coins themselves, are excluded from buy/sell lists.
+Options are the primary interaction point and are drawn large; their descriptive text lives in the details box rather than the option itself.
 
-Trading can be initiated from both location encounters and biome encounters. For example, the Outskirts biome encounter uses it when the player successfully flags down a passerby, and the Wounded Stranger location encounter uses it when a grateful stranger offers to trade.
+---
+
+# Trading
+
+Any encounter can start a trade session via `InitiateTrade`, temporarily replacing the normal options with trade options. The encounter defines what's buyable/sellable and whether information (rumours) can be bought.
+
+- **Buy [item]** — costs coins equal to its value, each coin placed in a required slot.
+- **Sell [item]** — place the item in a required slot to receive coins equal to its value.
+- **Buy information** (if enabled, once per day) — 3 coins to reveal a rumour.
+- **Done trading** — return to the encounter's normal options.
+
+Coins and zero-value items are excluded from buy/sell lists. Trade is used by both location encounters (e.g. a persistent trader) and biome encounters (the evening Find Trader action).
+
+---
 
 # Gameplay Loop
-The player must somehow escape the quarantine zone. If the player character dies, the game is over. When the player dies, the screen fades to black showing the reason of death. The player can then choose to start a new game, which generates a new world and resets all progress, or quit to the main menu.
 
-There are many ways to leave the quarantine zone, and also many ways to die.
-
-The game is day based. Each day is split into 4 times of day: Morning, Afternoon, Evening and Night.
-
-All time of day transitions are presented as a fade to black, and then fade back in. From Night to Morning, the game also shows a big text with "Day 4" switching to "Day 5" for example.
+The player must escape the zone; death ends the run (the screen fades to black with the cause of death, then offers a new game or the main menu). The game is day-based, each day split into **Morning, Afternoon, Evening, Night**. Transitions fade through black; Night→Morning shows the new day number. During the black screen, a short handcart-and-footstep sound plays (see *Audio*).
 
 ## Morning
-The day starts in the morning on the world map tile of the current location. There is no encounter in the morning, the player can freely use items in their cart (i.e. to eat / drink). If any night events happened during the night, they are shown to the player as text at the start of the morning.
-In the morning, the player is presented with 3 options:
 
-- Travel to an adjacent world tile: This shows the world map with the adjacent world map tiles that the player can move to being highlighted. Choosing one of the tiles will end the morning and transition to the afternoon on the selected tile.
-- Stay on the current tile: This simply ends the morning and transitions to the afternoon on the same tile, presenting the player with the same Location Encounter as the day before, in the same state as they left it.
-- Rest: Skips the afternoon and transitions the game into the evening. When resting, all health conditions apply their natural healing (same effect as during the night).
+On the world map at the current tile, no encounter, free item use. Any night events from the previous night are reported as bullet points. On day 1, the morning instead delivers the premise (escape ahead of the weapon test). Three actions:
+
+- **Travel** to a highlighted adjacent tile → afternoon on that tile (2 tiles if the road bonus applies).
+- **Stay** → afternoon on the same tile, resuming its location encounter in its saved state.
+- **Rest** → skip the afternoon, advance to evening, and apply all conditions' natural healing.
 
 ## Afternoon
-At the start of the afternoon, the player is always confronted with the daily Location Encounter. If the location encounter on that tile has already been set (either by visiting the tile before, or by a quest), the player encounters the same encounter again, in the same state as they left it.
-If the location encounter on that tile has not been set yet, a new Location Encounter is generated based on the biome of that tile and the current game state, and the player encounters that.
+
+Always the current tile's **location encounter** — resumed in its saved state if visited before, or newly generated from biome and game state if not.
 
 ## Evening
-In the evening, the player is presented with the Biome Encounter for the biome of the current tile. Each biome has a defined evening encounter type. If no specific encounter is defined for a biome, a fallback encounter is used.
 
-A new biome encounter instance is created each evening — they are not persistent across days. The encounter presents the player with a set of options for how to spend the evening (see Biome encounters above). Only one evening action can be chosen, after which the encounter either ends immediately or continues with follow-up options specific to that action.
+The current biome's evening encounter (the generic action menu above). A fresh instance each evening.
 
 ### Trap System
-The evening has a trap system. Either through the Trap item or through encounter options, the player can set traps to protect themselves during the night. They see how ma ny traps are set in the UI. Each trap has the following effect:
 
-- If there is a night encounter, each trap will reduce the intensity of the encounter by 1. If this reduces the intensity below 1, it nullifies the encounter entirely.
-- If a trap wasn't used for an encounter, it has a X% chance trigger on an animal, giving the player an item. X is based on the biome.
-- If a trap was neither used for an encounter nor triggered on an animal, it has a 80% chance to be returned to the player's cart in the morning, and a 20% chance to be lost.
+Traps (from the Trap item or evening options) protect the night. Each trap:
+- Reduces a night encounter's intensity by 1 (below 1 nullifies it).
+- If unused on an encounter, has a biome-based chance to catch an animal and yield an item.
+- If neither used nor triggered, an 80% chance to return to the cart in the morning (20% lost).
 
-These effects are communicated as night events in the morning report.
-
+All trap results appear in the morning report.
 
 ## Night
-Each night, there is a chance for a night encounter to happen, based on the danger level of the tile the player is currently on. (see Night Encounters chapter for more info).
 
-If the player does not have a night encounter, the night is skipped and the game transitions from evening to the next morning.
+A chance of a **night encounter** based on the tile's danger level; if none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an untended wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed (see below).
 
-During the night, separate from the night encounter, night events can happen as well. These are events that happen without any player input and without any visual representation.
-They are purely based on the current game state and can have various effects on the player. For example, if the player has an untended injury, there is a chance that the injury gets infected. Or if the player has a certain companion, there is a chance that the companion finds an item during the night.
-Night events are shown to the player in the morning as bullet points in the morning report (First encounter step in the morning when choosing action for the day).
-
+---
 
 # Ways to Win / Story Progression
-The main goal of the game is to escape the quarantine zone.
 
-The design philosophy here is to have multiple ways to win the game. And these ways are not clear linear quest lines. The setup should be modular, so multiple paths can lead to the same information/quests/ways to win. For example a location of something important could be revealed through finding a note somewhere, hearing it through a rumour, or just stumbling upon it while exploring.
-As an example, to win by cutting through the fence, the player needs to be on the correct tile with a fence cutter. How the player knows of that tile or how they got the fence cutter is not 100% scripted.
-Of course there should always be predetermined encounters / story beats / guidance mechanicms in place to make sure the player can find their way to the different ways to win, but these "guidance ways" don't prevent the player of achieving the same goal through other means.
-In that sense the game takes some inspitation from Immersive Sim games, where the world is designed in a way that allows the player to find their own way through the story, without being forced down a specific path.
+The goal is to reach a freedom tile outside the fence. There are **multiple escape routes**, and they are deliberately **not linear quest lines** — the design takes from immersive sims: a key piece of information or item can be found by more than one path (a note, a rumour, or stumbling onto it). Guidance mechanisms always exist so the player can find *a* way, but they never block alternative means.
 
-On a technical level, a StoryManager tracks the story progression and the different ways to win. It also tracks the state of important quests and story beats, and can trigger certain encounters or events based on that state. It also places predetermined, often hidden encounters on the world map for important story beats, quests, and ways to win, so the player can find them and progress the story.
+A **StoryManager** tracks progression and the state of each route, and places the predetermined (often hidden) encounters that support them.
 
-## Cutting through the fence
-At the start of the game, one random tile adjacent to the quarantine fence will have its fence encounter altered, so that the electricity on the fence doesn't work. This allows the player to cut through the fence and escape.
-The location of that tile can be found at one randomly determined radio tower landmark when listening to the transmission.
-The fence cutter can be received by R, who will have a predetermined, initially hidden encounter in a random city. The city, where R lives, can be found at the same radio tower on a note. R has a sick partner. In exchange for medicine, they give the player the fence cutter and exact location of the unpowered fence.
+The four escape routes for 1.0 (with exact costs, items, and locations defined in the Defs / StoryManager rather than here):
+
+1. **Fence Gate — bribe the guard.** The road from the start leads to a guarded gate; enough coins opens it. Coins are acquired broadly through normal encounters.
+2. **Fence Gate — VIP license.** The same guard opens the gate for a license, which is locked in a town-hall safe requiring lockpicking skill/tools to crack.
+3. **Cut through the fence.** One fence tile is unpowered and can be cut with a fence cutter. The fence cutter and the tile's location come from an NPC (Eli) in exchange for medicine; Eli's whereabouts can be learned at a radio tower (among other means).
+4. **Helicopter.** A helipad tile holds a helicopter that needs a key and fuel. The helipad's location can surface via rumour; the key's location is revealed at the helipad; fuel comes from normal encounters or a fuel station.
+
+Each route is modular: the player can discover its pieces through whatever combination of exploration, rumours, and scripted beats their run produces.
+
+---
+
+# End-Game: The Substance
+
+The substance is the run's hard time limit and clear endpoint.
+
+- It is **deployed on day 30** on a single tile.
+- On **day 20**, that deployment tile is **marked** on the map as advance warning.
+- A substance tile is **impassable**. Each night, every tile **adjacent** to a substance tile has a **50% chance** to become substance, and the tiles it will spread to next are marked.
+- If the player is on (or fails to leave) a tile the substance spreads to, they **die**. As it spreads it eventually consumes the whole zone, so the pressure is ultimately unavoidable.
+
+The substance frames the whole run: escape by the time it would reach you, or die. It also gives the otherwise open-ended map a rising tension curve toward the late game.
+
+---
+
+# Audio / FX
+
+- **SFX** for everything; the highest-priority single effect is the **skill-check resolution** sound.
+- **Ambient moods:** an enum that encounters set; the AudioManager plays a different ambient track set per mood. When the mood changes, the previous set **pauses rather than stops**, so returning to it resumes mid-track instead of restarting — the player isn't endlessly hearing track intros. Moods: **Default, Tense, Hopeful/Uplifting**, with **Desolate** and **Mystery** as optional additions.
+- **Transition sound:** during the black screen between times of day, hold black briefly and play a handcart-moving + footstep sound, optionally varying by biome.
+- **Aesthetic direction:** sparse, handmade acoustic instrumentation (fingerpicked guitar, solo piano, cello, fiddle, harmonica) for a post-apocalyptic folk-ambient feel, matching the hand-drawn stick-figure art. Avoid synths, chiptune, beats, and cinematic orchestration.
+
+---
+
+# Save / Load
+
+- **Autosave** after each time-of-day transition.
+- A saved run can be **loaded** from the menu.
+- Web-build feasibility must be verified; if saving can't work reliably in a web build, the feature is cut.
+
+---
+
+# Handbook
+
+A diary-style book with bookmark tabs along the top acting as a table of contents. Sections:
+
+- **Quest Log** — an in-depth version of the HUD's Notes panel listing all learned information and quests.
+- **Item Compendium** — encountered items shown with full info; unencountered items shown as blank silhouettes. Filterable by tag and ordered by tag level within a filter.
+
+The handbook also serves as the place to **signal acquisition routes** — how a given item can be obtained, how a given stat can be raised — so the player has a reference for working toward goals. (The HUD button for the handbook already exists.)
+
+---
+
+# Settings
+
+A simple settings page with audio sliders, reachable from both the main menu and an in-game button. The in-game settings window also exposes a debug button.
+
+---
+
+# Tutorial
+
+Optional, enabled when starting a game. Deliberately minimal: simple popups the first time a given thing happens. The game should otherwise be largely self-explanatory.
+
+---
+
+# Out of Scope for 1.0 (Future)
+
+These systems are designed but deferred; none is required for the core experience and each may be added later:
+
+- **Weather** — environmental conditions affecting sky/particles and acting as skill-check difficulty modifiers.
+- **Companions** — non-inventory, non-health buff characters that modify stats/options and can trigger night events, gained and lost through encounters.
+- **Additional biomes** — Mountains and Desert (each with their own important stats and loot tables).
+
+The skill-check difficulty system is already structured to accept companion and weather modifiers when those systems land.
