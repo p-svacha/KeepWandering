@@ -27,6 +27,40 @@ Completely implement 4 ways to win the game:
   - Location of the key can be revealed at the Helipad.
   - Fuel can be acquired in standard encounters or at a fuel station.
 
+Stat changes:
+- Split morale in UI
+  - Change how morale changes: mostly used as a tradeoff for short-term big advantages that reduce morale, and vice versa
+- Change how relevant stats are highlighted (!, !!, !!! instead of yellow, orange, red color)
+- reduce other stats to 4;
+	- Strength (Strength + Combat) - Anything physical that requires short-term raw muscle strength
+		- Typical uses: Forcing things open, combat, moving heavy things, climbing
+	- Dexterity (Dexterity + Agility) - Anything phyiscal requiring bodily coordination of some kind
+		- Typical uses: Crafting, lockpicking, bypassing known obstacles, running away, dodging
+	- Survival (Perception + Intelligence) - Anything to do with spotting things, knowing things, survival skills or medical skills
+		- Typical uses: Scavenging, medical actions, scouting, cooking
+	- Social (Charisma) - Anything to do with interacting with people and social skills
+		- Typical uses: Trading, pleading, convincing, diplomacy
+- Remove biome relevant stats
+Strength    Raw physical force. Affects combat, forcing things open,
+            moving heavy objects, and anything that requires muscle
+            over finesse.
+
+Dexterity   Coordination and bodily control. Affects lockpicking,
+            dodging, sneaking, running away, and anything requiring
+            precise or nimble movement.
+
+Survival    Field knowledge and awareness. Affects scavenging,
+            medical actions, cooking, scouting, and noticing things
+            others would miss.
+
+Social      People skills. Affects persuading, trading, pleading,
+            intimidating through personality, and any interaction
+            where how you speak matters more than what you do.
+
+Morale      Your current mental state. Applies a small bonus or
+            penalty to every skill check. Rises and falls with the
+            choices you make and how well you're holding up.
+
 Make changes to encounters, also their design & philosophy:
 - Fully commit to the fully 2D sideview comic style art style with no 3D depth.
 - Change evening encounter to be a fully generic encounter with no encounter sprites.
@@ -120,6 +154,7 @@ Health Conditions:
 - Add any new health conditions if needed, but current ones already cover a great range.
 - Make health condition effects way clearer in the description. Currently very cryptic.
 - Make health condition colors way clearer.
+- Change patching up wounds into a skill check
 
 End-Game Substance Weapon:
 - As per the new intro, after 30 days a weapon is deployed (disintegrating spreading substance; reason for the quarantine)

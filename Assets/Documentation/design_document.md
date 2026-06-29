@@ -20,9 +20,9 @@ The game happens almost entirely on a single fixed screen. The player character 
 
 Top-of-screen UI:
 
-- **Left:** day counter, world-map button, handbook button, settings button, and below them the health report.
+- **Left:** the player's skills, morale (displayed separately), and below them the health report.
 - **Centre:** the current encounter step's text and options.
-- **Right:** the player's stats and the "Notes" panel (active quests / learned information).
+- **Right:** day counter, world-map button, handbook button, settings button, and below that the "Notes" panel (active quests / learned information).
 
 ## Art Direction
 
@@ -52,22 +52,33 @@ Encounter options can be **bound to sprites** in the scene (see *Encounters → 
 
 # Player
 
-The player character has stats, health conditions, and an inventory.
+The player character has skills, morale, health conditions, and an inventory.
 
-## Stats
+## Skills
 
-Eight integer stats, default value 0, that act as direct modifiers to the difficulty of encounter options of their type:
+Four integer skills, default value 0, that act as direct modifiers to the difficulty of encounter options of their type:
 
-- **Combat** — fighting, defending, using weapons.
-- **Strength** — physical force: fighting, carrying, breaking.
-- **Dexterity** — fine control: sneaking, lockpicking, disarming.
-- **Intelligence** — puzzles, crafting, finding hidden things.
-- **Charisma** — persuading, intimidating, negotiating.
-- **Agility** — quick reactions: dodging, running.
-- **Perception** — noticing hidden enemies, items, traps.
-- **Morale** — general mental state; applies to *all* options as a flat modifier. Affected by hunger, thirst, injuries, quests, and events.
+- **Strength** — raw physical force. Forcing things open, combat, moving heavy objects, climbing.
+- **Dexterity** — bodily coordination and control. Lockpicking, sneaking, dodging, crafting, running away, bypassing obstacles.
+- **Survival** — field knowledge and awareness. Scavenging, medical actions, cooking, scouting, noticing things others would miss.
+- **Social** — people skills. Persuading, trading, pleading, intimidating through personality, any interaction where how you speak matters more than what you do.
 
-Stats can be modified **temporarily** (bound to an active condition such as a health condition, biome, or time of day) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the stat's base value, which starts at 0. Stats are clamped to **-30 / +30**.
+Skills can be modified **temporarily** (bound to an active condition such as a health condition or time of day) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the skill's base value, which starts at 0. Skills are clamped to **-30 / +30**.
+
+Skills go **up** through play — succeeding in a skill's own domain, completing quest beats, or reaching certain encounter outcomes. They rarely go down directly; negative pressure on skill checks comes from morale and temporary health penalties instead. This keeps skills a satisfying growth curve and concentrates volatility in the one stat built for it.
+
+## Morale
+
+Morale is a separate integer stat, also starting at 0 and clamped to **-30 / +30**, displayed on its own in the UI to distinguish it from skills. It applies as a **flat modifier to every skill check**, making it the one number that touches everything.
+
+Morale is intended as a **strategic trade-off lever** rather than a passive health indicator. Options that touch morale should almost always pair an immediate effect with an opposite morale shift, creating a genuine dilemma:
+
+- **Immediate gain, morale cost** — rob the stranger (items now, harder checks for days), take the easy selfish route, cut a corner.
+- **Immediate cost, morale gain** — help the stranger (nothing now, easier checks ahead), take the honest hard option, make a sacrifice.
+
+This means morale options have a shape: they trade present-tense outcomes against future-tense skill check odds. If a morale change doesn't create that tension, it probably shouldn't touch morale. Morale also passively aggregates the run's condition — hunger, thirst, injuries, and events all feed it — so a player who's been grinding themselves down feels it on everything.
+
+---
 
 ## Health System
 
@@ -156,11 +167,11 @@ Each slot accepts items in exactly one mode:
 
 ## Requirements
 
-Options can carry **requirements** that gate availability — an option whose requirements aren't met is shown greyed-out and non-interactable, which doubles as a clear in-world goal ("come back with a shovel," "raise Dexterity"). Requirement types:
+Options can carry **requirements** that gate availability — an option whose requirements aren't met is shown greyed-out and non-interactable, which doubles as a clear in-world goal ("come back with a shovel," "raise Dexterity to 5"). Requirement types:
 
 - A **specific item** is present.
 - An item with a **tag at a minimum level** (e.g. "Lvl 3 Lockpick").
-- A **stat minimum** (e.g. "Dexterity 5").
+- A **skill minimum** (e.g. "Dexterity 5").
 
 Requirements are especially useful on FixedOutcome options to define a clear "best option" locked behind a condition the player can work toward.
 
@@ -214,7 +225,7 @@ A toggleable **danger overlay** colour-codes every tile by danger level for at-a
 
 A tile's biome determines which location encounters can appear there, the biome encounter used in the evening, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
 
-Biomes for 1.0: **Woods, City, Outskirts**, plus **Lake** (impassable; used to shape the map and create natural paths/borders). Each biome defines its most important stats and its loot table in `BiomeDefs`.
+Biomes for 1.0: **Woods, City, Outskirts**, plus **Lake** (impassable; used to shape the map and create natural paths/borders). Each biome defines its loot table in `BiomeDefs`. Skill emphasis per biome is expressed through encounter design rather than a fixed attribute — the encounters that appear in a biome naturally favour the skills that fit that environment.
 
 ## Encounter Markers, Areas
 
@@ -303,9 +314,15 @@ A good step often offers:
 
 - **One FixedOutcome option, no requirements** — safe and consistent, with neutral or mildly +/- effect.
 - **One SkillCheck option with a tag item slot** — the gamble: strong on success, painful on failure, made safer by a good item. If a step has more than one skill check, their success effects must be clearly distinct.
-- **One FixedOutcome option with requirements** — a safe "good" outcome gated behind an item/level/stat requirement. If more than one, requirements and effects must be clearly distinct.
+- **One FixedOutcome option with requirements** — a safe "good" outcome gated behind an item/level/skill requirement. If more than one, requirements and effects must be clearly distinct.
 
 This is guidance, not law. Keep the number of **unrequiremented** options to **at most 3** so steps don't overwhelm. Requirements let a step offer more total options without clutter, since locked ones read as goals rather than noise.
+
+### Skill Diversity across Options (rule of thumb)
+
+Within a single encounter step, the different options should draw on **different skills** where possible — a Strength skill check, a Dexterity requirement, a Social option shouldn't all live on the same step. This naturally creates distinct paths for different builds and makes each option feel meaningfully different in what it asks of the player. As with step composition, this is a guideline rather than a hard rule; exceptions exist, but defaulting to skill diversity keeps steps from feeling like the same option in different clothes.
+
+Skills also function as meaningful **requirements** on FixedOutcome options, giving the player clear upgrade goals ("come back when your Dexterity is 5") and rewarding investment in a particular skill with a safe, reliable option that others can't take.
 
 ## Steps
 
@@ -339,11 +356,11 @@ A standardized RPG-style check with a calculated difficulty and a rolled outcome
 
 **Roll animation:** when a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-**Difficulty calculation:** start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player stat(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by stats alone; at 200 only failure/critical failure remain. (The system is extensible to companion and weather modifiers — see *Out of Scope*.)
+**Difficulty calculation:** start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain. (The system is extensible to companion and weather modifiers — see *Out of Scope*.)
 
 ### Option Outcomes
 
-Outcomes can: change stats; grant/remove items; add or modify health conditions; change quests/rumours; change tile danger levels; generate or reveal encounters on other tiles; place traps (evening); or initiate trade.
+Outcomes can: change skills or morale; grant/remove items; add or modify health conditions; change quests/rumours; change tile danger levels; generate or reveal encounters on other tiles; place traps (evening); or initiate trade.
 
 ## Sprite-Bound Options
 
@@ -460,7 +477,7 @@ A diary-style book with bookmark tabs along the top acting as a table of content
 - **Quest Log** — an in-depth version of the HUD's Notes panel listing all learned information and quests.
 - **Item Compendium** — encountered items shown with full info; unencountered items shown as blank silhouettes. Filterable by tag and ordered by tag level within a filter.
 
-The handbook also serves as the place to **signal acquisition routes** — how a given item can be obtained, how a given stat can be raised — so the player has a reference for working toward goals. (The HUD button for the handbook already exists.)
+The handbook also serves as the place to **signal acquisition routes** — how a given item can be obtained, how a given skill can be raised — so the player has a reference for working toward goals. (The HUD button for the handbook already exists.)
 
 ---
 
@@ -481,7 +498,7 @@ Optional, enabled when starting a game. Deliberately minimal: simple popups the 
 These systems are designed but deferred; none is required for the core experience and each may be added later:
 
 - **Weather** — environmental conditions affecting sky/particles and acting as skill-check difficulty modifiers.
-- **Companions** — non-inventory, non-health buff characters that modify stats/options and can trigger night events, gained and lost through encounters.
-- **Additional biomes** — Mountains and Desert (each with their own important stats and loot tables).
+- **Companions** — non-inventory, non-health buff characters that modify skills/options and can trigger night events, gained and lost through encounters.
+- **Additional biomes** — Mountains and Desert (each with their own loot tables and encounter sets).
 
 The skill-check difficulty system is already structured to accept companion and weather modifiers when those systems land.
