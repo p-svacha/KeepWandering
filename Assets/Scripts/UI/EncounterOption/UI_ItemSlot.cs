@@ -15,14 +15,10 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public TextMeshProUGUI ItemLabelText;
 
     public Image IsRequiredIndicator;
-    public Image DifficultyModifierIndicator;
-    public TextMeshProUGUI DifficultyModifierText;
     public Image DestroyedIndicator;
-    public TextMeshProUGUI DestroyedText;
 
     private bool ShowRequiredIndicator => ItemSlot.IsRequired;
-    private bool ShowDifficultyModifierIndicator => ItemSlot.DifficultyReduction != 0;
-    private bool ShowDestroyedIndicator => ItemSlot.DestructionChance > 0f;
+    private bool ShowDestroyedIndicator => ItemSlot.IsDestroyingItem;
 
     // Preview cycling
     private const float CYCLE_INTERVAL = 1f;
@@ -37,7 +33,6 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
         // Show/Hide elements that never change
         IsRequiredIndicator.gameObject.SetActive(ShowRequiredIndicator);
-        DifficultyModifierIndicator.gameObject.SetActive(ShowDifficultyModifierIndicator);
         DestroyedIndicator.gameObject.SetActive(ShowDestroyedIndicator);
 
         Refresh();
@@ -69,7 +64,6 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
         ItemIcon.color = Color.white;
-        DifficultyModifierIndicator.color = new Color(0.32f, 0.78f, 0.32f);
         DestroyedIndicator.color = new Color(0.78f, 0.37f, 0.32f);
         UpdatePreviewDisplay(ItemSlot.FilledItem.Def);
     }
@@ -81,7 +75,6 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
         ItemIcon.color = new Color(1f, 1f, 1f, 0.3f);
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
-        DifficultyModifierIndicator.color = greyedOutIndicatorColor;
         DestroyedIndicator.color = greyedOutIndicatorColor;
     }
 
@@ -104,16 +97,6 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         ItemIcon.sprite = itemDef.Sprite;
         ItemLabelText.text = itemDef.LabelCap;
-
-        if (ShowDifficultyModifierIndicator)
-        {
-            int reduction = ItemSlot.GetDifficultyReduction(itemDef);
-            DifficultyModifierText.text = "-" + reduction;
-        }
-        if (ShowDestroyedIndicator)
-        {
-            DestroyedText.text = (int)(ItemSlot.DestructionChance * 100) + "%";
-        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

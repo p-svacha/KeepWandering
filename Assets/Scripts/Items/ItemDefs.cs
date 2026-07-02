@@ -13,7 +13,7 @@ public static class ItemDefs
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Medical
+                { ItemTagDefOf.Medical, 3 }
             },
             CanHealInfections = true,
         },
@@ -25,7 +25,7 @@ public static class ItemDefs
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Medical
+                { ItemTagDefOf.Medical, 3 }
             },
             CanHealPoisoning = true,
         },
@@ -37,7 +37,7 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Medical
+                { ItemTagDefOf.Medical, 2 }
             },
             CanTendWounds = true,
         },
@@ -49,7 +49,7 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Food
+                { ItemTagDefOf.Food, 3 }
             },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
             OnConsumptionNutrition = 3f,
@@ -63,7 +63,8 @@ public static class ItemDefs
             Value = 1,
             Tags =
             {
-                ItemTagDefOf.Food, ItemTagDefOf.Plant
+                { ItemTagDefOf.Food, 1 },
+                { ItemTagDefOf.Plant, 1 }
             },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
             OnConsumptionNutrition = 1f,
@@ -77,9 +78,9 @@ public static class ItemDefs
             Value = 1,
             Tags =
             {
-                { ItemTagDefOf.Weapon, -12 },
-                ItemTagDefOf.ForDogs,
-                ItemTagDefOf.Trash
+                { ItemTagDefOf.Weapon, 1 },
+                { ItemTagDefOf.ForDogs, 4 },
+                { ItemTagDefOf.Trash, 1 }
             },
         },
 
@@ -97,9 +98,9 @@ public static class ItemDefs
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Weapon,
-                { ItemTagDefOf.Digging, -10 }
+                { ItemTagDefOf.Tool, 3 },
+                { ItemTagDefOf.Weapon, 2 },
+                { ItemTagDefOf.Digging, 1 }
             },
         },
 
@@ -110,9 +111,9 @@ public static class ItemDefs
             Value = 5,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Cutting,
-                { ItemTagDefOf.Weapon, -10 },
+                { ItemTagDefOf.Tool, 3 },
+                { ItemTagDefOf.Cutting, 3 },
+                { ItemTagDefOf.Weapon, 1 },
             },
             IsQuestItem = true,
         },
@@ -124,11 +125,11 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Weapon,
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Cutting,
-                { ItemTagDefOf.Scavenging, -10 },
-                { ItemTagDefOf.Lockpicking, -15 },
+                { ItemTagDefOf.Weapon, 2 },
+                { ItemTagDefOf.Tool, 2 },
+                { ItemTagDefOf.Cutting, 3 },
+                { ItemTagDefOf.Scavenging, 1 },
+                { ItemTagDefOf.Lockpicking, 1 },
             },
         },
 
@@ -139,7 +140,7 @@ public static class ItemDefs
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Lockpicking
+                { ItemTagDefOf.Lockpicking, 5 }
             },
         },
 
@@ -150,7 +151,7 @@ public static class ItemDefs
             Value = 4,
             Tags =
             {
-                ItemTagDefOf.Medical
+                { ItemTagDefOf.Medical, 4 }
             },
             CanTendWounds = true,
             CanHealInfections = true,
@@ -164,8 +165,8 @@ public static class ItemDefs
             Value = 1,
             Tags =
             {
-                ItemTagDefOf.Medical,
-                ItemTagDefOf.Plant
+                { ItemTagDefOf.Medical, 2 },
+                { ItemTagDefOf.Plant, 2 }
             },
             SeverityReduction = 1f,
         },
@@ -176,7 +177,7 @@ public static class ItemDefs
             Value = 1,
             Tags =
             {
-                ItemTagDefOf.Food
+                { ItemTagDefOf.Food, 2 }
             },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
             OnConsumptionNutrition = 2.5f,
@@ -189,7 +190,7 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Food
+                { ItemTagDefOf.Food, 2 }
             },
             ConsumptionType = ConsumptionTypeDefOf.Eat,
             OnConsumptionNutrition = 3.5f,
@@ -202,7 +203,7 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.BuildingMaterial
+                { ItemTagDefOf.BuildingMaterial, 3 }
             },
         },
 
@@ -213,9 +214,9 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Digging,
-                { ItemTagDefOf.Weapon, -5 },
+                { ItemTagDefOf.Tool, 2 },
+                { ItemTagDefOf.Digging, 4 },
+                { ItemTagDefOf.Weapon, 1 },
             },
         },
 
@@ -233,7 +234,7 @@ public static class ItemDefs
             Value = 1,
             Tags =
             {
-                ItemTagDefOf.Drink
+                { ItemTagDefOf.Drink, 3 }
             },
             ConsumptionType = ConsumptionTypeDefOf.Drink,
             OnConsumptionHydration = 3f,

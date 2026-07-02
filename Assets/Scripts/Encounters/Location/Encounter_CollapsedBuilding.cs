@@ -156,8 +156,6 @@ public class Encounter_CollapsedBuilding : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Cutting,
-                    DifficultyReduction = 25,
-                    DestructionChance = 0.15f,
                 }
             },
             CanPartiallySucceed = false,
@@ -284,8 +282,6 @@ public class Encounter_CollapsedBuilding : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Digging,
-                    DifficultyReduction = 25,
-                    DestructionChance = 0.2f,
                 },
             },
             OncePerDay = true,

@@ -1,6 +1,30 @@
 TODOS:
 ==============================================
 
+- requirements panel for encounter options
+  - show if fulfilled or not
+  - add checkmark or cross
+- new item tooltip
+
+- show durability in item tooltip
+  - only if the item has any tags, otherwise durability is not relevant
+- play break sound on durability break
+- show tags and levels in item tooltip
+
+- show tag in item slot tooltip if it has a tag
+  - also show required level if limited by level
+- show an ! icon on filled item slot if the item will break on use (1 durability left)
+  - with tooltip explaining that the item will break on use
+
+- show stat requirements in encounter option details
+
+- show non selectable reason if applicable in encounter option details
+- display encounter options with requirements differently than those without
+- display stat requirements as item slots (shape wise) that have the stat and level text, and the background green/red depending on whether the player meets the requirement or not
+
+
+
+
 - road system
 - rework map
 - commit to 2d art style

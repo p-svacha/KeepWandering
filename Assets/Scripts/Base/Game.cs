@@ -22,7 +22,7 @@ public class Game : Singleton<Game>
     public NightEncounter NightEncounter { get; private set; }
 
     // Encounter Step Outcome
-    public List<Item> ItemsUsedInOption = new List<Item>();
+    public List<Item> ItemsUsedInOption = new List<Item>(); // List of all items that were used in a slot in the last selected option (that were not destroyed).
 
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
@@ -32,6 +32,9 @@ public class Game : Singleton<Game>
     public int NumAddedQuestsSinceLastStep = 0;
     public int NumCompletedQuestsSinceLastStep = 0;
     public int NumFailedQuestsSinceLastStep = 0;
+
+    private static int ITEM_MIN_INITIAL_DURABILITY = 1;
+    private static int ITEM_MAX_INITIAL_DURABILITY = 5;
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -421,24 +424,28 @@ public class Game : Singleton<Game>
             }
         }
 
-        // Resolve slots of the selected option - apply destruction chance
+        // Handle slots of the selected option
         foreach (ItemSlot slot in selectedOption.ItemSlots)
         {
             if (!slot.IsFilled) continue;
 
             Item item = slot.TakeItem();
 
-            if (slot.DestructionChance > 0f && Random.value <= slot.DestructionChance)
-            {
-                // Item destroyed
-                DestroyOwnedItem(item);
-            }
+            // If slot is destroying the item, destroy it
+            if (slot.IsDestroyingItem) DestroyOwnedItem(item);
+
+            // Else decrease durability (might destroy the item)
             else
             {
-                // Item survives - return to cart
-                item.Show();
-                DropItemIntoCart(item);
-                ItemsUsedInOption.Add(item);
+                ReduceItemDurability(item, 1);
+
+                // If item isn't destroyed, return to cart
+                if (!item.IsDestroyed)
+                {
+                    item.Show();
+                    DropItemIntoCart(item);
+                    ItemsUsedInOption.Add(item);
+                }
             }
         }
 
@@ -806,6 +813,10 @@ public class Game : Singleton<Game>
         Item item = new Item(this, ItemIdCounter++, itemDef);
         if (hidden) item.Renderer.Hide();
         if (frozen) item.Renderer.Freeze();
+
+        int initialDurability = Random.Range(ITEM_MIN_INITIAL_DURABILITY, ITEM_MAX_INITIAL_DURABILITY + 1);
+        SetItemDurability(item, initialDurability);
+
         return item;
     }
 
@@ -905,6 +916,22 @@ public class Game : Singleton<Game>
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
         OnGameStateChanged();
+    }
+
+    public void SetItemDurability(Item item, int durability)
+    {
+        if (durability < 0) throw new System.ArgumentException("Durability cannot be negative.");
+        item.SetDurability(durability);
+    }
+
+    public void ReduceItemDurability(Item item, int amount)
+    {
+        item.ModifyDurability(-amount);
+        if (item.Durability <= 0)
+        {
+            if (item.IsPlayerOwned) DestroyOwnedItem(item);
+            else DestroyItem(item);
+        }
     }
 
     #endregion

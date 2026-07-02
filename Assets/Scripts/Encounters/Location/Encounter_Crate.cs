@@ -186,8 +186,6 @@ public class Encounter_Crate : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Weapon,
-                    DifficultyReduction = 50,
-                    DestructionChance = 0.5f,
                 }
             },
             Action = SmashCrate,
@@ -257,7 +255,6 @@ public class Encounter_Crate : LocationEncounter
                 {
                     IsRequired = true,
                     Item = ItemDefOf.Crowbar,
-                    DestructionChance = 0.15f,
                 }
             },
             Action = OpenCrate,

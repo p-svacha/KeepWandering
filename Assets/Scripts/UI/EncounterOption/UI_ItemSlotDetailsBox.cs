@@ -8,13 +8,15 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
 
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
+    public Image OptionalityFrame;
+    public TextMeshProUGUI OptionalityText;
     public GameObject AcceptedItemsContainer;
     public TextMeshProUGUI AcceptedItemsText;
-    public TextMeshProUGUI DifficultyModifierText;
-    public TextMeshProUGUI DestructionChanceText;
+    public GameObject ItemWillBeDestroyedInfo;
+    public GameObject ItemDurabilityLossInfo;
 
     [Header("Prefabs")]
-    public GameObject AcceptedItemColumnPrefab;
+    public UI_SlotAcceptedItemInfo AcceptedItemPrefab;
 
     public void Show(ItemSlot itemSlot)
     {
@@ -31,43 +33,26 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
 
     public void Refresh()
     {
-        TitleText.text = $"Item Slot ({(Slot.IsRequired ? "REQUIRED" : "OPTIONAL")})";
+        TitleText.text = $"{Slot.Label()} Slot";
+        TitleText.text = $"{Slot.Label()} Slot";
+
+        OptionalityFrame.color = Slot.IsRequired ? new Color(0.37f, 0.98f, 1f) : new Color(1f, 0.98f, 0.5f);
+        OptionalityText.text = Slot.IsRequired ? "REQUIRED" : "OPTIONAL";
 
         // Accepted items
-        if (Slot.DifficultyReduction == 0 || !Slot.HasMultipleDifficultyReductions()) AcceptedItemsText.text = "Accepted Items";
-        else AcceptedItemsText.text = "Accepted Items\n<color=#666666>Difficulty Reduction</color>";
+        AcceptedItemsText.text = "Accepted Items";
+        if (Slot.Option is SkillCheckOption) AcceptedItemsText.text += "\n<color=#666666>Higher tiers reduce difficulty more</color>";
 
         HelperFunctions.DestroyAllChildredImmediately(AcceptedItemsContainer);
         foreach (ItemDef itemDef in Slot.GetSlottableItemDefs())
         {
-            GameObject column = Instantiate(AcceptedItemColumnPrefab, AcceptedItemsContainer.transform);
-            column.GetComponentInChildren<Image>().sprite = itemDef.Sprite;
-            TextMeshProUGUI difficultyReductionText = column.GetComponentInChildren<TextMeshProUGUI>();
-            if (Slot.HasMultipleDifficultyReductions())
-            {
-                difficultyReductionText.text = Slot.GetDifficultyReduction(itemDef).ToString();
-            }
-            else
-            {
-                // Just show the item sprite without a difficulty reduction value if there are no custom reductions, since the difficulty modifier below will apply to all accepted items equally
-                difficultyReductionText.gameObject.SetActive(false);
-                column.GetComponent<LayoutElement>().preferredHeight = 50;
-            }
+            UI_SlotAcceptedItemInfo itemInfo = Instantiate(AcceptedItemPrefab, AcceptedItemsContainer.transform);
+            if(Slot.Tag != null) itemInfo.Init(itemDef, Slot.Tag);
+            else itemInfo.Init(itemDef);
         }
-        // Difficulty modifier
-        if (Slot.DifficultyReduction != 0 && !Slot.HasMultipleDifficultyReductions())
-        {
-            DifficultyModifierText.text = $"Difficulty Reduction: -{Slot.DifficultyReduction}";
-            DifficultyModifierText.gameObject.SetActive(true);
-        }
-        else DifficultyModifierText.gameObject.SetActive(false);
 
-        // Destruction chance
-        if (Slot.DestructionChance > 0f)
-        {
-            DestructionChanceText.text = $"Chance to Break: {Slot.DestructionChance * 100f:0}%";
-            DestructionChanceText.gameObject.SetActive(true);
-        }
-        else DestructionChanceText.gameObject.SetActive(false);
+        // Destruction / Durability loss
+        ItemWillBeDestroyedInfo.SetActive(Slot.IsDestroyingItem);
+        ItemDurabilityLossInfo.SetActive(!Slot.IsDestroyingItem);
     }
 }

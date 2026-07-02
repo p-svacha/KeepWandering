@@ -61,7 +61,7 @@ public class Encounter_QuarantineFence : LocationEncounter
                 {
                     IsRequired = true,
                     Item = ItemDefOf.FenceCutter,
-                    DestructionChance = 1f,
+                    IsDestroyingItem = true,
                 }
             },
             FixedDifficultyModifiers = new Dictionary<string, int>()

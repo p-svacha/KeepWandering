@@ -90,8 +90,6 @@ public class NightEncounter_Bandits : NightEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Weapon,
-                    DifficultyReduction = 20,
-                    DestructionChance = 0.33f,
                 },
             }
         };
@@ -241,7 +239,6 @@ public class NightEncounter_Bandits : NightEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Weapon,
-                    DifficultyReduction = 25,
                 },
             },
             CanCriticallyFail = false,
@@ -358,20 +355,17 @@ public class NightEncounter_Bandits : NightEncounter
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
-                    DifficultyReduction = 20,
-                    DestructionChance = 1f,
+                    IsDestroyingItem = true,
                 },
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
-                    DifficultyReduction = 20,
-                    DestructionChance = 1f,
+                    IsDestroyingItem = true,
                 },
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
-                    DifficultyReduction = 20,
-                    DestructionChance = 1f,
+                    IsDestroyingItem = true,
                 },
             },
             CanPartiallySucceed = false,

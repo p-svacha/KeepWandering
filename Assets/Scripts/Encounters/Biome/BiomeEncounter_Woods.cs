@@ -116,14 +116,10 @@ public class BiomeEncounter_Woods : BiomeEncounter
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Rope,
-                    DifficultyReduction = 25,
-                    DestructionChance = 0.3f,
                 },
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Weapon,
-                    DifficultyReduction = 15,
-                    DestructionChance = 0.5f,
                 }
             }
         };
@@ -178,7 +174,6 @@ public class BiomeEncounter_Woods : BiomeEncounter
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Knife,
-                    DifficultyReduction = 15,
                 }
             }
         };

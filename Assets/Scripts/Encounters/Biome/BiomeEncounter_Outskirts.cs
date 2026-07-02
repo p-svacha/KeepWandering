@@ -120,8 +120,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
-                    DifficultyReduction = 25,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 },
             },
         };

@@ -124,7 +124,7 @@ public class Encounter_WoundedStranger : LocationEncounter
                 {
                     Tag = ItemTagDefOf.Medical,
                     IsRequired = true,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 }
             }
         };

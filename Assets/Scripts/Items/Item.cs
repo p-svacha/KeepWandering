@@ -11,6 +11,7 @@ public class Item
     public ItemDef Def { get; private set; }
     public bool IsPlayerOwned { get; private set; }
     public bool IsDestroyed { get; private set; }
+    public int Durability { get; private set; } // Remaining uses
 
 
     // Visual
@@ -36,6 +37,17 @@ public class Item
     {
         IsDestroyed = true;
         GameObject.Destroy(Renderer.gameObject);
+    }
+
+    public void SetDurability(int durability)
+    {
+        if (durability < 0) throw new System.ArgumentException("Durability cannot be negative.");
+        Durability = durability;
+    }
+
+    public void ModifyDurability(int amount)
+    {
+        Durability += amount;
     }
 
     private void HighlightWound(Wound wound)

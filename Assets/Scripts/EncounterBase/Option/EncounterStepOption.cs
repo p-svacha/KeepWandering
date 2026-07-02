@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract class EncounterOption
 {
@@ -30,6 +31,11 @@ public abstract class EncounterOption
     public List<ItemSlot> ItemSlots { get; init; } = new List<ItemSlot>();
 
     /// <summary>
+    /// The stat requirements that must be met in order to select this encounter step option. Each stat has a minimum value that must be met. If the player does not meet the requirements, the option will still be displayed, but it will be disabled and the player will not be able to select it.
+    /// </summary>
+    public Dictionary<StatDef, int> StatRequirements { get; init; } = new Dictionary<StatDef, int>();
+
+    /// <summary>
     /// Executes the logic of the encounter step option and returns the text to be displayed on the next step.
     /// </summary>
     public abstract string Execute(out OptionOutcomeDef outcome);
@@ -40,22 +46,80 @@ public abstract class EncounterOption
     /// </summary>
     public virtual void Init()
     {
+        // Initialize
+        foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);
+
         // Validate
         if (string.IsNullOrEmpty(Text)) throw new System.Exception("Encounter option text cannot be null or empty.");
         if (OncePerDay && OnceEver) throw new System.Exception("Encounter option cannot be both once per day and once ever.");
         foreach (ItemSlot slot in ItemSlots) slot.Validate();
+    }
 
-        // Initialize
-        foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);
+    public bool HasRequirements()
+    {
+        return ItemSlots.Any(slot => slot.IsRequired) || StatRequirements.Count > 0;
     }
 
     public bool CanSelect()
     {
+        // Item slot requirements
         foreach (ItemSlot itemSlot in ItemSlots)
         {
             if (itemSlot.IsRequired && !itemSlot.IsFilled) return false;
         }
 
+        // Stat requirements
+        foreach (var statRequirement in StatRequirements)
+        {
+            StatDef statDef = statRequirement.Key;
+            int requiredValue = statRequirement.Value;
+            int playerValue = Game.Instance.Player.GetStatValue(statDef);
+            if (playerValue < requiredValue) return false;
+        }
+
         return true;
+    }
+
+    /// <summary>
+    /// Returns a string explaining why the option cannot be selected. If the option can be selected, returns an empty string.
+    /// </summary>
+    public string GetNonSelectableReason()
+    {
+        // Item slot requirements
+        foreach (ItemSlot itemSlot in ItemSlots)
+        {
+            if (itemSlot.IsRequired && !itemSlot.IsFilled)
+            {
+                if (itemSlot.Item != null)
+                {
+                    return $"Requires {itemSlot.Item.Label}.";
+                }
+                if (itemSlot.CustomItemSet != null)
+                {
+                    string allowedItems = string.Join(", ", itemSlot.CustomItemSet.Select(itemDef => itemDef.Label));
+                    return $"Requires one of the following items: {allowedItems}.";
+                }
+                if (itemSlot.Tag != null)
+                {
+                    if(itemSlot.HasrequiredTagLevel)
+                    {
+                        return $"Requires an item with tag {itemSlot.Tag.Label} of at least level {itemSlot.RequiredTagLevel}.";
+                    }
+                    else
+                    {
+                        return $"Requires an item with tag {itemSlot.Tag.Label}.";
+                    }
+                }
+            }
+        }
+        // Stat requirements
+        foreach (var statRequirement in StatRequirements)
+        {
+            StatDef statDef = statRequirement.Key;
+            int requiredValue = statRequirement.Value;
+            int playerValue = Game.Instance.Player.GetStatValue(statDef);
+            if (playerValue < requiredValue) return $"Requires {statDef.DefName} of at least {requiredValue}.";
+        }
+        return "Unknown reason.";
     }
 }

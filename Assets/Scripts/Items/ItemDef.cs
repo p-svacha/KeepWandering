@@ -6,13 +6,16 @@ public class ItemDef : Def
     public override string DefTypeLabel => "Item";
     public override Sprite Sprite => Resources.Load<Sprite>("Items/" + DefName);
 
+    public static int MIN_TAG_LEVEL = 1;
+    public static int MAX_TAG_LEVEL = 5;
+
     /// <summary>
     /// If true, this item will not appear in random selections.
     /// </summary>
     public bool IsQuestItem { get; init; }
 
     // General
-    public ItemTagCollection Tags { get; init; } = new ItemTagCollection();
+    public Dictionary<ItemTagDef, int> Tags = new Dictionary<ItemTagDef, int>(); // Each tag has a level that defines the difficulty reduction when used in a slot requiring that tag.
     public int Value { get; init; } = 0;
 
 
@@ -34,17 +37,18 @@ public class ItemDef : Def
 
     public bool HasTag(ItemTagDef tag)
     {
-        return Tags.Contains(tag);
+        return Tags.ContainsKey(tag);
     }
 
 
     public override bool Validate()
     {
-        foreach(var mod in Tags.Modifiers)
+        foreach (var tag in Tags)
         {
-            if (!Tags.Contains(mod.Key))
+            if (tag.Value < MIN_TAG_LEVEL || tag.Value > MAX_TAG_LEVEL)
             {
-                throw new System.Exception($"ItemDef {DefName} has a tag value modifier for {mod.Key.DefName} but does not have that tag.");
+                Debug.LogError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
+                return false;
             }
         }
 

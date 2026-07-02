@@ -102,10 +102,10 @@ public class SkillCheckOption : EncounterOption
             modifiers.Add($"Being in {biome.LabelCapWord}", biomeModifier);
         }
 
-        // Item slots
+        // Item slots (only non-required slots that are filled affect difficulty)
         foreach (ItemSlot slot in ItemSlots)
         {
-            if (slot.IsFilled)
+            if (!slot.IsRequired && slot.IsFilled)
             {
                 int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
                 if (modifierAmount != 0) modifiers.Add($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount);

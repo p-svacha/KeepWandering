@@ -151,8 +151,6 @@ public class Encounter_SupplyStash : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Tool,
-                    DifficultyReduction = 20,
-                    DestructionChance = 0.1f,
                 },
             },
             OncePerDay = true,
@@ -211,8 +209,6 @@ public class Encounter_SupplyStash : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Lockpicking,
-                    DifficultyReduction = 50,
-                    DestructionChance = 0.1f,
                 },
             },
             OncePerDay = true,
@@ -263,8 +259,6 @@ public class Encounter_SupplyStash : LocationEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Digging,
-                    DifficultyReduction = 25,
-                    DestructionChance = 0.1f,
                 },
             },
             OncePerDay = true,

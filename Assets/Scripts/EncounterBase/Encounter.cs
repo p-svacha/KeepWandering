@@ -295,7 +295,7 @@ public abstract class Encounter
             {
                 Item = ItemDefOf.Coin,
                 IsRequired = true,
-                DestructionChance = 1f
+                IsDestroyingItem = true,
             });
         }
 
@@ -324,7 +324,7 @@ public abstract class Encounter
                 {
                     Item = itemDef,
                     IsRequired = true,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 }
             }
         };
@@ -348,19 +348,19 @@ public abstract class Encounter
                 {
                     Item = ItemDefOf.Coin,
                     IsRequired = true,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 },
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
                     IsRequired = true,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 },
                 new ItemSlot()
                 {
                     Item = ItemDefOf.Coin,
                     IsRequired = true,
-                    DestructionChance = 1f
+                    IsDestroyingItem = true,
                 },
             }
         };

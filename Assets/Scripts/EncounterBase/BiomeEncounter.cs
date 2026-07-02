@@ -117,7 +117,7 @@ public abstract class BiomeEncounter : Encounter
                 {
                     IsRequired = true,
                     Item = ItemDefOf.Trap,
-                    DestructionChance = 1f,
+                    IsDestroyingItem = true,
                 },
             }
         };
@@ -149,14 +149,10 @@ public abstract class BiomeEncounter : Encounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.BuildingMaterial,
-                    DifficultyReduction = 30,
-                    DestructionChance = 0.5f,
                 },
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Tool,
-                    DifficultyReduction = 20,
-                    DestructionChance = 0.1f,
                 },
             }
         };
@@ -225,8 +221,6 @@ public abstract class BiomeEncounter : Encounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Scavenging,
-                    DifficultyReduction = 15,
-                    DestructionChance = 0.1f,
                 },
             }
         };

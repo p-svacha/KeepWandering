@@ -125,7 +125,6 @@ public class BiomeEncounter_City : BiomeEncounter
                 new ItemSlot()
                 {
                     Tag = ItemTagDefOf.Weapon,
-                    DifficultyReduction = 15,
                 }
             },
         };

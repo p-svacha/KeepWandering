@@ -8,7 +8,14 @@ using UnityEngine;
 /// </summary>
 public class ItemSlot
 {
-    public const int MIN_DIFFICULTY_REDUCTION = 5;
+    public static Dictionary<int, int> ITEM_LEVEL_DIFFICULTY_REDUCTIONS = new Dictionary<int, int>()
+    {
+        { 1, 20 },
+        { 2, 40 },
+        { 3, 60 },
+        { 4, 80 },
+        { 5, 100 },
+    };
 
     /// <summary>
     /// The option this slot belongs to.
@@ -24,7 +31,12 @@ public class ItemSlot
     /// <summary>
     /// If true, the option this slot belongs to cannot be selected unless an item is dragged into this slot.
     /// </summary>
-    public bool IsRequired { get; init; }
+    public bool IsRequired { get; init; } = false;
+
+    /// <summary>
+    /// If true, the item dragged into this slot will be destroyed when the option is selected. If false, the item will lose 1 durability.
+    /// </summary>
+    public bool IsDestroyingItem { get; init; } = false;
 
     /// <summary>
     /// The specific item that can be dragged into this slot.
@@ -34,7 +46,12 @@ public class ItemSlot
     /// <summary>
     /// The custom set of allowed items that can be dragged into this slot.
     /// </summary>
-    public List<ItemDef> AllowedItems { get; init; } = null;
+    public List<ItemDef> CustomItemSet { get; init; } = null;
+
+    /// <summary>
+    /// Display label of the slot if the allowed items are defined by a custom set. This is used to display the name of the slot in the UI.
+    /// </summary>
+    public string CustomItemSetName { get; init; } = null;
 
     /// <summary>
     /// The item tag that an item dragged into this slot must have.
@@ -42,50 +59,36 @@ public class ItemSlot
     public ItemTagDef Tag { get; init; } = null;
 
     /// <summary>
-    /// Chance that the item dragged into this slot will be destroyed when the option is selected. This is a value between 0 and 1, where 0 means the item will never be destroyed and 1 means it will always be destroyed.
+    /// If > 0, this defines that the item with the specified tag must have at least this level in order to be accepted into this slot. If the item has a lower level, it will not be accepted.
     /// </summary>
-    public float DestructionChance { get; init; }
-
-    /// <summary>
-    /// How much the option difficulty will be reduced if the slot is filled and the option is selected.
-    /// </summary>
-    public int DifficultyReduction { get; init; }
-
-    /// <summary>
-    /// Specific items that reduce the option difficulty by an amount that overrides the default difficulty reduction if dragged into this slot.
-    /// </summary>
-    public Dictionary<ItemDef, int> DifficultyReductionOverrides { get; init; } = new Dictionary<ItemDef, int>();
-
-    /// <summary>
-    /// Returns false if all accepted items reduce the option difficulty by the same amount, true if there are specific items that reduce the option difficulty by different amounts (either by slot override, or item tag override).
-    /// </summary>
-    public bool HasMultipleDifficultyReductions()
-    {
-        foreach (ItemDef itemDef in GetSlottableItemDefs())
-        {
-            if (GetDifficultyReduction(itemDef) != DifficultyReduction) return true;
-        }
-        return false;
-    }
+    public int RequiredTagLevel { get; init; } = -1;
+    public bool HasrequiredTagLevel => RequiredTagLevel != -1;
 
     public void Validate()
     {
+        // Make sure slot has exactly 1 option configured
+        if (Item == null && Tag == null && CustomItemSet == null) throw new System.Exception("ItemSlot must have either a specific item, a specific tag, or a list of allowed items.");
+
         if (Item != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a specific item and a specific tag.");
-        if (Item != null && AllowedItems != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
-        if (AllowedItems != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a list of allowed items and a specific tag.");
-        if (Item == null && Tag == null && AllowedItems == null) throw new System.Exception("ItemSlot must have either a specific item, a specific tag, or a list of allowed items.");
+        if (CustomItemSet != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a list of allowed items and a specific tag.");
 
-
-        if (DestructionChance < 0f || DestructionChance > 1f) throw new System.Exception("DestructionChance must be between 0 and 1.");
-
-        foreach (var customValue in DifficultyReductionOverrides)
+        // Validation for specific item(s)
+        if (Item != null || CustomItemSet != null)
         {
-            if (!CanAcceptItemDef(customValue.Key))
-            {
-                throw new System.Exception($"Difficulty reduction override for item {customValue.Key.Label} is invalid because the item does not match the slot requirements.");
-            }
-            if (customValue.Value < MIN_DIFFICULTY_REDUCTION) throw new System.Exception($"Difficulty reduction override for item {customValue.Key.Label} must be a positive integer.");
+            if (Item != null && CustomItemSet != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
+            if (!IsRequired) throw new System.Exception("ItemSlot with a specific item or list of allowed items must be required, as only tag slots can have difficulty reductions for optional slots.");
+            if (HasrequiredTagLevel) throw new System.Exception("ItemSlot with a specific item or list of allowed items cannot have a required tag level, as only tag slots can have difficulty reductions.");
         }
+
+        // Validation for tag
+        if (Tag != null)
+        {
+            if (HasrequiredTagLevel && RequiredTagLevel < ItemDef.MIN_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is below the minimum allowed level of {ItemDef.MIN_TAG_LEVEL}.");
+            if (HasrequiredTagLevel && RequiredTagLevel > ItemDef.MAX_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is above the maximum allowed level of {ItemDef.MAX_TAG_LEVEL}.");
+        }
+
+        // Must have set a tag if not required (because then the slot is to reduce difficulty, which is only possible with a tag)
+        if (!IsRequired && Tag == null) throw new System.Exception("ItemSlot that is not required must have a tag set, as only tag slots can have difficulty reductions for optional slots.");
     }
 
     public void SetOption(EncounterOption option)
@@ -131,25 +134,7 @@ public class ItemSlot
 
     public int GetDifficultyReduction(ItemDef itemDef)
     {
-        // Priority 1: Item-specific override
-        if (DifficultyReductionOverrides.ContainsKey(itemDef))
-        {
-            return DifficultyReductionOverrides[itemDef];
-        }
-
-        // Priority 2: Default reduction adjusted by the item's tag value modifier
-        if (Tag != null)
-        {
-            if (itemDef.HasTag(Tag) && itemDef.Tags.HasModifier(Tag))
-            {
-                int newReduction = DifficultyReduction + itemDef.Tags.GetModifier(Tag);
-                if (newReduction < MIN_DIFFICULTY_REDUCTION) return MIN_DIFFICULTY_REDUCTION;
-                return newReduction;
-            }
-        }
-
-        // Priority 3: Default reduction
-        return DifficultyReduction;
+        return ITEM_LEVEL_DIFFICULTY_REDUCTIONS[itemDef.Tags[Tag]];
     }
 
     public bool CanAcceptItem(Item item) => CanAcceptItemDef(item.Def);
@@ -183,7 +168,8 @@ public class ItemSlot
         {
             if (Item != null && itemDef != Item) continue;
             if (Tag != null && !itemDef.HasTag(Tag)) continue;
-            if (AllowedItems != null && !AllowedItems.Contains(itemDef)) continue;
+            if (CustomItemSet != null && !CustomItemSet.Contains(itemDef)) continue;
+            if (HasrequiredTagLevel && (!itemDef.HasTag(Tag) || itemDef.Tags[Tag] < RequiredTagLevel)) continue;
             itemDefs.Add(itemDef);
         }
 
@@ -199,7 +185,20 @@ public class ItemSlot
     {
         if (Item != null) return $"Slot for {Item.DefName}";
         if (Tag != null) return $"Slot for items with {Tag.DefName} tag";
-        if (AllowedItems != null) return $"Slot for specific items: {string.Join(", ", AllowedItems.Select(x => x.DefName))}";
+        if (CustomItemSet != null) return $"Slot for specific items: {string.Join(", ", CustomItemSet.Select(x => x.DefName))}";
         return "Invalid slot";
+    }
+
+    public string Label()
+    {
+        if (Item != null) return Item.LabelCap;
+        if (Tag != null)
+        {
+            if (HasrequiredTagLevel) return $"Tier {RequiredTagLevel}+ {Tag.LabelCap}";
+            else return $"{Tag.LabelCap}";
+        }
+        if (CustomItemSet != null) return CustomItemSetName;
+
+        throw new System.Exception("Invalid slot: cannot generate label for slot with no item, tag, or custom item set.");
     }
 }
