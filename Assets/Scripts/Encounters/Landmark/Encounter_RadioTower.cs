@@ -249,7 +249,7 @@ public class Encounter_RadioTower : LocationEncounter
 
             if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
             {
-                ItemDef foundItem = Game.GetRandomItemDefWithTag(ItemTagDefOf.Tool);
+                ItemDef foundItem = LootTables.Tools.Resolve();
                 text += $" You also find a hidden a {foundItem.Label} and take it.";
                 Game.AddNewItemToInventory(foundItem);
             }

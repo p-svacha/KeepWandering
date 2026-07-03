@@ -82,7 +82,7 @@ public class Item
         if (!IsPlayerOwned) return options; // todo. allow interactions of non-player items (i.e. trader)
 
         // Options by item attributes (eat, drink, etc.)
-        if (Def.IsConsumable) options.Add(new InteractionOption(Def.ConsumptionType.LabelCap, () => Game.ConsumeItem(this)));
+        if (Def.IsConsumable) options.Add(new InteractionOption(Def.ConsumptionType.ConsumptionVerb.CapitalizeFirst(), () => Game.ConsumeItem(this)));
         if (Def.CanTendWounds)
         {
             foreach (Wound wound in Game.Player.TendableWounds)
@@ -90,7 +90,7 @@ public class Item
                 options.Add(new InteractionOption($"Tend {wound.Def.Label}", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
-        if (Def.CanHealInfections)
+        if (Def.CanTreatInfections)
         {
             foreach (Wound wound in Game.Player.TreatableWounds)
             {

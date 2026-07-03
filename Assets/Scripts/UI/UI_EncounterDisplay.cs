@@ -16,7 +16,6 @@ public class UI_EncounterDisplay : MonoBehaviour
     [Header("Elements")]
     public TextMeshProUGUI EncounterText;
     public GameObject EncounterOptionContainer;
-    public TextMeshProUGUI HoveredOptionDescriptionText;
 
     public GameObject PreviousOutcomeContainer;
     public Image PreviousOutcomeImage;
@@ -110,7 +109,6 @@ public class UI_EncounterDisplay : MonoBehaviour
 
         // Option details
         HideOptionDetails();
-        HoveredOptionDescriptionText.gameObject.SetActive(false);
 
         // Outcome notes
         InitEncounterStepOutcomeNotes();
@@ -148,9 +146,6 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     public void OnOptionHovered(EncounterOption option)
     {
-        // Show description
-        ShowOptionDescription(option);
-
         // Skill check stuff
         if (option is SkillCheckOption skillCheckOption)
         {
@@ -171,38 +166,14 @@ public class UI_EncounterDisplay : MonoBehaviour
 
             // Highlight morale
             GameUI.Instance.HightlightStat(StatDefOf.Morale, ResourceManager.Color_Highlight_LowImpact); // Morale is always relevant for skill checks
-            // Show option details
-            ShowOptionDetails(skillCheckOption);
         }
 
-        // Fixed outcome
-        else if (option is FixedOutcomeOption fixedOutcomeOption)
-        {
-            // Activate container (for item slot details)
-            OptionDetailsPanel.gameObject.SetActive(true);
-
-            // Don't show anything skill check related
-            OptionDetailsPanel.OutcomesPanel.SetActive(false);
-            OptionDetailsPanel.DifficultyPanel.SetActive(false);
-        }
-    }
-
-    private void ShowOptionDescription(EncounterOption option)
-    {
-        string descriptionText = option.Description;
-        if (!option.CanSelect()) descriptionText += "\n" + ResourceManager.WarningText("Missing required item.");
-        if (descriptionText != "")
-        {
-            HoveredOptionDescriptionText.gameObject.SetActive(true);
-            HoveredOptionDescriptionText.text = descriptionText;
-        }
+        // Show option details
+        ShowOptionDetails(option);
     }
 
     public void OnOptionUnhovered()
     {
-        // Hide description
-        HoveredOptionDescriptionText.gameObject.SetActive(false);
-
         // Unhighlight all stats
         GameUI.Instance.UnhighlightAllStats();
 
@@ -242,9 +213,6 @@ public class UI_EncounterDisplay : MonoBehaviour
     public void RefreshOption(EncounterOption option)
     {
         OptionDisplays[option].Resfresh();
-
-        // Option description
-        ShowOptionDescription(option);
 
         // Option details
         if (OptionDetailsPanel.gameObject.activeSelf) OptionDetailsPanel.Refresh();
@@ -348,7 +316,7 @@ public class UI_EncounterDisplay : MonoBehaviour
 
     #region Option Details
 
-    public void ShowOptionDetails(SkillCheckOption option)
+    public void ShowOptionDetails(EncounterOption option)
     {
         OptionDetailsPanel.gameObject.SetActive(true);
         OptionDetailsPanel.ShowDetailsFor(option);

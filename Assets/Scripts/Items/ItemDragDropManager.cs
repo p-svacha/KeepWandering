@@ -61,7 +61,7 @@ public static class ItemDragDropManager
         item.Renderer.StartDragPhysics(mouseWorldPos);
 
         // Hide tooltip and context menu
-        Game.Instance.UI.Tooltip.Hide();
+        Game.Instance.UI.HideAllTooltips();
         Game.Instance.UI.ContextMenu.Hide();
 
         // Grey out invalid drop targets

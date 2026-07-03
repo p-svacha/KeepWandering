@@ -124,22 +124,23 @@ Encounters apply damage through standardized helpers rather than always targetin
 
 ---
 
-# Inventory / Items
+# Items / Inventory
 
 The player carries a wooden handcart representing their inventory. Items are physics sprites that settle in the cart and can be dragged freely; items added spawn above the cart and fall in; removed items vanish; items knocked offscreen respawn so they cannot be lost. Hovering shows a tooltip; clicking/right-clicking offers item actions (eat, drink, apply, etc.).
 
-There is a carry limit; its exact implementation is still being tuned.
+This chapter covers different systems items can have (tags, consumption, medical). These do not exclude each other. While most items are focussed on a small number of use caese, items may have any combination of these properties.
 
 ## Item Tags
 
-Each item can have any number of **tags**. Tags are the mechanism by which item slots decide which items they accept. Tags are never shown to the player directly as raw data, but the player learns an item's tags and levels through use and the handbook.
+Each item can have any number of **tags**. Tags are the mechanism by which item slots decide which items they accept.
 
-Two conventions of tag:
+Tags are used in a way to describe what an item is good for, rather than what it is, since mechanically they are used to reduce the difficulty of skill checks.
 
-- **General-purpose tags** describe what an item *is* (Food, Tool, Medical, Weapon, Trash).
-- **Activity tags** describe what an item is *used for* (Combat, Scavenging, Lockpicking, Digging, Cutting…).
-
-An item can carry tags from both. Technically there is no difference; it's a design convention. Because there are many tags, it's fine for them to be specific and overlapping.
+Some examples of tags are:
+- Weapon
+- Lockpick
+- Cutting tool
+- Digging tool
 
 ### Tag Levels
 
@@ -155,37 +156,33 @@ When an item fills a skill-check slot that accepts one of its tags, the item's l
 | 4     | 80%                  |
 | 5     | 100%                 |
 
-This replaces the old per-slot value system: encounter options no longer specify how much each slot reduces difficulty. An option's slot only declares which tag (or specific item / custom list) it accepts; the item's level does the rest. This is easier to understand, easier to display in the UI, and far less work to author.
-
-### Item Slot Accept Modes
-
-Each slot accepts items in exactly one mode:
-
-- **Specific item** — only one explicitly defined item.
-- **Tag** — any item with the given tag (level drives the reduction).
-- **Custom list** — a custom set of explicitly listed items.
-
-## Requirements
-
-Options can carry **requirements** that gate availability — an option whose requirements aren't met is shown greyed-out and non-interactable, which doubles as a clear in-world goal ("come back with a shovel," "raise Dexterity to 5"). Requirement types:
-
-- A **specific item** is present.
-- An item with a **tag at a minimum level** (e.g. "Lvl 3 Lockpick").
-- A **skill minimum** (e.g. "Dexterity 5").
-
-Requirements are especially useful on FixedOutcome options to define a clear "best option" locked behind a condition the player can work toward.
-
 ## Durability
 
-Every item has a **durability** value, randomized **1–4** on creation. Each time an item is used in an encounter slot, its durability drops by 1; at 0 it breaks and is removed. This replaces the old random "chance to break," which had no strategic value and only produced bad-luck frustration. Durability is predictable: the player always knows a use has a real, finite cost.
+Every item has a **durability** value, randomized **1–5** on creation. Each time an item is used in an encounter slot, its durability drops by 1; at 0 it breaks and is removed.
 
-Currency and single-use items are consumed fully on use rather than ticking down durability (e.g. coins spent in trade, a fence cutter consumed on use).
+Item slots in encounter options can be configured to **destroy** the item on use (e.g. giving it away) rather than ticking down durability.
 
 ## Consumables
 
-The consumable system (eating, drinking, applying medical items) is fully separate from tag levels and durability. Consumable effects must be communicated **clearly and non-cryptically** in the item description — exact nutrition/hydration, any chance of negative effects such as food poisoning, etc. No hidden values.
+Items may have consumable properties. Each item has a ConsumptionCategory which is either:
+- None
+- Food
+- Drink
+- Drug
 
-Cooking is supported as a way to transform raw food (e.g. raw meat) into a safer/better form, offered as an evening action and/or item interaction.
+If the category is not None, the item has a **consumption effect**. The effect can be, regardless of category, any combination of:
+- Providing nutrition (reduces hunger severity)
+- Providing hydration (reduces thirst severity)
+- Applying a health condition
+- Permanently modifying one or more skills
+
+## Medical
+
+Items may also have medical properties. If any of these is present, the item is considered a medical item. The properties are:
+- **Severity Reduction (float):** Reduces the severity of a random negative health condition by that value.
+- **Can Tend Wounds (bool):** Can be used to tend wound.
+- **Can Treat Infection (bool):** Can be used to treat infection on a wound.
+- **Can Heal Poisoning (bool):** Can be used to heal a poisoning condition.
 
 ## Loot Tables
 
@@ -249,7 +246,7 @@ The map is generated per new game from the start tile at 0/0:
 
 # Quests
 
-Quests are tasks given by encounters — reach a tile, bring an item, meet someone, etc. — with effects on game state (unlocking encounters, changing existing ones, granting items). When given, a quest usually predetermines the location encounters of the affected tiles so the player can plan a route; quest markers are visible before stepping on the tile and are coloured. Quests are surfaced in the **Notes** panel.
+Quests represent some form of task (reach a tile, bring an item, meet someone, etc.) with effects on game state (unlocking encounters, changing existing ones, granting items, changing stats, can be anything). When given, a quest usually predetermines the location encounters of the affected tiles so the player can plan a route; quest markers are visible before stepping on the tile and are coloured. Quests are surfaced in the **Notes** panel.
 
 Each `QuestDef` tracks state: Inactive, Active, Completed, or Failed. Quest state can affect encounters (e.g. an option that would grant an already-active quest is hidden).
 
@@ -257,21 +254,19 @@ Each `QuestDef` tracks state: Inactive, Active, Completed, or Failed. Quest stat
 
 **Auto-placement:** a `QuestDef` can specify an encounter to place and a search radius. When such a quest starts, the system finds a nearby empty tile, places the encounter there, sets the quest location, and formats the quest text with the tile coordinates. Story-driven quests with fixed or manually-set locations skip auto-placement.
 
----
+## Rumours
 
-# Rumours
-
-Rumours randomize which quests a player discovers, keeping runs varied. (Quests can also come from scripted story beats or fixed encounter outcomes.)
+Rumours are a system that allow the player to discover a random quest from a pool, so the same events in an encounter can lead to different quests in different playthroughs, increasing variety and reducing the potential to min-max and play optimally by adding a source of randomness.
 
 A pool of `RumourDef`s each reference a `QuestDef` (which owns all quest behaviour — repeatability, placed encounter, radius, text) plus the rumour text shown when learned. Calling `LearnRumour()` (with no parameters — the randomization is the point) picks a random rumour, creates and starts its quest (triggering auto-placement if defined), and returns a standardized "you learned a rumour…" message. If no empty tile can be found for placement, the rumour gracefully fails to take and the encounter text adapts.
-
-Rumours are **always full** — the earlier partial-rumour variant (player knows location but not details) has been removed as unintuitive and hard to design around.
 
 ---
 
 # Encounters
 
-An encounter is any situation requiring player input. The player always faces a location encounter in the afternoon, a biome encounter in the evening, and possibly a night encounter. Encounters vary widely: one step or many, one option or many, linear or branching. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open.
+An encounter is any situation requiring player input. The player always faces a location encounter in the afternoon, an evening encounter in the evening, and possibly a night encounter. Encounters vary widely: one step or many, one option or many, linear or branching.
+
+In each state during the encounter, the player is confronted with a set of **encounter options**. Selecting an option is how the game progresses. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open.
 
 During an encounter, free item use is disabled — items can only be used through option slots. Once the encounter ends, the player can freely use items again and then choose to advance the time of day. (The morning is an exception, with free item use throughout.) An encounter always resolves within a single time of day.
 
@@ -280,7 +275,7 @@ During an encounter, free item use is disabled — items can only be used throug
 ### Location encounters
 The main afternoon encounters, bound to a tile and **persistent** — they keep their state and can be returned to. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
 
-### Biome (evening) encounters
+### Evening encounters
 The evening encounter, based purely on the current biome. **Not persistent** — a fresh instance each evening — so they carry no narrative weight and exist to give the player a moment of control.
 
 The evening is a **generic action menu** ("How would you like to spend your evening?") with **no scene-specific setting**.
@@ -328,17 +323,38 @@ Skills also function as meaningful **requirements** on FixedOutcome options, giv
 
 Encounters are built from steps, exactly one active at a time, often generated dynamically from the encounter's current state. A step with **no options is a final step**: reaching it ends the encounter (free item use returns, and the player can advance the time of day).
 
-## Options
+## Encounter Options
 
-Each non-final step offers options determined by current state. Options are one of two technical types.
+Each non-final step offers options determined by the current state of the encounter. Options are one of two technical types: FixedOutcome or SkillCheck.
+
+### Option Requirements
+
+An encounter option can have **requirements** that determine if it is selectable by the player. An option whose requirements aren't met is shown greyed-out and non-interactable, which doubles as a clear in-world goal ("come back with a shovel," "raise Dexterity to 5").
+
+The following types of requirements exist:
+- **Item slots:** Each item slot marked as "required" must be filled for the option to be selectable.
+- **Skill:** The player must have a skill at or above a defined value.
+- **Misc**: Options can also require completely custom requirements (i.e. the player has completed a specific quest, or has a specific health condition, or does not have a specific health condition).
+
+These requirements can be freely combined, and multiple can exist for an option (also multiple of the same type).
+
+Requirements are especially useful on FixedOutcome options to define a clear "best option" locked behind a condition the player can work toward.
 
 ### Item Slots
 
-A slot accepts items by specific item, tag, or custom list (above). Slot properties:
+Encounter options can have any number of item slots, in which the player can drag valid items from their inventory into the slot.
 
-- **Required** — the option can't be chosen until the slot holds a valid item.
-- **Consumes on use** — for slots that fully consume the placed item (currency, single-use items). Otherwise, using an item in a slot ticks its durability down by 1.
-- **Difficulty reduction (skill checks)** — driven entirely by the placed item's tag level (see *Tag Levels*); the option doesn't specify a per-slot amount. Final difficulty never drops below 5.
+Each slot accepts items in exactly one mode:
+
+- **Specific item:** Only one explicitly defined item.
+- **Custom list:** A custom set of explicitly listed items. (e.g. a list of all edible items, or all items that can treat infections, or any custom list).
+- **Tag:** Any item with the given tag. In SkillCheck options, the tag's level determines the difficulty reduction (see *Tag Levels*).
+
+Additionally, a slot can have the following properties:
+
+- **Required:** The option can't be chosen until the slot holds a valid item.
+- **Destroys Item:** For slots that fully consume the placed item (i.e. when actively giving an item away). Otherwise, using an item in a slot ticks its durability down by 1.
+- **Required Tag Level:** Only applicable if the acceptance mode is a tag. The slot will only accept items with that tag at or above the given level.
 
 ### FixedOutcome options
 Always call the same outcome function. That function may include custom logic and randomness, but it doesn't use the success/failure ladder. Used for simple actions (skip, ignore) and for special outcomes that don't fit a skill check.
@@ -354,9 +370,9 @@ A standardized RPG-style check with a calculated difficulty and a rolled outcome
 - In failure, roll < 10% of difficulty → **critical failure** instead.
 - In success, roll in the top 10% of the range above difficulty → **critical success** instead.
 
-**Roll animation:** when a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
+**Roll animation:** When a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-**Difficulty calculation:** start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain. (The system is extensible to companion and weather modifiers — see *Out of Scope*.)
+**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
 
 ### Option Outcomes
 
@@ -384,8 +400,6 @@ Any encounter can start a trade session via `InitiateTrade`, temporarily replaci
 - **Buy information** (if enabled, once per day) — 3 coins to reveal a rumour.
 - **Done trading** — return to the encounter's normal options.
 
-Coins and zero-value items are excluded from buy/sell lists. Trade is used by both location encounters (e.g. a persistent trader) and biome encounters (the evening Find Trader action).
-
 ---
 
 # Gameplay Loop
@@ -406,7 +420,7 @@ Always the current tile's **location encounter** — resumed in its saved state 
 
 ## Evening
 
-The current biome's evening encounter (the generic action menu above). A fresh instance each evening.
+A generic evening encounter, where the player can choose from a variety of options, that may be affected by current location. A fresh instance each evening.
 
 ### Trap System
 
@@ -490,15 +504,3 @@ A simple settings page with audio sliders, reachable from both the main menu and
 # Tutorial
 
 Optional, enabled when starting a game. Deliberately minimal: simple popups the first time a given thing happens. The game should otherwise be largely self-explanatory.
-
----
-
-# Out of Scope for 1.0 (Future)
-
-These systems are designed but deferred; none is required for the core experience and each may be added later:
-
-- **Weather** — environmental conditions affecting sky/particles and acting as skill-check difficulty modifiers.
-- **Companions** — non-inventory, non-health buff characters that modify skills/options and can trigger night events, gained and lost through encounters.
-- **Additional biomes** — Mountains and Desert (each with their own loot tables and encounter sets).
-
-The skill-check difficulty system is already structured to accept companion and weather modifiers when those systems land.

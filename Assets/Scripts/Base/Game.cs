@@ -183,7 +183,7 @@ public class Game : Singleton<Game>
                         ItemDragDropManager.StartDrag(CurrentHoverItem);
                         CurrentHoverItem.Renderer.Unhighlight();
                         CurrentHoverItem = null;
-                        UI.Tooltip.Hide();
+                        UI.HideAllTooltips();
                     }
                     else if (UI.ContextMenu.gameObject.activeSelf)
                     {
@@ -249,7 +249,7 @@ public class Game : Singleton<Game>
             Debug.Log($"Show context menu for " + CurrentHoverItem.Label);
             CurrentInteractionItem = CurrentHoverItem;
             UI.ContextMenu.Show(CurrentHoverItem);
-            UI.Tooltip.Hide();
+            UI.HideAllTooltips();
         }
     }
 
@@ -282,7 +282,7 @@ public class Game : Singleton<Game>
             }
 
             // Hide tooltip
-            UI.Tooltip.Hide();
+            UI.HideAllTooltips();
 
             // Update current hovered item
             CurrentHoverItem = newHoveredItem;
@@ -293,7 +293,9 @@ public class Game : Singleton<Game>
             {
                 CurrentHoverTime += Time.deltaTime;
                 if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.ContextMenu.gameObject.activeSelf)
-                    UI.Tooltip.Show(CurrentHoverItem);
+                {
+                    UI_ItemTooltip.Instance.Show(CurrentHoverItem);
+                }
             }
         }
     }
@@ -306,7 +308,7 @@ public class Game : Singleton<Game>
         switch (oldState)
         {
             case GameState.InGame:
-                UI.Tooltip.Hide();
+                UI.HideAllTooltips();
                 UI.ContextMenu.Hide();
                 ItemDragDropManager.CancelDrag();
                 break;
@@ -1059,7 +1061,7 @@ public class Game : Singleton<Game>
 
     public void TreatWound(Wound wound, Item item)
     {
-        if (!item.Def.CanHealInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
+        if (!item.Def.CanTreatInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
 
         wound.SetHightlighted(false);

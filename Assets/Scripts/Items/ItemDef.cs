@@ -30,8 +30,9 @@ public class ItemDef : Def
     public float SeverityReduction { get; init; } = 0f;
     public bool CanReduceSeverity => SeverityReduction > 0f;
     public bool CanTendWounds { get; init; } = false;
-    public bool CanHealInfections { get; init; } = false;
+    public bool CanTreatInfections { get; init; } = false;
     public bool CanHealPoisoning { get; init; } = false;
+    public bool HasMedicalProperties => CanReduceSeverity || CanTendWounds || CanTreatInfections || CanHealPoisoning;
 
     public ItemDef(string defName) : base(defName) { }
 
@@ -50,6 +51,12 @@ public class ItemDef : Def
                 Debug.LogError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
                 return false;
             }
+        }
+
+        if (!IsConsumable)
+        {
+            if (OnConsumptionNutrition != 0f) throw new System.Exception($"ItemDef '{DefName}' has OnConsumptionNutrition set to {OnConsumptionNutrition} but is not consumable.");
+            if (OnConsumptionHydration != 0f) throw new System.Exception($"ItemDef '{DefName}' has OnConsumptionHydration set to {OnConsumptionHydration} but is not consumable.");
         }
 
         return base.Validate();

@@ -22,6 +22,15 @@ TODOS:
 - display encounter options with requirements differently than those without
 - display stat requirements as item slots (shape wise) that have the stat and level text, and the background green/red depending on whether the player meets the requirement or not
 
+remove tags or change tag system:
+- food (can be derived dynamically based on OnConsumptionNutrition > 0)
+- drink (can be derived dynamically based on OnConsumptionHydration > 0)
+- plant (unusued?)
+- tool (unused?)
+- building material
+- trash
+
+rename fordogs as dog toy
 
 
 

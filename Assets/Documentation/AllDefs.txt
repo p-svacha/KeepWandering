@@ -315,19 +315,6 @@
         }
     };
 
---- ConsumptionTypeDefs.cs ---
-    public static List<ConsumptionTypeDef> Defs => new List<ConsumptionTypeDef>()
-    {
-        new ConsumptionTypeDef("Eat")
-        {
-            Label = "eat"
-        },
-        new ConsumptionTypeDef("Drink")
-        {
-            Label = "drink"
-        },
-    };
-
 --- ItemDefs.cs ---
     public static List<ItemDef> Defs => new List<ItemDef>()
     {
@@ -337,11 +324,7 @@
             Label = "antibiotics",
             Description = "Treats infections.",
             Value = 3,
-            Tags =
-            {
-                ItemTagDefOf.Medical
-            },
-            CanHealInfections = true,
+            CanTreatInfections = true,
         },
 
         new ItemDef("Antidote")
@@ -349,10 +332,6 @@
             Label = "antidote",
             Description = "Heals poisoning.",
             Value = 3,
-            Tags =
-            {
-                ItemTagDefOf.Medical
-            },
             CanHealPoisoning = true,
         },
 
@@ -361,10 +340,6 @@
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
             Value = 2,
-            Tags =
-            {
-                ItemTagDefOf.Medical
-            },
             CanTendWounds = true,
         },
 
@@ -373,11 +348,7 @@
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            Tags =
-            {
-                ItemTagDefOf.Food
-            },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            ConsumptionType = ConsumptionTypeDefOf.Food,
             OnConsumptionNutrition = 3f,
             OnConsumptionHydration = 1f,
         },
@@ -387,11 +358,7 @@
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Value = 1,
-            Tags =
-            {
-                ItemTagDefOf.Food, ItemTagDefOf.Plant
-            },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            ConsumptionType = ConsumptionTypeDefOf.Food,
             OnConsumptionNutrition = 1f,
             OnConsumptionHydration = 0.5f,
         },
@@ -403,9 +370,8 @@
             Value = 1,
             Tags =
             {
-                { ItemTagDefOf.Weapon, -12 },
-                ItemTagDefOf.ForDogs,
-                ItemTagDefOf.Trash
+                { ItemTagDefOf.Weapon, 1 },
+                { ItemTagDefOf.DogToy, 4 },
             },
         },
 
@@ -423,9 +389,9 @@
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Weapon,
-                { ItemTagDefOf.Digging, -10 }
+                { ItemTagDefOf.PryingTool, 4 },
+                { ItemTagDefOf.Weapon, 2 },
+                { ItemTagDefOf.Digging, 1 }
             },
         },
 
@@ -436,9 +402,8 @@
             Value = 5,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Cutting,
-                { ItemTagDefOf.Weapon, -10 },
+                { ItemTagDefOf.Cutting, 3 },
+                { ItemTagDefOf.Weapon, 1 },
             },
             IsQuestItem = true,
         },
@@ -450,11 +415,11 @@
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Weapon,
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Cutting,
-                { ItemTagDefOf.Scavenging, -10 },
-                { ItemTagDefOf.Lockpicking, -15 },
+                { ItemTagDefOf.Weapon, 2 },
+                { ItemTagDefOf.Cutting, 3 },
+                { ItemTagDefOf.Scavenging, 1 },
+                { ItemTagDefOf.Lockpicking, 1 },
+                { ItemTagDefOf.PryingTool, 1 },
             },
         },
 
@@ -465,7 +430,7 @@
             Value = 3,
             Tags =
             {
-                ItemTagDefOf.Lockpicking
+                { ItemTagDefOf.Lockpicking, 5 }
             },
         },
 
@@ -474,12 +439,8 @@
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Value = 4,
-            Tags =
-            {
-                ItemTagDefOf.Medical
-            },
             CanTendWounds = true,
-            CanHealInfections = true,
+            CanTreatInfections = true,
             CanHealPoisoning = true,
         },
 
@@ -488,11 +449,6 @@
             Label = "medicinal herbs",
             Description = "Can be used to slightly lower the severity of many health conditions.",
             Value = 1,
-            Tags =
-            {
-                ItemTagDefOf.Medical,
-                ItemTagDefOf.Plant
-            },
             SeverityReduction = 1f,
         },
 
@@ -500,11 +456,7 @@
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
-            Tags =
-            {
-                ItemTagDefOf.Food
-            },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            ConsumptionType = ConsumptionTypeDefOf.Food,
             OnConsumptionNutrition = 2.5f,
         },
 
@@ -513,11 +465,7 @@
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Value = 2,
-            Tags =
-            {
-                ItemTagDefOf.Food
-            },
-            ConsumptionType = ConsumptionTypeDefOf.Eat,
+            ConsumptionType = ConsumptionTypeDefOf.Food,
             OnConsumptionNutrition = 3.5f,
         },
 
@@ -528,7 +476,7 @@
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.BuildingMaterial
+                { ItemTagDefOf.BuildingMaterial, 3 }
             },
         },
 
@@ -539,9 +487,8 @@
             Value = 2,
             Tags =
             {
-                ItemTagDefOf.Tool,
-                ItemTagDefOf.Digging,
-                { ItemTagDefOf.Weapon, -5 },
+                { ItemTagDefOf.Digging, 4 },
+                { ItemTagDefOf.Weapon, 1 },
             },
         },
 
@@ -557,31 +504,9 @@
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Value = 1,
-            Tags =
-            {
-                ItemTagDefOf.Drink
-            },
             ConsumptionType = ConsumptionTypeDefOf.Drink,
             OnConsumptionHydration = 3f,
         },
-    };
-
---- ItemTagDefs.cs ---
-    public static List<ItemTagDef> Defs => new List<ItemTagDef>()
-    {
-        new ItemTagDef("BuildingMaterial"),
-        new ItemTagDef("Cutting"),
-        new ItemTagDef("Digging"),
-        new ItemTagDef("Drink"),
-        new ItemTagDef("Food"),
-        new ItemTagDef("ForDogs"),
-        new ItemTagDef("Lockpicking"),
-        new ItemTagDef("Medical"),
-        new ItemTagDef("Plant"),
-        new ItemTagDef("Scavenging"),
-        new ItemTagDef("Tool"),
-        new ItemTagDef("Trash"),
-        new ItemTagDef("Weapon"),
     };
 
 --- HealthConditionDefs.cs ---

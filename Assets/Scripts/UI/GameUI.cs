@@ -40,7 +40,6 @@ public class GameUI : Singleton<GameUI>
     public UI_WorldMapMenu WorldMapMenu;
 
     [Header("Tooltip")]
-    public UI_Tooltip Tooltip;
     public const float TOOLTIP_HOVER_TIME = 0.4f;
 
     [Header("Context Menu")]
@@ -185,11 +184,18 @@ public class GameUI : Singleton<GameUI>
 
     #region Windows
 
+    public void HideAllTooltips()
+    {
+        UI_SimpleTooltip.Instance.Hide();
+        UI_ItemTooltip.Instance.Hide();
+        UI_StatTooltip.Instance.Hide();
+    }
+
     public void CloseAllWindows()
     {
         CloseEscapeMenu();
         CloseWorldMap();
-        Tooltip.Hide();
+        HideAllTooltips();
         ContextMenu.Hide();
     }
 
@@ -198,13 +204,13 @@ public class GameUI : Singleton<GameUI>
         if (Game.State != GameState.InGame) return;
         EscapeMenu.gameObject.SetActive(!EscapeMenu.gameObject.activeSelf);
         ContextMenu.Hide();
-        Tooltip.Hide();
+        HideAllTooltips();
     }
     public void CloseEscapeMenu()
     {
         EscapeMenu.gameObject.SetActive(false);
         ContextMenu.Hide();
-        Tooltip.Hide();
+        HideAllTooltips();
     }
 
     public void ToggleWorldMap()
@@ -213,7 +219,7 @@ public class GameUI : Singleton<GameUI>
         WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
         Game.WorldMapRenderer.gameObject.SetActive(!Game.WorldMapRenderer.gameObject.activeSelf);
         ContextMenu.Hide();
-        Tooltip.Hide();
+        HideAllTooltips();
     }
     public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
     {
@@ -225,14 +231,14 @@ public class GameUI : Singleton<GameUI>
         else if (focusArea != null) Game.WorldMapRenderer.FocusArea(focusArea);
 
         ContextMenu.Hide();
-        Tooltip.Hide();
+        HideAllTooltips();
     }
     public void CloseWorldMap()
     {
         WorldMapMenu.gameObject.SetActive(false);
         Game.WorldMapRenderer.gameObject.SetActive(false);
         ContextMenu.Hide();
-        Tooltip.Hide();
+        HideAllTooltips();
     }
 
     #endregion

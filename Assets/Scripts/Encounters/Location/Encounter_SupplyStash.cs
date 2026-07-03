@@ -150,7 +150,7 @@ public class Encounter_SupplyStash : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    Tag = ItemTagDefOf.Tool,
+                    Tag = ItemTagDefOf.PryingTool,
                 },
             },
             OncePerDay = true,

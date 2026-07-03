@@ -33,7 +33,7 @@ public abstract class EncounterOption
     /// <summary>
     /// The stat requirements that must be met in order to select this encounter step option. Each stat has a minimum value that must be met. If the player does not meet the requirements, the option will still be displayed, but it will be disabled and the player will not be able to select it.
     /// </summary>
-    public Dictionary<StatDef, int> StatRequirements { get; init; } = new Dictionary<StatDef, int>();
+    public Dictionary<StatDef, int> SkillRequirements { get; init; } = new Dictionary<StatDef, int>();
 
     /// <summary>
     /// Executes the logic of the encounter step option and returns the text to be displayed on the next step.
@@ -57,7 +57,7 @@ public abstract class EncounterOption
 
     public bool HasRequirements()
     {
-        return ItemSlots.Any(slot => slot.IsRequired) || StatRequirements.Count > 0;
+        return ItemSlots.Any(slot => slot.IsRequired) || SkillRequirements.Count > 0;
     }
 
     public bool CanSelect()
@@ -69,7 +69,7 @@ public abstract class EncounterOption
         }
 
         // Stat requirements
-        foreach (var statRequirement in StatRequirements)
+        foreach (var statRequirement in SkillRequirements)
         {
             StatDef statDef = statRequirement.Key;
             int requiredValue = statRequirement.Value;
@@ -113,7 +113,7 @@ public abstract class EncounterOption
             }
         }
         // Stat requirements
-        foreach (var statRequirement in StatRequirements)
+        foreach (var statRequirement in SkillRequirements)
         {
             StatDef statDef = statRequirement.Key;
             int requiredValue = statRequirement.Value;

@@ -35,7 +35,7 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void Update()
     {
-        if (IsFocussed && !Game.Instance.UI.Tooltip.gameObject.activeSelf)
+        if (IsFocussed && !UI_StatTooltip.Instance.gameObject.activeSelf)
         {
             if (CurrentDelay < GameUI.TOOLTIP_HOVER_TIME) CurrentDelay += Time.deltaTime;
             else ShowTooltip();
@@ -53,14 +53,14 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void ShowTooltip()
     {
-        Game.Instance.UI.Tooltip.Show(this);
+        UI_StatTooltip.Instance.Show(this);
     }
 
     private void HideTooltip()
     {
         IsFocussed = false;
         CurrentDelay = 0;
-        Game.Instance.UI.Tooltip.Hide();
+        Game.Instance.UI.HideAllTooltips();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

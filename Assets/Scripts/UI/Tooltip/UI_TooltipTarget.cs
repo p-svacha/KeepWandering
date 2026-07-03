@@ -46,16 +46,16 @@ public class UI_TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     private void ShowTooltip()
     {
-        if (UI_Tooltip.Instance.gameObject.activeSelf) return;
+        if (UI_SimpleTooltip.Instance.gameObject.activeSelf) return;
 
-        UI_Tooltip.Instance.Show(Title, Text);
+        UI_SimpleTooltip.Instance.Show(Title, Text);
     }
 
     public void HideTooltip()
     {
         IsFocussed = false;
         CurrentDelay = 0;
-        UI_Tooltip.Instance.Hide();
+        UI_SimpleTooltip.Instance.Hide();
     }
 }
 

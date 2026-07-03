@@ -152,7 +152,7 @@ public abstract class BiomeEncounter : Encounter
                 },
                 new ItemSlot()
                 {
-                    Tag = ItemTagDefOf.Tool,
+                    Tag = ItemTagDefOf.BuildingMaterial,
                 },
             }
         };
