@@ -14,12 +14,17 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public TextMeshProUGUI LabelText;
     public TextMeshProUGUI ValueText;
 
+    private bool IsFixedColor;
+
     private bool IsFocussed;
     private float CurrentDelay;
 
-    public void Init(Stat stat)
+    public void Init(Stat stat, bool fixedColor = false)
     {
+        if (stat == null) throw new System.Exception("Stat cannot be null");
+
         Stat = stat;
+        IsFixedColor = fixedColor;
         Refresh();
     }
 
@@ -30,7 +35,7 @@ public class UI_Stat : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         // Value
         ValueText.text = Stat.GetValue().ToString();
-        ValueText.color = Stat.GetValueColor();
+        if (!IsFixedColor) ValueText.color = Stat.GetValueColor();
     }
 
     private void Update()

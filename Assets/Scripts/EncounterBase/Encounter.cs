@@ -251,6 +251,37 @@ public abstract class Encounter
         return "You move on. You can now freely use items again before continuing your journey.";
     }
 
+    #region General Options
+
+    protected FixedOutcomeOption GetConsumeOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Consume items",
+            Description = "Use items from your inventory.",
+            Action = ConsumeSlottedItem,
+            Sprite = PlayerCharacterRenderer.Instance.Head,
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = true,
+                    CustomItemSet = ItemSet.ConsumableItems,
+                    CustomItemSetName = "Consumable",
+                    IsDestroyingItem = true,
+                }
+            }
+        };
+    }
+    private string ConsumeSlottedItem()
+    {
+        Item itemToConsume = Game.ItemUsedInSelectedOption;
+        Game.Instance.ConsumeItem(itemToConsume);
+        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when consuming items, just consume the item and stay on the same step.
+    }
+
+    #endregion
+
     #region Trading Interface
 
     protected string InitiateTrade(string text, List<ItemDef> itemsToBuy, List<ItemDef> itemsToSell = null, bool canBuyRumour = false)

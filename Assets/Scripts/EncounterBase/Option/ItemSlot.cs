@@ -79,6 +79,8 @@ public class ItemSlot
             if (!IsRequired) throw new System.Exception("ItemSlot with a specific item or list of allowed items must be required, as only tag slots can have difficulty reductions for optional slots.");
             if (HasrequiredTagLevel) throw new System.Exception("ItemSlot with a specific item or list of allowed items cannot have a required tag level, as only tag slots can have difficulty reductions.");
             if (!IsDestroyingItem) throw new System.Exception("ItemSlot with a specific item or list of allowed items must destroy the item, as the durability system is intended to work with tags.");
+
+            if (CustomItemSet != null && string.IsNullOrEmpty(CustomItemSetName)) throw new System.Exception("ItemSlot with a list of allowed items must have a display label set.");
         }
 
         // Validation for tag
@@ -122,17 +124,6 @@ public class ItemSlot
         UI_EncounterDisplay.Instance.RefreshOption(Option);
     }
 
-    /// <summary>
-    /// Detaches the filled item from this slot without returning it to the cart.
-    /// The caller is responsible for handling the item (destroying or returning it).
-    /// </summary>
-    public Item TakeItem()
-    {
-        Item item = FilledItem;
-        FilledItem = null;
-        return item;
-    }
-
     public int GetDifficultyReduction(ItemDef itemDef)
     {
         return ITEM_LEVEL_DIFFICULTY_REDUCTIONS[itemDef.Tags[Tag]];
@@ -174,10 +165,13 @@ public class ItemSlot
             itemDefs.Add(itemDef);
         }
 
-        // Sort by difficulty reduction (lowest first)
-        itemDefs.Sort((a, b) => GetDifficultyReduction(a).CompareTo(GetDifficultyReduction(b)));
+        // Sort by difficulty reduction (tag only)
+        if (Tag != null)
+        {
+            itemDefs.Sort((a, b) => GetDifficultyReduction(b).CompareTo(GetDifficultyReduction(a)));
+        }
 
-        Debug.Log($"Found {itemDefs.Count} slottable item defs for slot {this}: {string.Join(", ", itemDefs.Select(x => x.DefName))}");
+        Debug.Log($"Found {itemDefs.Count} slottable item defs for slot {Label()}: {string.Join(", ", itemDefs.Select(x => x.DefName))}");
 
         return itemDefs;
     }

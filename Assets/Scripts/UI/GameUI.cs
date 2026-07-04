@@ -21,8 +21,7 @@ public class GameUI : Singleton<GameUI>
     public Button CraftingButton;
 
     [Header("Health Reports")]
-    public GameObject HealthReportContainer;
-    public UI_HealthReport HealthReportPrefab;
+    public UI_HealthReport HealthReport;
 
     [Header("Event Display")]
     public UI_EncounterDisplay EventStepDisplay;
@@ -156,23 +155,8 @@ public class GameUI : Singleton<GameUI>
 
     public void UpdateHealthReports()
     {
-        // Reset
-        HelperFunctions.DestroyAllChildredImmediately(HealthReportContainer);
-
         // Display player health report
-        UI_HealthReport playerHealthReport = Instantiate(HealthReportPrefab, HealthReportContainer.transform);
-        playerHealthReport.Init(Game.Player);
-
-        // Display companion health reports
-        /*
-        foreach(Companion companion in Game.Companions)
-        {
-            UI_HealthReport companionHealthReport = Instantiate(HealthReportPrefab, HealthReportContainer.transform);
-            companionHealthReport.Init(companion);
-        }
-        */
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(HealthReportContainer.GetComponent<RectTransform>());
+        HealthReport.Init(Game.Player);
     }
 
     public void UpdateQuestDisplay()

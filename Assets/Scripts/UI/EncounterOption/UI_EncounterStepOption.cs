@@ -7,8 +7,7 @@ using UnityEngine.EventSystems;
 
 public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public UI_EncounterDisplay EncounterDisplay { get; private set; }
-    private Game Game => EncounterDisplay.Game;
+    private Game Game => Game.Instance;
     public EncounterOption Option { get; private set; }
 
     [Header("Elements")]
@@ -22,9 +21,8 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
     public List<UI_ItemSlot> ItemSlotDisplays;
 
-    public void Init(UI_EncounterDisplay encounterDisplay, EncounterOption option)
+    public void Init(EncounterOption option)
     {
-        EncounterDisplay = encounterDisplay;
         Option = option;
 
         EventOptionText.text = option.Text;
@@ -37,7 +35,7 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         foreach (ItemSlot itemSlot in option.ItemSlots)
         {
             UI_ItemSlot itemSlotDisplay = Instantiate(ItemSlotPrefab, ItemSlotContainer.transform);
-            itemSlotDisplay.Init(EncounterDisplay, itemSlot);
+            itemSlotDisplay.Init(itemSlot);
             ItemSlotDisplays.Add(itemSlotDisplay);
         }
 
@@ -67,14 +65,14 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
     public void OnPointerEnter(PointerEventData eventData)
     {
         ItemDragDropManager.HoveredOptionDisplay = this;
-        EncounterDisplay.OnOptionHovered(Option);
+        UI_EncounterDisplay.Instance.OnOptionHovered(Option);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (ItemDragDropManager.HoveredOptionDisplay == this)
             ItemDragDropManager.HoveredOptionDisplay = null;
-        EncounterDisplay.OnOptionUnhovered();
+        UI_EncounterDisplay.Instance.OnOptionUnhovered();
     }
 
     public void SetDragGreyedOut(bool greyedOut)

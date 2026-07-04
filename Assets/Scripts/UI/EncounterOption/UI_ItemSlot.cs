@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public ItemSlot ItemSlot { get; private set; }
-    public UI_EncounterDisplay EncounterDisplay { get; private set; }
+    public UI_EncounterDisplay EncounterDisplay => UI_EncounterDisplay.Instance;
 
     [Header("Elements")]
     public Image Background;
@@ -26,9 +26,8 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private int PreviewIndex;
     private List<ItemDef> SlottableItemDefs;
 
-    public void Init(UI_EncounterDisplay encounterDisplay, ItemSlot itemSlot)
+    public void Init(ItemSlot itemSlot)
     {
-        EncounterDisplay = encounterDisplay;
         ItemSlot = itemSlot;
 
         // Show/Hide elements that never change

@@ -56,6 +56,9 @@ public class Encounter_Morning : Encounter
             });
         }
 
+        // Consume
+        options.Add(GetConsumeOption());
+
         return options;
     }
     private string Stay()

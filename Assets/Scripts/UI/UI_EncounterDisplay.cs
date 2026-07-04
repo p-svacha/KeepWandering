@@ -6,16 +6,15 @@ using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.CullingGroup;
 
-public class UI_EncounterDisplay : MonoBehaviour
+public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 {
     public Game Game;
-    public static UI_EncounterDisplay Instance;
 
     [Header("Elements")]
     public TextMeshProUGUI EncounterText;
     public GameObject EncounterOptionContainer;
+    public GameObject FloatingOptionsContainer;
 
     public GameObject PreviousOutcomeContainer;
     public Image PreviousOutcomeImage;
@@ -33,16 +32,12 @@ public class UI_EncounterDisplay : MonoBehaviour
     [Header("Prefabs")]
     public UI_EncounterStepOption EncounterOptionPrefab;
     public UI_EncounterOutcomeNote OutcomeNotePrefab;
+    public UI_SpriteEncounterOptionContainer SpriteEncounterOptionContainer;
 
     public Dictionary<EncounterOption, UI_EncounterStepOption> OptionDisplays;
 
     private Coroutine OutcomeAnimCoroutine;
     private Material OutcomeFlashMaterial;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     public void Init(EncounterStep step, OptionOutcomeDef prevOutcome = null) 
     {
@@ -94,15 +89,43 @@ public class UI_EncounterDisplay : MonoBehaviour
                 Action = EndEncounter
             };
             UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
-            optionDisplay.Init(this, endEncounterOption);
+            optionDisplay.Init(endEncounterOption);
             OptionDisplays.Add(endEncounterOption, optionDisplay);
         }
         else
         {
-            foreach (EncounterOption option in step.Options)
+            // Group options by sprite (sprite-bound vs non-sprite-bound)
+            var spriteGroups = step.Options
+                .Where(o => o.Sprite != null)
+                .GroupBy(o => o.Sprite);
+
+            var nonSpriteOptions = step.Options.Where(o => o.Sprite == null).ToList();
+
+            // Handle sprite-bound options
+            foreach (var spriteGroup in spriteGroups)
+            {
+                GameObject spriteGameObject = spriteGroup.Key;
+                List<EncounterOption> optionsForSprite = spriteGroup.ToList();
+
+                // Instantiate container for this sprite's options
+                UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);
+                container.Init(spriteGameObject.GetComponent<SpriteRenderer>(), optionsForSprite);
+
+                // Merge container's option displays into this class's OptionDisplays dictionary
+                foreach (var kvp in container.OptionDisplays)
+                {
+                    OptionDisplays.Add(kvp.Key, kvp.Value);
+                }
+
+                // Register with the interaction manager
+                SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, optionsForSprite);
+            }
+
+            // Handle non-sprite-bound options (traditional list)
+            foreach (EncounterOption option in nonSpriteOptions)
             {
                 UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
-                optionDisplay.Init(this, option);
+                optionDisplay.Init(option);
                 OptionDisplays.Add(option, optionDisplay);
             }
         }
@@ -208,6 +231,8 @@ public class UI_EncounterDisplay : MonoBehaviour
         }
         HelperFunctions.DestroyAllChildredImmediately(EncounterOptionContainer);
         HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
+        HelperFunctions.DestroyAllChildredImmediately(FloatingOptionsContainer);
+        SpriteOptionInteractionManager.ClearAll();
     }
 
     public void RefreshOption(EncounterOption option)
@@ -219,6 +244,9 @@ public class UI_EncounterDisplay : MonoBehaviour
 
         // Item slot
         if (ItemSlotDetailsBox.gameObject.activeSelf) ItemSlotDetailsBox.Refresh();
+
+        // Sprite-bound option availability color
+        if (option.Sprite != null) SpriteOptionInteractionManager.RefreshAvailability(option.Sprite);
     }
 
     #region Outcome Notes

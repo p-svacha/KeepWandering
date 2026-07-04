@@ -16,13 +16,15 @@ public class Game : Singleton<Game>
     public int ItemIdCounter { get; private set; }
     public MorningReport LatestMorningReport { get; private set; }
     public Encounter CurrentEncounter;
-    public EncounterStep CurrentEventStep;
+    public EncounterStep CurrentEncounterStep;
     public int NumEveningTraps {  get; private set; }
     public int NumTrapsUsedToDefendNightAttack { get; private set; }
     public NightEncounter NightEncounter { get; private set; }
 
     // Encounter Step Outcome
-    public List<Item> ItemsUsedInOption = new List<Item>(); // List of all items that were used in a slot in the last selected option (that were not destroyed).
+    public EncounterOption SelectedOption { get; private set; } // Last selected encounter option
+    public List<Item> ItemsUsedInSelectedOption {  get; private set; } // All items used in the last selected encounter option (including destroyed items)
+    public Item ItemUsedInSelectedOption => ItemsUsedInSelectedOption.FirstOrDefault();
 
     public List<Item> ItemsAddedSinceLastStep = new List<Item>();
     public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
@@ -170,6 +172,7 @@ public class Game : Singleton<Game>
         if (State == GameState.InGame)
         {
             ItemDragDropManager.Update();
+            SpriteOptionInteractionManager.Update();
 
             if (!ItemDragDropManager.IsDragging)
             {
@@ -236,7 +239,7 @@ public class Game : Singleton<Game>
     private void OnItemRightClicked(Item item)
     {
         // Check if interactions are currently allowed
-        bool canInteract = (TimeOfDay == TimeOfDayDefOf.Morning || CurrentEventStep.IsFinalStep);
+        bool canInteract = (TimeOfDay == TimeOfDayDefOf.Morning || CurrentEncounterStep.IsFinalStep);
         if (!canInteract) return;
 
         // Get interaction options for item
@@ -389,7 +392,7 @@ public class Game : Singleton<Game>
         ForceUnhighlightAllInventoryItems();
 
         // Display new step
-        CurrentEventStep = step;
+        CurrentEncounterStep = step;
         if (step != null)
         {
             UI.EventStepDisplay.Init(step, prevOutcome);
@@ -413,11 +416,13 @@ public class Game : Singleton<Game>
     /// </summary>
     public void SelectEncounterOption(EncounterOption selectedOption)
     {
+        SelectedOption = selectedOption;
+        ItemsUsedInSelectedOption = SelectedOption.ItemSlots.Where(slot => slot.IsFilled).Select(slot => slot.FilledItem).ToList();
+
         UI.StatPanel.UnhighlightAll();
-        ItemsUsedInOption.Clear();
 
         // Empty slots of all non-selected options - return items to cart
-        foreach (EncounterOption option in CurrentEventStep.Options)
+        foreach (EncounterOption option in CurrentEncounterStep.Options)
         {
             if (option == selectedOption) continue;
             foreach (ItemSlot slot in option.ItemSlots)
@@ -431,7 +436,7 @@ public class Game : Singleton<Game>
         {
             if (!slot.IsFilled) continue;
 
-            Item item = slot.TakeItem();
+            Item item = slot.FilledItem;
 
             // If slot is destroying the item, destroy it
             if (slot.IsDestroyingItem) DestroyOwnedItem(item);
@@ -446,7 +451,6 @@ public class Game : Singleton<Game>
                 {
                     item.Show();
                     DropItemIntoCart(item);
-                    ItemsUsedInOption.Add(item);
                 }
             }
         }
@@ -873,6 +877,8 @@ public class Game : Singleton<Game>
 
     public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
     {
+        if (item.IsDestroyed) return; // Item already destroyed
+
         if (showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
         item.SetIsPlayerOwned(false);
@@ -915,6 +921,7 @@ public class Game : Singleton<Game>
 
         Player.ModifyHunger(-item.Def.OnConsumptionNutrition);
         Player.ModifyThirst(-item.Def.OnConsumptionHydration);
+
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
         OnGameStateChanged();

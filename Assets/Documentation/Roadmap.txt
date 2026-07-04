@@ -1,6 +1,119 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
+Phase 0 — Foundations (do before mass-producing any content)
+These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
+Item system rework
+
+Tag level/tier system (1–5 replacing per-slot values)
+Durability replacing destruction chance
+Update all existing ItemDefs to the new tag-level format
+
+Stat/skill rework
+
+Collapse 8 stats → 4 skills (Strength, Dexterity, Survival, Social) + Morale as a separate value
+Update all existing HealthConditionDefs that referenced old stats (Combat, Agility, Perception, etc.) to map to the new skills
+Update all existing encounter option difficulty modifiers to reference new skills
+
+Encounter option framework
+
+Sprite-bound point-and-click option system
+Skill-check roll animation (the bar with outcome segments)
+Options drawn larger; description text moved to the details box
+Expanded requirements system (stat minimum, tag level minimum, specific item)
+Clearer success/risk language in all option descriptions
+
+World map rework
+
+
+Bigger hex tiles with textures/sprites
+Encounter assigned to every tile at generation (hidden unless landmark/special)
+Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
+Danger level overlay toggle
+
+Early feasibility spike: Save/Load
+
+Test autosave on a web build now, cheaply, before building the real implementation
+If it doesn't work, cut it and stop thinking about it; if it does, implement properly in Phase 3
+
+Stub audio hooks
+
+Add AmbientMood enum to the encounter framework
+Add SFX trigger points to encounter outcomes and the option framework
+No actual audio assets yet — just the wiring so Phase 3 doesn't require touching every encounter again
+
+
+Phase 1 — Small systemic cleanups (cheap, unblock or de-risk later work)
+These are individually small but each blocks or complicates something downstream if left until later.
+
+Rumour simplification — remove partial rumours; verify the remaining system is solid before the helicopter path (which depends on rumours) is built
+Health condition updates — add Electrocution, remove Heart Arrhythmia and any items that only existed for it; clarify all condition descriptions and colours; the Collapsed Building encounter already references electrocution so this is a live gap
+Evening encounter rework — generic action menu, no random place/setting, existing place sprites freed up for day encounters; add Cook action
+Substance end-game — deployment tile, spread mechanics, impassability, map marking on day 20; this is a map/time system, not content, and it defines the shell every run plays inside, so it belongs early
+
+
+Phase 2 — Content production (the long continuous thread)
+Once Phase 0 is stable this is where the bulk of hours go. It runs continuously and can be worked on in any internal order, though the escape-route encounters have soft prerequisites noted below.
+Generic day encounters (target: ~20)
+
+Spread across biomes during world generation by commonness and biome bias
+Simple encounters encouraged — not everything needs to be as complex as the Collapsed Building
+Reuse freed evening-setting sprites here (shed, ditch, wall, etc.) for variety at low art cost
+Lean on mini-quest hooks: buried caches, persistent traders, items that need returning for
+
+Night encounters (target: 5)
+
+1 per biome (Woods, City, Outskirts) + 2 that can happen anywhere
+Bandits already exist; fill the remaining 4
+
+Escape-route encounters
+These are the highest-dependency content items — each requires specific Phase 0/1 systems before it can be built properly:
+
+Fence Gate — guard encounter (bribe / license paths); needs roads (Phase 0) since the road leads here organically
+Town Hall — safe-cracking encounter for the VIP license; needs the Dexterity skill and tag-level lockpick requirement (Phase 0)
+Radio Tower — already exists but may need updates to reference Eli correctly and support the transmission decode path
+Eli's encounter — medicine exchange, fence-cutter reward, unpowered fence coordinates; needs rumour system clean (Phase 1)
+Unpowered fence tile — variant of the existing fence encounter, already partially designed
+Helipad — helicopter key location reveal; needs rumour system (helipad location surfaces via rumour)
+Helicopter key location — wherever the key is hidden; a location encounter
+Fuel station — landmark encounter, telegraphs fuel clearly from the map
+
+Landmark pass
+
+Pharmacy, fuel station, supermarket — visible from the start, clearly telegraphing what they offer
+Ensure all landmarks are in world generation and have appropriate map markers
+
+
+Phase 3 — Systems that wrap content (after content is mostly stable)
+These either depend on final content or are polish that shouldn't block the core loop.
+
+Handbook — quest log section + item compendium with tag/level filtering; needs item system (Phase 0) and a mostly-complete item set to be useful
+Audio — SFX pass on all encounters (hooks already stubbed in Phase 0), ambient mood tracks, transition footstep sound; the skill-check resolution sound is the single highest-priority individual effect
+Settings page — audio sliders, hooked to main menu and in-game button, debug button in-game
+UI polish — tooltip differentiation, option sizing, anything deferred from Phase 0's framework work
+Save/Load — full implementation if the Phase 0 feasibility spike passed; skip entirely if it failed
+
+
+Phase 4 — Final wrap
+
+Tutorial — minimal popup system, triggered on first-time events; deliberately last because it needs a stable game to point at
+Personal playtests — full runs, balance pass, encounter difficulty tuning
+Itch.io prep — page, tags, description, build upload
+
+
+Continuous throughout
+A few things that don't belong to a phase and should happen steadily across all of them:
+
+EncounterDef DevNotes — write the 2–3 sentence summary for every encounter as it's built; cheap to do in the moment, expensive to reconstruct later
+Loot table cleanup — keep tables small and biome-distinct as new encounters are added; resist the urge to dump everything into one general table
+GDD and Defs sync — whenever a system decision is made mid-implementation, update the relevant document before moving on
+
+
+
+
+===============================================================================================================
+
+
 Rework World Map:
 - Make hexes bigger and add actual texture / sprites to them
 - Make encounter icons bigger

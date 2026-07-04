@@ -121,7 +121,7 @@ public class UI_OptionDetails : MonoBehaviour
         // Item requirements
         List<ItemSlot> requiredItemSlots = CurrentOption.ItemSlots.Where(slot => slot.IsRequired).ToList();
         ItemCategory.SetActive(requiredItemSlots.Count > 0);
-        HelperFunctions.DestroyAllChildredImmediately(ItemCategory);
+        HelperFunctions.DestroyAllChildredImmediately(ItemCategory, skipElements: 1);
         foreach (ItemSlot slot in requiredItemSlots)
         {
             UI_RequirementsRow elem = Instantiate(RequirementPrefab, ItemCategory.transform);
@@ -130,7 +130,7 @@ public class UI_OptionDetails : MonoBehaviour
 
         // Skill requirements
         SkillCategory.SetActive(CurrentOption.SkillRequirements.Count > 0);
-        HelperFunctions.DestroyAllChildredImmediately(SkillCategory);
+        HelperFunctions.DestroyAllChildredImmediately(SkillCategory, skipElements: 1);
         foreach (var requirement in CurrentOption.SkillRequirements)
         {
             UI_RequirementsRow elem = Instantiate(RequirementPrefab, SkillCategory.transform);
@@ -141,6 +141,6 @@ public class UI_OptionDetails : MonoBehaviour
 
         // Misc requirements (not yet used)
         MiscCategory.SetActive(false);
-        HelperFunctions.DestroyAllChildredImmediately(MiscCategory);
+        HelperFunctions.DestroyAllChildredImmediately(MiscCategory, skipElements: 1);
     }
 }

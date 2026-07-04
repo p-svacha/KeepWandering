@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class EncounterStep
 {
-    public string Text;
+    /// <summary>
+    /// The text displayed to the player at this step of the encounter.
+    /// </summary>
+    public string Text { get; private set; }
 
-    public List<EncounterOption> Options;
+    /// <summary>
+    /// The list of options available to the player at this step of the encounter. If this list is empty, it indicates that this is the final step of the encounter.
+    /// </summary>
+    public List<EncounterOption> Options { get; private set; }
 
     public EncounterStep(string text, List<EncounterOption> options = null)
     {
@@ -15,7 +21,7 @@ public class EncounterStep
     }
 
     /// <summary>
-    /// If this is the final step of the event, meaning that there are no more interaction options.
+    /// If this is the final step of the encounter, meaning that there are no more interaction options.
     /// </summary>
     public bool IsFinalStep => Options.Count == 0;
 

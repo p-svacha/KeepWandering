@@ -25,7 +25,7 @@ public class UI_StatTooltip : UI_TooltipBase
         gameObject.SetActive(true);
         HoveredStat = statDisplay;
 
-        TitleText.text = statDisplay.Stat.Label;
+        TitleText.text = statDisplay.Stat.Def.LabelCap;
         DescriptionText.text = statDisplay.Stat.Description;
 
         HelperFunctions.DestroyAllChildredImmediately(StatsContainer);

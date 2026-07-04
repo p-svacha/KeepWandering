@@ -252,7 +252,7 @@ public class Encounter_Crate : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    Item = ItemDefOf.Crowbar,
+                    Tag = ItemTagDefOf.PryingTool,
                 }
             },
             Action = OpenCrate,
@@ -261,26 +261,27 @@ public class Encounter_Crate : LocationEncounter
     private string OpenCrate(OptionOutcomeDef outcome)
     {
         string text = "";
+        Item usedItem = Game.ItemUsedInSelectedOption;
 
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            text = "You pry open the crate using the crowbar and take everything inside.";
+            text = $"You pry open the crate using the {usedItem.Label} and take everything inside.";
             TakeVisibleItem();
             TakeAllInvisibleItems();
             IsOpened = true;
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
-            text = "You manage to pry open the crate using the crowbar. The crowbar breaks in the process.";
+            text = $"You manage to pry open the crate using the {usedItem.Label}. The {usedItem.Label} breaks in the process.";
             TakeVisibleItem();
             TakeAllInvisibleItems();
             IsOpened = true;
-            Game.DestroyOwnedItem(Game.ItemsUsedInOption[0]);
+            Game.DestroyOwnedItem(usedItem);
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
-            text = "You fail to pry open the crate using the crowbar. The crowbar breaks in the process.";
-            Game.DestroyOwnedItem(Game.ItemsUsedInOption[0]);
+            text = $"You fail to pry open the crate using the {usedItem.Label}. The {usedItem.Label} breaks in the process.";
+            Game.DestroyOwnedItem(usedItem);
         }
 
         return text;

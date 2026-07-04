@@ -116,6 +116,9 @@ public class UI_ItemTooltip : UI_TooltipBase
             DescriptionText.text = item.Def.Description;
         }
 
+        // Layout
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+
         // Initial position
         UpdatePosition();
     }

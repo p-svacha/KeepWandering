@@ -10,6 +10,7 @@ public class UI_HealthReport : MonoBehaviour
 
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
+    public UI_Stat MoraleInfo;
     public GameObject DescriptionBox;
     public TextMeshProUGUI DescriptionText;
 
@@ -18,12 +19,13 @@ public class UI_HealthReport : MonoBehaviour
 
     public void Init(PlayerCharacter player)
     {
-        HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 2);
-
-        Source = player;
+        HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 3);
 
         TitleText.text = "Health Report (You)";
-        foreach (HealthCondition condition in Source.HealthConditions)
+
+        MoraleInfo.Init(player.Stats[StatDefOf.Morale], fixedColor: true);
+
+        foreach (HealthCondition condition in player.HealthConditions)
         {
             if(!condition.ActiveStage.IsVisible) continue; // Don't display invisible conditions
             UI_StatusEffect display = Instantiate(StatusEffectPrefab, transform);

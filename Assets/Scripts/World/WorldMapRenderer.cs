@@ -142,6 +142,7 @@ public class WorldMapRenderer : MonoBehaviour
         if (!Game.WorldMap.CanSelectDestination) return;
         if (HoveredTile == null) return;
         if (EventSystem.current.IsPointerOverGameObject()) return;
+        if (!GameUI.Instance.WorldMapMenu.gameObject.activeSelf) return;
 
         if (Input.GetMouseButtonDown(0))
         {

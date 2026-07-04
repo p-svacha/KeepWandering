@@ -78,6 +78,8 @@ Morale is intended as a **strategic trade-off lever** rather than a passive heal
 
 This means morale options have a shape: they trade present-tense outcomes against future-tense skill check odds. If a morale change doesn't create that tension, it probably shouldn't touch morale. Morale also passively aggregates the run's condition — hunger, thirst, injuries, and events all feed it — so a player who's been grinding themselves down feels it on everything.
 
+Having low or high morale can also lead to various night events to happen.
+
 ---
 
 ## Health System
@@ -414,11 +416,15 @@ Here's a list with some common examples of what an outcome can do, but it is not
 
 ## Sprite-Bound Options
 
-Because this is a point-and-click game, options can be attached to the actual scene sprites rather than living only in the option list:
+Because this is a point-and-click game, options can be attached to the actual scene sprites (e.g. the player's own head, an encounter prop) rather than living only in the option list:
 
-- Interactable sprites are **highlighted with an indicator** — there are no hidden interactions.
-- Hovering a highlighted sprite reveals its available options; clicking it **pins** those options on/near the sprite (only one element can be pinned at a time).
-- Pinned options behave exactly like list options — greyed out if requirements aren't met, accepting dragged items into their slots, then resolving on click.
+- Every interactable sprite is traced with a **dashed outline** following the shape of its collider — there are no hidden interactions.
+- The outline's colour communicates **availability**: the accent colour if at least one bound option is currently selectable, grey/dim if none are.
+- Outlines sit at a **low default opacity** and brighten the closer the cursor gets to that specific sprite's shape, independently of any other sprite. Holding **Left Alt** reveals every hotspot at full opacity at once, regardless of cursor position.
+- Hovering a sprite shows its option card(s) — the same visuals used in the option list — grouped and centered near the sprite.
+- Clicking a sprite **locks** its card(s) in place; only one sprite can be locked at a time. Clicking a different sprite transfers the lock directly, and clicking empty space clears it. Holding a dragged item over a sprite for a short moment also locks it, so the player can drop the item without needing a separate click first.
+- While a sprite is locked, hover-previews from other sprites are **suppressed** so only the locked card is shown, avoiding visual clutter.
+- Locked/hovered options behave exactly like list options — greyed out if requirements aren't met, accepting dragged items into their slots, then resolving on click.
 - General options that can't be tied to a sprite (e.g. "Move On") stay in the list below the encounter text.
 
 Options are the primary interaction point and are drawn large; their descriptive text lives in the details box rather than the option itself.

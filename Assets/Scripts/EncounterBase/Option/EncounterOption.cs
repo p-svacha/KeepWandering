@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public abstract class EncounterOption
 {
@@ -17,6 +18,11 @@ public abstract class EncounterOption
     /// Description that gets displayer when the player hovers over the encounter step option in the UI. This should give some hints to the player about the consequences of selecting this option.
     /// </summary>
     public string Description { get; init; } = "";
+
+    /// <summary>
+    /// The world space sprite in the encounter scene this option is associated with. The option will be visually bound to this sprite, and the player can click on the sprite to select the option. If null, the option will only be selectable through the UI.
+    /// </summary>
+    public GameObject Sprite { get; init; } = null;
 
     /// <summary>
     /// When true, the option can only be selected once per encounter visit (day). It will automatically be hidden after being selected once.
@@ -53,12 +59,22 @@ public abstract class EncounterOption
         foreach (ItemSlot slot in ItemSlots) slot.SetOption(this);
 
         // Validate
-        if (string.IsNullOrEmpty(Text)) throw new System.Exception("Encounter option text cannot be null or empty.");
-        if (OncePerDay && OnceEver) throw new System.Exception("Encounter option cannot be both once per day and once ever.");
-        foreach (ItemSlot slot in ItemSlots) slot.Validate();
+        if (string.IsNullOrEmpty(Text)) throw new System.Exception($"Encounter option '{Text}' text cannot be null or empty in encounter '{Game.Instance.CurrentEncounter.Def.DefName}'.");
+        if (OncePerDay && OnceEver) throw new System.Exception($"Encounter option '{Text}' cannot be both once per day and once ever in encounter '{Game.Instance.CurrentEncounter.Def.DefName}'.");
+        foreach (ItemSlot slot in ItemSlots)
+        {
+            try
+            {
+                slot.Validate();
+            }
+            catch (System.Exception e)
+            {
+                throw new System.Exception($"Encounter option '{Text}' in encounter '{Game.Instance.CurrentEncounter.Def.DefName}' has an invalid item slot: {e.Message}");
+            }
+        }
         foreach(var statRequirement in SkillRequirements)
         {
-            if (statRequirement.Value < 0) throw new System.Exception($"Stat requirement for {statRequirement.Key.DefName} cannot be negative.");
+            if (statRequirement.Value < 0) throw new System.Exception($"Stat requirement for {statRequirement.Key.DefName} in encounter option '{Text}' in encounter '{Game.Instance.CurrentEncounter.Def.DefName}' cannot be negative.");
         }
     }
 

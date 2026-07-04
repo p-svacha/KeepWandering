@@ -562,7 +562,7 @@
                     {
                         { StatDefOf.Morale, -5 },
                         { StatDefOf.Strength, -2 },
-                        { StatDefOf.Intelligence, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -575,7 +575,7 @@
                     {
                         { StatDefOf.Morale, -10 },
                         { StatDefOf.Strength, -5 },
-                        { StatDefOf.Intelligence, -3 },
+                        { StatDefOf.Dexterity, -3 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -623,9 +623,8 @@
                     SeverityThreshold = 9,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Agility, -2 },
-                        { StatDefOf.Perception, -2 },
                         { StatDefOf.Dexterity, -2 },
+                        { StatDefOf.Survival, -2 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -636,9 +635,8 @@
                     SeverityThreshold = 11,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Agility, -5 },
-                        { StatDefOf.Perception, -5 },
                         { StatDefOf.Dexterity, -5 },
+                        { StatDefOf.Survival, -5 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -669,9 +667,8 @@
                     SeverityThreshold = 2,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -2 },
                         { StatDefOf.Strength, -2 },
-                        { StatDefOf.Agility, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -682,9 +679,8 @@
                     SeverityThreshold = 5,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -5 },
                         { StatDefOf.Strength, -5 },
-                        { StatDefOf.Agility, -5 },
+                        { StatDefOf.Dexterity, -5 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -695,9 +691,8 @@
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -8 },
                         { StatDefOf.Strength, -8 },
-                        { StatDefOf.Agility, -8 },
+                        { StatDefOf.Dexterity, -8 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -721,8 +716,7 @@
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -1 },
-                        { StatDefOf.Agility, -3 },
+                        { StatDefOf.Dexterity, -3 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -733,8 +727,7 @@
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -3 },
-                        { StatDefOf.Agility, -5 },
+                        { StatDefOf.Dexterity, -5 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -745,8 +738,7 @@
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -5 },
-                        { StatDefOf.Agility, -10 },
+                        { StatDefOf.Dexterity, -10 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
@@ -769,9 +761,8 @@
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -2 },
-                        { StatDefOf.Dexterity, -2 },
                         { StatDefOf.Strength, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -782,7 +773,6 @@
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -4 },
                         { StatDefOf.Dexterity, -4 },
                         { StatDefOf.Strength, -4 },
                     },
@@ -795,7 +785,6 @@
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -6 },
                         { StatDefOf.Dexterity, -6 },
                         { StatDefOf.Strength, -6 },
                     },
@@ -877,7 +866,6 @@
         {
             Label = "woods",
             Description = "A place of many wild animals and plants.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Intelligence, StatDefOf.Perception, StatDefOf.Dexterity },
             LootTable = new LootTable
             {
                 { LootTables.Food, 10 },
@@ -894,7 +882,6 @@
         {
             Label = "outskirts",
             Description = "A sparsely populated area that covers big areas around and between cities.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Charisma, StatDefOf.Strength, StatDefOf.Dexterity },
             LootTable = new LootTable
             {
                 { LootTables.Trash, 10 },
@@ -911,7 +898,6 @@
         {
             Label = "city",
             Description = "A bustling urban area with many buildings and people.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Combat, StatDefOf.Charisma, StatDefOf.Perception },
             LootTable = new LootTable
             {
                 { LootTables.Trash, 18 },
