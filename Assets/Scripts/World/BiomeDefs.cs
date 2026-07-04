@@ -9,7 +9,6 @@ public static class BiomeDefs
         {
             Label = "woods",
             Description = "A place of many wild animals and plants.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Intelligence, StatDefOf.Perception, StatDefOf.Dexterity },
             LootTable = new LootTable
             {
                 { LootTables.Food, 10 },
@@ -26,7 +25,6 @@ public static class BiomeDefs
         {
             Label = "outskirts",
             Description = "A sparsely populated area that covers big areas around and between cities.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Charisma, StatDefOf.Strength, StatDefOf.Dexterity },
             LootTable = new LootTable
             {
                 { LootTables.Trash, 10 },
@@ -43,7 +41,6 @@ public static class BiomeDefs
         {
             Label = "city",
             Description = "A bustling urban area with many buildings and people.",
-            MostImportantStats = new List<StatDef>() { StatDefOf.Combat, StatDefOf.Charisma, StatDefOf.Perception },
             LootTable = new LootTable
             {
                 { LootTables.Trash, 18 },

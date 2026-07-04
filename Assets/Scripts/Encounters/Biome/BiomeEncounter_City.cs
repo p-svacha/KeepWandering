@@ -115,10 +115,9 @@ public class BiomeEncounter_City : BiomeEncounter
             Description = "Stay alert and observe your surroundings until late in the evening. You might spot threats early or notice something useful.",
             Action = KeepWatch,
             Difficulty = GetKeepWatchDifficulty(),
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Perception, 2 },
-                { StatDefOf.Combat, 2 }
+                { StatDefOf.Survival, 2 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -170,10 +169,10 @@ public class BiomeEncounter_City : BiomeEncounter
             Description = "Other survivors are nearby. Stay quiet and listen in on their conversations. You might learn something useful.",
             Action = Eavesdrop,
             Difficulty = 55,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Perception, 1 },
-                { StatDefOf.Charisma, 2 }
+                { StatDefOf.Social, 1 },
+                { StatDefOf.Dexterity, 1 }
             },
         };
     }

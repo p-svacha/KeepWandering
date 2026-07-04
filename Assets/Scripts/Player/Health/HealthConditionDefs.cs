@@ -54,7 +54,7 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Morale, -5 },
                         { StatDefOf.Strength, -2 },
-                        { StatDefOf.Intelligence, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -67,7 +67,7 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Morale, -10 },
                         { StatDefOf.Strength, -5 },
-                        { StatDefOf.Intelligence, -3 },
+                        { StatDefOf.Dexterity, -3 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -115,9 +115,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 9,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Agility, -2 },
-                        { StatDefOf.Perception, -2 },
                         { StatDefOf.Dexterity, -2 },
+                        { StatDefOf.Survival, -2 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -128,9 +127,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 11,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Agility, -5 },
-                        { StatDefOf.Perception, -5 },
                         { StatDefOf.Dexterity, -5 },
+                        { StatDefOf.Survival, -5 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -161,9 +159,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 2,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -2 },
                         { StatDefOf.Strength, -2 },
-                        { StatDefOf.Agility, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -174,9 +171,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 5,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -5 },
                         { StatDefOf.Strength, -5 },
-                        { StatDefOf.Agility, -5 },
+                        { StatDefOf.Dexterity, -5 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -187,9 +183,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -8 },
                         { StatDefOf.Strength, -8 },
-                        { StatDefOf.Agility, -8 },
+                        { StatDefOf.Dexterity, -8 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 },
@@ -213,8 +208,7 @@ public static class HealthConditionDefs
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -1 },
-                        { StatDefOf.Agility, -3 },
+                        { StatDefOf.Dexterity, -3 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -225,8 +219,7 @@ public static class HealthConditionDefs
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -3 },
-                        { StatDefOf.Agility, -5 },
+                        { StatDefOf.Dexterity, -5 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -237,8 +230,7 @@ public static class HealthConditionDefs
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -5 },
-                        { StatDefOf.Agility, -10 },
+                        { StatDefOf.Dexterity, -10 },
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
@@ -261,9 +253,8 @@ public static class HealthConditionDefs
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -2 },
-                        { StatDefOf.Dexterity, -2 },
                         { StatDefOf.Strength, -2 },
+                        { StatDefOf.Dexterity, -2 },
                     },
                     Color = ResourceManager.Color_Text_Negative,
                 },
@@ -274,7 +265,6 @@ public static class HealthConditionDefs
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -4 },
                         { StatDefOf.Dexterity, -4 },
                         { StatDefOf.Strength, -4 },
                     },
@@ -287,7 +277,6 @@ public static class HealthConditionDefs
                     SeverityThreshold = 8,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
-                        { StatDefOf.Combat, -6 },
                         { StatDefOf.Dexterity, -6 },
                         { StatDefOf.Strength, -6 },
                     },

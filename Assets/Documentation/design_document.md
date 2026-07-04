@@ -63,7 +63,7 @@ Four integer skills, default value 0, that act as direct modifiers to the diffic
 - **Survival** — field knowledge and awareness. Scavenging, medical actions, cooking, scouting, noticing things others would miss.
 - **Social** — people skills. Persuading, trading, pleading, intimidating through personality, any interaction where how you speak matters more than what you do.
 
-Skills can be modified **temporarily** (bound to an active condition such as a health condition or time of day) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the skill's base value, which starts at 0. Skills are clamped to **-30 / +30**.
+Skills can be modified **temporarily** (by currently present health conditions) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the skill's base value, which starts at 0. Skills are clamped to **-30 / +30**.
 
 Skills go **up** through play — succeeding in a skill's own domain, completing quest beats, or reaching certain encounter outcomes. They rarely go down directly; negative pressure on skill checks comes from morale and temporary health penalties instead. This keeps skills a satisfying growth curve and concentrates volatility in the one stat built for it.
 
@@ -162,6 +162,8 @@ Every item has a **durability** value, randomized **1–5** on creation. Each ti
 
 Item slots in encounter options can be configured to **destroy** the item on use (e.g. giving it away) rather than ticking down durability.
 
+Durability is intended to be used alongside with the tag system. So only items with tags that are used in skill checks have durability. Items that are only used for their consumable or medical properties do not have (visible) durability. Therefore all item slots that accept items not by tag (specific item or custom list) must destroy the item on use, as durability is not relevant for those items.
+
 ## Consumables
 
 Items may have consumable properties. Each item has a ConsumptionCategory which is either:
@@ -222,11 +224,23 @@ A toggleable **danger overlay** colour-codes every tile by danger level for at-a
 
 A tile's biome determines which location encounters can appear there, the biome encounter used in the evening, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
 
-Biomes for 1.0: **Woods, City, Outskirts**, plus **Lake** (impassable; used to shape the map and create natural paths/borders). Each biome defines its loot table in `BiomeDefs`. Skill emphasis per biome is expressed through encounter design rather than a fixed attribute — the encounters that appear in a biome naturally favour the skills that fit that environment.
+The following passable biomes exist:
+- **Woods:** Forested areas with trees, bushes, and undergrowth. Loot is mostly natural (plants, berries, mushrooms) and scavenged (wood, sticks, branches). Encounters are often wildlife or scavenging, sometimes abandonded or hidden objects and structures. Encountering people is very rare.
+- **City:** Urban areas with buildings, streets, and alleys. Loot is mostly scavenged (tools, food, medicine). Encounters are often scavenging,  people and urban structures and objects.
+- **Outskirts:** Rural areas with open fields, farms, and small settlements. Loot is mostly natural (plants, crops) and scavenged (tools, food). Encounters can vary a lot from wildlife and people to rural structures and objects.
 
-## Encounter Markers, Areas
+Additional impassable biomes exist to shape the map and create natural paths/borders.
+- **Lake:** Simply a body of water.
+
+## Encounter Markers
 
 A tile's known location encounter is shown on the map as a simplified marker indicating type and state. **Generic markers are grayscale; quest markers are coloured**, so important tiles stand out. An **area** is a named collection of tiles (the zone, a city, a forest, a lake) used by quests to reference locations generally ("go to city X" rather than a specific tile).
+
+## Areas
+
+An area is a named collection of connected tiles, usually a large same-biome cluster. Areas are used by quests to reference locations generally ("go to city X" rather than a specific tile). Areas are generated at world generation and are persistent.
+
+Areas can be purely technical (like the quarantine zone) or be named and visible on the world map (like cities, forests, and lakes).
 
 ## World Generation
 
@@ -266,7 +280,7 @@ A pool of `RumourDef`s each reference a `QuestDef` (which owns all quest behavio
 
 An encounter is any situation requiring player input. The player always faces a location encounter in the afternoon, an evening encounter in the evening, and possibly a night encounter. Encounters vary widely: one step or many, one option or many, linear or branching.
 
-In each state during the encounter, the player is confronted with a set of **encounter options**. Selecting an option is how the game progresses. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open.
+In each state during the encounter, the player is confronted with a set of **encounter options**. Selecting an option is how the game progresses. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open. The current text and set of available options are referred to as the **current encounter step**.
 
 During an encounter, free item use is disabled — items can only be used through option slots. Once the encounter ends, the player can freely use items again and then choose to advance the time of day. (The morning is an exception, with free item use throughout.) An encounter always resolves within a single time of day.
 
@@ -298,10 +312,10 @@ Threat encounters during the night, **not persistent**, overwhelmingly about *av
 
 The first priority of every encounter is **interesting, meaningful choices**. Fun gameplay outranks realism.
 
-- **Steps read at a glance.** Step text is short and concrete; option text is a verb (+subject) like "Persuade" or "Open Crate". The longer description (shown in the details box) should state intended effects and risks plainly — **not cryptically**.
+- **Steps read at a glance.** Step text is short and concrete; option text is a verb (+subject) like "Persuade" or "Open Crate". The longer description (shown in the details box) should state intended effects and risks plainly, **not cryptically**.
 - **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~5.4–12) for a sense of scale (a crate is tight; a radio tower is wide).
 - **Lightweight biome influence only**, never per-biome bespoke handling.
-- **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries — just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
+- **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
 
 ### Step Composition (rule of thumb)
 
@@ -315,9 +329,9 @@ This is guidance, not law. Keep the number of **unrequiremented** options to **a
 
 ### Skill Diversity across Options (rule of thumb)
 
-Within a single encounter step, the different options should draw on **different skills** where possible — a Strength skill check, a Dexterity requirement, a Social option shouldn't all live on the same step. This naturally creates distinct paths for different builds and makes each option feel meaningfully different in what it asks of the player. As with step composition, this is a guideline rather than a hard rule; exceptions exist, but defaulting to skill diversity keeps steps from feeling like the same option in different clothes.
+Within a single encounter step, the different options should draw on **different skills** where possible — a Survival skill check, a Social requirement, a FixedOutcome option shouldn't all live on the same step. This naturally creates distinct paths for different builds and makes each option feel meaningfully different in what it asks of the player. As with step composition, this is a guideline rather than a hard rule; exceptions exist, but defaulting to skill diversity keeps steps from feeling like the same option in different clothes.
 
-Skills also function as meaningful **requirements** on FixedOutcome options, giving the player clear upgrade goals ("come back when your Dexterity is 5") and rewarding investment in a particular skill with a safe, reliable option that others can't take.
+Skills also function as meaningful **requirements** on FixedOutcome options, giving the player clear upgrade goals ("come back when your Survival is 5") and rewarding investment in a particular skill with a safe, reliable option that others can't take.
 
 ## Steps
 
@@ -356,6 +370,10 @@ Additionally, a slot can have the following properties:
 - **Destroys Item:** For slots that fully consume the placed item (i.e. when actively giving an item away). Otherwise, using an item in a slot ticks its durability down by 1.
 - **Required Tag Level:** Only applicable if the acceptance mode is a tag. The slot will only accept items with that tag at or above the given level.
 
+Some rules apply for item slots:
+- Slots that require a specific item or a custom set of items must be a requirement slot, as only tag slots can have difficulty reductions for optional slots. Therefore slots that are not a requirement slot must have a tag set, as only tag slots can have difficulty reductions for optional slots.
+- Slots that require a specific item or a custom set of items must destroy the item, as the durability system is intended to work with tags. Only items with tags have their durability shown (as it wouldn't really make sense to have a "durability" on a bottle of water), and since slots that require a specific item or a custom set of items could also accept items without tags, the durability system would lead to weird behavior with those kinds of items.
+
 ### FixedOutcome options
 Always call the same outcome function. That function may include custom logic and randomness, but it doesn't use the success/failure ladder. Used for simple actions (skip, ignore) and for special outcomes that don't fit a skill check.
 
@@ -372,11 +390,27 @@ A standardized RPG-style check with a calculated difficulty and a rolled outcome
 
 **Roll animation:** When a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor, biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
+**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor (1-4), biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
 
 ### Option Outcomes
 
-Outcomes can: change skills or morale; grant/remove items; add or modify health conditions; change quests/rumours; change tile danger levels; generate or reveal encounters on other tiles; place traps (evening); or initiate trade.
+The outcome of a selected option, fixed or resolved from skill-check, can be pretty much anything. The design space here is very open-ended and allows for creativity.
+
+Here's a list with some common examples of what an outcome can do, but it is not exhaustive:
+
+- Change internal encounter state, which can affect the next step's text and available options
+- Change internal state of other persistent encounters
+- Change morale
+- Increase skills
+- Grant / remove items
+- Change item durability
+- Add / modify / remove health conditions
+- Receive / Complete / Fail quests
+- Learn rumours
+- Change tile danger levels
+- Reveal encounters on other tiles
+- Place traps (evening)
+- Initiate trade
 
 ## Sprite-Bound Options
 

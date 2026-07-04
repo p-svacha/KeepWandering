@@ -32,7 +32,9 @@ remove tags or change tag system:
 
 rename fordogs as dog toy
 
-
+EVENING REWORK:
+- add option to train a specific skill (depending on biome)
+- one option per skill (social = find a trader, survival = forage, dexterity = repair a tool, strength )
 
 - road system
 - rework map

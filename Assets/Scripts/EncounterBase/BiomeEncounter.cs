@@ -138,11 +138,10 @@ public abstract class BiomeEncounter : Encounter
             Difficulty = GetFortifyDifficulty(),
             Action = Fortify,
             CanPartiallySucceed = false,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Strength, 1f },
-                { StatDefOf.Dexterity, 1f },
-                { StatDefOf.Intelligence, 1f },
+                { StatDefOf.Survival, 2 },
+                { StatDefOf.Dexterity, 1 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -177,7 +176,7 @@ public abstract class BiomeEncounter : Encounter
             // 75% to imporve a skill
             else
             {
-                Game.ModifyRandomStat(1, 2, StatDefOf.Strength, StatDefOf.Dexterity, StatDefOf.Intelligence);
+                Game.ModifyRandomStat(1, 2, StatDefOf.Strength, StatDefOf.Dexterity);
                 return "You build an excellent shelter, improving your skills. You feel safe tonight.";
             }           
         }
@@ -211,10 +210,9 @@ public abstract class BiomeEncounter : Encounter
             Description = "Search the area for anything useful.",
             Difficulty = GetScavengeDifficulty(),
             Action = Scavenge,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Dexterity, 1f },
-                { StatDefOf.Perception, 1f },
+                { StatDefOf.Survival, 2 },
             },
             ItemSlots = new List<ItemSlot>()
             {

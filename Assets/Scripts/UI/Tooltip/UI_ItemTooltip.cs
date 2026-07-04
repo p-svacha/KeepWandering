@@ -57,7 +57,7 @@ public class UI_ItemTooltip : UI_TooltipBase
         // Header
         ItemImage.sprite = item.Sprite;
         TitleText.text = item.LabelCapWord;
-        SubtitleText.text = $"Durability: {item.Durability}";
+        SubtitleText.text = item.GetTooltipSubtitle();
 
         // Tags
         bool hasTags = item.Def.Tags.Count > 0;

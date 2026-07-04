@@ -115,11 +115,9 @@ public class Encounter_Crate : LocationEncounter
             Difficulty = 50,
             CanCriticallyFail = false,
             OncePerDay = true,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Dexterity, 2f },
-                { StatDefOf.Strength, 1f },
-                { StatDefOf.Perception, 1f },
+                { StatDefOf.Dexterity, 2 },
             },
             Action = TakeItem,
         };
@@ -177,9 +175,9 @@ public class Encounter_Crate : LocationEncounter
             Description = "Try to destroy the crate to get its content. This might destroy some items inside.",
             Difficulty = 70,
             OncePerDay = true,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Strength, 3f }
+                { StatDefOf.Strength, 3 }
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -298,9 +296,9 @@ public class Encounter_Crate : LocationEncounter
             OncePerDay = true,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Perception, 3f },
+                { StatDefOf.Survival, 1 },
             },
             Action = Peek,
         };

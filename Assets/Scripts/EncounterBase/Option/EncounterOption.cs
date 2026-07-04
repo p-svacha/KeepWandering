@@ -3,7 +3,10 @@ using System.Linq;
 
 public abstract class EncounterOption
 {
-    public abstract EncounterStepOptionType Type { get; }
+    /// <summary>
+    /// Type of the option. Either FixedOutcome or SkillCheck.
+    /// </summary>
+    public abstract EncounterOptionType Type { get; }
 
     /// <summary>
     /// Text that gets displayed on the button of the encounter step option.
@@ -53,6 +56,10 @@ public abstract class EncounterOption
         if (string.IsNullOrEmpty(Text)) throw new System.Exception("Encounter option text cannot be null or empty.");
         if (OncePerDay && OnceEver) throw new System.Exception("Encounter option cannot be both once per day and once ever.");
         foreach (ItemSlot slot in ItemSlots) slot.Validate();
+        foreach(var statRequirement in SkillRequirements)
+        {
+            if (statRequirement.Value < 0) throw new System.Exception($"Stat requirement for {statRequirement.Key.DefName} cannot be negative.");
+        }
     }
 
     public bool HasRequirements()

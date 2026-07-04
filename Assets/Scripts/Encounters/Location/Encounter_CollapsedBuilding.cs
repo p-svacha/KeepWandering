@@ -146,10 +146,9 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Description = "Try to safely disconnect the sparking wires.",
             Action = CutWires,
             Difficulty = 55,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Dexterity, 2 },
-                { StatDefOf.Intelligence, 1 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -198,10 +197,9 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Action = GrabItems,
             Difficulty = 40,
             FixedDifficultyModifiers = difficultyModifiers,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Dexterity, 2 },
-                { StatDefOf.Agility, 1 },
             },
             OncePerDay = true,
         };
@@ -271,10 +269,10 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Description = description,
             Action = ClearRubble,
             Difficulty = 65,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Strength, 2 },
-                { StatDefOf.Intelligence, 1 },
+                { StatDefOf.Dexterity, 1 },
             },
             FixedDifficultyModifiers = difficultyModifiers,
             ItemSlots = new List<ItemSlot>()
@@ -297,7 +295,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             rubbleState = RubbleState.Cleared;
             TakeAllItems(invisibleItems);
             if (hasSurvivor) text += FreeSurvivor();
-            Game.ModifyIntelligence(+1);
+            Game.ModifyRandomStat(+1, StatDefOf.Strength, StatDefOf.Dexterity);
 
             return text;
         }
@@ -352,10 +350,9 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Action = CrawlIn,
             Difficulty = 55,
             FixedDifficultyModifiers = difficultyModifiers,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Agility, 2 },
-                { StatDefOf.Perception, 1 },
+                { StatDefOf.Dexterity, 3 },
             },
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,

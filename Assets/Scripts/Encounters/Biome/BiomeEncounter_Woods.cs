@@ -106,10 +106,9 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Difficulty = 50,
             Action = AssembleTrap,
             CanPartiallySucceed = false,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Intelligence, 2 },
-                { StatDefOf.Dexterity, 2 }
+                { StatDefOf.Dexterity, 3 }
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -129,7 +128,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
             // Improve stat
-            Game.ModifyRandomStat(1, 2, StatDefOf.Intelligence, StatDefOf.Dexterity, StatDefOf.Perception);
+            Game.ModifyRandomStat(1, 2, StatDefOf.Survival, StatDefOf.Dexterity);
 
             // Set trap
             Game.PlaceEveningTrap();
@@ -164,10 +163,9 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Description = "Search for edible plants and medicinal herbs in the undergrowth.",
             Difficulty = GetForageDifficulty(),
             Action = Forage,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Perception, 2f },
-                { StatDefOf.Intelligence, 2f }
+                { StatDefOf.Survival, 2 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -184,7 +182,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
         {
             Game.AddNewItemToInventory(ItemDefOf.MedicinalHerbs);
             Game.AddNewItemToInventory(ItemDefOf.Berries);
-            Game.ModifyRandomStat(1, 2, StatDefOf.Perception, StatDefOf.Intelligence);
+            Game.ModifyRandomStat(1, 2, StatDefOf.Survival);
             return "You find both a medicinal herb and some berries. Your scavenging skills improve";
         }
         if (outcome.SuccessLevel == SuccessLevel.Success)

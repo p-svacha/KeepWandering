@@ -80,10 +80,9 @@ public class NightEncounter_Bandits : NightEncounter
             {
                 { "Caught hiding", IsPlayerCaughtHiding ? +15 : 0  },
             },
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Combat, 3 },
-                { StatDefOf.Strength, 1.5f },
+                { StatDefOf.Strength, 3 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -101,7 +100,7 @@ public class NightEncounter_Bandits : NightEncounter
         string bandits = "bandit".Pluralize(Intensity);
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            if (Intensity > 1) Game.ModifyStatBaseValue(StatDefOf.Combat, +1);
+            if (Intensity > 1) Game.ModifyStatBaseValue(StatDefOf.Strength, +1);
             LootTables.Bandit.AddItemToInventory();
 
             return $"You completely overwhelm the {bandits} and drive them off. They drop something in their panic.";
@@ -157,10 +156,9 @@ public class NightEncounter_Bandits : NightEncounter
                 { BiomeDefOf.Woods, -15 },
                 { BiomeDefOf.Outskirts, +15 },
             },
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Dexterity, 2 },
-                { StatDefOf.Agility, 2 },
+                { StatDefOf.Dexterity, 3 },
             },
         };
     }
@@ -170,7 +168,7 @@ public class NightEncounter_Bandits : NightEncounter
 
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            Game.ModifyRandomStat(1, StatDefOf.Agility, StatDefOf.Dexterity);
+            Game.ModifyRandomStat(1, StatDefOf.Dexterity);
 
             return "You slip away like a shadow, somehow even taking your whole cart without them noticing.";
         }
@@ -229,10 +227,10 @@ public class NightEncounter_Bandits : NightEncounter
             Description = description,
             Action = Intimidate,
             Difficulty = difficulty,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Charisma, 2 },
-                { StatDefOf.Combat, 1 },
+                { StatDefOf.Social, 2 },
+                { StatDefOf.Strength, 1 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -295,10 +293,10 @@ public class NightEncounter_Bandits : NightEncounter
             {
                 { BiomeDefOf.Woods, -15 }
             },
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Dexterity, 2 },
-                { StatDefOf.Perception, 1 },
+                { StatDefOf.Survival, 1 },
             },
             CanPartiallySucceed = false,
         };
@@ -346,9 +344,9 @@ public class NightEncounter_Bandits : NightEncounter
             Description = "Plead with them to leave you something.",
             Action = Beg,
             Difficulty = difficulty,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Charisma, 3 },
+                { StatDefOf.Social, 3 },
             },
             ItemSlots = new List<ItemSlot>()
             {

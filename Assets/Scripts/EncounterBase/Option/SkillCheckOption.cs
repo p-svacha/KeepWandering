@@ -8,7 +8,7 @@ public class SkillCheckOption : EncounterOption
     public static int MIN_DIFFICULTY = 5;
     public static int MAX_DIFFICULTY = 200;
 
-    public override EncounterStepOptionType Type => EncounterStepOptionType.SkillCheck;
+    public override EncounterOptionType Type => EncounterOptionType.SkillCheck;
 
     /// <summary>
     /// Base difficulty of the encounter step option, before any modifiers apply.
@@ -18,7 +18,8 @@ public class SkillCheckOption : EncounterOption
     /// <summary>
     /// The stats that are relevant for performing this encounter step option, along with the modifier of how much it affects the difficulty of the encounter step option.
     /// </summary>
-    public Dictionary<StatDef, float> RelevantStats { get; init; } = new Dictionary<StatDef, float>();
+    public Dictionary<StatDef, int> RelevantStats { get; init; } = new Dictionary<StatDef, int>();
+    public static int MAX_RELEVANT_START_FACTOR = 5;
 
     /// <summary>
     /// Fixed difficulty modifiers that apply to this encounter step option, with a label for each modifier to be displayed in the UI.
@@ -46,6 +47,11 @@ public class SkillCheckOption : EncounterOption
         // Validate
         if (Action == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
         if (Difficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
+        foreach(var statEntry in RelevantStats)
+        {
+            if (statEntry.Value < 0) throw new Exception($"Relevant stat modifier for '{statEntry.Key.LabelCapWord}' must be non-negative for SkillCheckOption '{Text}'.");
+            if (statEntry.Value > MAX_RELEVANT_START_FACTOR) throw new Exception($"Relevant stat modifier for '{statEntry.Key.LabelCapWord}' must be less than or equal to {MAX_RELEVANT_START_FACTOR} for SkillCheckOption '{Text}'.");
+        }
     }
 
 

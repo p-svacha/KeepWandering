@@ -30,13 +30,13 @@ public abstract class Wound : HealthCondition
     // Base effects
     private Dictionary<StatDef, int> BaseUntendedStatModifiers => new Dictionary<StatDef, int>()
     {
-        { StatDefOf.Combat, -2 },
-        { StatDefOf.Charisma, -2 },
+        { StatDefOf.Strength, -2 },
+        { StatDefOf.Social, -2 },
     };
     private Dictionary<StatDef, int> BaseTendedStatModifiers => new Dictionary<StatDef, int>()
     {
-        { StatDefOf.Combat, -1 },
-        { StatDefOf.Charisma, -1 },
+        { StatDefOf.Strength, -1 },
+        { StatDefOf.Social, -1 },
     };
 
     // Infection stages
@@ -55,9 +55,9 @@ public abstract class Wound : HealthCondition
             SeverityThreshold = 4f,
             StatModifiers = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Combat, -2 },
                 { StatDefOf.Strength, -2 },
-                { StatDefOf.Agility, -2 },
+                { StatDefOf.Social, -2 },
+                { StatDefOf.Dexterity, -2 },
             },
             Color = ResourceManager.Color_Text_Negative
         },
@@ -68,9 +68,9 @@ public abstract class Wound : HealthCondition
             SeverityThreshold = 7f,
             StatModifiers = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Combat, -3 },
                 { StatDefOf.Strength, -3 },
-                { StatDefOf.Agility, -3 },
+                { StatDefOf.Social, -3 },
+                { StatDefOf.Dexterity, -3 },
             },
             Color = ResourceManager.Color_Text_VeryNegative
         },
@@ -81,9 +81,9 @@ public abstract class Wound : HealthCondition
             SeverityThreshold = 10f,
             StatModifiers = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Combat, -5 },
                 { StatDefOf.Strength, -5 },
-                { StatDefOf.Agility, -5 },
+                { StatDefOf.Social, -5 },
+                { StatDefOf.Dexterity, -5 },
             },
             Color = ResourceManager.Color_Text_ExtremelyNegative
         },
@@ -119,7 +119,7 @@ public abstract class Wound : HealthCondition
         }
         else if (beforeStage >= InfectionStage.Minor && afterStage > beforeStage)
         {
-            morningReport.NightEvents.Add($"The infection of your {Def.Label} got worse and needs be dealt with immeadiately.");
+            morningReport.NightEvents.Add($"The infection of your {Def.Label} got worse and needs be dealt with immediately.");
         }
         else if (beforeStage >= InfectionStage.Minor && afterStage == InfectionStage.None && SeverityValue > 0)
         {

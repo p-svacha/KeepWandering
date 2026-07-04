@@ -78,6 +78,7 @@ public class ItemSlot
             if (Item != null && CustomItemSet != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
             if (!IsRequired) throw new System.Exception("ItemSlot with a specific item or list of allowed items must be required, as only tag slots can have difficulty reductions for optional slots.");
             if (HasrequiredTagLevel) throw new System.Exception("ItemSlot with a specific item or list of allowed items cannot have a required tag level, as only tag slots can have difficulty reductions.");
+            if (!IsDestroyingItem) throw new System.Exception("ItemSlot with a specific item or list of allowed items must destroy the item, as the durability system is intended to work with tags.");
         }
 
         // Validation for tag

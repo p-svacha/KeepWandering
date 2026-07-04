@@ -3,7 +3,7 @@ using System.Linq;
 
 public class FixedOutcomeOption : EncounterOption
 {
-    public override EncounterStepOptionType Type => EncounterStepOptionType.FixedOutcome;
+    public override EncounterOptionType Type => EncounterOptionType.FixedOutcome;
 
     /// <summary>
     /// The function that gets executed when choosing this encounter step option. Handles the logic of the outcome and returns the text displayed on the next step.

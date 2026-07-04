@@ -141,7 +141,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Description = "Try to force open the box by breaking the lock",
             Action = BreakOpenBox,
             Difficulty = 50,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Strength, 2 },
                 { StatDefOf.Dexterity, 1 },
@@ -200,7 +200,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Description = "Try to pick the lock on the box",
             Action = PickBoxLock,
             Difficulty = 60,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Dexterity, 3 },
             },
@@ -250,7 +250,7 @@ public class Encounter_SupplyStash : LocationEncounter
             Description = "Dig out the buried cache. It'll take some effort.",
             Action = DigUpCrate,
             Difficulty = 45,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Strength, 2 },
             },

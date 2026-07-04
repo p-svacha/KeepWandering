@@ -73,6 +73,9 @@ public class Item
     public string LabelCapWord => Label.CapitalizeEachWord();
     public string Description => Def.Description;
     public Sprite Sprite => Def.Sprite;
+    public bool HasAnyTag => Def.Tags.Count > 0;
+    public bool IsConsumable => Def.IsConsumable;
+    public bool HasMedicalProperties => Def.HasMedicalProperties;
 
     // Interactions
     public bool CanInteract => GetInteractionOptions().Count > 0;
@@ -105,6 +108,17 @@ public class Item
         */
 
         return options;
+    }
+
+    /// <summary>
+    /// Returns the subtitle text for the tooltip of this item. Can be different things depending on the item type.
+    /// </summary>
+    public string GetTooltipSubtitle()
+    {
+        if (HasAnyTag) return $"Durability: {Durability}";
+        if (IsConsumable) return "Consumable Item";
+        if (HasMedicalProperties) return "Medical Item";
+        return "Special Item";
     }
 
     #endregion

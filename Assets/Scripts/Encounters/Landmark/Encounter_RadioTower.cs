@@ -135,10 +135,6 @@ public class Encounter_RadioTower : LocationEncounter
             Difficulty = 90,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
-            RelevantStats = new Dictionary<StatDef, float>()
-            {
-                { StatDefOf.Perception, 3f }
-             },
         };
     }
     private string Listen(OptionOutcomeDef outcome)
@@ -178,9 +174,9 @@ public class Encounter_RadioTower : LocationEncounter
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
             CanCriticallyFail = false,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Strength, 4f }
+                { StatDefOf.Strength, 4 }
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -219,10 +215,10 @@ public class Encounter_RadioTower : LocationEncounter
             OncePerDay = true,
             Difficulty = 70,
             CanPartiallySucceed = false,
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Agility, 2f },
-                { StatDefOf.Strength, 2f },
+                { StatDefOf.Dexterity, 2 },
+                { StatDefOf.Strength, 2 },
             },
             ItemSlots = new List<ItemSlot>()
             {
@@ -244,8 +240,7 @@ public class Encounter_RadioTower : LocationEncounter
             CurrentPlayerPosition = PlayerPosition.OnTop;
             HasBeenOnTop = true;
             Game.RevealLocationEncountersAround(Game.CurrentPosition);
-            Game.ModifyStatBaseValue(StatDefOf.Intelligence, +1);
-            Game.ModifyStatBaseValue(StatDefOf.Perception, +1);
+            Game.ModifyMorale(+1);
 
             if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
             {

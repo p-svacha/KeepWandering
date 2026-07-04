@@ -966,13 +966,10 @@ public class Game : Singleton<Game>
     }
 
     public void ModifyMorale(int value) => ModifyStatBaseValue(StatDefOf.Morale, value);
-    public void ModifyCombat(int value) => ModifyStatBaseValue(StatDefOf.Combat, value);
     public void ModifyStrength(int value) => ModifyStatBaseValue(StatDefOf.Strength, value);
-    public void ModifyIntelligence(int value) => ModifyStatBaseValue(StatDefOf.Intelligence, value);
     public void ModifyDexterity(int value) => ModifyStatBaseValue(StatDefOf.Dexterity, value);
-    public void ModifyPerception(int value) => ModifyStatBaseValue(StatDefOf.Perception, value);
-    public void ModifyCharisma(int value) => ModifyStatBaseValue(StatDefOf.Charisma, value);
-    public void ModifyAgility(int value) => ModifyStatBaseValue(StatDefOf.Agility, value);
+    public void ModifySurvival(int value) => ModifyStatBaseValue(StatDefOf.Survival, value);
+    public void ModifySocial(int value) => ModifyStatBaseValue(StatDefOf.Social, value);
 
     public void ApplyNaturalHealing(float healingFactor = 1f)
     {

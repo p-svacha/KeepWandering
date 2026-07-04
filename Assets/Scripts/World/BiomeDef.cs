@@ -21,11 +21,6 @@ public class BiomeDef : Def
     public LootTable LootTable { get; init; } = null;
 
     /// <summary>
-    /// Set of most important stats. Not directly used for anything at the moment, but can be used by encounters or the UI to determine which stats to show or emphasize for this biome.
-    /// </summary>
-    public List<StatDef> MostImportantStats { get; init; } = new List<StatDef>();
-
-    /// <summary>
     /// Chance that placed evening traps trigger on wildlife during the night.
     /// </summary>
     public float TrapTriggerChance { get; init; } = 0f;

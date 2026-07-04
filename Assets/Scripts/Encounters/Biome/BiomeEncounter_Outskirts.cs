@@ -111,9 +111,9 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             Description = "You see someone in the distance. Maybe you can get their attention in order to trade or get information.",
             Action = FlagDownPasserby,
             Difficulty = GetFlagDownPasserbyDifficulty(),
-            RelevantStats = new Dictionary<StatDef, float>()
+            RelevantStats = new Dictionary<StatDef, int>()
             {
-                { StatDefOf.Charisma, 3f }
+                { StatDefOf.Social, 3 }
             },
             ItemSlots = new List<ItemSlot>()
             {
