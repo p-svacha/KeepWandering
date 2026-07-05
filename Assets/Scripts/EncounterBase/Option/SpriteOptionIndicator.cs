@@ -1,6 +1,10 @@
+using Clipper2Lib;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 /// <summary>
 /// Dynamically added component to any sprite that has bound encounter options.
@@ -10,18 +14,25 @@ using UnityEngine;
 public class SpriteOptionIndicator : MonoBehaviour
 {
     // Tunable constants
-    private const float MIN_OPACITY = 0.25f;
+    private const float MIN_OPACITY = 0f;
     private const float FULL_OPACITY = 1f;
     private const float MAX_PROXIMITY_DISTANCE = 2.5f;
-    private const float OUTLINE_WIDTH = 0.05f;
+    private const float OUTLINE_WIDTH = 0.2f;
+    private const float OUTLINE_OFFSET = 0.15f;
+    private const float TEXTURE_SCALE_X = 0.2f;
+
+    private const float UI_OFFSET_X = 0f;
+    private const float UI_OFFSET_Y = 30f;
 
     // Cached references
     private SpriteRenderer SpriteRenderer;
+    public SpriteRenderer Sprite => SpriteRenderer;
     private PolygonCollider2D Collider;
     private List<LineRenderer> OutlineRenderers = new List<LineRenderer>();
 
     // State
-    public UI_SpriteEncounterOptionContainer Container { get; private set; }
+    public UI_SpriteEncounterOptionContainer OptionsContainer { get; private set; }
+    public UI_EncounterOptionSpriteLabel LabelElement { get; private set; }
     public List<EncounterOption> Options { get; private set; }
 
     private void Awake()
@@ -38,9 +49,10 @@ public class SpriteOptionIndicator : MonoBehaviour
     /// <summary>
     /// Binds this indicator to a container and option list, creating outline LineRenderers for each collider sub-path.
     /// </summary>
-    public void Bind(UI_SpriteEncounterOptionContainer container, List<EncounterOption> options)
+    public void Bind(UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
     {
-        Container = container;
+        OptionsContainer = container;
+        LabelElement = label;
         Options = options;
 
         // Clear any existing outlines
@@ -52,38 +64,32 @@ public class SpriteOptionIndicator : MonoBehaviour
 
         // Create one LineRenderer per collider sub-path
         Material outlineMaterial = ResourceManager.LoadMaterial("Encounters/DashedOutline");
-        for (int pathIndex = 0; pathIndex < Collider.pathCount; pathIndex++)
-        {
-            Vector2[] path = Collider.GetPath(pathIndex);
+        List<Vector2[]> outlines = ComputeOffsetOutlines(Collider, OUTLINE_OFFSET);
 
-            // Create child GameObject with LineRenderer
-            GameObject outlineObj = new GameObject($"Outline_{pathIndex}");
+        for (int outlineIndex = 0; outlineIndex < outlines.Count; outlineIndex++)
+        {
+            Vector2[] outline = outlines[outlineIndex];
+
+            GameObject outlineObj = new GameObject($"Outline_{outlineIndex}");
             outlineObj.transform.SetParent(transform, false);
             outlineObj.transform.localPosition = Vector3.zero;
             outlineObj.transform.localRotation = Quaternion.identity;
             outlineObj.transform.localScale = Vector3.one;
 
             LineRenderer lineRenderer = outlineObj.AddComponent<LineRenderer>();
-
-            // Configure LineRenderer
             lineRenderer.useWorldSpace = false;
             lineRenderer.loop = true;
-            lineRenderer.positionCount = path.Length;
+            lineRenderer.positionCount = outline.Length;
             lineRenderer.startWidth = OUTLINE_WIDTH;
             lineRenderer.endWidth = OUTLINE_WIDTH;
             lineRenderer.textureMode = LineTextureMode.Tile;
-
-            // Set material (accessing .material auto-instances for per-renderer tinting)
+            lineRenderer.textureScale = new Vector2(TEXTURE_SCALE_X, 1f);
             lineRenderer.material = outlineMaterial;
+            lineRenderer.sortingLayerName = "SpriteOptionOutline";
 
-            // Sync sorting with the bound SpriteRenderer
-            lineRenderer.sortingLayerID = SpriteRenderer.sortingLayerID;
-            lineRenderer.sortingOrder = SpriteRenderer.sortingOrder + 1;
-
-            // Copy collider path points
-            for (int i = 0; i < path.Length; i++)
+            for (int i = 0; i < outline.Length; i++)
             {
-                lineRenderer.SetPosition(i, new Vector3(path[i].x, path[i].y, 0));
+                lineRenderer.SetPosition(i, new Vector3(outline[i].x, outline[i].y, 0));
             }
 
             OutlineRenderers.Add(lineRenderer);
@@ -91,7 +97,27 @@ public class SpriteOptionIndicator : MonoBehaviour
 
         // Initial state
         UpdateAvailabilityColor();
-        UpdateProximity(Vector2.zero, false); // Start at min opacity
+        SetOutlineOpacity(false); // Start hidden
+    }
+
+    public void SetLockedLineMaterial(bool locked)
+    {
+        foreach(LineRenderer lr in OutlineRenderers)
+        {
+            if (locked) lr.material = ResourceManager.LoadMaterial("Encounters/DashedOutline_Stroke");
+            else lr.material = ResourceManager.LoadMaterial("Encounters/DashedOutline");
+        }
+    }
+
+    /// <summary>
+    /// Shows or hides all outline renderers.
+    /// </summary>
+    public void SetOutlineVisible(bool visible)
+    {
+        foreach (LineRenderer lr in OutlineRenderers)
+        {
+            if (lr != null) lr.enabled = visible;
+        }
     }
 
     /// <summary>
@@ -101,8 +127,8 @@ public class SpriteOptionIndicator : MonoBehaviour
     {
         if (Options == null || OutlineRenderers.Count == 0) return;
 
-        bool anySelectable = Options.Any(o => o.CanSelect());
-        Color baseColor = anySelectable ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled;
+        bool anySelectable = Options.Any(o => o.CanSelect(countInventoryItems: true));
+        Color baseColor = anySelectable ? new Color(0.91f, 0.61f, 0f) : ResourceManager.Color_Button_Disabled;
 
         // Update all outline renderers (preserve alpha, which is controlled by proximity)
         foreach (LineRenderer lr in OutlineRenderers)
@@ -115,30 +141,15 @@ public class SpriteOptionIndicator : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates the outline opacity based on cursor proximity to the sprite's collider, or snaps to full opacity if revealAll is true.
+    /// Sets the outline to full opacity or fully hidden. No longer distance-based -
+    /// visibility is now driven entirely by whether this is the topmost indicator under the mouse.
     /// </summary>
-    public void UpdateProximity(Vector2 mouseWorldPos, bool revealAll)
+    public void SetOutlineOpacity(bool visible)
     {
-        if (Collider == null || OutlineRenderers.Count == 0) return;
+        if (OutlineRenderers.Count == 0) return;
 
-        float targetAlpha;
+        float targetAlpha = visible ? FULL_OPACITY : MIN_OPACITY;
 
-        if (revealAll)
-        {
-            targetAlpha = FULL_OPACITY;
-        }
-        else
-        {
-            // Compute shape-aware distance using ClosestPoint
-            Vector2 closestPoint = Collider.ClosestPoint(mouseWorldPos);
-            float distance = Vector2.Distance(mouseWorldPos, closestPoint);
-
-            // Map distance to opacity: 0 distance = full opacity, MAX_PROXIMITY_DISTANCE = min opacity
-            float t = Mathf.Clamp01(distance / MAX_PROXIMITY_DISTANCE);
-            targetAlpha = Mathf.Lerp(FULL_OPACITY, MIN_OPACITY, t);
-        }
-
-        // Apply alpha to all outline renderers (preserve RGB from availability color)
         foreach (LineRenderer lr in OutlineRenderers)
         {
             if (lr == null) continue;
@@ -156,5 +167,110 @@ public class SpriteOptionIndicator : MonoBehaviour
             if (lr != null) Destroy(lr.gameObject);
         }
         OutlineRenderers.Clear();
+    }
+
+
+    /// <summary>
+    /// Computes outward-offset outlines for all of the collider's sub-paths combined.
+    /// Overlapping/crossing paths are automatically merged before offsetting, and concave
+    /// corners are handled with round joins to avoid any spiking.
+    /// </summary>
+    private List<Vector2[]> ComputeOffsetOutlines(PolygonCollider2D collider, float offset)
+    {
+        PathsD inputPaths = new PathsD();
+        for (int i = 0; i < collider.pathCount; i++)
+        {
+            Vector2[] path = collider.GetPath(i);
+            PathD pathD = new PathD(path.Length);
+            foreach (Vector2 p in path) pathD.Add(new PointD(p.x, p.y));
+            inputPaths.Add(pathD);
+        }
+
+        PathsD resultPaths = Clipper.InflatePaths(inputPaths, offset, Clipper2Lib.JoinType.Round, Clipper2Lib.EndType.Polygon);
+
+        List<Vector2[]> outlines = new List<Vector2[]>();
+        foreach (PathD path in resultPaths)
+        {
+            Vector2[] verts = new Vector2[path.Count];
+            for (int i = 0; i < path.Count; i++) verts[i] = new Vector2((float)path[i].x, (float)path[i].y);
+            outlines.Add(verts);
+        }
+        return outlines;
+    }
+
+    /// <summary>
+    /// Shows/hides the label and options container based on current hover/lock state.
+    /// Called every frame for every registered indicator, so display state is always
+    /// fully recomputed rather than relying on edge-triggered show/hide calls.
+    /// </summary>
+    public void SetDisplayState(bool isHovered, bool isLocked)
+    {
+        if (isLocked)
+        {
+            LabelElement.Hide();
+            OptionsContainer.Show();
+        }
+        else if (isHovered)
+        {
+            // LabelElement.Show(); // Currently disabled, looks better without
+            OptionsContainer.Hide();
+        }
+        else
+        {
+            LabelElement.Hide();
+            OptionsContainer.Hide();
+        }
+    }
+
+    /// <summary>
+    /// Recomputes and applies the canvas position for both the label and options container,
+    /// anchored to this sprite's collider bounds (top-center, offset toward top-right).
+    /// </summary>
+    public void RefreshUiPosition()
+    {
+        OptionsContainer.SetAnchoredPosition(ComputeUiAnchorPosition(OptionsContainer.GetComponent<RectTransform>()));
+        LabelElement.SetAnchoredPosition(ComputeUiAnchorPosition(LabelElement.GetComponent<RectTransform>()));
+    }
+
+    private Vector2 ComputeUiAnchorPosition(RectTransform target)
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(target);
+
+        // Compute world-space anchor point (top-center of collider bounds)
+        Vector3 worldMin = new Vector3(float.MaxValue, float.MaxValue, 0);
+        Vector3 worldMax = new Vector3(float.MinValue, float.MinValue, 0);
+        for (int pathIndex = 0; pathIndex < Collider.pathCount; pathIndex++)
+        {
+            Vector2[] path = Collider.GetPath(pathIndex);
+            for (int i = 0; i < path.Length; i++)
+            {
+                Vector3 worldPoint = transform.TransformPoint(path[i]);
+                worldMin = Vector3.Min(worldMin, worldPoint);
+                worldMax = Vector3.Max(worldMax, worldPoint);
+            }
+        }
+        Vector3 anchorPoint = new Vector3((worldMin.x + worldMax.x) / 2f, worldMax.y, 0);
+
+        Vector3 screenPoint = Game.Instance.MainCamera.WorldToScreenPoint(anchorPoint);
+
+        Canvas canvas = target.GetComponentInParent<Canvas>();
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        Camera canvasCamera = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, canvasCamera, out Vector2 localPoint);
+
+        localPoint += new Vector2(UI_OFFSET_X, UI_OFFSET_Y);
+
+        Vector2 canvasSize = canvasRect.rect.size;
+        Vector2 targetSize = target.rect.size;
+
+        float minX = -canvasSize.x * 0.5f;
+        float maxX = canvasSize.x * 0.5f - targetSize.x;
+        float minY = -canvasSize.y * 0.5f;
+        float maxY = canvasSize.y * 0.5f - targetSize.y;
+
+        localPoint.x = Mathf.Clamp(localPoint.x, minX, maxX);
+        localPoint.y = Mathf.Clamp(localPoint.y, minY, maxY);
+
+        return localPoint;
     }
 }

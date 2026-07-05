@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +9,7 @@ using UnityEngine.UI;
 public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 {
     public Game Game;
+    public static string SPRITE_ENCOUNTER_OPTION_LAYER = "EncounterOptionSprite";
 
     [Header("Elements")]
     public TextMeshProUGUI EncounterText;
@@ -33,6 +33,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
     public UI_EncounterStepOption EncounterOptionPrefab;
     public UI_EncounterOutcomeNote OutcomeNotePrefab;
     public UI_SpriteEncounterOptionContainer SpriteEncounterOptionContainer;
+    public UI_EncounterOptionSpriteLabel EncounterOptionSpriteLabelPrefab;
 
     public Dictionary<EncounterOption, UI_EncounterStepOption> OptionDisplays;
 
@@ -107,9 +108,17 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
                 GameObject spriteGameObject = spriteGroup.Key;
                 List<EncounterOption> optionsForSprite = spriteGroup.ToList();
 
+                // Configure the sprite GameObject
+                if (spriteGameObject.GetComponent<PolygonCollider2D>() == null)
+                {
+                    PolygonCollider2D collider = spriteGameObject.AddComponent<PolygonCollider2D>();
+                }
+                spriteGameObject.GetComponent<PolygonCollider2D>().isTrigger = true;
+                spriteGameObject.layer = LayerMask.NameToLayer(SPRITE_ENCOUNTER_OPTION_LAYER);
+
                 // Instantiate container for this sprite's options
                 UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);
-                container.Init(spriteGameObject.GetComponent<SpriteRenderer>(), optionsForSprite);
+                container.Init(optionsForSprite);
 
                 // Merge container's option displays into this class's OptionDisplays dictionary
                 foreach (var kvp in container.OptionDisplays)
@@ -117,11 +126,15 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
                     OptionDisplays.Add(kvp.Key, kvp.Value);
                 }
 
+                // Instantiate and initialize the sprite label
+                UI_EncounterOptionSpriteLabel spriteLabel = Instantiate(EncounterOptionSpriteLabelPrefab, FloatingOptionsContainer.transform);
+                spriteLabel.Init(spriteGameObject.name);
+
                 // Register with the interaction manager
-                SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, optionsForSprite);
+                SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, spriteLabel, optionsForSprite);
             }
 
-            // Handle non-sprite-bound options (traditional list)
+            // Handle non-sprite-bound options
             foreach (EncounterOption option in nonSpriteOptions)
             {
                 UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);

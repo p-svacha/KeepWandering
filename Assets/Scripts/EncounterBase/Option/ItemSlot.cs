@@ -112,6 +112,17 @@ public class ItemSlot
         item.Hide();
         item.Freeze();
 
+        // If this option is sprite-bound, ensure the sprite indicator is locked
+        if (Option.Sprite != null)
+        {
+            // Find the indicator for this sprite
+            var indicators = SpriteOptionInteractionManager.GetActiveIndicators();
+            if (indicators.TryGetValue(Option.Sprite, out SpriteOptionIndicator indicator))
+            {
+                SpriteOptionInteractionManager.EnsureLocked(indicator);
+            }
+        }
+
         UI_EncounterDisplay.Instance.RefreshOption(Option);
     }
 

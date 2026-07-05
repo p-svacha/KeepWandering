@@ -160,6 +160,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             CanPartiallySucceed = false,
             CanCriticallySucceed = false,
             OncePerDay = true,
+            Sprite = GetSprite("Wires"),
         };
     }
     private string CutWires(OptionOutcomeDef outcome)
@@ -283,6 +284,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
                 },
             },
             OncePerDay = true,
+            Sprite = GetSprite("Rubble"),
         };
     }
     private string ClearRubble(OptionOutcomeDef outcome)

@@ -1,6 +1,21 @@
 TODOS:
 ==============================================
 
+- letting go item over spirte with option no longer works
+- when the currently locked sprite option indicator is unlocked, all currently filled item slots in options of that sprite should be cleared (items returned to inventory)
+- dont unlock currently locked sprite option indicator on left click when the left click initiates an item drag is initiated
+- right clicking anywhere should unlock the currently locked sprite option indicator (if any)
+- filling an item slot in a sprite-bound encounter option should always lock the indicator
+
+- make outline seamless
+- make the outline move slightly
+- hide all outlines when coming to an encounter (i.e. head in morning encounter)
+- scale outline width + scale X with camera zoom level
+- try if it looks better if the containers are in the middle of the collider instead top center
+
+- move wound tending system to sprite-bound encounter options instead of the current context menu system
+- disable item interaction options and context menu system
+
 - requirements panel for encounter options
   - show if fulfilled or not
   - add checkmark or cross

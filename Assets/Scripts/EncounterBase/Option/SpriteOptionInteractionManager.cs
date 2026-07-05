@@ -14,6 +14,7 @@ public static class SpriteOptionInteractionManager
 
     // State
     private static Dictionary<GameObject, SpriteOptionIndicator> ActiveIndicators = new Dictionary<GameObject, SpriteOptionIndicator>();
+    public static IReadOnlyDictionary<GameObject, SpriteOptionIndicator> GetActiveIndicators() => ActiveIndicators;
     private static SpriteOptionIndicator HoveredIndicator;
     private static SpriteOptionIndicator LockedIndicator;
 
@@ -27,7 +28,7 @@ public static class SpriteOptionInteractionManager
     /// <summary>
     /// Registers a sprite with bound options, creating/binding an indicator component.
     /// </summary>
-    public static void RegisterSprite(GameObject sprite, UI_SpriteEncounterOptionContainer container, List<EncounterOption> options)
+    public static void RegisterSprite(GameObject sprite, UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
     {
         if (sprite == null) return;
 
@@ -39,7 +40,9 @@ public static class SpriteOptionInteractionManager
         }
 
         // Bind it with the container and options
-        indicator.Bind(container, options);
+        indicator.Bind(container, label, options);
+        indicator.RefreshUiPosition();
+        indicator.SetDisplayState(false, false);
 
         // Track it
         if (!ActiveIndicators.ContainsKey(sprite))
@@ -87,76 +90,132 @@ public static class SpriteOptionInteractionManager
     }
 
     /// <summary>
+    /// Attempts to drop the given item onto whichever registered sprite is currently under the mouse cursor.
+    /// If a bound option has an unfilled slot that accepts the item, the item is slotted into the first such
+    /// slot of the first eligible option, and the sprite's indicator is immediately locked.
+    /// Returns true if the item was successfully dropped onto a sprite.
+    /// </summary>
+    public static bool TryDropItemOnSprite(Item item)
+    {
+        if (Game.Instance == null) return false;
+
+        SpriteOptionIndicator indicator = GetIndicatorUnderMouse();
+        if (indicator == null) return false;
+
+        foreach (EncounterOption option in indicator.Options)
+        {
+            foreach (ItemSlot slot in option.ItemSlots)
+            {
+                if (!slot.IsFilled && slot.CanAcceptItem(item))
+                {
+                    slot.Fill(item);
+                    EnsureLocked(indicator);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Per-frame update logic. Must be called from Game.Update() unconditionally (even while dragging).
     /// </summary>
     public static void Update()
     {
         if (Game.Instance == null) return;
 
-        Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
-        bool revealHotspots = Input.GetKey(REVEAL_HOTSPOTS_KEY);
-
-        // Update proximity for all active indicators
-        foreach (var kvp in ActiveIndicators)
+        // Hide/show outlines based on camera transition state
+        bool isTransitioning = EncounterCamera.Instance != null && EncounterCamera.Instance.IsTransitioning;
+        if (isTransitioning)
         {
-            if (kvp.Value != null)
+            // Hide all outlines during camera movement
+            foreach (var kvp in ActiveIndicators)
             {
-                kvp.Value.UpdateProximity(mouseWorldPos, revealHotspots);
+                kvp.Value?.SetOutlineVisible(false);
             }
         }
+        else
+        {
+            // Show all outlines when camera is stable
+            foreach (var kvp in ActiveIndicators)
+            {
+                kvp.Value?.SetOutlineVisible(true);
+            }
 
-        // Hover detection via raycast
-        UpdateHover(mouseWorldPos);
+            Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
+            bool revealHotspots = Input.GetKey(REVEAL_HOTSPOTS_KEY);
+            SpriteOptionIndicator hoveredNow = GetIndicatorUnderMouse();
 
-        // Click handling (lock/unlock/transfer)
-        HandleClick();
+            // Check if hovering/dragging an item that can be slotted into any sprite-bound option
+            Item relevantItem = ItemDragDropManager.IsDragging ? ItemDragDropManager.DraggedItem : Game.Instance.CurrentHoverItem;
+            bool itemCanBeSlotted = false;
+            if (relevantItem != null)
+            {
+                foreach (var kvp in ActiveIndicators)
+                {
+                    foreach (EncounterOption option in kvp.Value.Options)
+                    {
+                        foreach (ItemSlot slot in option.ItemSlots)
+                        {
+                            if (!slot.IsFilled && slot.CanAcceptItem(relevantItem))
+                            {
+                                itemCanBeSlotted = true;
+                                break;
+                            }
+                        }
+                        if (itemCanBeSlotted) break;
+                    }
+                    if (itemCanBeSlotted) break;
+                }
+            }
 
-        // Drag-hold-to-lock
-        HandleDragHold(mouseWorldPos);
+            // Update proximity for all active indicators
+            foreach (var kvp in ActiveIndicators)
+            {
+                SpriteOptionIndicator indicator = kvp.Value;
+                bool shouldReveal = revealHotspots || indicator == LockedIndicator || indicator == hoveredNow;
+                if (!shouldReveal && itemCanBeSlotted && relevantItem != null)
+                {
+                    foreach (EncounterOption option in indicator.Options)
+                    {
+                        foreach (ItemSlot slot in option.ItemSlots)
+                        {
+                            if (!slot.IsFilled && slot.CanAcceptItem(relevantItem))
+                            {
+                                shouldReveal = true;
+                                break;
+                            }
+                        }
+                        if (shouldReveal) break;
+                    }
+                }
+
+                indicator.SetOutlineOpacity(shouldReveal);
+                indicator.SetDisplayState(indicator == hoveredNow, indicator == LockedIndicator);
+            }
+
+            HoveredIndicator = hoveredNow;
+
+            HandleClick();
+            HandleRightClick();
+            HandleDragHold();
+        }
 
         // Transition edge detection for repositioning
         HandleTransitionEdge();
-    }
-
-    private static void UpdateHover(Vector2 mouseWorldPos)
-    {
-        SpriteOptionIndicator prevHovered = HoveredIndicator;
-        SpriteOptionIndicator newHovered = null;
-
-        // Raycast to find hovered sprite
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-        if (hit.collider != null)
-        {
-            GameObject hitObject = hit.collider.gameObject;
-            if (ActiveIndicators.TryGetValue(hitObject, out SpriteOptionIndicator indicator))
-            {
-                newHovered = indicator;
-            }
-        }
-
-        // Update hover state
-        if (newHovered != prevHovered)
-        {
-            // Hide previously hovered card (unless it's locked)
-            if (prevHovered != null && prevHovered != LockedIndicator)
-            {
-                prevHovered.Container.Hide();
-            }
-
-            HoveredIndicator = newHovered;
-
-            // Show newly hovered card (respecting "suppress peek while locked" for plain hover)
-            if (newHovered != null && LockedIndicator == null)
-            {
-                newHovered.Container.Show();
-            }
-        }
     }
 
     private static void HandleClick()
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        // Don't unlock if this click is about to start an item drag
+        if (Game.Instance.CurrentHoverItem != null && ItemDragDropManager.CanDragItem(Game.Instance.CurrentHoverItem))
+        {
+            return;
+        }
 
         // Clicking a hovered sprite locks/transfers the lock
         if (HoveredIndicator != null)
@@ -165,90 +224,76 @@ public static class SpriteOptionInteractionManager
             if (HoveredIndicator == LockedIndicator) return;
 
             // Hide the previously locked card
-            if (LockedIndicator != null)
-            {
-                LockedIndicator.Container.SetLocked(false);
-                LockedIndicator.Container.Hide();
-            }
+            if (LockedIndicator != null) ClearLock();
 
             // Lock the newly clicked sprite
-            LockedIndicator = HoveredIndicator;
-            LockedIndicator.Container.SetLocked(true);
-            LockedIndicator.Container.Show();
+            LockIndicator(HoveredIndicator);
         }
+
         // Clicking empty space clears the lock
-        else
+        else ClearLock();
+    }
+
+    private static void HandleRightClick()
+    {
+        if (!Input.GetMouseButtonDown(1)) return;
+
+        // Right-click anywhere unlocks
+        ClearLock();
+    }
+
+    public static void ClearLock()
+    {
+        if (LockedIndicator != null)
         {
-            if (LockedIndicator != null)
-            {
-                LockedIndicator.Container.SetLocked(false);
-                LockedIndicator.Container.Hide();
-                LockedIndicator = null;
-            }
+            LockedIndicator.SetLockedLineMaterial(false);
+            LockedIndicator = null;
         }
     }
 
-    private static void HandleDragHold(Vector2 mouseWorldPos)
+    private static void LockIndicator(SpriteOptionIndicator indicator)
+    {
+        LockedIndicator = indicator;
+        LockedIndicator.SetLockedLineMaterial(true);
+    }
+
+    /// <summary>
+    /// Ensures the given indicator is locked. If a different indicator is currently locked, clears it first.
+    /// </summary>
+    public static void EnsureLocked(SpriteOptionIndicator indicator)
+    {
+        if (LockedIndicator != indicator)
+        {
+            if (LockedIndicator != null) ClearLock();
+            LockIndicator(indicator);
+        }
+    }
+
+    private static void HandleDragHold()
     {
         if (!ItemDragDropManager.IsDragging)
         {
-            // Not dragging - reset drag-hold state
             DragHoldTarget = null;
             DragHoldTimer = 0f;
             return;
         }
 
-        // While dragging, detect which sprite the item is held over
-        SpriteOptionIndicator currentDragTarget = null;
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-        if (hit.collider != null)
-        {
-            GameObject hitObject = hit.collider.gameObject;
-            if (ActiveIndicators.TryGetValue(hitObject, out SpriteOptionIndicator indicator))
-            {
-                currentDragTarget = indicator;
-            }
-        }
+        SpriteOptionIndicator currentDragTarget = GetIndicatorUnderMouse();
 
-        // If target changed, reset timer
         if (currentDragTarget != DragHoldTarget)
         {
             DragHoldTarget = currentDragTarget;
             DragHoldTimer = 0f;
-
-            // If we moved away from a sprite, hide its card (unless it's locked)
-            if (DragHoldTarget == null && HoveredIndicator != null && HoveredIndicator != LockedIndicator)
-            {
-                HoveredIndicator.Container.Hide();
-            }
         }
 
-        // If holding over a sprite, accumulate time
         if (DragHoldTarget != null)
         {
             DragHoldTimer += Time.deltaTime;
 
-            // Once threshold is reached, lock the sprite and show its card
-            if (DragHoldTimer >= DRAG_HOLD_TO_LOCK_TIME)
+            if (DragHoldTimer >= DRAG_HOLD_TO_LOCK_TIME && LockedIndicator != DragHoldTarget)
             {
-                // If not already locked, lock it now
-                if (LockedIndicator != DragHoldTarget)
-                {
-                    // Hide the previously locked card
-                    if (LockedIndicator != null)
-                    {
-                        LockedIndicator.Container.SetLocked(false);
-                        LockedIndicator.Container.Hide();
-                    }
-
-                    // Lock the drag target
-                    LockedIndicator = DragHoldTarget;
-                    LockedIndicator.Container.SetLocked(true);
-                    LockedIndicator.Container.Show();
-                }
-
-                // Keep the card visible while dragging over it (bypasses peek suppression)
-                DragHoldTarget.Container.Show();
+                if (LockedIndicator != null) ClearLock();
+                LockIndicator(DragHoldTarget);
             }
         }
     }
@@ -259,19 +304,54 @@ public static class SpriteOptionInteractionManager
 
         bool isTransitioning = EncounterCamera.Instance.IsTransitioning;
 
-        // Detect transition completion (true → false edge)
         if (WasTransitioning && !isTransitioning)
         {
-            // Refresh positions of all active containers
             foreach (var kvp in ActiveIndicators)
             {
-                if (kvp.Value != null && kvp.Value.Container != null)
-                {
-                    kvp.Value.Container.RefreshPosition();
-                }
+                kvp.Value?.RefreshUiPosition();
             }
         }
 
         WasTransitioning = isTransitioning;
+    }
+
+    /// <summary>
+    /// Returns the registered sprite indicator currently under the given world position (topmost by sorting), or null.
+    /// </summary>
+    private static SpriteOptionIndicator GetIndicatorUnderMouse()
+    {
+        Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
+        int layer_mask = LayerMask.GetMask(UI_EncounterDisplay.SPRITE_ENCOUNTER_OPTION_LAYER);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(mouseWorldPos, Vector2.zero, Mathf.Infinity, layer_mask);
+
+        if (hits.Length == 0) return null;
+
+        SpriteOptionIndicator topmost = null;
+        int topmostLayerValue = int.MinValue;
+        int topmostSortingOrder = int.MinValue;
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (!ActiveIndicators.TryGetValue(hit.collider.gameObject, out SpriteOptionIndicator indicator)) continue;
+
+            SpriteRenderer sr = indicator.Sprite;
+            if (sr == null) continue;
+
+            int layerValue = SortingLayer.GetLayerValueFromID(sr.sortingLayerID);
+            int sortingOrder = sr.sortingOrder;
+
+            bool isOnTop = topmost == null
+                || layerValue > topmostLayerValue
+                || (layerValue == topmostLayerValue && sortingOrder > topmostSortingOrder);
+
+            if (isOnTop)
+            {
+                topmost = indicator;
+                topmostLayerValue = layerValue;
+                topmostSortingOrder = sortingOrder;
+            }
+        }
+
+        return topmost;
     }
 }

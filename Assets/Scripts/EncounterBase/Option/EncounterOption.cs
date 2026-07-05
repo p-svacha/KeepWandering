@@ -83,12 +83,20 @@ public abstract class EncounterOption
         return ItemSlots.Any(slot => slot.IsRequired) || SkillRequirements.Count > 0;
     }
 
-    public bool CanSelect()
+    /// <summary>
+    /// Checks and returns if this option is currently selectable.
+    /// <br/>If countInventoryItems is true, the method will also check if the player has enough items in their inventory to fill the required item slots. If false, it will only check if the required item slots are filled.
+    /// </summary>
+    public bool CanSelect(bool countInventoryItems = false)
     {
         // Item slot requirements
         foreach (ItemSlot itemSlot in ItemSlots)
         {
-            if (itemSlot.IsRequired && !itemSlot.IsFilled) return false;
+            if (itemSlot.IsRequired)
+            {
+                if (!countInventoryItems && !itemSlot.IsFilled) return false;
+                if (countInventoryItems && !itemSlot.GetSlottableItemDefs().Any(itemDef => Game.Instance.PlayerHasItem(itemDef)) && !itemSlot.IsFilled) return false;
+            }
         }
 
         // Stat requirements

@@ -1,19 +1,17 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-Phase 0 — Foundations (do before mass-producing any content)
-These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
-Item system rework
+Phase 0 — Foundations (do before mass-producing any content): These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
 
-Tag level/tier system (1–5 replacing per-slot values)
-Durability replacing destruction chance
-Update all existing ItemDefs to the new tag-level format
+(/) Item system rework
+(/) Tag level/tier system (1–5 replacing per-slot values)
+(/) Durability replacing destruction chance
+(/) Update all existing ItemDefs to the new tag-level format
 
-Stat/skill rework
-
-Collapse 8 stats → 4 skills (Strength, Dexterity, Survival, Social) + Morale as a separate value
-Update all existing HealthConditionDefs that referenced old stats (Combat, Agility, Perception, etc.) to map to the new skills
-Update all existing encounter option difficulty modifiers to reference new skills
+(/) Stat/skill rework
+(/) Collapse 8 stats → 4 skills (Strength, Dexterity, Survival, Social) + Morale as a separate value
+(/) Update all existing HealthConditionDefs that referenced old stats (Combat, Agility, Perception, etc.) to map to the new skills
+(/) Update all existing encounter option difficulty modifiers to reference new skills
 
 Encounter option framework
 

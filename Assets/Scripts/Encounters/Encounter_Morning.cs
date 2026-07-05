@@ -58,6 +58,7 @@ public class Encounter_Morning : Encounter
 
         // Consume
         options.Add(GetConsumeOption());
+        options.Add(GetConsumeOption(true));
 
         return options;
     }

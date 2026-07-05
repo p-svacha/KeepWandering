@@ -67,7 +67,7 @@ public class Game : Singleton<Game>
     public SpriteRenderer Background3;
 
     [Header("Items")]
-    private Item CurrentHoverItem;
+    public Item CurrentHoverItem { get; private set; }
     private float CurrentHoverTime;
     private Item CurrentInteractionItem;
     public List<Item> Inventory = new List<Item>();
@@ -137,6 +137,7 @@ public class Game : Singleton<Game>
         UI.Init(this);
         UI.ContextMenu.Init(this);
         HideAllEncounterSprites();
+        WorldMapRenderer.gameObject.SetActive(false);
 
         SwitchState(GameState.InDayTransition);
     }
@@ -171,12 +172,17 @@ public class Game : Singleton<Game>
         // Update per state
         if (State == GameState.InGame)
         {
+            // Update hover state first so sprite interactions can see current hovered item
+            if (!ItemDragDropManager.IsDragging)
+            {
+                UpdateHoveredItem();
+            }
+
             ItemDragDropManager.Update();
             SpriteOptionInteractionManager.Update();
 
             if (!ItemDragDropManager.IsDragging)
             {
-                UpdateHoveredItem();
 
                 // Left Click -> Start Drag
                 if (Input.GetMouseButtonDown(0) && !uiClick)
@@ -942,6 +948,8 @@ public class Game : Singleton<Game>
             else DestroyItem(item);
         }
     }
+
+    public bool PlayerHasItem(ItemDef itemDef) => Inventory.Any(item => item.Def == itemDef);
 
     #endregion
 

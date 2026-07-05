@@ -327,7 +327,8 @@ A good step often offers:
 - **One SkillCheck option with a tag item slot** — the gamble: strong on success, painful on failure, made safer by a good item. If a step has more than one skill check, their success effects must be clearly distinct.
 - **One FixedOutcome option with requirements** — a safe "good" outcome gated behind an item/level/skill requirement. If more than one, requirements and effects must be clearly distinct.
 
-This is guidance, not law. Keep the number of **unrequiremented** options to **at most 3** so steps don't overwhelm. Requirements let a step offer more total options without clutter, since locked ones read as goals rather than noise.
+This is guidance, not law. The number of options can vary a lot. Make sure to use sprite-bound options where appropriate, as those can offer more choice variety without making the option list feel cluttered. It also always possible to bind multiple options to the same sprite, so a single sprite can offer multiple distinct choices.
+
 
 ### Skill Diversity across Options (rule of thumb)
 

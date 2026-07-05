@@ -115,14 +115,6 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
             {
                 { StatDefOf.Social, 3 }
             },
-            ItemSlots = new List<ItemSlot>()
-            {
-                new ItemSlot()
-                {
-                    Item = ItemDefOf.Coin,
-                    IsDestroyingItem = true,
-                },
-            },
         };
     }
     private string FlagDownPasserby(OptionOutcomeDef outcome)

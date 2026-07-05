@@ -12,7 +12,7 @@ TagManager:
   - Water
   - UI
   - WorldMap
-  - 
+  - EncounterOptionSprite
   - 
   - 
   - 
@@ -58,6 +58,9 @@ TagManager:
     locked: 0
   - name: LightingOverlay
     uniqueID: 1181111563
+    locked: 0
+  - name: SpriteOptionOutline
+    uniqueID: 2180333661
     locked: 0
   - name: UI
     uniqueID: 3092948663

@@ -219,6 +219,11 @@ public abstract class Encounter
         Sprite sprite = ResourceManager.LoadSprite($"Encounters/{Def.DefName}/{Def.DefName}_{spriteName}");
         renderer.sprite = sprite;
     }
+    public GameObject GetSprite(string objectName)
+    {
+        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{objectName}").gameObject;
+        return spriteObj;
+    }
     protected void SetBackground(string backgroundName)
     {
         Sprite sprite = ResourceManager.LoadSprite($"Backgrounds/{backgroundName}");
@@ -253,14 +258,14 @@ public abstract class Encounter
 
     #region General Options
 
-    protected FixedOutcomeOption GetConsumeOption()
+    protected FixedOutcomeOption GetConsumeOption(bool torso = false)
     {
         return new FixedOutcomeOption()
         {
             Text = "Consume items",
             Description = "Use items from your inventory.",
             Action = ConsumeSlottedItem,
-            Sprite = PlayerCharacterRenderer.Instance.Head,
+            Sprite = torso ? PlayerCharacterRenderer.Instance.RightArm.gameObject : PlayerCharacterRenderer.Instance.Head,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()

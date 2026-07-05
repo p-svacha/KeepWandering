@@ -22,10 +22,10 @@
   <Project Path="Unity.Searcher.Editor.csproj" />
   <Project Path="Unity.Burst.csproj" />
   <Project Path="PsdPlugin.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.2D.Animation.Editor.csproj" />
   <Project Path="Unity.AI.Navigation.Editor.csproj" />
   <Project Path="Unity.2D.SpriteShape.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.PathTracing.Runtime.csproj" />
   <Project Path="Unity.VisualStudio.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />

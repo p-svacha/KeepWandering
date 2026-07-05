@@ -155,7 +155,11 @@ public static class ItemDragDropManager
             }
         }
 
-        // Future: Check other drop targets (SpriteRenderers on encounters, player wounds, etc.)
+        // Priority 3: Sprite-bound option under the cursor - auto-slot into first valid unfilled slot and lock the sprite
+        if (SpriteOptionInteractionManager.TryDropItemOnSprite(item))
+        {
+            return true;
+        }
 
         return false;
     }
