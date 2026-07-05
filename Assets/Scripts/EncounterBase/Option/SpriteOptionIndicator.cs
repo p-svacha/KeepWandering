@@ -16,10 +16,10 @@ public class SpriteOptionIndicator : MonoBehaviour
     // Tunable constants
     private const float MIN_OPACITY = 0f;
     private const float FULL_OPACITY = 1f;
-    private const float MAX_PROXIMITY_DISTANCE = 2.5f;
     private const float OUTLINE_WIDTH = 0.2f;
     private const float OUTLINE_OFFSET = 0.15f;
     private const float TEXTURE_SCALE_X = 0.2f;
+    private const float SCROLL_SPEED = 0.05f;
 
     private const float UI_OFFSET_X = 0f;
     private const float UI_OFFSET_Y = 30f;
@@ -29,6 +29,7 @@ public class SpriteOptionIndicator : MonoBehaviour
     public SpriteRenderer Sprite => SpriteRenderer;
     private PolygonCollider2D Collider;
     private List<LineRenderer> OutlineRenderers = new List<LineRenderer>();
+    private List<float> OutlinePerimeters = new List<float>();
 
     // State
     public UI_SpriteEncounterOptionContainer OptionsContainer { get; private set; }
@@ -46,6 +47,17 @@ public class SpriteOptionIndicator : MonoBehaviour
             throw new System.Exception($"SpriteOptionIndicator requires a PolygonCollider2D on {gameObject.name}");
     }
 
+    private void Update()
+    {
+        foreach (LineRenderer lr in OutlineRenderers)
+        {
+            if (lr == null || lr.material == null) continue;
+            Vector2 offset = lr.material.mainTextureOffset;
+            offset.x += SCROLL_SPEED * Time.deltaTime;
+            lr.material.mainTextureOffset = offset;
+        }
+    }
+
     /// <summary>
     /// Binds this indicator to a container and option list, creating outline LineRenderers for each collider sub-path.
     /// </summary>
@@ -61,6 +73,7 @@ public class SpriteOptionIndicator : MonoBehaviour
             if (lr != null) Destroy(lr.gameObject);
         }
         OutlineRenderers.Clear();
+        OutlinePerimeters.Clear();
 
         // Create one LineRenderer per collider sub-path
         Material outlineMaterial = ResourceManager.LoadMaterial("Encounters/DashedOutline");
@@ -69,6 +82,13 @@ public class SpriteOptionIndicator : MonoBehaviour
         for (int outlineIndex = 0; outlineIndex < outlines.Count; outlineIndex++)
         {
             Vector2[] outline = outlines[outlineIndex];
+
+            float perimeter = 0f;
+            for (int i = 0; i < outline.Length; i++)
+            {
+                perimeter += Vector2.Distance(outline[i], outline[(i + 1) % outline.Length]);
+            }
+            OutlinePerimeters.Add(perimeter);
 
             GameObject outlineObj = new GameObject($"Outline_{outlineIndex}");
             outlineObj.transform.SetParent(transform, false);
@@ -95,9 +115,38 @@ public class SpriteOptionIndicator : MonoBehaviour
             OutlineRenderers.Add(lineRenderer);
         }
 
+        ApplyZoomScale();
+
         // Initial state
         UpdateAvailabilityColor();
         SetOutlineOpacity(false); // Start hidden
+    }
+
+    /// <summary>
+    /// Rescales outline width and texture tiling so both appear visually consistent regardless of
+    /// camera zoom, and snaps texture scale so each loop tiles seamlessly (whole number of dash repeats).
+    /// </summary>
+    public void ApplyZoomScale()
+    {
+        if (EncounterCamera.Instance == null) return;
+
+        float zoomFactor = EncounterCamera.Instance.Camera.orthographicSize / EncounterCamera.DEFAULT_CAMERA_SIZE;
+        float targetWidth = OUTLINE_WIDTH * zoomFactor;
+        float targetDashWorldLength = (1f / TEXTURE_SCALE_X) * zoomFactor;
+
+        for (int i = 0; i < OutlineRenderers.Count; i++)
+        {
+            LineRenderer lr = OutlineRenderers[i];
+            if (lr == null) continue;
+
+            float perimeter = OutlinePerimeters[i];
+            int repeats = Mathf.Max(1, Mathf.RoundToInt(perimeter / targetDashWorldLength));
+            float snappedTextureScaleX = repeats / perimeter;
+
+            lr.startWidth = targetWidth;
+            lr.endWidth = targetWidth;
+            lr.textureScale = new Vector2(snappedTextureScaleX, 1f);
+        }
     }
 
     public void SetLockedLineMaterial(bool locked)

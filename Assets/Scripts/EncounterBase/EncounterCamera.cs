@@ -4,12 +4,11 @@ using UnityEngine;
 /// The encounter camera is the main camera showing the game screen.
 /// It cannot be controlled by the player, but depending on the encounter it has a different zoom level.
 /// </summary>
-public class EncounterCamera : MonoBehaviour
+public class EncounterCamera : Singleton<EncounterCamera>
 {
     public const float DEFAULT_CAMERA_SIZE = 5.4f;
     public const float MAIN_MENU_CAMERA_SIZE = 8.0f;
 
-    public static EncounterCamera Instance { get; private set; }
     public Camera Camera { get; private set; }
     public SpriteRenderer AmbienceOverlay;
 
@@ -25,7 +24,6 @@ public class EncounterCamera : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
         Camera = GetComponent<Camera>();
     }
 

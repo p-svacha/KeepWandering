@@ -92,6 +92,7 @@ public class Game : Singleton<Game>
         State = GameState.Initializing;
 
         WorldMapRenderer.Init(this);
+        SpriteOptionInteractionManager.Init();
 
         HideAllEncounterSprites();
     }
@@ -135,7 +136,6 @@ public class Game : Singleton<Game>
 
         // Init UI
         UI.Init(this);
-        UI.ContextMenu.Init(this);
         HideAllEncounterSprites();
         WorldMapRenderer.gameObject.SetActive(false);
 
@@ -194,9 +194,10 @@ public class Game : Singleton<Game>
                         CurrentHoverItem = null;
                         UI.HideAllTooltips();
                     }
-                    else if (UI.ContextMenu.gameObject.activeSelf)
+
+                    else if (UI_ContextMenu.Instance.gameObject.activeSelf)
                     {
-                        UI.ContextMenu.Hide();
+                        UI_ContextMenu.Instance.Hide();
                         CurrentHoverTime = 0f;
                         CurrentInteractionItem = null;
                     }
@@ -207,11 +208,11 @@ public class Game : Singleton<Game>
                 {
                     if (CurrentHoverItem != null)
                     {
-                        OnItemRightClicked(CurrentHoverItem);
+                        // OnItemRightClicked(CurrentHoverItem);
                     }
-                    else if (UI.ContextMenu.gameObject.activeSelf)
+                    else if (UI_ContextMenu.Instance.gameObject.activeSelf)
                     {
-                        UI.ContextMenu.Hide();
+                        UI_ContextMenu.Instance.Hide();
                         CurrentHoverTime = 0f;
                         CurrentInteractionItem = null;
                     }
@@ -257,7 +258,7 @@ public class Game : Singleton<Game>
         {
             Debug.Log($"Show context menu for " + CurrentHoverItem.Label);
             CurrentInteractionItem = CurrentHoverItem;
-            UI.ContextMenu.Show(CurrentHoverItem);
+            UI_ContextMenu.Instance.Show(CurrentHoverItem);
             UI.HideAllTooltips();
         }
     }
@@ -301,7 +302,7 @@ public class Game : Singleton<Game>
             if (CurrentHoverItem != null) // Update tooltip
             {
                 CurrentHoverTime += Time.deltaTime;
-                if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI.ContextMenu.gameObject.activeSelf)
+                if (CurrentHoverTime >= GameUI.TOOLTIP_HOVER_TIME && !UI_ContextMenu.Instance.gameObject.activeSelf)
                 {
                     UI_ItemTooltip.Instance.Show(CurrentHoverItem);
                 }
@@ -318,7 +319,7 @@ public class Game : Singleton<Game>
         {
             case GameState.InGame:
                 UI.HideAllTooltips();
-                UI.ContextMenu.Hide();
+                UI_ContextMenu.Instance.Hide();
                 ItemDragDropManager.CancelDrag();
                 break;
         }

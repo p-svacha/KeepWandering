@@ -199,6 +199,7 @@ public static class HealthConditionDefs
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = false,
+            IsFracture = true,
             Stages = new List<HealthConditionStage>()
             {
                 new HealthConditionStage()
@@ -244,6 +245,7 @@ public static class HealthConditionDefs
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = false,
+            IsFracture = true,
             Stages = new List<HealthConditionStage>()
             {
                 new HealthConditionStage()

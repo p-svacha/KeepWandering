@@ -49,7 +49,7 @@ public class PlayerCharacter
         }
     }
 
-    private HealthCondition ApplyHealthCondition(HealthConditionDef def, float initialSeverity = -1f)
+    public HealthCondition ApplyHealthCondition(HealthConditionDef def, float initialSeverity = -1f)
     {
         // Take base initial severity if no severity was provided
         if (initialSeverity < 0) initialSeverity = def.InitialSeverity;

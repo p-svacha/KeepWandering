@@ -4,13 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UI_ContextMenu : MonoBehaviour
+public class UI_ContextMenu : Singleton<UI_ContextMenu>
 {
-    private Game Game;
+    private Game Game => Game.Instance;
     private List<UI_ContextMenuOption> Options = new List<UI_ContextMenuOption>();
     private Item CurrentItem;
-
-    private Vector3 MOUSE_OFFSET = new Vector3(0f, 0f, 0f);
 
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
@@ -19,16 +17,11 @@ public class UI_ContextMenu : MonoBehaviour
     [Header("Prefabs")]
     public UI_ContextMenuOption ContextMenuOptionPrefab;
 
-    public void Init(Game game)
-    {
-        Game = game;
-    }
-
     private void Update()
     {
         if (CurrentItem != null) UpdatePosition(CurrentItem);
     }
-
+    
     public void Show(Item item)
     {
         CurrentItem = item;

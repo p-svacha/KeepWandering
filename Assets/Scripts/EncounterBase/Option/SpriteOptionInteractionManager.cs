@@ -23,6 +23,11 @@ public static class SpriteOptionInteractionManager
     private static SpriteOptionIndicator DragHoldTarget;
     private static float DragHoldTimer;
 
+    public static void Init()
+    {
+        SubscribedToCameraEvents = false;
+    }
+
     /// <summary>
     /// Registers a sprite with bound options, creating/binding an indicator component.
     /// </summary>
@@ -68,6 +73,7 @@ public static class SpriteOptionInteractionManager
         foreach (var kvp in ActiveIndicators)
         {
             kvp.Value?.RefreshUiPosition();
+            kvp.Value?.ApplyZoomScale();
         }
     }
 
@@ -161,6 +167,7 @@ public static class SpriteOptionInteractionManager
             Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
             bool revealHotspots = Input.GetKey(REVEAL_HOTSPOTS_KEY);
             SpriteOptionIndicator hoveredNow = GetIndicatorUnderMouse();
+            if (EventSystem.current.IsPointerOverGameObject()) hoveredNow = null;
 
             // Check if hovering/dragging an item that can be slotted into any sprite-bound option
             Item relevantItem = ItemDragDropManager.IsDragging ? ItemDragDropManager.DraggedItem : Game.Instance.CurrentHoverItem;

@@ -77,7 +77,7 @@ public class Item
     public bool IsConsumable => Def.IsConsumable;
     public bool HasMedicalProperties => Def.HasMedicalProperties;
 
-    // Interactions
+    // Interactions (currently unused, replaced by sprite-bound options)
     public bool CanInteract => GetInteractionOptions().Count > 0;
     public List<InteractionOption> GetInteractionOptions()
     {
@@ -100,12 +100,6 @@ public class Item
                 options.Add(new InteractionOption($"Treat {wound.Def.Label}", () => Game.TreatWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
             }
         }
-        
-
-        /*
-        // Item-specific options
-        if (Def == ItemDefOf.NutSnack && Game.Player.HasParrot) allOptions.Add(new InteractionOption("Feed to Parrot", () => Game.FeedParrot(this, Def.OnEatNutrition)));
-        */
 
         return options;
     }

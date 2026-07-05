@@ -62,7 +62,7 @@ public static class ItemDragDropManager
 
         // Hide tooltip and context menu
         Game.Instance.UI.HideAllTooltips();
-        Game.Instance.UI.ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
 
         // Grey out invalid drop targets
         GreyOutInvalidTargets(item);

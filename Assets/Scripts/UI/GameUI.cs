@@ -33,16 +33,13 @@ public class GameUI : Singleton<GameUI>
     public UI_Missions MissionsDisplay;
 
     [Header("Windows")]
-    public UI_EscapeMenu EscapeMenu;
+    public UI_DevmodeMenu EscapeMenu;
 
     [Header("World Map")]
     public UI_WorldMapMenu WorldMapMenu;
 
     [Header("Tooltip")]
     public const float TOOLTIP_HOVER_TIME = 0.4f;
-
-    [Header("Context Menu")]
-    public UI_ContextMenu ContextMenu;
 
     [Header("Day Transition")]
     public Image BlackTransitionImage;
@@ -180,20 +177,20 @@ public class GameUI : Singleton<GameUI>
         CloseEscapeMenu();
         CloseWorldMap();
         HideAllTooltips();
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
     }
 
     public void ToggleEscapeMenu()
     {
         if (Game.State != GameState.InGame) return;
         EscapeMenu.gameObject.SetActive(!EscapeMenu.gameObject.activeSelf);
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
     public void CloseEscapeMenu()
     {
         EscapeMenu.gameObject.SetActive(false);
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
 
@@ -202,7 +199,7 @@ public class GameUI : Singleton<GameUI>
         if (Game.State != GameState.InGame) return;
         WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
         Game.WorldMapRenderer.gameObject.SetActive(!Game.WorldMapRenderer.gameObject.activeSelf);
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
     public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
@@ -214,14 +211,14 @@ public class GameUI : Singleton<GameUI>
         if (focusTile != null) Game.WorldMapRenderer.FocusTile(focusTile);
         else if (focusArea != null) Game.WorldMapRenderer.FocusArea(focusArea);
 
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
     public void CloseWorldMap()
     {
         WorldMapMenu.gameObject.SetActive(false);
         Game.WorldMapRenderer.gameObject.SetActive(false);
-        ContextMenu.Hide();
+        UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
 

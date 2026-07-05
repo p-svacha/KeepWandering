@@ -28,7 +28,7 @@ public class HealthConditionDef : Def
     /// <summary>
     /// The severity that this condition has when it is applied to the player without a specific value.
     /// </summary>
-    public float InitialSeverity { get; init; } = 0f;
+    public float InitialSeverity { get; init; } = 1f;
 
     /// <summary>
     /// The maximum severity value this health condition can reach. It will never go above this value. If IsLethal is true, the player dies when the severity reaches this value.
@@ -59,6 +59,11 @@ public class HealthConditionDef : Def
     /// Wounds must be marked with this flag. Used purely for validation.
     /// </summary>
     public bool IsWound { get; init; } = false;
+
+    /// <summary>
+    /// Fractures must be marked with this flag. Used purely for validation.
+    /// </summary>
+    public bool IsFracture { get; init; } = false;
 
     public HealthConditionDef(string defName) : base(defName) { }
 

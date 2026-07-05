@@ -37,7 +37,7 @@ public class UI_ContextMenuOption : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         if (game.State == GameState.InGame)
         {
-            game.UI.ContextMenu.Hide();
+            UI_ContextMenu.Instance.Hide();
             option.Action();
         }
     }

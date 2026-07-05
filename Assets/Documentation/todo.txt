@@ -1,23 +1,20 @@
 TODOS:
 ==============================================
 
-- make outline seamless
-- make the outline move slightly
-- scale outline width + scale X with camera zoom level
-- try if it looks better if the containers are in the middle of the collider instead top center
 
 - move wound tending system to sprite-bound encounter options instead of the current context menu system
+- move infection treat system
+- check other item interactions in context menu now and port them all
+- make left arm visible
+- make medical herb applicable to any wound or fracture
+- 
+
 - disable item interaction options and context menu system
 
-- requirements panel for encounter options
-  - show if fulfilled or not
-  - add checkmark or cross
-- new item tooltip
 
-- show durability in item tooltip
-  - only if the item has any tags, otherwise durability is not relevant
+
+- show skill requirements as item slots in encounter options, with color depending if fulfilled
 - play break sound on durability break
-- show tags and levels in item tooltip
 
 - show tag in item slot tooltip if it has a tag
   - also show required level if limited by level
@@ -30,15 +27,9 @@ TODOS:
 - display encounter options with requirements differently than those without
 - display stat requirements as item slots (shape wise) that have the stat and level text, and the background green/red depending on whether the player meets the requirement or not
 
-remove tags or change tag system:
-- food (can be derived dynamically based on OnConsumptionNutrition > 0)
-- drink (can be derived dynamically based on OnConsumptionHydration > 0)
-- plant (unusued?)
-- tool (unused?)
-- building material
-- trash
+- if critical success or failure chance is below 2%, don't display the label in the option details
 
-rename fordogs as dog toy
+
 
 EVENING REWORK:
 - add option to train a specific skill (depending on biome)
