@@ -197,11 +197,20 @@ public class GameUI : Singleton<GameUI>
     public void ToggleWorldMap()
     {
         if (Game.State != GameState.InGame) return;
-        WorldMapMenu.gameObject.SetActive(!WorldMapMenu.gameObject.activeSelf);
-        Game.WorldMapRenderer.gameObject.SetActive(!Game.WorldMapRenderer.gameObject.activeSelf);
+        SetWorldMapVisible(!WorldMapMenu.gameObject.activeSelf);
+    }
+
+    public void SetWorldMapVisible(bool visible)
+    {
+        if (Game.State != GameState.InGame) return;
+
+        WorldMapMenu.gameObject.SetActive(visible);
+        Game.WorldMapRenderer.gameObject.SetActive(visible);
+
         UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
+
     public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
     {
         if (Game.State != GameState.InGame) return;

@@ -182,7 +182,7 @@ public class ItemSlot
             itemDefs.Sort((a, b) => GetDifficultyReduction(b).CompareTo(GetDifficultyReduction(a)));
         }
 
-        Debug.Log($"Found {itemDefs.Count} slottable item defs for slot {Label()}: {string.Join(", ", itemDefs.Select(x => x.DefName))}");
+        // Debug.Log($"Found {itemDefs.Count} slottable item defs for slot {Label()}: {string.Join(", ", itemDefs.Select(x => x.DefName))}");
 
         return itemDefs;
     }

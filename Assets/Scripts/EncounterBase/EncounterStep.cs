@@ -14,16 +14,17 @@ public class EncounterStep
     /// </summary>
     public List<EncounterOption> Options { get; private set; }
 
-    public EncounterStep(string text, List<EncounterOption> options = null)
+    /// <summary>
+    /// Flag indicating if this is the final step of the encounter. If true, the option is available to advance to the next time of day.
+    /// </summary>
+    public bool IsFinalStep { get; private set; }
+
+    public EncounterStep(string text, List<EncounterOption> options, bool isFinalStep)
     {
         Text = text;
-        Options = options ?? new List<EncounterOption>();
+        Options = options;
+        IsFinalStep = isFinalStep;
     }
-
-    /// <summary>
-    /// If this is the final step of the encounter, meaning that there are no more interaction options.
-    /// </summary>
-    public bool IsFinalStep => Options.Count == 0;
 
     /// <summary>
     /// Force highlight all items that can be slotted into the options of this encounter step. Required items are highlighted in green, optional items are highlighted in yellow.

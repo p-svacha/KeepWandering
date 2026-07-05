@@ -29,12 +29,7 @@ public abstract class BiomeEncounter : Encounter
         List<EncounterOption> options = new List<EncounterOption>();
         if (IsEveningActionChosen) // Evening action is chosen, options depend on the action
         {
-            // Default options do not have follow up --> end encounter
-            if (EveningAction == "Rest early") return options;
-            if (EveningAction == "Fortify") return options;
-            if (EveningAction == "Scavenge") return options;
-
-            // Biome-specific options
+            string eveningAction = EveningAction;
             return GetFollowUpOptions();
         }
         else // Initial options where the player chooses how to spend the evening
@@ -100,6 +95,8 @@ public abstract class BiomeEncounter : Encounter
     private string RestEarly()
     {
         Game.IsEarlyResting = true;
+        IsEncounterDone = true;
+
         return "You lie down early. The extra rest will help a little. Now is the last chance to use items before going to sleep.";
     }
 
@@ -158,6 +155,8 @@ public abstract class BiomeEncounter : Encounter
     }
     private string Fortify(OptionOutcomeDef outcome)
     {
+        IsEncounterDone = true;
+
         if (outcome == OptionOutcomeDefOf.CriticalSuccess)
         {
             // Morale boost
@@ -225,6 +224,8 @@ public abstract class BiomeEncounter : Encounter
     }
     private string Scavenge(OptionOutcomeDef outcome)
     {
+        IsEncounterDone = true;
+
         if (outcome == OptionOutcomeDefOf.CriticalSuccess)
         {
             BiomeLootTable.AddItemToInventory();

@@ -8,4 +8,10 @@ public class UI_WorldMapMenu : MonoBehaviour
 {
     [Header("Elements")]
     public TextMeshProUGUI TileInfoText;
+    public Button CloseButton;
+
+    private void Awake()
+    {
+        CloseButton.onClick.AddListener(() => GameUI.Instance.ToggleWorldMap());
+    }
 }

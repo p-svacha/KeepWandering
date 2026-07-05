@@ -56,9 +56,8 @@ public class Encounter_Morning : Encounter
             });
         }
 
-        // Consume
-        options.Add(GetConsumeOption());
-        options.Add(GetConsumeOption(true));
+        // Always add general item use options
+        options.AddRange(GetGeneralItemUseOptions());
 
         return options;
     }

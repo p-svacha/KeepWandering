@@ -77,7 +77,7 @@ public class Item
     public bool IsConsumable => Def.IsConsumable;
     public bool HasMedicalProperties => Def.HasMedicalProperties;
 
-    // Interactions (currently unused, replaced by sprite-bound options)
+    // Interactions (unused, replaced by sprite-bound options)
     public bool CanInteract => GetInteractionOptions().Count > 0;
     public List<InteractionOption> GetInteractionOptions()
     {

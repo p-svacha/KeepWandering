@@ -115,6 +115,10 @@ A special subcategory of condition sharing common tending/infection logic. The s
 
 Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while untended; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
 
+### Fractures
+
+Another subcategory of condition, with its own instancing rules and healing logic. Fractures can occur on arms or legs, and always appear on a specific side (left/right). They heal naturally, but while present have a strong negative effect on strength and/or dexterity.
+
 ### Generalized Damage Helpers
 
 Encounters apply damage through standardized helpers rather than always targeting a specific condition:

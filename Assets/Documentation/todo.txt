@@ -2,9 +2,6 @@ TODOS:
 ==============================================
 
 
-- move wound tending system to sprite-bound encounter options instead of the current context menu system
-- move infection treat system
-- check other item interactions in context menu now and port them all
 - make left arm visible
 - make medical herb applicable to any wound or fracture
 - 

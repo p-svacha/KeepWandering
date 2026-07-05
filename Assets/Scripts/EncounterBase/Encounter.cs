@@ -63,7 +63,8 @@ public abstract class Encounter
     {
         RefreshSprites();
 
-        return new EncounterStep(text, _GetOptions());
+        bool isFinalStep = IsEncounterDone;
+        return new EncounterStep(text, _GetOptions(), isFinalStep);
     }
 
     /// <summary>
@@ -134,25 +135,89 @@ public abstract class Encounter
     }
 
 
+    /// <summary>
+    /// Base logic of what options are available to the player at the current step of the encounter.
+    /// </summary>
     private List<EncounterOption> _GetOptions()
     {
-        if (IsEncounterDone) return new List<EncounterOption>();
+        // If encounter is done, only allow options to use inventory items and to continue the day.
+        if (IsEncounterDone)
+        {
+            List<EncounterOption> options = new List<EncounterOption>();
+
+            // Item use options
+            options.AddRange(GetGeneralItemUseOptions());
+
+            // Continue day option
+            string endEncounterOptionText;
+            string endEncounterOptionDesc;
+
+            if (Game.TimeOfDay == TimeOfDayDefOf.Afternoon)
+            {
+                endEncounterOptionText = "Keep Wandering";
+                endEncounterOptionDesc = "Continue your day.";
+            }
+            else if (Game.TimeOfDay == TimeOfDayDefOf.Evening)
+            {
+                endEncounterOptionText = "Sleep";
+                endEncounterOptionDesc = "Go to sleep and hope for a calm night.";
+            }
+            else if (Game.TimeOfDay == TimeOfDayDefOf.Night)
+            {
+                endEncounterOptionText = "Sleep";
+                endEncounterOptionDesc = "Go back to sleep and hope for a calm rest of the night.";
+            }
+            else throw new System.Exception("Unexpected time of day for encounter end option.");
+
+            FixedOutcomeOption endEncounterOption = new FixedOutcomeOption()
+            {
+                Text = endEncounterOptionText,
+                Description = endEncounterOptionDesc,
+                Action = EndCurrentTimeOfDay
+            };
+            options.Add(endEncounterOption);
+
+            return options;
+        }
+
+        // Currently trading, show trading options
         else if (IsTrading) return GetTradingOptions();
+
+        // Otherwise, show the encounter's options
         else
         {
             List<EncounterOption> options = GetOptions();
             options.RemoveAll(o => (o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text)) || (o.OnceEver && UsedOnceEverOptions.Contains(o.Text)));
+
+            // Move on
             if (IsMoveOnOptionAvailable())
             {
-                // Move on
                 options.Add(new FixedOutcomeOption()
                 {
                     Text = "Move on",
                     Action = MoveOn
                 });
             }
+
             return options;
         }
+    }
+
+    private string EndCurrentTimeOfDay()
+    {
+        if (Game.CurrentEncounter.Def.Type == EncounterType.Biome)
+        {
+            Game.EndEveningEncounter();
+        }
+        else if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
+        {
+            Game.EndNightEncounter();
+        }
+        else // It is afternoon
+        {
+            Game.EndAfternoonEncounter();
+        }
+        return "";
     }
 
 
@@ -232,7 +297,7 @@ public abstract class Encounter
     protected void ShowPlayerCharacter(bool value) => Game.ShowPlayerCharacter(value);
 
     /// <summary>
-    /// Ends the encounter. Only called from Game.
+    /// Ends the encounter. This is only allowed to be called from Game.
     /// </summary>
     public void EndEncounter()
     {
@@ -258,13 +323,25 @@ public abstract class Encounter
 
     #region General Options
 
-    protected FixedOutcomeOption GetConsumeOption(bool torso = false)
+    /// <summary>
+    /// Returns all options, that are about using items in the players inventory on the player character, like consuming items, applying medical items to wounds/fractures, etc..
+    /// These options are available in the morning and at the end of other encounters.
+    /// </summary>
+    protected List<EncounterOption> GetGeneralItemUseOptions()
+    {
+        List<EncounterOption> options = new List<EncounterOption>();
+        options.Add(GetConsumeItemOption());
+        options.AddRange(GetMedicalItemUseOptions());
+        return options;
+    }
+
+    private FixedOutcomeOption GetConsumeItemOption(bool torso = false)
     {
         return new FixedOutcomeOption()
         {
-            Text = "Consume items",
+            Text = "Consume Item",
             Description = "Use items from your inventory.",
-            Action = ConsumeSlottedItem,
+            Action = ConsumeItem,
             Sprite = torso ? PlayerCharacterRenderer.Instance.RightArm.gameObject : PlayerCharacterRenderer.Instance.Head,
             ItemSlots = new List<ItemSlot>()
             {
@@ -278,11 +355,85 @@ public abstract class Encounter
             }
         };
     }
-    private string ConsumeSlottedItem()
+    private string ConsumeItem()
     {
         Item itemToConsume = Game.ItemUsedInSelectedOption;
         Game.Instance.ConsumeItem(itemToConsume);
         return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when consuming items, just consume the item and stay on the same step.
+    }
+
+    private List<EncounterOption> GetMedicalItemUseOptions()
+    {
+        List<EncounterOption> options = new List<EncounterOption>();
+        options.AddRange(GetTendWoundOptions());
+        options.AddRange(GetTreatInfectionOptions());
+        return options;
+    }
+
+    private List<EncounterOption> GetTendWoundOptions()
+    {
+        List<EncounterOption> options = new List<EncounterOption>();
+        foreach (Wound wound in Game.Player.TendableWounds)
+        {
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = $"Tend {wound.Def.LabelCap}",
+                Description = $"Use an item to tend the {wound.Def.Label}.",
+                Action = () => TendWound(wound),
+                Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
+                ItemSlots = new List<ItemSlot>()
+                {
+                    new ItemSlot()
+                    {
+                        IsRequired = true,
+                        CustomItemSet = ItemSet.WoundTendingItems,
+                        CustomItemSetName = "Wound Tending",
+                        IsDestroyingItem = true,
+                    }
+                }
+            });
+        }
+        return options;
+    }
+
+    private string TendWound(Wound wound)
+    {
+        Item item = Game.ItemUsedInSelectedOption;
+        Game.TendWound(wound, item);
+        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when tending wounds, just tend the wound and stay on the same step.
+    }
+
+    private List<EncounterOption> GetTreatInfectionOptions()
+    {
+        List<EncounterOption> options = new List<EncounterOption>();
+        foreach (Wound wound in Game.Player.TreatableWounds)
+        {
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = $"Treat Infection",
+                Description = $"Use an item to treat the {wound.Def.Label}.",
+                Action = () => TreatInfection(wound),
+                Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
+                ItemSlots = new List<ItemSlot>()
+                {
+                    new ItemSlot()
+                    {
+                        IsRequired = true,
+                        CustomItemSet = ItemSet.InfectionTreatingItems,
+                        CustomItemSetName = "Infection Treatment",
+                        IsDestroyingItem = true,
+                    }
+                }
+            });
+        }
+        return options;
+    }
+
+    private string TreatInfection(Wound wound)
+    {
+        Item item = Game.ItemUsedInSelectedOption;
+        Game.TreatWound(wound, item);
+        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when treating infections, just treat the infection and stay on the same step.
     }
 
     #endregion

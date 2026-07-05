@@ -9,6 +9,7 @@ public class UI_OptionDetails : MonoBehaviour
     public EncounterOption CurrentOption { get; private set; }
 
     [Header("Description")]
+    public GameObject DescriptionPanel;
     public TextMeshProUGUI DescriptionText;
 
     [Header("Outcome Panel")]
@@ -44,6 +45,8 @@ public class UI_OptionDetails : MonoBehaviour
     public void Refresh()
     {
         DescriptionText.text = CurrentOption.Description;
+        DescriptionPanel.SetActive(!string.IsNullOrEmpty(CurrentOption.Description));
+
         ShowSkillCheckProperties();
         ShowRequirements();
     }

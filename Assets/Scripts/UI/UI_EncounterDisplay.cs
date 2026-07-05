@@ -60,88 +60,57 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         // Text
         EncounterText.text = step.Text;
 
-        // Dialogue Options
+        // Options
         OptionDisplays = new Dictionary<EncounterOption, UI_EncounterStepOption>();
-        if (step.IsFinalStep)
+        Debug.Log($"Available options are: {string.Join(", ", step.Options.Select(o => o.Text))}");
+
+        // Group options by sprite (sprite-bound vs non-sprite-bound)
+        var spriteGroups = step.Options
+            .Where(o => o.Sprite != null)
+            .GroupBy(o => o.Sprite);
+
+        var nonSpriteOptions = step.Options.Where(o => o.Sprite == null).ToList();
+
+        // Handle sprite-bound options
+        foreach (var spriteGroup in spriteGroups)
         {
-            string endEncounterOptionText;
-            string endEncounterOptionDesc;
+            GameObject spriteGameObject = spriteGroup.Key;
+            List<EncounterOption> optionsForSprite = spriteGroup.ToList();
 
-            if (Game.TimeOfDay == TimeOfDayDefOf.Afternoon)
+            // Configure the sprite GameObject
+            if (spriteGameObject.GetComponent<PolygonCollider2D>() == null)
             {
-                endEncounterOptionText = "Keep Wandering";
-                endEncounterOptionDesc = "Continue your day.";
+                PolygonCollider2D collider = spriteGameObject.AddComponent<PolygonCollider2D>();
             }
-            else if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
-            {
-                endEncounterOptionText = "Sleep";
-                endEncounterOptionDesc = "Go to sleep and hope for a calm night.";
-            }
-            else if (Game.TimeOfDay == TimeOfDayDefOf.Night)
-            {
-                endEncounterOptionText = "Sleep";
-                endEncounterOptionDesc = "Go back to sleep and hope for a calm rest of the night.";
-            }
-            else throw new System.Exception("Unexpected time of day for encounter end option.");
+            spriteGameObject.GetComponent<PolygonCollider2D>().isTrigger = true;
+            spriteGameObject.layer = LayerMask.NameToLayer(SPRITE_ENCOUNTER_OPTION_LAYER);
 
-            FixedOutcomeOption endEncounterOption = new FixedOutcomeOption() {
-                Text = endEncounterOptionText,
-                Description = endEncounterOptionDesc,
-                Action = EndEncounter
-            };
+            // Instantiate container for this sprite's options
+            UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);
+            container.Init(optionsForSprite);
+
+            // Merge container's option displays into this class's OptionDisplays dictionary
+            foreach (var kvp in container.OptionDisplays)
+            {
+                OptionDisplays.Add(kvp.Key, kvp.Value);
+            }
+
+            // Instantiate and initialize the sprite label
+            UI_EncounterOptionSpriteLabel spriteLabel = Instantiate(EncounterOptionSpriteLabelPrefab, FloatingOptionsContainer.transform);
+            spriteLabel.Init(spriteGameObject.name);
+
+            // Register with the interaction manager
+            SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, spriteLabel, optionsForSprite);
+        }
+
+        // Handle non-sprite-bound options
+        foreach (EncounterOption option in nonSpriteOptions)
+        {
             UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
-            optionDisplay.Init(endEncounterOption);
-            OptionDisplays.Add(endEncounterOption, optionDisplay);
+            optionDisplay.Init(option);
+            OptionDisplays.Add(option, optionDisplay);
         }
-        else
-        {
-            // Group options by sprite (sprite-bound vs non-sprite-bound)
-            var spriteGroups = step.Options
-                .Where(o => o.Sprite != null)
-                .GroupBy(o => o.Sprite);
-
-            var nonSpriteOptions = step.Options.Where(o => o.Sprite == null).ToList();
-
-            // Handle sprite-bound options
-            foreach (var spriteGroup in spriteGroups)
-            {
-                GameObject spriteGameObject = spriteGroup.Key;
-                List<EncounterOption> optionsForSprite = spriteGroup.ToList();
-
-                // Configure the sprite GameObject
-                if (spriteGameObject.GetComponent<PolygonCollider2D>() == null)
-                {
-                    PolygonCollider2D collider = spriteGameObject.AddComponent<PolygonCollider2D>();
-                }
-                spriteGameObject.GetComponent<PolygonCollider2D>().isTrigger = true;
-                spriteGameObject.layer = LayerMask.NameToLayer(SPRITE_ENCOUNTER_OPTION_LAYER);
-
-                // Instantiate container for this sprite's options
-                UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);
-                container.Init(optionsForSprite);
-
-                // Merge container's option displays into this class's OptionDisplays dictionary
-                foreach (var kvp in container.OptionDisplays)
-                {
-                    OptionDisplays.Add(kvp.Key, kvp.Value);
-                }
-
-                // Instantiate and initialize the sprite label
-                UI_EncounterOptionSpriteLabel spriteLabel = Instantiate(EncounterOptionSpriteLabelPrefab, FloatingOptionsContainer.transform);
-                spriteLabel.Init(spriteGameObject.name);
-
-                // Register with the interaction manager
-                SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, spriteLabel, optionsForSprite);
-            }
-
-            // Handle non-sprite-bound options
-            foreach (EncounterOption option in nonSpriteOptions)
-            {
-                UI_EncounterStepOption optionDisplay = Instantiate(EncounterOptionPrefab, EncounterOptionContainer.transform);
-                optionDisplay.Init(option);
-                OptionDisplays.Add(option, optionDisplay);
-            }
-        }
+        
 
         // Option details
         HideOptionDetails();
@@ -161,23 +130,6 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
-    }
-
-    private string EndEncounter()
-    {
-        if (Game.CurrentEncounter.Def.Type == EncounterType.Biome)
-        {
-            Game.EndEveningEncounter();
-        }
-        else if (Game.CurrentEncounter.Def.Type == EncounterType.Night)
-        {
-            Game.EndNightEncounter();
-        }
-        else // It is afternoon
-        {
-            Game.EndAfternoonEncounter();
-        }
-        return "";
     }
 
     public void OnOptionHovered(EncounterOption option)
