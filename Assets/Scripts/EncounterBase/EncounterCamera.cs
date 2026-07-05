@@ -21,6 +21,7 @@ public class EncounterCamera : MonoBehaviour
     private float TransitionStartZoom;
     private Vector3 TransitionTargetPosition;
     private float TransitionTargetZoom;
+    public event System.Action OnTransitionComplete;
 
     private void Awake()
     {
@@ -36,11 +37,12 @@ public class EncounterCamera : MonoBehaviour
         if (TransitionCurrentTime >= TransitionDuration)
         {
             SetZoom(TransitionTargetZoom);
+            OnTransitionComplete?.Invoke();
         }
         else
         {
             float t = TransitionCurrentTime / TransitionDuration;
-            float easedT = 1f - (1f - t) * (1f - t); // Ease-out quadratic
+            float easedT = 1f - (1f - t) * (1f - t);
 
             Camera.orthographicSize = Mathf.Lerp(TransitionStartZoom, TransitionTargetZoom, easedT);
             Camera.transform.position = Vector3.Lerp(TransitionStartPosition, TransitionTargetPosition, easedT);

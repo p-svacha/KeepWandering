@@ -13,6 +13,7 @@ public static class SpriteOptionInteractionManager
     private static readonly KeyCode REVEAL_HOTSPOTS_KEY = KeyCode.LeftAlt;
 
     // State
+    private static bool SubscribedToCameraEvents = false;
     private static Dictionary<GameObject, SpriteOptionIndicator> ActiveIndicators = new Dictionary<GameObject, SpriteOptionIndicator>();
     public static IReadOnlyDictionary<GameObject, SpriteOptionIndicator> GetActiveIndicators() => ActiveIndicators;
     private static SpriteOptionIndicator HoveredIndicator;
@@ -22,15 +23,13 @@ public static class SpriteOptionInteractionManager
     private static SpriteOptionIndicator DragHoldTarget;
     private static float DragHoldTimer;
 
-    // Transition edge detection
-    private static bool WasTransitioning;
-
     /// <summary>
     /// Registers a sprite with bound options, creating/binding an indicator component.
     /// </summary>
     public static void RegisterSprite(GameObject sprite, UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
     {
         if (sprite == null) return;
+        EnsureSubscribedToCamera();
 
         // Get or add the indicator component
         SpriteOptionIndicator indicator = sprite.GetComponent<SpriteOptionIndicator>();
@@ -55,6 +54,23 @@ public static class SpriteOptionInteractionManager
         }
     }
 
+    private static void EnsureSubscribedToCamera()
+    {
+        if (SubscribedToCameraEvents) return;
+        if (EncounterCamera.Instance == null) return;
+
+        EncounterCamera.Instance.OnTransitionComplete += OnCameraTransitionComplete;
+        SubscribedToCameraEvents = true;
+    }
+
+    private static void OnCameraTransitionComplete()
+    {
+        foreach (var kvp in ActiveIndicators)
+        {
+            kvp.Value?.RefreshUiPosition();
+        }
+    }
+
     /// <summary>
     /// Clears all tracked indicators and resets state. Called when starting a new encounter step.
     /// </summary>
@@ -74,7 +90,6 @@ public static class SpriteOptionInteractionManager
         LockedIndicator = null;
         DragHoldTarget = null;
         DragHoldTimer = 0f;
-        WasTransitioning = false;
     }
 
     /// <summary>
@@ -201,9 +216,6 @@ public static class SpriteOptionInteractionManager
             HandleRightClick();
             HandleDragHold();
         }
-
-        // Transition edge detection for repositioning
-        HandleTransitionEdge();
     }
 
     private static void HandleClick()
@@ -247,6 +259,16 @@ public static class SpriteOptionInteractionManager
         if (LockedIndicator != null)
         {
             LockedIndicator.SetLockedLineMaterial(false);
+
+            // Return any items placed in this sprite's option slots back to the inventory
+            foreach (EncounterOption option in LockedIndicator.Options)
+            {
+                foreach (ItemSlot slot in option.ItemSlots)
+                {
+                    if (slot.IsFilled) slot.Empty();
+                }
+            }
+
             LockedIndicator = null;
         }
     }
@@ -296,23 +318,6 @@ public static class SpriteOptionInteractionManager
                 LockIndicator(DragHoldTarget);
             }
         }
-    }
-
-    private static void HandleTransitionEdge()
-    {
-        if (EncounterCamera.Instance == null) return;
-
-        bool isTransitioning = EncounterCamera.Instance.IsTransitioning;
-
-        if (WasTransitioning && !isTransitioning)
-        {
-            foreach (var kvp in ActiveIndicators)
-            {
-                kvp.Value?.RefreshUiPosition();
-            }
-        }
-
-        WasTransitioning = isTransitioning;
     }
 
     /// <summary>
