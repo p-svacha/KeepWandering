@@ -184,6 +184,15 @@ public class ItemSlot
         return itemDefs;
     }
 
+    public bool PlayerHasSlottableItem()
+    {
+        foreach (Item item in Game.Instance.Inventory)
+        {
+            if (CanAcceptItem(item)) return true;
+        }
+        return false;
+    }
+
     public override string ToString()
     {
         if (Item != null) return $"Slot for {Item.DefName}";

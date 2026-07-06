@@ -59,7 +59,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetFilledDisplay()
     {
-        Background.color = ResourceManager.Color_Item_Slot_Filled;
+        Background.color = ResourceManager.Color_Option_Slot_Filled;
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
         ItemIcon.color = Color.white;
@@ -69,7 +69,10 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetUnfilledDisplay()
     {
-        Background.color = Color.white;
+        // Background is red if the player has no items that can be slotted here (only if required), otherwise white
+        bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
+        Background.color = (ItemSlot.IsRequired && !playerHasSlottableItems) ? ResourceManager.Color_Option_Slot_Unmet : Color.white;
+
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
         ItemIcon.color = new Color(1f, 1f, 1f, 0.3f);

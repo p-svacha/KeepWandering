@@ -21,7 +21,8 @@ public static class ResourceManager
 
     public static readonly Color Color_Button_Default = new Color(1f, 0.81f, 0f);
     public static readonly Color Color_Button_Disabled = new Color(0.5f, 0.5f, 0.5f);
-    public static readonly Color Color_Item_Slot_Filled = new Color(0.59f, 1f, 0.47f);
+    public static readonly Color Color_Option_Slot_Filled = new Color(0.59f, 1f, 0.47f);
+    public static readonly Color Color_Option_Slot_Unmet = new Color(0.78f, 0.37f, 0.32f);
 
     public static readonly Color Color_Panel_Highlighted = new Color(1f, 0.91f, 0.53f);
 

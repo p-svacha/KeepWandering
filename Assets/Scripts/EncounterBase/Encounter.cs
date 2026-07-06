@@ -358,7 +358,7 @@ public abstract class Encounter
                     CustomItemSet = ItemSets.ConsumableItems,
                     IsDestroyingItem = true,
                 }
-            }
+            },
         };
     }
     private string ConsumeItem()
@@ -398,7 +398,7 @@ public abstract class Encounter
                         IsRequired = true,
                         Tag = ItemTagDefOf.WoundBandaging,
                     }
-                }
+                },
             });
         }
         return options;
@@ -408,6 +408,7 @@ public abstract class Encounter
     {
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
+            Game.BandageWound(wound);
             Game.ModifySurvival(+1);
             return $"You successfully bandage the {wound.Def.Label}, and improve your survival skills.";
         }

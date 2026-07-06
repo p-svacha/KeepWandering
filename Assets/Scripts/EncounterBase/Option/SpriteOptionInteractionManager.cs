@@ -269,21 +269,24 @@ public static class SpriteOptionInteractionManager
 
     public static void ClearLock()
     {
-        if (LockedIndicator != null)
+        if (LockedIndicator == null) return;
+
+
+        LockedIndicator.SetLockedLineMaterial(false);
+
+        // Return any items placed in this sprite's option slots back to the inventory
+        foreach (EncounterOption option in LockedIndicator.Options)
         {
-            LockedIndicator.SetLockedLineMaterial(false);
-
-            // Return any items placed in this sprite's option slots back to the inventory
-            foreach (EncounterOption option in LockedIndicator.Options)
+            foreach (ItemSlot slot in option.ItemSlots)
             {
-                foreach (ItemSlot slot in option.ItemSlots)
-                {
-                    if (slot.IsFilled) slot.Empty();
-                }
+                if (slot.IsFilled) slot.Empty();
             }
-
-            LockedIndicator = null;
         }
+
+        LockedIndicator = null;
+
+        // UI
+        UI_EncounterDisplay.Instance.OnOptionUnhovered();
     }
 
     private static void LockIndicator(SpriteOptionIndicator indicator)

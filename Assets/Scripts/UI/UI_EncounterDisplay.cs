@@ -202,7 +202,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 
     public void RefreshOption(EncounterOption option)
     {
-        OptionDisplays[option].Resfresh();
+        OptionDisplays[option].Refresh();
 
         // Option details
         if (OptionDetailsPanel.gameObject.activeSelf) OptionDetailsPanel.Refresh();

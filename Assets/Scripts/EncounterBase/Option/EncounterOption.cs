@@ -72,10 +72,6 @@ public abstract class EncounterOption
                 throw new System.Exception($"Encounter option '{Text}' in encounter '{Game.Instance.CurrentEncounter.Def.DefName}' has an invalid item slot: {e.Message}");
             }
         }
-        foreach(var statRequirement in SkillRequirements)
-        {
-            if (statRequirement.Value < 0) throw new System.Exception($"Stat requirement for {statRequirement.Key.DefName} in encounter option '{Text}' in encounter '{Game.Instance.CurrentEncounter.Def.DefName}' cannot be negative.");
-        }
     }
 
     public bool HasRequirements()

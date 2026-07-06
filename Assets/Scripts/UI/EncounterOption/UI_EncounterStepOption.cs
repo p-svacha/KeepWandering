@@ -18,7 +18,10 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
     [Header("Prefabs")]
     public UI_ItemSlot ItemSlotPrefab;
+    public UI_StatRequirementSlot StatRequirementSlotPrefab;
 
+    // Current display
+    public List<UI_StatRequirementSlot> StatRequirementSlotDisplays;
     public List<UI_ItemSlot> ItemSlotDisplays;
 
     public void Init(EncounterOption option)
@@ -29,9 +32,19 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         OptionButton.onClick.AddListener(() => ChoseOption(Game, option));
         SkillCheckIndicator.SetActive(option is SkillCheckOption);
 
+        HelperFunctions.DestroyAllChildredImmediately(ItemSlotContainer);
+
+        // Stat requirement slots
+        StatRequirementSlotDisplays = new List<UI_StatRequirementSlot>();
+        foreach(KeyValuePair<StatDef, int> statRequirement in option.SkillRequirements)
+        {
+            UI_StatRequirementSlot statRequirementDisplay = Instantiate(StatRequirementSlotPrefab, ItemSlotContainer.transform);
+            statRequirementDisplay.Init(statRequirement);
+            StatRequirementSlotDisplays.Add(statRequirementDisplay);
+        }
+
         // Item slots
         ItemSlotDisplays = new List<UI_ItemSlot>();
-        HelperFunctions.DestroyAllChildredImmediately(ItemSlotContainer);
         foreach (ItemSlot itemSlot in option.ItemSlots)
         {
             UI_ItemSlot itemSlotDisplay = Instantiate(ItemSlotPrefab, ItemSlotContainer.transform);
@@ -39,12 +52,13 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
             ItemSlotDisplays.Add(itemSlotDisplay);
         }
 
-        Resfresh();
+        Refresh();
     }
 
-    public void Resfresh()
+    public void Refresh()
     {
         // Slots
+        foreach (UI_StatRequirementSlot statRequirementSlot in StatRequirementSlotDisplays) statRequirementSlot.Refresh();
         foreach (UI_ItemSlot itemSlot in ItemSlotDisplays) itemSlot.Refresh();
 
         // Interactibility
