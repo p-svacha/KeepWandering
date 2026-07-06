@@ -10,7 +10,7 @@ public class OptionOutcomeDef : Def
     public SuccessLevel SuccessLevel { get; init; }
 
     /// <summary>
-    /// If the player very generally achieves what they wanted with this option.
+    /// If the player very generally achieves what they wanted with this option. True for critical success, success, and partial success. False for failure and critical failure.
     /// </summary>
     public bool IsSuccess { get; init; }
 

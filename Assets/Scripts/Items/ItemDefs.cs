@@ -9,17 +9,23 @@ public static class ItemDefs
         new ItemDef("Antibiotics")
         {
             Label = "antibiotics",
-            Description = "Treats infections.",
+            Description = "Pills that are very effective at treating infections.",
             Value = 3,
-            CanTreatInfections = true,
+            Tags =
+            {
+                { ItemTagDefOf.InfectionTreatment, 5 }
+            },
         },
 
         new ItemDef("Antidote")
         {
             Label = "antidote",
-            Description = "Heals poisoning.",
+            Description = "An injectable solution that counteracts poisoning.",
             Value = 3,
-            CanHealPoisoning = true,
+            Tags =
+            {
+                { ItemTagDefOf.PoisonTreatment, 5 }
+            },
         },
 
         new ItemDef("Bandage")
@@ -27,7 +33,10 @@ public static class ItemDefs
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
             Value = 2,
-            CanTendWounds = true,
+            Tags =
+            {
+                { ItemTagDefOf.WoundBandaging, 5 }
+            },
         },
 
         new ItemDef("Beans")
@@ -35,9 +44,11 @@ public static class ItemDefs
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 3f,
-            OnConsumptionHydration = 1f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 2.5f,
+                Hydration: 1f
+            ),
         },
 
         new ItemDef("Berries")
@@ -45,9 +56,11 @@ public static class ItemDefs
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 1f,
-            OnConsumptionHydration = 0.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 1f,
+                Hydration: 1f
+            ),
         },
 
         new ItemDef("Bone")
@@ -126,25 +139,41 @@ public static class ItemDefs
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Value = 4,
-            CanTendWounds = true,
-            CanTreatInfections = true,
-            CanHealPoisoning = true,
+            MaxInitialDurability = 2,
+            Tags =
+            {
+                { ItemTagDefOf.WoundBandaging, 4 },
+                { ItemTagDefOf.InfectionTreatment, 4 },
+                { ItemTagDefOf.PoisonTreatment, 4 }
+            },
         },
 
         new ItemDef("MedicinalHerbs")
         {
             Label = "medicinal herbs",
-            Description = "Can be used to slightly lower the severity of many health conditions.",
+            Description = "A natural remedy that may help with ailments, but is not very effective.",
             Value = 1,
-            SeverityReduction = 1f,
+            Tags =
+            {
+                { ItemTagDefOf.InfectionTreatment, 1 },
+                { ItemTagDefOf.PoisonTreatment, 1 }
+            },
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Drug,
+                Nutrition: 0.2f,
+                Hydration: 0.2f,
+                SeverityReduction: 1f
+            ),
         },
 
         new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 2.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 3f
+            ),
         },
 
         new ItemDef("RawMeat")
@@ -152,8 +181,10 @@ public static class ItemDefs
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Value = 2,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 3.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 3.5f
+            ),
         },
 
         new ItemDef("Rope")
@@ -191,8 +222,35 @@ public static class ItemDefs
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Drink,
-            OnConsumptionHydration = 3f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Drink,
+                Hydration: 3f
+            ),
         },
     };
+}
+
+[DefOf]
+public static class ItemDefOf
+{
+    public static ItemDef Antibiotics;
+    public static ItemDef Antidote;
+    public static ItemDef Bandage;
+    public static ItemDef Beans;
+    public static ItemDef Berries;
+    public static ItemDef Bone;
+    public static ItemDef Coin;
+    public static ItemDef Crowbar;
+    public static ItemDef FenceCutter;
+    public static ItemDef Knife;
+    public static ItemDef Lockpick;
+    public static ItemDef MedicalKit;
+    public static ItemDef MedicinalHerbs;
+    public static ItemDef NutSnack;
+    public static ItemDef RawMeat;
+    public static ItemDef Shovel;
+    public static ItemDef Rope;
+    public static ItemDef Trap;
+    public static ItemDef WaterBottle;
+
 }

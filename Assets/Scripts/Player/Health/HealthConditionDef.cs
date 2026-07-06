@@ -13,12 +13,12 @@ public class HealthConditionDef : Def
     /// The class of the health condition. This class will be instantiated and added to the player when the health condition is applied to the player. It must be a subclass of HealthCondition.
     /// </summary>
     public System.Type HealthConditionClass { get; init; } = typeof(HealthCondition);
+    public bool IsNeed => Category == HealthConditionCategoryDefOf.Need;
 
     /// <summary>
-    /// 
-    /// Needs are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for "needs" such as hunger and thirst.
+    /// The category of the health condition. This is used to classify health conditions into different types, such as needs, negative conditions, positive conditions, etc.
     /// </summary>
-    public bool IsNeed { get; init; } = false;
+    public HealthConditionCategoryDef Category { get; init; } = null;
 
     /// <summary>
     /// The severity stages of the health condition. If the health condition is active, exactly one stage will be active, and the stage will determine the effects of the health condition on the player.
@@ -33,7 +33,7 @@ public class HealthConditionDef : Def
     /// <summary>
     /// The maximum severity value this health condition can reach. It will never go above this value. If IsLethal is true, the player dies when the severity reaches this value.
     /// </summary>
-    public float MaxSeverity { get; init; } = 100;
+    public float MaxSeverity { get; init; } = 10;
 
     /// <summary>
     /// If true, the player dies when the severity of this health condition reaches MaxSeverity.
@@ -70,6 +70,8 @@ public class HealthConditionDef : Def
 
     public override bool Validate()
     {
+        if (Category == null) throw new System.Exception($"Health condition {DefName} does not have a category.");
+
         if (IsNeed)
         {
             if (MaxInstances != 1) throw new System.Exception($"Needs must have MaxAmount of 1.");

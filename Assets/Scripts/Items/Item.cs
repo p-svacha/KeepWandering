@@ -50,15 +50,6 @@ public class Item
         Durability += amount;
     }
 
-    private void HighlightWound(Wound wound)
-    {
-        wound.SetHightlighted(true);
-    }
-    private void UnhightlightWound(Wound wound)
-    {
-        wound.SetHightlighted(false);
-    }
-
     public void Show() => Renderer.Show();
     public void Hide() => Renderer.Hide();
     public void Freeze() => Renderer.Freeze();
@@ -73,43 +64,17 @@ public class Item
     public string LabelCapWord => Label.CapitalizeEachWord();
     public string Description => Def.Description;
     public Sprite Sprite => Def.Sprite;
+    public bool HasTag(ItemTagDef tag) => Def.HasTag(tag);
     public bool HasAnyTag => Def.Tags.Count > 0;
     public bool IsConsumable => Def.IsConsumable;
     public bool HasMedicalProperties => Def.HasMedicalProperties;
-
-    // Interactions (unused, replaced by sprite-bound options)
-    public bool CanInteract => GetInteractionOptions().Count > 0;
-    public List<InteractionOption> GetInteractionOptions()
-    {
-        List<InteractionOption> options = new List<InteractionOption>();
-        if (!IsPlayerOwned) return options; // todo. allow interactions of non-player items (i.e. trader)
-
-        // Options by item attributes (eat, drink, etc.)
-        if (Def.IsConsumable) options.Add(new InteractionOption(Def.ConsumptionType.ConsumptionVerb.CapitalizeFirst(), () => Game.ConsumeItem(this)));
-        if (Def.CanTendWounds)
-        {
-            foreach (Wound wound in Game.Player.TendableWounds)
-            {
-                options.Add(new InteractionOption($"Tend {wound.Def.Label}", () => Game.TendWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
-            }
-        }
-        if (Def.CanTreatInfections)
-        {
-            foreach (Wound wound in Game.Player.TreatableWounds)
-            {
-                options.Add(new InteractionOption($"Treat {wound.Def.Label}", () => Game.TreatWound(wound, this), onHoverStartAction: () => HighlightWound(wound), onHoverEndAction: () => UnhightlightWound(wound)));
-            }
-        }
-
-        return options;
-    }
 
     /// <summary>
     /// Returns the subtitle text for the tooltip of this item. Can be different things depending on the item type.
     /// </summary>
     public string GetTooltipSubtitle()
     {
-        if (HasAnyTag) return $"Durability: {Durability}";
+        if (HasAnyTag) return $"Remaining Uses: {Durability}";
         if (IsConsumable) return "Consumable Item";
         if (HasMedicalProperties) return "Medical Item";
         return "Special Item";

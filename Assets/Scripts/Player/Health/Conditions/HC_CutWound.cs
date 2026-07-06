@@ -9,6 +9,6 @@ public class HC_CutWound : Wound
     {
         base.OnEndDay(morningReport);
 
-        if (!IsTended) Player.ApplyBloodLoss(BLEED_PER_SEVERITY);
+        if (!IsBandaged) Player.ApplyBloodLoss(BLEED_PER_SEVERITY);
     }
 }

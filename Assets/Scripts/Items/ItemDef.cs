@@ -17,22 +17,17 @@ public class ItemDef : Def
     // General
     public Dictionary<ItemTagDef, int> Tags = new Dictionary<ItemTagDef, int>(); // Each tag has a level that defines the difficulty reduction when used in a slot requiring that tag.
     public int Value { get; init; } = 0;
+    public int MinInitialDurability { get; init; } = 1;
+    public int MaxInitialDurability { get; init; } = 5;
 
 
     // Consumption
-    public ConsumptionTypeDef ConsumptionType { get; init; } = null;
-    public bool IsConsumable => ConsumptionType != null;
-    public float OnConsumptionNutrition { get; init; } = 0f;
-    public float OnConsumptionHydration { get; init; } = 0f;
+    public ConsumptionProperties ConsumptionProperties { get; init; } = null;
+    public bool IsConsumable => ConsumptionProperties != null;
 
 
     // Medical
-    public float SeverityReduction { get; init; } = 0f;
-    public bool CanReduceSeverity => SeverityReduction > 0f;
-    public bool CanTendWounds { get; init; } = false;
-    public bool CanTreatInfections { get; init; } = false;
-    public bool CanHealPoisoning { get; init; } = false;
-    public bool HasMedicalProperties => CanReduceSeverity || CanTendWounds || CanTreatInfections || CanHealPoisoning;
+    public bool HasMedicalProperties => HasTag(ItemTagDefOf.WoundBandaging) || HasTag(ItemTagDefOf.InfectionTreatment) || (ConsumptionProperties != null && ConsumptionProperties.SeverityReduction > 0f);
 
     public ItemDef(string defName) : base(defName) { }
 
@@ -51,12 +46,6 @@ public class ItemDef : Def
                 Debug.LogError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
                 return false;
             }
-        }
-
-        if (!IsConsumable)
-        {
-            if (OnConsumptionNutrition != 0f) throw new System.Exception($"ItemDef '{DefName}' has OnConsumptionNutrition set to {OnConsumptionNutrition} but is not consumable.");
-            if (OnConsumptionHydration != 0f) throw new System.Exception($"ItemDef '{DefName}' has OnConsumptionHydration set to {OnConsumptionHydration} but is not consumable.");
         }
 
         return base.Validate();

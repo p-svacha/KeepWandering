@@ -13,8 +13,15 @@ public abstract class Encounter
     public Quest Mission { get; private set; }
     public WorldMapTile Tile { get; private set; }
 
+    // Practical getters
     public BiomeDef Biome => Tile.Biome;
     public LootTable BiomeLootTable => Tile.Biome.LootTable;
+    public List<Item> ItemsUsedInOption => Game.ItemsUsedInSelectedOption;
+
+    /// <summary>
+    /// Reference to the first item that was used in the previously selected option, with durability / destruction logic already handled. So them might have IsDestroyed = true if the item was destroyed by the option, or if durability ran out.
+    /// </summary>
+    public Item ItemUsedInOption => Game.ItemUsedInSelectedOption;
 
     // Persistence
     private List<Item> EncounterItems = new List<Item>();
@@ -348,8 +355,7 @@ public abstract class Encounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    CustomItemSet = ItemSet.ConsumableItems,
-                    CustomItemSetName = "Consumable",
+                    CustomItemSet = ItemSets.ConsumableItems,
                     IsDestroyingItem = true,
                 }
             }
@@ -365,30 +371,32 @@ public abstract class Encounter
     private List<EncounterOption> GetMedicalItemUseOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
-        options.AddRange(GetTendWoundOptions());
+        options.AddRange(GetBandageWoundOptions());
         options.AddRange(GetTreatInfectionOptions());
         return options;
     }
 
-    private List<EncounterOption> GetTendWoundOptions()
+    private List<EncounterOption> GetBandageWoundOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
-        foreach (Wound wound in Game.Player.TendableWounds)
+        foreach (Wound wound in Game.Player.BandagableWounds)
         {
-            options.Add(new FixedOutcomeOption()
+            options.Add(new SkillCheckOption()
             {
-                Text = $"Tend {wound.Def.LabelCap}",
+                Text = $"Bandage {wound.Def.LabelCap}",
                 Description = $"Use an item to tend the {wound.Def.Label}.",
-                Action = () => TendWound(wound),
+                Difficulty = 100,
+                Action = (outcome) => TryBandageWound(outcome, wound),
+                CanPartiallySucceed = false,
+                CanCriticallySucceed = true,
+                CanCriticallyFail = true,
                 Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
                 ItemSlots = new List<ItemSlot>()
                 {
                     new ItemSlot()
                     {
                         IsRequired = true,
-                        CustomItemSet = ItemSet.WoundTendingItems,
-                        CustomItemSetName = "Wound Tending",
-                        IsDestroyingItem = true,
+                        Tag = ItemTagDefOf.WoundBandaging,
                     }
                 }
             });
@@ -396,11 +404,37 @@ public abstract class Encounter
         return options;
     }
 
-    private string TendWound(Wound wound)
+    private string TryBandageWound(OptionOutcomeDef outcome, Wound wound)
     {
-        Item item = Game.ItemUsedInSelectedOption;
-        Game.TendWound(wound, item);
-        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when tending wounds, just tend the wound and stay on the same step.
+        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
+        {
+            Game.ModifySurvival(+1);
+            return $"You successfully bandage the {wound.Def.Label}, and improve your survival skills.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Success)
+        {
+            Game.BandageWound(wound);
+            return $"You successfully bandage the {wound.Def.Label}.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            return $"You fail to properly bandage the {wound.Def.Label}.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
+        {
+            if(!ItemUsedInOption.IsDestroyed && Random.value < 0.5f)
+            {
+                Game.DestroyItem(ItemUsedInOption);
+                return $"You fumble while trying to bandage the {wound.Def.Label}, failing and destroying the {ItemUsedInOption.Def.Label} in the process.";
+            }
+            else
+            {
+                wound.ModifySeverity(1f);
+                return $"You fail to properly bandage the {wound.Def.Label}. By tampering with it, you make it worse!";
+            }
+        }
+
+        throw new OutcomeNotHandledException(outcome);
     }
 
     private List<EncounterOption> GetTreatInfectionOptions()
@@ -408,20 +442,22 @@ public abstract class Encounter
         List<EncounterOption> options = new List<EncounterOption>();
         foreach (Wound wound in Game.Player.TreatableWounds)
         {
-            options.Add(new FixedOutcomeOption()
+            options.Add(new SkillCheckOption()
             {
-                Text = $"Treat Infection",
+                Text = $"Treat Infected {wound.Def.LabelCap}",
                 Description = $"Use an item to treat the {wound.Def.Label}.",
-                Action = () => TreatInfection(wound),
+                Difficulty = 100,
+                Action = (outcome) => TryTreatInfection(outcome, wound),
+                CanCriticallyFail = false,
+                CanPartiallySucceed = false,
+                CanCriticallySucceed = false,
                 Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
                 ItemSlots = new List<ItemSlot>()
                 {
                     new ItemSlot()
                     {
                         IsRequired = true,
-                        CustomItemSet = ItemSet.InfectionTreatingItems,
-                        CustomItemSetName = "Infection Treatment",
-                        IsDestroyingItem = true,
+                        Tag = ItemTagDefOf.InfectionTreatment,
                     }
                 }
             });
@@ -429,11 +465,18 @@ public abstract class Encounter
         return options;
     }
 
-    private string TreatInfection(Wound wound)
+    private string TryTreatInfection(OptionOutcomeDef outcome, Wound wound)
     {
-        Item item = Game.ItemUsedInSelectedOption;
-        Game.TreatWound(wound, item);
-        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when treating infections, just treat the infection and stay on the same step.
+        if (outcome.SuccessLevel == SuccessLevel.Success)
+        {
+            Game.TreatInfection(wound);
+            return $"You successfully treat the infected {wound.Def.Label}, which should help the wound to heal.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            return $"You fail to properly treat the infected {wound.Def.Label}.";
+        }
+        throw new OutcomeNotHandledException(outcome);
     }
 
     #endregion

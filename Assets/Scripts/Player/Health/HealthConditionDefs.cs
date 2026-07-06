@@ -9,7 +9,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("Hunger")
         {
             HealthConditionClass = typeof(HC_Hunger),
-            IsNeed = true,
+            Category = HealthConditionCategoryDefOf.Need,
             InitialSeverity = 5,
             MaxSeverity = 17,
             IsLethal = true,
@@ -77,7 +77,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("Thirst")
         {
             HealthConditionClass = typeof(HC_Thirst),
-            IsNeed = true,
+            Category = HealthConditionCategoryDefOf.Need,
             InitialSeverity = 5,
             MaxSeverity = 13,
             IsLethal = true,
@@ -140,6 +140,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("BloodLoss")
         {
             HealthConditionClass = typeof(HC_BloodLoss),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 1,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -195,6 +196,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("LegFracture")
         {
             HealthConditionClass = typeof(HC_LegFracture),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -241,6 +243,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("ArmFracture")
         {
             HealthConditionClass = typeof(HC_ArmFracture),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -291,9 +294,10 @@ public static class HealthConditionDefs
         // Wounds
         new HealthConditionDef("Cut")
         {
+            HealthConditionClass = typeof(HC_CutWound),
+            Category = HealthConditionCategoryDefOf.Negative,
             Label = "cut",
             Description = "A cut wound.",
-            HealthConditionClass = typeof(HC_CutWound),
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -301,12 +305,26 @@ public static class HealthConditionDefs
 
         new HealthConditionDef("Bruise")
         {
+            HealthConditionClass = typeof(HC_BruiseWound),
+            Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
             Description = "A bruise wound.",
-            HealthConditionClass = typeof(HC_BruiseWound),
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
         },
     };
+}
+
+[DefOf]
+public static class HealthConditionDefOf
+{
+    public static HealthConditionDef Hunger;
+    public static HealthConditionDef Thirst;
+    public static HealthConditionDef LegFracture;
+    public static HealthConditionDef ArmFracture;
+    public static HealthConditionDef BloodLoss;
+
+    public static HealthConditionDef Bruise;
+    public static HealthConditionDef Cut;
 }

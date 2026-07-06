@@ -6,6 +6,8 @@ public class ItemTagDef : Def
     public override string DefTypeLabel => "Item Tag";
 
     public ItemTagDef(string defName) : base(defName) { }
+
+    // Label should be written in a way, so that "item can be used as {label}" makes sense.
 }
 
 public static class ItemTagDefs
@@ -19,12 +21,12 @@ public static class ItemTagDefs
         },
         new ItemTagDef("Cutting")
         {
-            Label = "Cutting",
+            Label = "Cutting Tool",
             Description = "Items with this tag can be used to cut or slice objects."
         },
         new ItemTagDef("Digging")
         {
-            Label = "Digging",
+            Label = "Digging Tool",
             Description = "Items with this tag can be used to dig or excavate soil and other materials."
         },
         new ItemTagDef("DogToy")
@@ -32,10 +34,20 @@ public static class ItemTagDefs
             Label = "Dog Toy",
             Description = "Items with this tag can be used to entertain and play with dogs."
         },
+        new ItemTagDef("InfectionTreatment")
+        {
+            Label = "Infection Treatment",
+            Description = "Items with this tag can be used to treat infections."
+        },
         new ItemTagDef("Lockpicking")
         {
-            Label = "Lockpicking",
+            Label = "Lockpicking Tool",
             Description = "Items with this tag can be used to pick locks and open secured containers."
+        },
+        new ItemTagDef("PoisonTreatment")
+        {
+            Label = "Poison Treatment",
+            Description = "Items with this tag can be used to treat poisoning."
         },
         new ItemTagDef("PryingTool")
         {
@@ -52,6 +64,11 @@ public static class ItemTagDefs
             Label = "Weapon",
             Description = "Items with this tag can be used as weapons."
         },
+        new ItemTagDef("WoundBandaging")
+        {
+            Label = "Wound Bandage",
+            Description = "Items with this tag can be used to bandage wounds."
+        },
     };
 }
 
@@ -62,8 +79,12 @@ public static class ItemTagDefOf
     public static ItemTagDef Cutting;
     public static ItemTagDef Digging;
     public static ItemTagDef DogToy;
+    public static ItemTagDef InfectionTreatment;
     public static ItemTagDef Lockpicking;
+    public static ItemTagDef PoisonTreatment;
     public static ItemTagDef PryingTool;
     public static ItemTagDef Scavenging;
     public static ItemTagDef Weapon;
+    public static ItemTagDef WoundBandaging;
+    
 }

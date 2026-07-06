@@ -122,8 +122,7 @@ public class Encounter_WoundedStranger : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    CustomItemSet = ItemSet.MedicalItems,
-                    CustomItemSetName = "Medical",
+                    CustomItemSet = ItemSets.MedicalItems,
                     IsRequired = true,
                     IsDestroyingItem = true,
                 }

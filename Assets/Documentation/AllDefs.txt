@@ -322,17 +322,23 @@
         new ItemDef("Antibiotics")
         {
             Label = "antibiotics",
-            Description = "Treats infections.",
+            Description = "Pills that are very effective at treating infections.",
             Value = 3,
-            CanTreatInfections = true,
+            Tags =
+            {
+                { ItemTagDefOf.InfectionTreatment, 5 }
+            },
         },
 
         new ItemDef("Antidote")
         {
             Label = "antidote",
-            Description = "Heals poisoning.",
+            Description = "An injectable solution that counteracts poisoning.",
             Value = 3,
-            CanHealPoisoning = true,
+            Tags =
+            {
+                { ItemTagDefOf.PoisonTreatment, 5 }
+            },
         },
 
         new ItemDef("Bandage")
@@ -340,7 +346,10 @@
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
             Value = 2,
-            CanTendWounds = true,
+            Tags =
+            {
+                { ItemTagDefOf.WoundBandaging, 5 }
+            },
         },
 
         new ItemDef("Beans")
@@ -348,9 +357,11 @@
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 3f,
-            OnConsumptionHydration = 1f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 2.5f,
+                Hydration: 1f
+            ),
         },
 
         new ItemDef("Berries")
@@ -358,9 +369,11 @@
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 1f,
-            OnConsumptionHydration = 0.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 1f,
+                Hydration: 1f
+            ),
         },
 
         new ItemDef("Bone")
@@ -439,25 +452,41 @@
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Value = 4,
-            CanTendWounds = true,
-            CanTreatInfections = true,
-            CanHealPoisoning = true,
+            MaxInitialDurability = 2,
+            Tags =
+            {
+                { ItemTagDefOf.WoundBandaging, 4 },
+                { ItemTagDefOf.InfectionTreatment, 4 },
+                { ItemTagDefOf.PoisonTreatment, 4 }
+            },
         },
 
         new ItemDef("MedicinalHerbs")
         {
             Label = "medicinal herbs",
-            Description = "Can be used to slightly lower the severity of many health conditions.",
+            Description = "A natural remedy that may help with ailments, but is not very effective.",
             Value = 1,
-            SeverityReduction = 1f,
+            Tags =
+            {
+                { ItemTagDefOf.InfectionTreatment, 1 },
+                { ItemTagDefOf.PoisonTreatment, 1 }
+            },
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Drug,
+                Nutrition: 0.2f,
+                Hydration: 0.2f,
+                SeverityReduction: 1f
+            ),
         },
 
         new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 2.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 3f
+            ),
         },
 
         new ItemDef("RawMeat")
@@ -465,8 +494,10 @@
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Value = 2,
-            ConsumptionType = ConsumptionTypeDefOf.Food,
-            OnConsumptionNutrition = 3.5f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Food,
+                Nutrition: 3.5f
+            ),
         },
 
         new ItemDef("Rope")
@@ -504,8 +535,10 @@
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Value = 1,
-            ConsumptionType = ConsumptionTypeDefOf.Drink,
-            OnConsumptionHydration = 3f,
+            ConsumptionProperties = new ConsumptionProperties(
+                ConsumptionTypeDefOf.Drink,
+                Hydration: 3f
+            ),
         },
     };
 
@@ -517,7 +550,7 @@
         new HealthConditionDef("Hunger")
         {
             HealthConditionClass = typeof(HC_Hunger),
-            IsNeed = true,
+            Category = HealthConditionCategoryDefOf.Need,
             InitialSeverity = 5,
             MaxSeverity = 17,
             IsLethal = true,
@@ -585,7 +618,7 @@
         new HealthConditionDef("Thirst")
         {
             HealthConditionClass = typeof(HC_Thirst),
-            IsNeed = true,
+            Category = HealthConditionCategoryDefOf.Need,
             InitialSeverity = 5,
             MaxSeverity = 13,
             IsLethal = true,
@@ -648,6 +681,7 @@
         new HealthConditionDef("BloodLoss")
         {
             HealthConditionClass = typeof(HC_BloodLoss),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 1,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -703,6 +737,7 @@
         new HealthConditionDef("LegFracture")
         {
             HealthConditionClass = typeof(HC_LegFracture),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -749,6 +784,7 @@
         new HealthConditionDef("ArmFracture")
         {
             HealthConditionClass = typeof(HC_ArmFracture),
+            Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
@@ -799,9 +835,10 @@
         // Wounds
         new HealthConditionDef("Cut")
         {
+            HealthConditionClass = typeof(HC_CutWound),
+            Category = HealthConditionCategoryDefOf.Negative,
             Label = "cut",
             Description = "A cut wound.",
-            HealthConditionClass = typeof(HC_CutWound),
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -809,9 +846,10 @@
 
         new HealthConditionDef("Bruise")
         {
+            HealthConditionClass = typeof(HC_BruiseWound),
+            Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
             Description = "A bruise wound.",
-            HealthConditionClass = typeof(HC_BruiseWound),
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class

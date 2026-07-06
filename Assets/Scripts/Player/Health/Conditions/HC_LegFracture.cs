@@ -22,7 +22,7 @@ public class HC_LegFracture : HealthCondition
         float baseHealing = 0.5f;
 
         // Reduce by 0.2 for each untended bruise
-        baseHealing -= 0.2f * Player.UntendedBruiseWounds.Count;
+        baseHealing -= 0.2f * Player.UnbandagedBruiseWounds.Count;
         if (baseHealing < 0f) baseHealing = 0f;
         return baseHealing;
     }

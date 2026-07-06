@@ -79,33 +79,28 @@ public class UI_ItemTooltip : UI_TooltipBase
         ConsumptionContainer.SetActive(isConsumable);
         if (isConsumable)
         {
-            ConsumptionTypeText.text = item.Def.ConsumptionType.LabelCap;
+            ConsumptionTypeText.text = item.Def.ConsumptionProperties.ConsumptionType.LabelCap;
 
-            ConsumptionNutritionRow.SetActive(item.Def.OnConsumptionNutrition > 0);
-            ConsumptionNutritionText.text = $"{item.Def.OnConsumptionNutrition} days*";
-            ConsumptionHydrationRow.SetActive(item.Def.OnConsumptionHydration > 0);
-            ConsumptionHydrationText.text = $"{item.Def.OnConsumptionHydration} days*";
+            ConsumptionNutritionRow.SetActive(item.Def.ConsumptionProperties.Nutrition > 0);
+            ConsumptionNutritionText.text = $"{item.Def.ConsumptionProperties.Nutrition} days*";
+            ConsumptionHydrationRow.SetActive(item.Def.ConsumptionProperties.Hydration > 0);
+            ConsumptionHydrationText.text = $"{item.Def.ConsumptionProperties.Hydration} days*";
 
-            ConsumptionPerDayInfo.SetActive(item.Def.OnConsumptionNutrition > 0 || item.Def.OnConsumptionHydration > 0);
+            ConsumptionPerDayInfo.SetActive(item.Def.ConsumptionProperties.Nutrition > 0 || item.Def.ConsumptionProperties.Hydration > 0);
 
             string additionalEffectsText = "";
+            if (item.Def.ConsumptionProperties.SeverityReduction > 0)
+            {
+                additionalEffectsText += $"\n- Eases a random ailment";
+            }
+            additionalEffectsText = additionalEffectsText.Trim();
             ConsumptionAdditionalInfoText.text = additionalEffectsText;
             ConsumptionAdditionalInfo.gameObject.SetActive(additionalEffectsText != "");
         }
 
         // Medical
-        bool isMedical = item.Def.HasMedicalProperties;
-        MedicalDivider.SetActive(isMedical);
-        MedicalContainer.SetActive(isMedical);
-        if (isMedical)
-        {
-            string medicalText = "";
-            if (item.Def.CanReduceSeverity) medicalText += $"\n- Can reduce health condition severity";
-            if (item.Def.CanTendWounds) medicalText += $"\n- Can tend wounds";
-            if (item.Def.CanTreatInfections) medicalText += $"\n- Can treat infections";
-            if (item.Def.CanHealPoisoning) medicalText += $"\n- Can heal poisoning";
-            MedicalText.text = medicalText.TrimStart('\n');
-        }
+        MedicalDivider.SetActive(false);
+        MedicalContainer.SetActive(false);
 
         // Description
         bool hasDescription = item.Def.Description != "";

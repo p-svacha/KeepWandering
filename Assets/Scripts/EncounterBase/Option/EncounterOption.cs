@@ -127,7 +127,7 @@ public abstract class EncounterOption
                 }
                 if (itemSlot.CustomItemSet != null)
                 {
-                    string allowedItems = string.Join(", ", itemSlot.CustomItemSet.Select(itemDef => itemDef.Label));
+                    string allowedItems = string.Join(", ", itemSlot.CustomItemSet.Items.Select(itemDef => itemDef.Label));
                     return $"Requires one of the following items: {allowedItems}.";
                 }
                 if (itemSlot.Tag != null)

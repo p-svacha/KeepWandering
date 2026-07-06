@@ -24,6 +24,8 @@ Top-of-screen UI:
 - **Centre:** the current encounter step's text and options.
 - **Right:** day counter, world-map button, handbook button, settings button, and below that the "Notes" panel (active quests / learned information).
 
+Encounter texts are strictly written in the present tense, when describing what is happening and what has happened as the outcome of the previously selected option.
+
 ## Art Direction
 
 Strictly **2D side-view comic style with no 3D depth or perspective**. Everything is sprite-based, hand-drawn, with no animation — state changes are communicated by swapping sprites, playing a sound, and simple effects rather than motion.
@@ -44,7 +46,7 @@ Sprites change to reflect state, giving immediate visual feedback without text:
 
 A point-and-click game with heavy emphasis on dragging and dropping items. Every item is a physics object resting in the cart and can be dragged freely; an item dragged offscreen respawns above the cart so nothing is ever lost.
 
-Items can be dragged into encounter option **item slots**, or directly onto relevant sprites — e.g. dragging a bandage onto a wound sprite tends it, dragging a crowbar onto a crate fills that option's slot. Item actions (eat, drink, apply) are available both via right-click context menu and via drag-and-drop onto an appropriate target.
+Items can be dragged into encounter option **item slots**, or directly onto relevant sprites — e.g. dragging a bandage onto a wound sprite bandages it, dragging a crowbar onto a crate fills that option's slot.
 
 Encounter options can be **bound to sprites** in the scene (see *Encounters → Sprite-Bound Options*), so the player can interact with the world directly, not only through the option list.
 
@@ -107,13 +109,13 @@ Gained and lost throughout the run, always shown in the health report, applied w
 
 ### Wounds
 
-A special subcategory of condition sharing common tending/infection logic. The severity value tracks **infection** rather than a damage amount, so wounds are always applied at the same initial severity. Each wound carries **tended** and **treated** flags:
+A special subcategory of condition sharing common bandaging/infection logic. The severity value tracks **infection** rather than a damage amount, so wounds are always applied at the same initial severity. Each wound carries **bandaged** and **treated** flags:
 
-- **Tending** (item with the appropriate medical tag) reduces ongoing harm and improves natural healing.
+- **Bandaging** (item with the appropriate medical tag) reduces ongoing harm and improves natural healing.
 - **Treating** (item with an antiseptic tag) protects against infection.
-- An untended/untreated wound's infection severity tends to worsen each night; infection progresses through stages with escalating penalties and is lethal at the top.
+- An unbandaged/untreated wound's infection severity tends to worsen each night; infection progresses through stages with escalating penalties and is lethal at the top.
 
-Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while untended; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
+Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while unbandaged; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
 
 ### Fractures
 
@@ -168,7 +170,7 @@ Every item has a **durability** value, randomized **1–5** on creation. Each ti
 
 Item slots in encounter options can be configured to **destroy** the item on use (e.g. giving it away) rather than ticking down durability.
 
-Durability is intended to be used alongside with the tag system. So only items with tags that are used in skill checks have durability. Items that are only used for their consumable or medical properties do not have (visible) durability. Therefore all item slots that accept items not by tag (specific item or custom list) must destroy the item on use, as durability is not relevant for those items.
+Durability is intended to be used alongside with the tag system. So only items with tags that are used in skill checks have durability. Items that are only used for their consumable or medical properties do not have (visible) durability. Therefore all item slots that accept items not by tag (specific item or custom list) must destroy the item on use, as durability is not relevant for those items. In the game it is communicated as "Remaining uses" in the item tooltip.
 
 ## Consumables
 
@@ -184,13 +186,6 @@ If the category is not None, the item has a **consumption effect**. The effect c
 - Applying a health condition
 - Permanently modifying one or more skills
 
-## Medical
-
-Items may also have medical properties. If any of these is present, the item is considered a medical item. The properties are:
-- **Severity Reduction (float):** Reduces the severity of a random negative health condition by that value.
-- **Can Tend Wounds (bool):** Can be used to tend wound.
-- **Can Treat Infection (bool):** Can be used to treat infection on a wound.
-- **Can Heal Poisoning (bool):** Can be used to heal a poisoning condition.
 
 ## Loot Tables
 
@@ -478,7 +473,7 @@ All trap results appear in the morning report.
 
 ## Night
 
-A chance of a **night encounter** based on the tile's danger level; if none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an untended wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed (see below).
+A chance of a **night encounter** based on the tile's danger level; if none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an unbandaged wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed (see below).
 
 ---
 

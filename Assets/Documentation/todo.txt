@@ -1,15 +1,6 @@
 TODOS:
 ==============================================
 
-
-- make left arm visible
-- make medical herb applicable to any wound or fracture
-- 
-
-- disable item interaction options and context menu system
-
-
-
 - show skill requirements as item slots in encounter options, with color depending if fulfilled
 - play break sound on durability break
 
@@ -26,6 +17,7 @@ TODOS:
 
 - if critical success or failure chance is below 2%, don't display the label in the option details
 
+- somehow handle that if a lot of items fit in a slot, don't show all of them (max 5?), test with consumable custom set slot
 
 
 EVENING REWORK:

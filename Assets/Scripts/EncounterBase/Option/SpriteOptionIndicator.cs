@@ -14,8 +14,6 @@ using UnityEngine.UI;
 public class SpriteOptionIndicator : MonoBehaviour
 {
     // Tunable constants
-    private const float MIN_OPACITY = 0f;
-    private const float FULL_OPACITY = 1f;
     private const float OUTLINE_WIDTH = 0.2f;
     private const float OUTLINE_OFFSET = 0.15f;
     private const float TEXTURE_SCALE_X = 0.2f;
@@ -25,6 +23,7 @@ public class SpriteOptionIndicator : MonoBehaviour
     private const float UI_OFFSET_Y = 30f;
 
     // Cached references
+    private List<Vector2[]> OriginalColliderPaths;
     private SpriteRenderer SpriteRenderer;
     public SpriteRenderer Sprite => SpriteRenderer;
     private PolygonCollider2D Collider;
@@ -45,6 +44,14 @@ public class SpriteOptionIndicator : MonoBehaviour
             throw new System.Exception($"SpriteOptionIndicator requires a SpriteRenderer on {gameObject.name}");
         if (Collider == null)
             throw new System.Exception($"SpriteOptionIndicator requires a PolygonCollider2D on {gameObject.name}");
+
+        // Snapshot the original Unity-generated collider shape before it ever gets overwritten,
+        // so repeated Bind() calls always offset from the same source rather than compounding.
+        OriginalColliderPaths = new List<Vector2[]>();
+        for (int i = 0; i < Collider.pathCount; i++)
+        {
+            OriginalColliderPaths.Add(Collider.GetPath(i));
+        }
     }
 
     private void Update()
@@ -77,7 +84,15 @@ public class SpriteOptionIndicator : MonoBehaviour
 
         // Create one LineRenderer per collider sub-path
         Material outlineMaterial = ResourceManager.LoadMaterial("Encounters/DashedOutline");
-        List<Vector2[]> outlines = ComputeOffsetOutlines(Collider, OUTLINE_OFFSET);
+        List<Vector2[]> outlines = ComputeOffsetOutlines(OriginalColliderPaths, OUTLINE_OFFSET);
+
+        // Reassign the collider shape to match the offset outline, so the hoverable/clickable area
+        // exactly matches the visual dashed outline rather than the tighter original sprite silhouette.
+        Collider.pathCount = outlines.Count;
+        for (int i = 0; i < outlines.Count; i++)
+        {
+            Collider.SetPath(i, outlines[i]);
+        }
 
         for (int outlineIndex = 0; outlineIndex < outlines.Count; outlineIndex++)
         {
@@ -119,7 +134,7 @@ public class SpriteOptionIndicator : MonoBehaviour
 
         // Initial state
         UpdateAvailabilityColor();
-        SetOutlineOpacity(false); // Start hidden
+        SetOutlineOpacity(0f); // Start hidden
     }
 
     /// <summary>
@@ -190,14 +205,13 @@ public class SpriteOptionIndicator : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the outline to full opacity or fully hidden. No longer distance-based -
-    /// visibility is now driven entirely by whether this is the topmost indicator under the mouse.
+    /// Sets the outline's opacity directly. Visibility is driven by the interaction manager,
+    /// which picks the appropriate level (full for hover/lock/reveal-all, a dimmer constant
+    /// for "an item that could be slotted here is currently hovered/dragged").
     /// </summary>
-    public void SetOutlineOpacity(bool visible)
+    public void SetOutlineOpacity(float targetAlpha)
     {
         if (OutlineRenderers.Count == 0) return;
-
-        float targetAlpha = visible ? FULL_OPACITY : MIN_OPACITY;
 
         foreach (LineRenderer lr in OutlineRenderers)
         {
@@ -224,12 +238,11 @@ public class SpriteOptionIndicator : MonoBehaviour
     /// Overlapping/crossing paths are automatically merged before offsetting, and concave
     /// corners are handled with round joins to avoid any spiking.
     /// </summary>
-    private List<Vector2[]> ComputeOffsetOutlines(PolygonCollider2D collider, float offset)
+    private List<Vector2[]> ComputeOffsetOutlines(List<Vector2[]> sourcePaths, float offset)
     {
         PathsD inputPaths = new PathsD();
-        for (int i = 0; i < collider.pathCount; i++)
+        foreach (Vector2[] path in sourcePaths)
         {
-            Vector2[] path = collider.GetPath(i);
             PathD pathD = new PathD(path.Length);
             foreach (Vector2 p in path) pathD.Add(new PointD(p.x, p.y));
             inputPaths.Add(pathD);

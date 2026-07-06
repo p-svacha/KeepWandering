@@ -159,15 +159,29 @@ public class PlayerCharacter
         return wound;
     }
 
-    public void TendWound(Wound wound)
+    public void BandageWound(Wound wound)
     {
-        wound.Tend();
+        wound.Bandage();
         wound.Renderer.Refresh();
     }
-    public void TreatWound(Wound wound)
+    public void TreatInfection(Wound wound)
     {
         wound.Treat();
         wound.Renderer.Refresh();
+    }
+
+    /// <summary>
+    /// Reduces the severity of a random negative health condition by the specified amount, without fully healing it.
+    /// </summary>
+    public void ReduceRandomNegativeHcSeverity(float amount)
+    {
+        if(amount <= 0) return;
+
+        List<HealthCondition> candidates = HealthConditions.Where(hc => hc.IsNegative).ToList();
+        if (candidates.Count == 0) return;
+
+        HealthCondition hc = candidates.RandomElement();
+        hc.ModifySeverity(-amount, avoidFullHeal: true);
     }
 
     public void AddDog()
@@ -206,16 +220,13 @@ public class PlayerCharacter
 
     // Wounds
     public List<Wound> Wounds => HealthConditions.Where(hc => hc is Wound w).Select(hc => (Wound)hc).ToList();
-    public List<Wound> TendableWounds => Wounds.Where(w => !w.IsTended).ToList();
+    public List<Wound> BandagableWounds => Wounds.Where(w => !w.IsBandaged).ToList();
     public List<Wound> TreatableWounds => Wounds.Where(w => w.IsInfected && !w.IsTreated).ToList();
 
     public List<HC_BruiseWound> BruiseWounds => Wounds.Where(w => w is HC_BruiseWound).Select(w => (HC_BruiseWound)w).ToList();
-    public List<HC_BruiseWound> UntendedBruiseWounds => BruiseWounds.Where(w => !w.IsTended).ToList();
-    public bool HasUntendedBruiseWound => UntendedBruiseWounds.Count > 0;
+    public List<HC_BruiseWound> UnbandagedBruiseWounds => BruiseWounds.Where(w => !w.IsBandaged).ToList();
 
     public List<HC_CutWound> CutWounds => Wounds.Where(w => w is HC_CutWound).Select(w => (HC_CutWound)w).ToList();
-    public List<HC_CutWound> UntendedCutWounds => CutWounds.Where(w => !w.IsTended).ToList();
-    public bool HasUntendedCutWound => UntendedCutWounds.Count > 0;
 
     #endregion
 }

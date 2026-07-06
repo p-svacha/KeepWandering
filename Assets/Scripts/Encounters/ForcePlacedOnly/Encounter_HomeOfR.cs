@@ -99,7 +99,6 @@ public class Encounter_HomeOfR : LocationEncounter
 
     private EncounterOption GetDeliverMedicineOption()
     {
-        List<ItemDef> acceptedItems = DefDatabase<ItemDef>.AllDefs.Where(i => i.CanTreatInfections).ToList();
         return new FixedOutcomeOption()
         {
             Text = "Deliver medicine",
@@ -110,7 +109,7 @@ public class Encounter_HomeOfR : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    CustomItemSet = acceptedItems,
+                    Tag = ItemTagDefOf.InfectionTreatment,
                 }
             }
         };

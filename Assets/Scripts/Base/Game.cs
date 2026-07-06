@@ -35,9 +35,6 @@ public class Game : Singleton<Game>
     public int NumCompletedQuestsSinceLastStep = 0;
     public int NumFailedQuestsSinceLastStep = 0;
 
-    private static int ITEM_MIN_INITIAL_DURABILITY = 1;
-    private static int ITEM_MAX_INITIAL_DURABILITY = 5;
-
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
     public bool IsEarlyResting; // If true, some extra natural healing is applied when going to sleep.
@@ -250,7 +247,7 @@ public class Game : Singleton<Game>
         if (!canInteract) return;
 
         // Get interaction options for item
-        List<InteractionOption> options = item.GetInteractionOptions();
+        List<InteractionOption> options = new List<InteractionOption>();
         Debug.Log($"Clicked on " + item.Label + " with " + options.Count + " interaction options.");
 
         // If it has any, show context menu
@@ -827,7 +824,7 @@ public class Game : Singleton<Game>
         if (hidden) item.Renderer.Hide();
         if (frozen) item.Renderer.Freeze();
 
-        int initialDurability = Random.Range(ITEM_MIN_INITIAL_DURABILITY, ITEM_MAX_INITIAL_DURABILITY + 1);
+        int initialDurability = Random.Range(itemDef.MinInitialDurability, itemDef.MaxInitialDurability + 1);
         SetItemDurability(item, initialDurability);
 
         return item;
@@ -926,8 +923,9 @@ public class Game : Singleton<Game>
     {
         if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
 
-        Player.ModifyHunger(-item.Def.OnConsumptionNutrition);
-        Player.ModifyThirst(-item.Def.OnConsumptionHydration);
+        Player.ModifyHunger(-item.Def.ConsumptionProperties.Nutrition);
+        Player.ModifyThirst(-item.Def.ConsumptionProperties.Hydration);
+        Player.ReduceRandomNegativeHcSeverity(item.Def.ConsumptionProperties.SeverityReduction);
 
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
@@ -1062,24 +1060,20 @@ public class Game : Singleton<Game>
         OnGameStateChanged();
     }
 
-    public void TendWound(Wound wound, Item item)
+    public void BandageWound(Wound wound)
     {
-        if (!item.Def.CanTendWounds) Debug.LogWarning($"Tending wound with an item that can't tend wounds! {item.Label}");
-        if (wound.IsTended) Debug.LogWarning("Tending wound that is already tended.");
+        if (wound.IsBandaged) Debug.LogWarning("Bandaging wound that is already bandaged.");
         wound.SetHightlighted(false);
-        Player.TendWound(wound);
-        DestroyOwnedItem(item, showOnEventStepDisplay: false);
+        Player.BandageWound(wound);
         OnGameStateChanged();
     }
 
-    public void TreatWound(Wound wound, Item item)
+    public void TreatInfection(Wound wound)
     {
-        if (!item.Def.CanTreatInfections) Debug.LogWarning($"Healing infection with an item that can't heal infections! {item.Label}");
         if (wound.InfectionStage == InfectionStage.None) Debug.LogWarning("Healing infection of wound that is not infected.");
 
         wound.SetHightlighted(false);
-        Player.TreatWound(wound);
-        DestroyOwnedItem(item, showOnEventStepDisplay: false);
+        Player.TreatInfection(wound);
         OnGameStateChanged();
     }
 

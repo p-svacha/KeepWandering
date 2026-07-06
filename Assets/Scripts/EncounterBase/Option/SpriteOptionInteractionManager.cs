@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,7 +10,12 @@ using UnityEngine.EventSystems;
 public static class SpriteOptionInteractionManager
 {
     // Tunable constants
-    private const float DRAG_HOLD_TO_LOCK_TIME = 0.5f;
+    private const float DRAG_HOLD_TO_LOCK_TIME = 1.5f;
+
+    private const float MIN_OPACITY = 0f;
+    private const float FULL_OPACITY = 1f;
+    private const float ITEM_HOVER_OPACITY = 0.4f;
+
     private static readonly KeyCode REVEAL_HOTSPOTS_KEY = KeyCode.LeftAlt;
 
     // State
@@ -119,8 +125,9 @@ public static class SpriteOptionInteractionManager
     public static bool TryDropItemOnSprite(Item item)
     {
         if (Game.Instance == null) return false;
+        if (EventSystem.current.IsPointerOverGameObject()) return false;
 
-        SpriteOptionIndicator indicator = GetIndicatorUnderMouse();
+        SpriteOptionIndicator indicator = GetIndicatorUnderMouse(item);
         if (indicator == null) return false;
 
         foreach (EncounterOption option in indicator.Options)
@@ -166,63 +173,62 @@ public static class SpriteOptionInteractionManager
 
             Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
             bool revealHotspots = Input.GetKey(REVEAL_HOTSPOTS_KEY);
-            SpriteOptionIndicator hoveredNow = GetIndicatorUnderMouse();
-            if (EventSystem.current.IsPointerOverGameObject()) hoveredNow = null;
+
+            SpriteOptionIndicator hoveredIndicator = GetIndicatorUnderMouse();
+            Item relevantItem = ItemDragDropManager.IsDragging ? ItemDragDropManager.DraggedItem : Game.Instance.CurrentHoverItem;
+
+            // While dragging, find the topmost sprite that can actually accept the item,
+            // skipping ineligible sprites even if they're visually in front.
+            SpriteOptionIndicator effectiveHoveredIndicator = (ItemDragDropManager.IsDragging && relevantItem != null)
+                ? GetIndicatorUnderMouse(relevantItem)
+                : hoveredIndicator;
+
+            bool itemCanBeSlotted = relevantItem != null && ActiveIndicators.Values.Any(i => IndicatorHasSlotFor(i, relevantItem));
+
+            // Override hoveredNow to null if the mouse is over a UI element (to prevent accidental locking when clicking on UI)
+            if (EventSystem.current.IsPointerOverGameObject()) effectiveHoveredIndicator = null;
 
             // Check if hovering/dragging an item that can be slotted into any sprite-bound option
-            Item relevantItem = ItemDragDropManager.IsDragging ? ItemDragDropManager.DraggedItem : Game.Instance.CurrentHoverItem;
-            bool itemCanBeSlotted = false;
-            if (relevantItem != null)
-            {
-                foreach (var kvp in ActiveIndicators)
-                {
-                    foreach (EncounterOption option in kvp.Value.Options)
-                    {
-                        foreach (ItemSlot slot in option.ItemSlots)
-                        {
-                            if (!slot.IsFilled && slot.CanAcceptItem(relevantItem))
-                            {
-                                itemCanBeSlotted = true;
-                                break;
-                            }
-                        }
-                        if (itemCanBeSlotted) break;
-                    }
-                    if (itemCanBeSlotted) break;
-                }
-            }
-
-            // Update proximity for all active indicators
             foreach (var kvp in ActiveIndicators)
             {
                 SpriteOptionIndicator indicator = kvp.Value;
-                bool shouldReveal = revealHotspots || indicator == LockedIndicator || indicator == hoveredNow;
-                if (!shouldReveal && itemCanBeSlotted && relevantItem != null)
+
+                float targetOpacity;
+                if (revealHotspots || indicator == LockedIndicator || indicator == effectiveHoveredIndicator)
                 {
-                    foreach (EncounterOption option in indicator.Options)
-                    {
-                        foreach (ItemSlot slot in option.ItemSlots)
-                        {
-                            if (!slot.IsFilled && slot.CanAcceptItem(relevantItem))
-                            {
-                                shouldReveal = true;
-                                break;
-                            }
-                        }
-                        if (shouldReveal) break;
-                    }
+                    targetOpacity = 1f;
+                }
+                else if (itemCanBeSlotted && IndicatorHasSlotFor(indicator, relevantItem))
+                {
+                    targetOpacity = 0.5f;
+                }
+                else
+                {
+                    targetOpacity = 0f;
                 }
 
-                indicator.SetOutlineOpacity(shouldReveal);
-                indicator.SetDisplayState(indicator == hoveredNow, indicator == LockedIndicator);
+                indicator.SetOutlineOpacity(targetOpacity);
+                indicator.SetDisplayState(indicator == effectiveHoveredIndicator, indicator == LockedIndicator);
             }
 
-            HoveredIndicator = hoveredNow;
+            HoveredIndicator = hoveredIndicator;
 
             HandleClick();
             HandleRightClick();
             HandleDragHold();
         }
+    }
+
+    private static bool IndicatorHasSlotFor(SpriteOptionIndicator indicator, Item item)
+    {
+        foreach (EncounterOption option in indicator.Options)
+        {
+            foreach (ItemSlot slot in option.ItemSlots)
+            {
+                if (!slot.IsFilled && slot.CanAcceptItem(item)) return true;
+            }
+        }
+        return false;
     }
 
     private static void HandleClick()
@@ -307,7 +313,7 @@ public static class SpriteOptionInteractionManager
             return;
         }
 
-        SpriteOptionIndicator currentDragTarget = GetIndicatorUnderMouse();
+        SpriteOptionIndicator currentDragTarget = GetIndicatorUnderMouse(ItemDragDropManager.DraggedItem);
 
         if (currentDragTarget != DragHoldTarget)
         {
@@ -328,9 +334,11 @@ public static class SpriteOptionInteractionManager
     }
 
     /// <summary>
-    /// Returns the registered sprite indicator currently under the given world position (topmost by sorting), or null.
+    /// Returns the registered sprite indicator currently under the mouse (topmost by sorting), or null.
+    /// If filterItem is provided, indicators with no slot that can accept it are skipped entirely,
+    /// so the topmost eligible sprite is found even if an ineligible sprite is visually in front of it.
     /// </summary>
-    private static SpriteOptionIndicator GetIndicatorUnderMouse()
+    private static SpriteOptionIndicator GetIndicatorUnderMouse(Item filterItem = null)
     {
         Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
         int layer_mask = LayerMask.GetMask(UI_EncounterDisplay.SPRITE_ENCOUNTER_OPTION_LAYER);
@@ -345,6 +353,7 @@ public static class SpriteOptionInteractionManager
         foreach (RaycastHit2D hit in hits)
         {
             if (!ActiveIndicators.TryGetValue(hit.collider.gameObject, out SpriteOptionIndicator indicator)) continue;
+            if (filterItem != null && !IndicatorHasSlotFor(indicator, filterItem)) continue;
 
             SpriteRenderer sr = indicator.Sprite;
             if (sr == null) continue;

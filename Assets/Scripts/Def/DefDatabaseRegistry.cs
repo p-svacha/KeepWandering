@@ -31,6 +31,7 @@ public static class DefDatabaseRegistry
         DefDatabase<RumourDef>.AddDefs(RumourDefs.Defs);
         DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);
         DefDatabase<StatDef>.AddDefs(StatDefs.Defs);
+        DefDatabase<HealthConditionCategoryDef>.AddDefs(HealthConditionCategoryDefs.Defs);
         DefDatabase<HealthConditionDef>.AddDefs(HealthConditionDefs.Defs);
         DefDatabase<CompanionDef>.AddDefs(CompanionDefs.Defs);
 

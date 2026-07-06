@@ -20,6 +20,8 @@ public abstract class HealthCondition
     public virtual float InitialSeverity => Def.InitialSeverity;
     public virtual float MaxSeverity => Def.MaxSeverity;
     public virtual bool IsLethal => Def.IsLethal;
+    public bool IsNeed => Def.IsNeed;
+    public bool IsNegative => Def.Category == HealthConditionCategoryDefOf.Negative;
     public virtual string LethalityMessage => Def.LethalityMessage;
 
     protected PlayerCharacterRenderer PlayerRenderer => Player.Renderer;
@@ -49,12 +51,20 @@ public abstract class HealthCondition
         UpdateStage();
     }
 
-    public void ModifySeverity(float value)
+    /// <summary>
+    /// Modifies the severity value of this condition by the given value. If the new severity value is below 0, it will be set to 0. If it is above MaxSeverity, it will be set to MaxSeverity. After modifying the severity, the active stage will be updated accordingly.
+    /// <br/>If avoidFullHeal is true, the severity will not be allowed to reach 0, and will be set to 0.1 instead.
+    /// </summary>
+    public void ModifySeverity(float value, bool avoidFullHeal = false)
     {
         float oldSeverity = SeverityValue;
         SeverityValue += value;
+
+        // Clamp severity value to valid range
         if (SeverityValue < 0) SeverityValue = 0f;
+        if (avoidFullHeal && SeverityValue < 0.1f) SeverityValue = 0.1f;
         if (SeverityValue > MaxSeverity) SeverityValue = MaxSeverity;
+
         float newSeverity = SeverityValue;
 
         Debug.Log($"Modified severity of {Def} by {value}. Old severity: {oldSeverity}, new severity: {newSeverity}");

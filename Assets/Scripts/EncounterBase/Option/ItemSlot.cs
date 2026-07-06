@@ -46,12 +46,7 @@ public class ItemSlot
     /// <summary>
     /// The custom set of allowed items that can be dragged into this slot.
     /// </summary>
-    public List<ItemDef> CustomItemSet { get; init; } = null;
-
-    /// <summary>
-    /// Display label of the slot if the allowed items are defined by a custom set. This is used to display the name of the slot in the UI.
-    /// </summary>
-    public string CustomItemSetName { get; init; } = null;
+    public ItemSet CustomItemSet { get; init; } = null;
 
     /// <summary>
     /// The item tag that an item dragged into this slot must have.
@@ -67,20 +62,22 @@ public class ItemSlot
     public void Validate()
     {
         // Make sure slot has exactly 1 option configured
-        if (Item == null && Tag == null && CustomItemSet == null) throw new System.Exception("ItemSlot must have either a specific item, a specific tag, or a list of allowed items.");
+        if (Item == null && Tag == null && (CustomItemSet == null || CustomItemSet.Items == null)) throw new System.Exception("ItemSlot must have either a specific item, a specific tag, or a list of allowed items.");
 
         if (Item != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a specific item and a specific tag.");
-        if (CustomItemSet != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a list of allowed items and a specific tag.");
+        if (CustomItemSet != null && CustomItemSet.Items != null && Tag != null) throw new System.Exception("ItemSlot cannot have both a list of allowed items and a specific tag.");
 
         // Validation for specific item(s)
-        if (Item != null || CustomItemSet != null)
+        if (Item != null || (CustomItemSet != null && CustomItemSet.Items != null))
         {
-            if (Item != null && CustomItemSet != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
+            if (Item != null && CustomItemSet != null && CustomItemSet.Items != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
             if (!IsRequired) throw new System.Exception("ItemSlot with a specific item or list of allowed items must be required, as only tag slots can have difficulty reductions for optional slots.");
             if (HasrequiredTagLevel) throw new System.Exception("ItemSlot with a specific item or list of allowed items cannot have a required tag level, as only tag slots can have difficulty reductions.");
             if (!IsDestroyingItem) throw new System.Exception("ItemSlot with a specific item or list of allowed items must destroy the item, as the durability system is intended to work with tags.");
 
-            if (CustomItemSet != null && string.IsNullOrEmpty(CustomItemSetName)) throw new System.Exception("ItemSlot with a list of allowed items must have a display label set.");
+            // Custom item set
+            if (CustomItemSet != null && CustomItemSet.Items != null && string.IsNullOrEmpty(CustomItemSet.Name)) throw new System.Exception("ItemSlot with a list of allowed items must have a display label set.");
+            if (CustomItemSet != null && CustomItemSet.Items != null && CustomItemSet.Items.Count == 0) throw new System.Exception("ItemSlot with a list of allowed items must have at least one item in the list.");
         }
 
         // Validation for tag
@@ -171,7 +168,7 @@ public class ItemSlot
         {
             if (Item != null && itemDef != Item) continue;
             if (Tag != null && !itemDef.HasTag(Tag)) continue;
-            if (CustomItemSet != null && !CustomItemSet.Contains(itemDef)) continue;
+            if (CustomItemSet != null && !CustomItemSet.Items.Contains(itemDef)) continue;
             if (HasrequiredTagLevel && (!itemDef.HasTag(Tag) || itemDef.Tags[Tag] < RequiredTagLevel)) continue;
             itemDefs.Add(itemDef);
         }
@@ -191,7 +188,7 @@ public class ItemSlot
     {
         if (Item != null) return $"Slot for {Item.DefName}";
         if (Tag != null) return $"Slot for items with {Tag.DefName} tag";
-        if (CustomItemSet != null) return $"Slot for specific items: {string.Join(", ", CustomItemSet.Select(x => x.DefName))}";
+        if (CustomItemSet != null) return $"Slot for specific items: {string.Join(", ", CustomItemSet.Items.Select(x => x.DefName))}";
         return "Invalid slot";
     }
 
@@ -203,7 +200,7 @@ public class ItemSlot
             if (HasrequiredTagLevel) return $"Tier {RequiredTagLevel}+ {Tag.LabelCap}";
             else return $"{Tag.LabelCap}";
         }
-        if (CustomItemSet != null) return CustomItemSetName;
+        if (CustomItemSet != null) return CustomItemSet.Name;
 
         throw new System.Exception("Invalid slot: cannot generate label for slot with no item, tag, or custom item set.");
     }

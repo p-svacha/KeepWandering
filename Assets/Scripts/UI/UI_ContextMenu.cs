@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Currently unused.
+/// </summary>
 public class UI_ContextMenu : Singleton<UI_ContextMenu>
 {
     private Game Game => Game.Instance;
@@ -24,9 +27,11 @@ public class UI_ContextMenu : Singleton<UI_ContextMenu>
     
     public void Show(Item item)
     {
+        /*
         CurrentItem = item;
         Show(item.LabelCapWord, item.GetInteractionOptions());
         UpdatePosition(item);
+        */
     }
 
     public void Show(string title, List<InteractionOption> options)

@@ -27,7 +27,7 @@ public class WoundRenderer : MonoBehaviour
         gameObject.SetActive(true);
         WoundSpriteRenderer.gameObject.SetActive(true);
         WoundSpriteRenderer.sprite = GetWoundSprite();
-        TendOverlaySpriteRenderer.gameObject.SetActive(Wound.IsTended);
+        TendOverlaySpriteRenderer.gameObject.SetActive(Wound.IsBandaged);
         TendOverlaySpriteRenderer.sprite = Wound.SpriteTended;
     }
 

@@ -14,7 +14,7 @@ public abstract class Wound : HealthCondition
     public const float NATURAL_HEALING_TENDED = 1f;
 
 
-    public bool IsTended { get; private set; }
+    public bool IsBandaged { get; private set; }
     public bool IsTreated { get; private set; }
 
     public InfectionStage InfectionStage => (InfectionStage)ActiveStageIndex;
@@ -28,12 +28,12 @@ public abstract class Wound : HealthCondition
     public override List<HealthConditionStage> Stages => WoundStages;
 
     // Base effects
-    private Dictionary<StatDef, int> BaseUntendedStatModifiers => new Dictionary<StatDef, int>()
+    private Dictionary<StatDef, int> BaseUnbandagedStatModifiers => new Dictionary<StatDef, int>()
     {
         { StatDefOf.Strength, -2 },
         { StatDefOf.Social, -2 },
     };
-    private Dictionary<StatDef, int> BaseTendedStatModifiers => new Dictionary<StatDef, int>()
+    private Dictionary<StatDef, int> BaseBandagedStatModifiers => new Dictionary<StatDef, int>()
     {
         { StatDefOf.Strength, -1 },
         { StatDefOf.Social, -1 },
@@ -91,7 +91,7 @@ public abstract class Wound : HealthCondition
 
     public override float GetNaturalHealing()
     {
-        if (IsTended) return NATURAL_HEALING_TENDED;
+        if (IsBandaged) return NATURAL_HEALING_TENDED;
         else return NATURAL_HEALING_UNTENDED;
     }
 
@@ -105,7 +105,7 @@ public abstract class Wound : HealthCondition
         InfectionStage beforeStage = (InfectionStage)ActiveStageIndex;
 
         // If the wound is untended or infected and untreated, increase severity random amount between 0.5 and 1.5.
-        if (!IsTended || (IsInfected && !IsTreated))
+        if (!IsBandaged || (IsInfected && !IsTreated))
         {
             float severityIncrease = Random.Range(0.5f, 1.5f);
             ModifySeverity(severityIncrease);
@@ -134,7 +134,7 @@ public abstract class Wound : HealthCondition
     public override Dictionary<StatDef, int> GetCurrentModifiers()
     {
         Dictionary<StatDef, int> modifiers = new(ActiveStage.StatModifiers); // Copy to avoid modifying the original
-        modifiers.IncrementMultiple(IsTended ? BaseTendedStatModifiers : BaseUntendedStatModifiers);
+        modifiers.IncrementMultiple(IsBandaged ? BaseBandagedStatModifiers : BaseUnbandagedStatModifiers);
         return modifiers;
     }
 
@@ -143,9 +143,9 @@ public abstract class Wound : HealthCondition
         Renderer = renderer;
     }
 
-    public void Tend()
+    public void Bandage()
     {
-        IsTended = true;
+        IsBandaged = true;
     }
     public void Treat()
     {
@@ -166,7 +166,7 @@ public abstract class Wound : HealthCondition
     public override string GetReportLabel()
     {
         // Name
-        string tendName = IsTended ? "Tended" : "Untended";
+        string tendName = IsBandaged ? "Tended" : "Untended";
         string label = $"{tendName} {Def.LabelCap}";
         if (IsInfected)
         {
@@ -181,7 +181,7 @@ public abstract class Wound : HealthCondition
     public override string GetReportDescription()
     {
         string description = Def.Description;
-        if (!IsTended) description += $"\nNeeds to be tended to heal. {GetUntendedEffectString()}";
+        if (!IsBandaged) description += $"\nNeeds to be tended to heal. {GetUntendedEffectString()}";
         if (IsInfected) description += $"\n{ActiveStage.Description}";
         return description;
     }
