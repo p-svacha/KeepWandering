@@ -759,7 +759,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: -4
+  m_Spacing: -5
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -860,7 +860,7 @@ GameObject:
   - component: {fileID: 1862799204452469341}
   - component: {fileID: 3922453900731292319}
   m_Layer: 5
-  m_Name: EncounterStepOption
+  m_Name: EncounterOption
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1971,42 +1971,6 @@ PrefabInstance:
     - target: {fileID: 7731079849826116924, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -0.00000047683716
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

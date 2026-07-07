@@ -21,8 +21,10 @@ public static class ResourceManager
 
     public static readonly Color Color_Button_Default = new Color(1f, 0.81f, 0f);
     public static readonly Color Color_Button_Disabled = new Color(0.5f, 0.5f, 0.5f);
-    public static readonly Color Color_Option_Slot_Filled = new Color(0.59f, 1f, 0.47f);
-    public static readonly Color Color_Option_Slot_Unmet = new Color(0.78f, 0.37f, 0.32f);
+    public static readonly Color Color_Option_Slot = new Color(1f, 0.98f, 0.78f);
+    public static readonly Color Color_Option_Slot_Req_Met = new Color(0.59f, 1f, 0.47f);
+    public static readonly Color Color_Option_Slot_Req_Meetable = Color_Option_Slot;
+    public static readonly Color Color_Option_Slot_Req_Unmet = new Color(0.96f, 0.58f, 0.54f);
 
     public static readonly Color Color_Panel_Highlighted = new Color(1f, 0.91f, 0.53f);
 
@@ -32,6 +34,9 @@ public static class ResourceManager
     public static readonly Color Color_Highlight_UltimateImpact = new Color(1f, 0f, 0f);
 
     public static readonly Color Color_Text_Warning = new Color(0.8f, 0.2f, 0.2f);
+
+    public static readonly Color ItemHighlight_UsableColor = new Color(0.90f, 0.61f, 0f);
+    public static readonly Color ItemHighlight_HoverColor = new Color(1f, 1f, 1f);
     public static string WarningText(string text) => $"<color=#{ColorUtility.ToHtmlStringRGB(Color_Text_Warning)}>{text}</color>";
 
     private static Dictionary<string, Material> CachedMaterials = new Dictionary<string, Material>();

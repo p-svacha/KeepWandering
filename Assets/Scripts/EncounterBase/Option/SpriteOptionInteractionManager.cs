@@ -27,8 +27,9 @@ public static class SpriteOptionInteractionManager
     private static bool SubscribedToCameraEvents = false;
     private static Dictionary<GameObject, SpriteOptionIndicator> ActiveIndicators = new Dictionary<GameObject, SpriteOptionIndicator>();
     public static IReadOnlyDictionary<GameObject, SpriteOptionIndicator> GetActiveIndicators() => ActiveIndicators;
-    private static SpriteOptionIndicator HoveredIndicator;
-    private static SpriteOptionIndicator LockedIndicator;
+    public static SpriteOptionIndicator HoveredIndicator { get; private set; }
+    public static SpriteOptionIndicator LockedIndicator { get; private set; }
+
 
     // Drag-hold state
     private static SpriteOptionIndicator DragHoldTarget;

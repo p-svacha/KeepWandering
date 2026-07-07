@@ -400,6 +400,10 @@ public abstract class Encounter
                         Tag = ItemTagDefOf.WoundBandaging,
                     }
                 },
+                SkillRequirements = new Dictionary<StatDef, int>()
+                {
+                    { StatDefOf.Morale, 1 }
+                }
             });
         }
         return options;

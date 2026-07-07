@@ -16,9 +16,6 @@ public class ItemRenderer : MonoBehaviour
     public bool IsFrozen => Rigidbody.bodyType == RigidbodyType2D.Static;
     public bool IsRenderingAboveUI { get; private set; }
 
-    // Glow
-    public bool IsForcedGlowing { get; private set; }
-
     // Cached sorting order for drag and drop
     private int SortingOrder;
 
@@ -62,23 +59,14 @@ public class ItemRenderer : MonoBehaviour
         SetRotation(angle);
     }
 
-    /// <summary>
-    /// Makes the item glow with the specified color. If forced, the unhighlight must removeForce to remove the glow.
-    /// </summary>
-    public void Highlight(Color color, bool forced = false)
+    public void Highlight(Color color)
     {
-        if (IsForcedGlowing && !forced) return; // Don't override a forced glow with a non-forced one
-
-        IsForcedGlowing = forced;
         SpriteRenderer.material.SetFloat("_IsGlowing", 1);
         SpriteRenderer.material.SetColor("_GlowColor", color);
     }
 
-    public void Unhighlight(bool removeForced = false)
+    public void Unhighlight()
     {
-        if (IsForcedGlowing && !removeForced) return; // Don't unhighlight a forced glow with a non-forced unhighlight
-
-        IsForcedGlowing = false;
         SpriteRenderer.material.SetFloat("_IsGlowing", 0);
     }
 

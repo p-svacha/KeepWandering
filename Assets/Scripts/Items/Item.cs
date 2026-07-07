@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Item
 {
@@ -76,7 +72,6 @@ public class Item
     {
         if (HasAnyTag) return $"Remaining Uses: {Durability}";
         if (IsConsumable) return "Consumable Item";
-        if (HasMedicalProperties) return "Medical Item";
         return "Special Item";
     }
 

@@ -1,14 +1,6 @@
 TODOS:
 ==============================================
 
-- indicator keeps growing!
-
-- sprite options can currently overlap with option details, find a fix for this
-  - best is probably to just make sure that it can't happen. increase default zoom
-
-- when hovering a UI_EncounterOption (regardless if UI or sprite-bound), highlight items that can be used on it
-  - override: when hovering a specific UI_ItemSlot of an option, highlight only items that can be used on that specific slot
-
 - consumable items to give skills
 	- use to test stat requirements
 

@@ -175,9 +175,12 @@ public class Game : Singleton<Game>
                 UpdateHoveredItem();
             }
 
+            // Manager updates
             ItemDragDropManager.Update();
             SpriteOptionInteractionManager.Update();
+            ItemHighlightManager.Update();
 
+            // Handle mouse clicks
             if (!ItemDragDropManager.IsDragging)
             {
 
@@ -279,14 +282,8 @@ public class Game : Singleton<Game>
 
         if (newHoveredItem != prevHoveredItem) // Hovering a new item
         {
-            // Disable highlight of previous item
-            if (prevHoveredItem != null) prevHoveredItem.Renderer.Unhighlight();
-
-            if (newHoveredItem != null)
-            {
-                newHoveredItem.Renderer.Highlight(Color.white); // Highlight new item
-                CurrentHoverTime = 0f; // Reset hover time for tooltip
-            }
+            // Reset hover time for tooltip
+            if (newHoveredItem != null) CurrentHoverTime = 0f; 
 
             // Hide tooltip
             UI.HideAllTooltips();
@@ -400,7 +397,6 @@ public class Game : Singleton<Game>
         if (step != null)
         {
             UI.EventStepDisplay.Init(step, prevOutcome);
-            step.HighlightSlottableItems();
         }
 
         // Clear event step outcome
@@ -475,7 +471,7 @@ public class Game : Singleton<Game>
     {
         foreach (Item item in Inventory)
         {
-            item.Renderer.Unhighlight(removeForced: true);
+            item.Renderer.Unhighlight();
         }
     }
 

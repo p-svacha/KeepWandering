@@ -258,6 +258,8 @@ public static class ItemDragDropManager
         if (Game.Instance == null) return;
 
         float offScreenMaxX = 12f;
+        float offScreenMinX = OFF_SCREEN_MIN_X + EncounterCamera.Instance.transform.position.x;
+
         if (EncounterCamera.Instance.Camera.orthographicSize > EncounterCamera.DEFAULT_CAMERA_SIZE)
         {
             float increase = (EncounterCamera.Instance.Camera.orthographicSize - EncounterCamera.DEFAULT_CAMERA_SIZE) * EncounterCamera.Instance.Camera.aspect * 2f;
@@ -270,7 +272,7 @@ public static class ItemDragDropManager
             if (IsDragging && item == DraggedItem) continue;
 
             Vector3 pos = item.Renderer.transform.position;
-            if (pos.y < OFF_SCREEN_MIN_Y || pos.x < OFF_SCREEN_MIN_X || pos.x > offScreenMaxX)
+            if (pos.y < OFF_SCREEN_MIN_Y || pos.x < offScreenMinX || pos.x > offScreenMaxX)
             {
                 Game.Instance.DropItemIntoCart(item);
             }

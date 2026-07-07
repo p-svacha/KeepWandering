@@ -68,13 +68,14 @@ Material:
     m_Floats:
     - Vector1_4ad1082187e440589bb58125a35279b7: 5
     - Vector1_dc58af0f6dcc4ce39119224e5677d75c: 0.01
-    - Vector1_ed3362873e3b4e5ebacedc7bb8fcdc74: 0.5
+    - Vector1_ed3362873e3b4e5ebacedc7bb8fcdc74: 1
     - _EnableExternalAlpha: 0
-    - _IsGlowing: 0
+    - _IsGlowing: 1
     - _ZWrite: 0
     m_Colors:
+    - White: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _GlowColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GlowColor: {r: 0.9098039, g: 0.6117647, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

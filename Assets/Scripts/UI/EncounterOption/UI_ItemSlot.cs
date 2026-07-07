@@ -59,25 +59,35 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetFilledDisplay()
     {
-        Background.color = ResourceManager.Color_Option_Slot_Filled;
+        Background.color = ResourceManager.Color_Option_Slot;
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
         ItemIcon.color = Color.white;
         DestroyedIndicator.color = new Color(0.78f, 0.37f, 0.32f);
+
+        if (ItemSlot.IsRequired) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Met;
+
         UpdatePreviewDisplay(ItemSlot.FilledItem.Def);
     }
 
     private void SetUnfilledDisplay()
     {
         // Background is red if the player has no items that can be slotted here (only if required), otherwise white
-        bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
-        Background.color = (ItemSlot.IsRequired && !playerHasSlottableItems) ? ResourceManager.Color_Option_Slot_Unmet : Color.white;
+        Background.color = ResourceManager.Color_Option_Slot;
 
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
         ItemIcon.color = new Color(1f, 1f, 1f, 0.3f);
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
         DestroyedIndicator.color = greyedOutIndicatorColor;
+
+        // Required indicator color
+        if (ItemSlot.IsRequired)
+        {
+            bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
+            if (playerHasSlottableItems) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Meetable;
+            else IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Unmet;
+        }
     }
 
     private void Update()

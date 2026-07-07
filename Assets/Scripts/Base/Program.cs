@@ -4,6 +4,11 @@ public class Program : Singleton<Program>
 {
     public ProgramState State { get; private set; }
 
+    private void Awake()
+    {
+        ItemHighlightManager.ClearAll();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

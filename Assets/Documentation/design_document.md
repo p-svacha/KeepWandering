@@ -117,6 +117,8 @@ A special subcategory of condition sharing common bandaging/infection logic. The
 
 Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while unbandaged; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
 
+Bandaging and infection treatment are skill checks that are available in the morning or at the very end of encounters.
+
 ### Fractures
 
 Another subcategory of condition, with its own instancing rules and healing logic. Fractures can occur on arms or legs, and always appear on a specific side (left/right). They heal naturally, but while present have a strong negative effect on strength and/or dexterity.
@@ -185,6 +187,8 @@ If the category is not None, the item has a **consumption effect**. The effect c
 - Providing hydration (reduces thirst severity)
 - Applying a health condition
 - Permanently modifying one or more skills
+
+Consuming an item is a fixed outcome option available in the morning or at the very end of encounters. The item is destroyed on consumption.
 
 
 ## Loot Tables
@@ -314,7 +318,7 @@ Threat encounters during the night, **not persistent**, overwhelmingly about *av
 The first priority of every encounter is **interesting, meaningful choices**. Fun gameplay outranks realism.
 
 - **Steps read at a glance.** Step text is short and concrete; option text is a verb (+subject) like "Persuade" or "Open Crate". The longer description (shown in the details box) should state intended effects and risks plainly, **not cryptically**.
-- **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~5.4–12) for a sense of scale (a crate is tight; a radio tower is wide).
+- **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~6–12) for a sense of scale (a crate is tight; a radio tower is wide), or a **x offset** to set the camera position, if something behind the player or very far away from the player should be visible.
 - **Lightweight biome influence only**, never per-biome bespoke handling.
 - **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
 

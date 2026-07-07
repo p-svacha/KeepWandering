@@ -192,6 +192,9 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         HelperFunctions.DestroyAllChildredImmediately(OutcomeNotesContainer);
         HelperFunctions.DestroyAllChildredImmediately(FloatingOptionsContainer);
         SpriteOptionInteractionManager.ClearAll();
+
+        ItemDragDropManager.HoveredOptionDisplay = null;
+        ItemDragDropManager.HoveredItemSlot = null;
     }
 
     public void RefreshOption(EncounterOption option)
