@@ -39,8 +39,7 @@ public class ConsumptionTypeDef : Def
 {
     public override string DefTypeLabel => "Consumption Type";
     public ConsumptionTypeDef(string defName) : base(defName) { }
-    public string ConsumptionVerbPresent { get; init; }
-    public string ConsumptionVerbPast { get; init; }
+    public string Verb { get; init; }
 }
 
 public static class ConsumptionTypeDefs
@@ -50,20 +49,17 @@ public static class ConsumptionTypeDefs
         new ConsumptionTypeDef("Food")
         {
             Label = "Food",
-            ConsumptionVerbPresent = "eat",
-            ConsumptionVerbPast = "ate"
+            Verb = "eat",
         },
         new ConsumptionTypeDef("Drink")
         {
             Label = "Drink",
-            ConsumptionVerbPresent = "drink",
-            ConsumptionVerbPast = "drank"
+            Verb = "drink",
         },
         new ConsumptionTypeDef("Drug")
         {
             Label = "Drug",
-            ConsumptionVerbPresent = "consume",
-            ConsumptionVerbPast = "consumed"
+            Verb = "consume",
         }
     };
 }

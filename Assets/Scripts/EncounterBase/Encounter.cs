@@ -365,7 +365,8 @@ public abstract class Encounter
     {
         Item itemToConsume = Game.ItemUsedInSelectedOption;
         Game.Instance.ConsumeItem(itemToConsume);
-        return Game.Instance.CurrentEncounterStep.Text; // Don't change encounter text when consuming items, just consume the item and stay on the same step.
+        string verb = itemToConsume.Def.ConsumptionProperties.ConsumptionType.Verb;
+        return $"You {verb} the {itemToConsume.Def.Label}.";
     }
 
     private List<EncounterOption> GetMedicalItemUseOptions()

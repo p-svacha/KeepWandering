@@ -118,6 +118,7 @@
             EncounterClass = typeof(Encounter_Morning),
             Type = EncounterType.Morning,
             DevNotes = "This is the daily wake-up encounter that plays at the start of each day. On day one it delivers the game's premise (escaping a quarantine zone) and offers a single option to open the map. On subsequent days it reports any night events and gives the player three choices: move to a new location, stay to continue yesterday's encounters (increasing exposure), or rest to recover energy and heal (skipping the afternoon encounter). Both staying and resting come with a warning about increased exposure leading to nighttime attacks. It's a simple routing encounter with no skill checks — just narrative framing and a daily strategic decision.",
+            CameraXOffset = -3.5f,
         },
 
         new EncounterDef("EveningFallback")

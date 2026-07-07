@@ -1,6 +1,8 @@
 TODOS:
 ==============================================
 
+- indicator keeps growing!
+
 - sprite options can currently overlap with option details, find a fix for this
   - best is probably to just make sure that it can't happen. increase default zoom
 

@@ -1972,6 +1972,46 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -0.00000047683716
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7778620076726820463, guid: a1c195e900b317149a2bb98e23d14a49, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

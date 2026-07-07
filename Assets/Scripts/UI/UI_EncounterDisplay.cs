@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 {
     public Game Game;
-    public static string SPRITE_ENCOUNTER_OPTION_LAYER = "EncounterOptionSprite";
 
     [Header("Elements")]
     public TextMeshProUGUI EncounterText;
@@ -78,12 +77,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
             List<EncounterOption> optionsForSprite = spriteGroup.ToList();
 
             // Configure the sprite GameObject
-            if (spriteGameObject.GetComponent<PolygonCollider2D>() == null)
-            {
-                PolygonCollider2D collider = spriteGameObject.AddComponent<PolygonCollider2D>();
-            }
-            spriteGameObject.GetComponent<PolygonCollider2D>().isTrigger = true;
-            spriteGameObject.layer = LayerMask.NameToLayer(SPRITE_ENCOUNTER_OPTION_LAYER);
+            SpriteOptionInteractionManager.SetupEncounterSpriteCollider(spriteGameObject);
 
             // Instantiate container for this sprite's options
             UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);

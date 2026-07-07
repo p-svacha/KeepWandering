@@ -57,6 +57,11 @@ public class EncounterDef : Def
     /// </summary>
     public float CameraZoomLevel { get; init; } = EncounterCamera.DEFAULT_CAMERA_SIZE;
 
+    /// <summary>
+    /// The horizontal offset of the camera when this encounter is active. This can be used to shift the camera to the left or right. Default is 0, meaning the player character is on the left side of the screen.
+    /// </summary>
+    public float CameraXOffset { get; init; } = 0f;
+
     public EncounterDef(string defName) : base(defName) { }
 
 

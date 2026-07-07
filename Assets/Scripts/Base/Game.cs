@@ -228,7 +228,7 @@ public class Game : Singleton<Game>
         DisplayEncounterStep(initialStep);
 
         // Set zoom according to encounter
-        EncounterCamera.Instance.SetZoom(CurrentEncounter.Def.CameraZoomLevel);
+        EncounterCamera.Instance.SetCameraPosition(CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset);
 
         // Update status
         OnGameStateChanged();
@@ -339,7 +339,7 @@ public class Game : Singleton<Game>
                 break;
 
             case GameState.DayTransitionFadeOut:
-                EncounterCamera.Instance.StartZoomTransition(new Vector2(0f, 1f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(0f, 1f), CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
@@ -352,14 +352,14 @@ public class Game : Singleton<Game>
             case GameState.EndMorningReportTransitionOut:
                 if (DayAction == DayAction.Rest) StartEveningEncounter(); // Resting skips afternoon
                 else StartAfternoonEncounter();
-                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 
             case GameState.EndEncounterTransitionOut:
                 if (TimeOfDay == TimeOfDayDefOf.Evening) StartNightEncounter();
                 else StartEveningEncounter();
-                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, GameUI.TRANSITION_FADE_TIME);
+                EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset, GameUI.TRANSITION_FADE_TIME);
                 UI.FadeOutBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 break;
 

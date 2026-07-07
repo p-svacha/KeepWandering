@@ -6,7 +6,8 @@ using UnityEngine;
 /// </summary>
 public class EncounterCamera : Singleton<EncounterCamera>
 {
-    public const float DEFAULT_CAMERA_SIZE = 5.4f;
+    public const float DEFAULT_CAMERA_SIZE = 6f;
+    public const float DEFAULT_X_OFFSET = 0f;
     public const float MAIN_MENU_CAMERA_SIZE = 8.0f;
 
     public Camera Camera { get; private set; }
@@ -20,6 +21,7 @@ public class EncounterCamera : Singleton<EncounterCamera>
     private float TransitionStartZoom;
     private Vector3 TransitionTargetPosition;
     private float TransitionTargetZoom;
+    private float TransitionTargetXOffset;
     public event System.Action OnTransitionComplete;
 
     private void Awake()
@@ -34,7 +36,7 @@ public class EncounterCamera : Singleton<EncounterCamera>
         TransitionCurrentTime += Time.deltaTime;
         if (TransitionCurrentTime >= TransitionDuration)
         {
-            SetZoom(TransitionTargetZoom);
+            SetCameraPosition(TransitionTargetZoom, TransitionTargetXOffset);
             OnTransitionComplete?.Invoke();
         }
         else
@@ -47,7 +49,7 @@ public class EncounterCamera : Singleton<EncounterCamera>
         }
     }
 
-    public void SetZoom(float zoomLevel)
+    public void SetCameraPosition(float zoomLevel, float xOffset)
     {
         IsTransitioning = false;
 
@@ -57,20 +59,21 @@ public class EncounterCamera : Singleton<EncounterCamera>
         // So with bigger camera size, the visible area should expand to the right and top, but the bottom left corner should stay fixed.
 
         float yPos = zoomLevel - DEFAULT_CAMERA_SIZE;
-        float xPos = yPos * Camera.aspect; // Adjust x position based on aspect ratio to keep the bottom left corner fixed
+        float xPos = (yPos * Camera.aspect) + xOffset; // Adjust x position based on aspect ratio to keep the bottom left corner fixed
         Camera.transform.position = new Vector3(xPos, yPos, Camera.transform.position.z);
     }
 
     /// <summary>
     /// Starts a smooth camera transition from a fixed start position/zoom to the given target zoom level over the specified duration.
     /// </summary>
-    public void StartZoomTransition(Vector2 startPosition, float targetZoomLevel, float duration)
+    public void StartZoomTransition(Vector2 startPosition, float targetZoomLevel, float targetXOffset, float duration)
     {
         // Calculate target state
         float targetYPos = targetZoomLevel - DEFAULT_CAMERA_SIZE;
-        float targetXPos = targetYPos * Camera.aspect;
+        float targetXPos = (targetYPos * Camera.aspect) + targetXOffset;
         TransitionTargetPosition = new Vector3(targetXPos, targetYPos, Camera.transform.position.z);
         TransitionTargetZoom = targetZoomLevel;
+        TransitionTargetXOffset = targetXOffset;
 
         // Set start state
         TransitionStartPosition = new Vector3(startPosition.x, startPosition.y, Camera.transform.position.z);
@@ -94,11 +97,11 @@ public class EncounterCamera : Singleton<EncounterCamera>
         AmbienceOverlay.color = color;
     }
 
-    public void SetDefaultZoom() => SetZoom(DEFAULT_CAMERA_SIZE);
+    public void SetDefaultZoom() => SetCameraPosition(DEFAULT_CAMERA_SIZE, DEFAULT_X_OFFSET);
 
     public void SetMainMenu()
     {
-        SetZoom(MAIN_MENU_CAMERA_SIZE);
+        SetCameraPosition(MAIN_MENU_CAMERA_SIZE, DEFAULT_X_OFFSET);
         transform.position = new Vector3(transform.position.x, 25f, transform.position.z);
 
         SetBackgroundColor(TimeOfDayDefOf.Morning.SkyColor);
@@ -110,11 +113,12 @@ public class EncounterCamera : Singleton<EncounterCamera>
         if (Camera == null) Camera = GetComponent<Camera>();
 
         // Target state is default zoom and default position (0, 0, z)
-        float targetZoomLevel = DEFAULT_CAMERA_SIZE;
+        float targetZoomLevel = EncounterDefOf.MorningEncounter.CameraZoomLevel;
         float targetYPos = targetZoomLevel - DEFAULT_CAMERA_SIZE; // 0
-        float targetXPos = targetYPos * Camera.aspect; // 0
+        float targetXPos = (targetYPos * Camera.aspect) + EncounterDefOf.MorningEncounter.CameraXOffset; // 0
         TransitionTargetPosition = new Vector3(targetXPos, targetYPos, Camera.transform.position.z);
         TransitionTargetZoom = targetZoomLevel;
+        TransitionTargetXOffset = EncounterDefOf.MorningEncounter.CameraXOffset;
 
         // Start state is current position and current zoom (8.0f, y = 25f)
         TransitionStartPosition = Camera.transform.position;

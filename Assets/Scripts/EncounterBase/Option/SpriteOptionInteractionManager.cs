@@ -1,7 +1,9 @@
+using Clipper2Lib;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// Static manager for sprite-bound encounter option interactions.
@@ -12,9 +14,12 @@ public static class SpriteOptionInteractionManager
     // Tunable constants
     private const float DRAG_HOLD_TO_LOCK_TIME = 1.5f;
 
+    private const float OUTLINE_OFFSET = 0.15f;
     private const float MIN_OPACITY = 0f;
     private const float FULL_OPACITY = 1f;
     private const float ITEM_HOVER_OPACITY = 0.4f;
+
+    public static string SPRITE_ENCOUNTER_OPTION_LAYER = "EncounterOptionSprite";
 
     private static readonly KeyCode REVEAL_HOTSPOTS_KEY = KeyCode.LeftAlt;
 
@@ -344,7 +349,7 @@ public static class SpriteOptionInteractionManager
     private static SpriteOptionIndicator GetIndicatorUnderMouse(Item filterItem = null)
     {
         Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
-        int layer_mask = LayerMask.GetMask(UI_EncounterDisplay.SPRITE_ENCOUNTER_OPTION_LAYER);
+        int layer_mask = LayerMask.GetMask(SPRITE_ENCOUNTER_OPTION_LAYER);
         RaycastHit2D[] hits = Physics2D.RaycastAll(mouseWorldPos, Vector2.zero, Mathf.Infinity, layer_mask);
 
         if (hits.Length == 0) return null;
@@ -377,5 +382,61 @@ public static class SpriteOptionInteractionManager
         }
 
         return topmost;
+    }
+
+
+    /// <summary>
+    /// Ensures that the given game object is configured to have an enlarged PolygonCollider2D that matches the sprite's bounds, so that the sprite can be hovered and interacted with even if its visible sprite is small.
+    /// </summary>
+    public static void SetupEncounterSpriteCollider(GameObject obj)
+    {
+        // If there is no collider yet, add one and enlarge it
+        if (obj.GetComponent<PolygonCollider2D>() == null)
+        {
+            // Add collider (initial shape will match the sprite's bounds)
+            PolygonCollider2D collider = obj.AddComponent<PolygonCollider2D>();
+
+            // Extract the collider's paths
+            List<Vector2[]> colliderPaths = new List<Vector2[]>();
+            for (int i = 0; i < collider.pathCount; i++) colliderPaths.Add(collider.GetPath(i));
+
+            // Enlarge the collider paths outward by a fixed offset to make it easier to hover/interact with
+            List<Vector2[]> enlargedColliderPaths = ComputeOffsetOutlines(colliderPaths, OUTLINE_OFFSET);
+
+            // Replace the collider's paths with the enlarged paths
+            collider.pathCount = enlargedColliderPaths.Count;
+            for (int i = 0; i < enlargedColliderPaths.Count; i++) collider.SetPath(i, enlargedColliderPaths[i]);
+        }
+
+        // Ensure the collider is a trigger and on the correct layer for raycasting
+        obj.GetComponent<PolygonCollider2D>().isTrigger = true;
+        obj.layer = LayerMask.NameToLayer(SPRITE_ENCOUNTER_OPTION_LAYER);
+    }
+
+    /// <summary>
+    /// Computes outward-offset outlines for all of the collider's sub-paths combined.
+    /// Overlapping/crossing paths are automatically merged before offsetting, and concave
+    /// corners are handled with round joins to avoid any spiking.
+    /// </summary>
+    private static List<Vector2[]> ComputeOffsetOutlines(List<Vector2[]> sourcePaths, float offset)
+    {
+        PathsD inputPaths = new PathsD();
+        foreach (Vector2[] path in sourcePaths)
+        {
+            PathD pathD = new PathD(path.Length);
+            foreach (Vector2 p in path) pathD.Add(new PointD(p.x, p.y));
+            inputPaths.Add(pathD);
+        }
+
+        PathsD resultPaths = Clipper.InflatePaths(inputPaths, offset, Clipper2Lib.JoinType.Round, Clipper2Lib.EndType.Polygon);
+
+        List<Vector2[]> outlines = new List<Vector2[]>();
+        foreach (PathD path in resultPaths)
+        {
+            Vector2[] verts = new Vector2[path.Count];
+            for (int i = 0; i < path.Count; i++) verts[i] = new Vector2((float)path[i].x, (float)path[i].y);
+            outlines.Add(verts);
+        }
+        return outlines;
     }
 }
