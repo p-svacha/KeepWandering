@@ -77,7 +77,7 @@ namespace ElectionTactics
         /// <summary>
         /// Play a sound effect once. Supports overlapping.
         /// </summary>
-        public static void PlaySound(string name, float volume = 1f, float pitch = 1f, bool applySpeedModifier = false)
+        public static void PlaySound(string name, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
         {
             // Load AudioClip
             AudioClip clip = ResourceManager.LoadAudioClip($"Audio/SFX/{name}");
@@ -88,7 +88,7 @@ namespace ElectionTactics
             AudioSource source = Instance.GetNextOneShotSource();
             source.clip = clip;
             source.volume = volume * Instance.SfxVolume * Instance.MasterVolume;
-            source.pitch = pitch;
+            source.pitch = pitch + Random.Range(-pitchVariance, pitchVariance);
             source.Play();
         }
 

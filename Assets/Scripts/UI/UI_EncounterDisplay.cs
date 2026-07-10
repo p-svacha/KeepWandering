@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,6 +22,9 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
     public GameObject OutcomeNotesContainer;
     public UI_OptionDetails OptionDetailsPanel;
     public UI_ItemSlotDetailsBox ItemSlotDetailsBox;
+
+    [Header("Skill Check Roll Sequence")]
+    public UI_SkillCheckRollSequence RollSequenceDisplay;
 
     [Header("Trap Display")]
     public GameObject TrapDisplay;
@@ -50,7 +54,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
             PreviousOutcomeImage.sprite = ResourceManager.LoadSprite($"UiSprites/Outcome/Outcome_{prevOutcome.DefName}");
 
             // Animated pop-in with random rotation
-            float targetAngle = Random.Range(-25f, 25f);
+            float targetAngle = UnityEngine.Random.Range(-25f, 25f);
             if (OutcomeAnimCoroutine != null) StopCoroutine(OutcomeAnimCoroutine);
             OutcomeAnimCoroutine = StartCoroutine(AnimatePreviousOutcome(targetAngle));
         }
@@ -124,6 +128,11 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+
+    public void PlaySkillCheckRollSequence(SkillCheckOption option, Action onComplete)
+    {
+        RollSequenceDisplay.Play(option, option.LastRoll, onComplete);
     }
 
     public void OnOptionHovered(EncounterOption option)
@@ -297,7 +306,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         // Add slight rotation to all notes
         foreach (UI_EncounterOutcomeNote note in OutcomeNotesContainer.GetComponentsInChildren<UI_EncounterOutcomeNote>())
         {
-            note.transform.rotation = Quaternion.Euler(0, 0, Random.Range(-10f, 10f));
+            note.transform.rotation = Quaternion.Euler(0, 0, UnityEngine.Random.Range(-10f, 10f));
         }
     }
 

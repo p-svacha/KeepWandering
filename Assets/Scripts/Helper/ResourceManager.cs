@@ -23,7 +23,6 @@ public static class ResourceManager
     public static readonly Color Color_Button_Disabled = new Color(0.5f, 0.5f, 0.5f);
     public static readonly Color Color_Option_Slot = new Color(1f, 0.98f, 0.78f);
     public static readonly Color Color_Option_Slot_Req_Met = new Color(0.59f, 1f, 0.47f);
-    public static readonly Color Color_Option_Slot_Req_Meetable = Color_Option_Slot;
     public static readonly Color Color_Option_Slot_Req_Unmet = new Color(0.96f, 0.58f, 0.54f);
 
     public static readonly Color Color_Panel_Highlighted = new Color(1f, 0.91f, 0.53f);

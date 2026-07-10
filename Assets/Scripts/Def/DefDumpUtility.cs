@@ -23,7 +23,7 @@ public static class DefDumpUtility
         var fullPath = Path.Combine(folder, filename);
 
         using var writer = new StreamWriter(fullPath, false, Encoding.UTF8);
-        writer.WriteLine("=== SOURCE DEF LISTS ===\n");
+        writer.WriteLine("=== SOURCE DEF LISTS (List of all Content Blueprints) ===\n");
 
         DumpDefSourceDefinitions(writer);
 
@@ -36,7 +36,7 @@ public static class DefDumpUtility
     private static void DumpDefSourceDefinitions(StreamWriter writer)
     {
         // scan your Assets folder
-        var defsFiles = Directory.GetFiles(Application.dataPath, "*Defs.cs", SearchOption.AllDirectories);
+        var defsFiles = Directory.GetFiles(Application.dataPath, "*.cs", SearchOption.AllDirectories);
 
         // regex to find the Defs property
         var propPattern = new Regex(@"public\s+static\s+List<\w+>\s+Defs\s*=>", RegexOptions.Compiled);

@@ -74,6 +74,8 @@ public class UI_OptionDetails : MonoBehaviour
             HelperFunctions.DestroyAllChildredImmediately(OutcomeLabelContainer);
             foreach (SkillCheckOutcomeChance outcome in outcomes)
             {
+                if(outcome.Chance < 0.02f) continue; // Skip labels for very small chances to avoid cluttering the UI
+
                 UI_LabelValueRow label = Instantiate(BarLabelPrefab, OutcomeLabelContainer.transform);
                 label.Init(outcome.Label, $"{outcome.Chance * 100f:0}%");
                 label.GetComponent<RectTransform>().anchorMin = new Vector2(0, outcome.MinRoll / 100f);

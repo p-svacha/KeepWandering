@@ -3,41 +3,43 @@ Roadmap with all to-do's for a v1.0 release
 
 Phase 0 — Foundations (do before mass-producing any content): These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
 
-(/) Item system rework
-(/) Tag level/tier system (1–5 replacing per-slot values)
-(/) Durability replacing destruction chance
-(/) Update all existing ItemDefs to the new tag-level format
-
-(/) Stat/skill rework
-(/) Collapse 8 stats → 4 skills (Strength, Dexterity, Survival, Social) + Morale as a separate value
-(/) Update all existing HealthConditionDefs that referenced old stats (Combat, Agility, Perception, etc.) to map to the new skills
-(/) Update all existing encounter option difficulty modifiers to reference new skills
-
 Encounter option framework
 
-Sprite-bound point-and-click option system
 Skill-check roll animation (the bar with outcome segments)
-Options drawn larger; description text moved to the details box
-Expanded requirements system (stat minimum, tag level minimum, specific item)
-Clearer success/risk language in all option descriptions
+
+Item framework expansion
+
+Add system that consumable items can modify stats
+Add system that consumable items can give health conditions
+Add system that items can passively modify stats (by just being in inventory)
+Add some items using these systems (chocoalte for temp morale boost, alcohol for temp social boost (tipsy condtion), steroids for perm strength boost, survival book for passive survival boost, memento for passive morale boost, etc.)
+
+Health condition framework expansion
+
+Add possibility for temporary conditions (with days as duration)
+Add source
+Create dedicated tooltip for health conditions with more information such as affected stats, remaining duration, source, severity, stages
 
 World map rework
-
 
 Bigger hex tiles with textures/sprites
 Encounter assigned to every tile at generation (hidden unless landmark/special)
 Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
 Danger level overlay toggle
 
-Early feasibility spike: Save/Load
-
-Test autosave on a web build now, cheaply, before building the real implementation
-If it doesn't work, cut it and stop thinking about it; if it does, implement properly in Phase 3
-
 Stub audio hooks
 
 Add AmbientMood enum to the encounter framework
 Add SFX trigger points to encounter outcomes and the option framework
+  - Outcome functions of options should generally trigger SFX (like bandaging sound, crate breaking, climbing tower etc.)
+add SFX to items
+  - either general category for the item material (i.e. "metal" or "wood") or specific SFX per item, or combination
+  - use item sfx when:
+    - colliding with other items
+	- putting item into a slot
+	- removing item from a slot
+	- item breaks (if durability reaches 0)
+	- item is consumed (if consumable)
 No actual audio assets yet — just the wiring so Phase 3 doesn't require touching every encounter again
 
 

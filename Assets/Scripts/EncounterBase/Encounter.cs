@@ -398,12 +398,9 @@ public abstract class Encounter
                     {
                         IsRequired = true,
                         Tag = ItemTagDefOf.WoundBandaging,
+                        RequiredTagLevel = 5,
                     }
                 },
-                SkillRequirements = new Dictionary<StatDef, int>()
-                {
-                    { StatDefOf.Morale, 1 }
-                }
             });
         }
         return options;

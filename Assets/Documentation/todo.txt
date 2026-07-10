@@ -1,26 +1,10 @@
 TODOS:
 ==============================================
 
-- consumable items to give skills
-	- use to test stat requirements
 
-- play break sound on durability break
 
-- show tag in item slot tooltip if it has a tag
-  - also show required level if limited by level
-- show an ! icon on filled item slot if the item will break on use (1 durability left)
-  - with tooltip explaining that the item will break on use
-
-- show stat requirements in encounter option details
-
-- show non selectable reason if applicable in encounter option details
-- display encounter options with requirements differently than those without
-- display stat requirements as item slots (shape wise) that have the stat and level text, and the background green/red depending on whether the player meets the requirement or not
-
-- if critical success or failure chance is below 2%, don't display the label in the option details
-
-- somehow handle that if a lot of items fit in a slot, don't show all of them (max 5?), test with consumable custom set slot
-
+>>>>> Skill-check roll animation (the bar with outcome segments)
+- audio
 
 EVENING REWORK:
 - add option to train a specific skill (depending on biome)
@@ -39,6 +23,7 @@ EVENING REWORK:
 - chance for no encounter
 - add 3 generic encounters
 
+- add a dedicated tooltip for health conditions, showing affected stats, severity?, remaining duration, etc.
 
 actual interesting game mechanics
 
@@ -88,7 +73,7 @@ more clearly show possible outcomes?
   - hook to failure of keep watch in city encounter.
   - hook to failure of rubble clearning in collapsed building encounter
 
-
+- somehow handle that if a lot of items fit in a slot, don't show all of them (max 5?), test with consumable custom set slot
 
 - supply stash needs to have own loot table mixed with biome loot table
   - currently loot is too bad

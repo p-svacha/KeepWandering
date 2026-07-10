@@ -1,4 +1,4 @@
-﻿=== SOURCE DEF LISTS ===
+﻿=== SOURCE DEF LISTS (List of all Content Blueprints) ===
 
 --- TimeOfDayDefs.cs ---
     public static List<TimeOfDayDef> Defs => new List<TimeOfDayDef>()
@@ -267,7 +267,7 @@
         #endregion
     };
 
---- OptionOutcomeDefs.cs ---
+--- OptionOutcome.cs ---
     public static List<OptionOutcomeDef> Defs => new List<OptionOutcomeDef>()
     {
         new OptionOutcomeDef("CriticalSuccess")
@@ -313,6 +313,26 @@
             Color = new Color(0.67f, 0.03f, 0f),
             SuccessLevel = SuccessLevel.CriticalFailure,
             IsSuccess = false,
+        }
+    };
+
+--- ConsumptionProperties.cs ---
+    public static List<ConsumptionTypeDef> Defs => new List<ConsumptionTypeDef>()
+    {
+        new ConsumptionTypeDef("Food")
+        {
+            Label = "Food",
+            Verb = "eat",
+        },
+        new ConsumptionTypeDef("Drink")
+        {
+            Label = "Drink",
+            Verb = "drink",
+        },
+        new ConsumptionTypeDef("Drug")
+        {
+            Label = "Drug",
+            Verb = "consume",
         }
     };
 
@@ -541,6 +561,91 @@
                 Hydration: 3f
             ),
         },
+    };
+
+--- ItemTag.cs ---
+    public static List<ItemTagDef> Defs => new List<ItemTagDef>()
+    {
+        new ItemTagDef("BuildingMaterial")
+        {
+            Label = "Building Material",
+            Description = "Items with this tag can be used to construct buildings and structures."
+        },
+        new ItemTagDef("Cutting")
+        {
+            Label = "Cutting Tool",
+            Description = "Items with this tag can be used to cut or slice objects."
+        },
+        new ItemTagDef("Digging")
+        {
+            Label = "Digging Tool",
+            Description = "Items with this tag can be used to dig or excavate soil and other materials."
+        },
+        new ItemTagDef("DogToy")
+        {
+            Label = "Dog Toy",
+            Description = "Items with this tag can be used to entertain and play with dogs."
+        },
+        new ItemTagDef("InfectionTreatment")
+        {
+            Label = "Infection Treatment",
+            Description = "Items with this tag can be used to treat infections."
+        },
+        new ItemTagDef("Lockpicking")
+        {
+            Label = "Lockpicking Tool",
+            Description = "Items with this tag can be used to pick locks and open secured containers."
+        },
+        new ItemTagDef("PoisonTreatment")
+        {
+            Label = "Poison Treatment",
+            Description = "Items with this tag can be used to treat poisoning."
+        },
+        new ItemTagDef("PryingTool")
+        {
+            Label = "Prying Tool",
+            Description = "Items with this tag can be used to pry open objects or containers."
+        },
+        new ItemTagDef("Scavenging")
+        {
+            Label = "Scavenging",
+            Description = "Items with this tag can be used for scavenging resources from the environment."
+        },
+        new ItemTagDef("Weapon")
+        {
+            Label = "Weapon",
+            Description = "Items with this tag can be used as weapons."
+        },
+        new ItemTagDef("WoundBandaging")
+        {
+            Label = "Wound Bandage",
+            Description = "Items with this tag can be used to bandage wounds."
+        },
+    };
+
+--- HealthConditionCategory.cs ---
+    public static List<HealthConditionCategoryDef> Defs => new List<HealthConditionCategoryDef>()
+    {
+        new HealthConditionCategoryDef("Need")
+        {
+            Label = "Need",
+            Description = "Needs are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for needs such as hunger and thirst."
+        },
+        new HealthConditionCategoryDef("Negative")
+        {
+            Label = "Negative",
+            Description = "Health conditions that have a detrimental effect on the player."
+        },
+        new HealthConditionCategoryDef("Positive")
+        {
+            Label = "Positive",
+            Description = "Health conditions that have a beneficial effect on the player."
+        },
+        new HealthConditionCategoryDef("Neutral")
+        {
+            Label = "Neutral",
+            Description = "Health conditions that can't be classified as strictly positive or negative."
+        }
     };
 
 --- HealthConditionDefs.cs ---

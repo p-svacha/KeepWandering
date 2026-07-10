@@ -36,6 +36,16 @@ public class SkillCheckOption : EncounterOption
     /// </summary>
     public Func<OptionOutcomeDef, string> Action { get; init; }
 
+    /// <summary>
+    /// The raw 1–100 roll from the most recent execution of this option. Used by the roll animation sequence to know exactly where the marker should land.
+    /// </summary>
+    public int LastRoll { get; private set; }
+
+    /// <summary>
+    /// Outcome of the most recent roll for this option.
+    /// </summary>
+    public OptionOutcomeDef PendingOutcome { get; private set; }
+
     public bool CanPartiallySucceed { get; init; } = true;
     public bool CanCriticallySucceed { get; init; } = true;
     public bool CanCriticallyFail { get; init; } = true;
@@ -57,7 +67,10 @@ public class SkillCheckOption : EncounterOption
 
     public override string Execute(out OptionOutcomeDef outcome)
     {
-        outcome = RollOutcome();
+        if (PendingOutcome == null) throw new System.Exception($"No pending outcome for SkillCheckOption '{Text}'. RollOutcome must be called before Execute.");
+
+        outcome = PendingOutcome;
+        PendingOutcome = null;
         return Action.Invoke(outcome);
     }
 
@@ -121,35 +134,51 @@ public class SkillCheckOption : EncounterOption
         return modifiers;
     }
 
-    private OptionOutcomeDef RollOutcome()
+    /// <summary>
+    /// Rolls and returns the outcome for this skill check without applying any effects (Action is
+    /// not invoked). Call this immediately on selection, before the roll animation plays. Execute()
+    /// will later reuse this exact result rather than rolling again.
+    /// </summary>
+    public OptionOutcomeDef RollOutcome()
     {
         int difficulty = GetDifficultyValue();
-        int roll = UnityEngine.Random.Range(1, 101); // 1 to 100 inclusive
+        int roll = UnityEngine.Random.Range(1, 101);
+        LastRoll = roll;
 
+        OptionOutcomeDef result;
         if (roll > difficulty)
         {
-            // Success - check for critical success
             if (CanCriticallySucceed)
             {
-                // Critical success if roll is in the top 10% of the range above the difficulty value
                 float criticalThreshold = 100f - (100f - difficulty) * 0.1f;
-                if (roll > criticalThreshold) return OptionOutcomeDefOf.CriticalSuccess;
+                if (roll > criticalThreshold)
+                {
+                    result = OptionOutcomeDefOf.CriticalSuccess;
+                    PendingOutcome = result;
+                    return result;
+                }
             }
-            return OptionOutcomeDefOf.Success;
+            result = OptionOutcomeDefOf.Success;
         }
         else
         {
-            // Failure - check for partial success and critical failure
             if (CanPartiallySucceed && roll > difficulty * 0.5f)
             {
-                return OptionOutcomeDefOf.PartialSuccess;
+                result = OptionOutcomeDefOf.PartialSuccess;
+                PendingOutcome = result;
+                return result;
             }
             if (CanCriticallyFail && roll < difficulty * 0.1f)
             {
-                return OptionOutcomeDefOf.CriticalFailure;
+                result = OptionOutcomeDefOf.CriticalFailure;
+                PendingOutcome = result;
+                return result;
             }
-            return OptionOutcomeDefOf.Failure;
+            result = OptionOutcomeDefOf.Failure;
         }
+
+        PendingOutcome = result;
+        return result;
     }
 
     /// <summary>

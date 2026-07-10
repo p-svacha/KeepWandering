@@ -411,14 +411,31 @@ public class Game : Singleton<Game>
     }
 
     /// <summary>
-    /// Called when the player selects an encounter step option. Handles slot item resolution for all options,
-    /// then executes the selected option and displays the next step.
+    /// Called when the player selects an encounter step option.
     /// </summary>
     public void SelectEncounterOption(EncounterOption selectedOption)
     {
         SelectedOption = selectedOption;
+
+        // Captured what items were used in this option
         ItemsUsedInSelectedOption = SelectedOption.ItemSlots.Where(slot => slot.IsFilled).Select(slot => slot.FilledItem).ToList();
 
+        if (selectedOption is SkillCheckOption skillCheckOption)
+        {
+            // Roll now so the animation knows exactly where to land, but only resolve after the animation is done.
+            skillCheckOption.RollOutcome();
+            UI.EventStepDisplay.PlaySkillCheckRollSequence(skillCheckOption, () => ResolveSelectedOption(selectedOption));
+        }
+        else ResolveSelectedOption(selectedOption);
+    }
+
+    /// <summary>
+    /// Applies the actual effects of the selected option: item slot resolution, Execute() (which
+    /// applies the already-rolled outcome for skill checks), and displaying the next step. For skill
+    /// checks this only runs after the roll animation completes, so nothing is visible before then.
+    /// </summary>
+    private void ResolveSelectedOption(EncounterOption selectedOption)
+    {
         UI.StatPanel.UnhighlightAll();
 
         // Empty slots of all non-selected options - return items to cart
@@ -438,15 +455,10 @@ public class Game : Singleton<Game>
 
             Item item = slot.FilledItem;
 
-            // If slot is destroying the item, destroy it
             if (slot.IsDestroyingItem) DestroyOwnedItem(item);
-
-            // Else decrease durability (might destroy the item)
             else
             {
                 ReduceItemDurability(item, 1);
-
-                // If item isn't destroyed, return to cart
                 if (!item.IsDestroyed)
                 {
                     item.Show();
@@ -459,12 +471,10 @@ public class Game : Singleton<Game>
         string nextEncounterStepText = selectedOption.Execute(out OptionOutcomeDef outcome);
         if (CurrentEncounter == null) return; // Option may have ended the encounter
 
-        // Inform encounter about chosen option
         CurrentEncounter.OnOptionChosen(selectedOption);
 
-        // Generate and display next step
         EncounterStep nextEncounterStep = CurrentEncounter.GetNextEncounterStep(nextEncounterStepText);
-        if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome); // Can be null on time of day transitions
+        if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome);
     }
 
     public void ForceUnhighlightAllInventoryItems()

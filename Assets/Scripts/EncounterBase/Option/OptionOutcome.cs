@@ -1,6 +1,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum SuccessLevel
+{
+    CriticalSuccess = 5,
+    Success = 4,
+    PartialSuccess = 3,
+    Failure = 2,
+    CriticalFailure = 1,
+}
+
+public class OptionOutcomeDef : Def
+{
+    public override string DefTypeLabel => "Option Outcome";
+
+    /// <summary>
+    /// The higher the number, the better the outcome. Used for sorting or logic that applies to multiple outcomes above/below a certain level.
+    /// </summary>
+    public SuccessLevel SuccessLevel { get; init; }
+
+    /// <summary>
+    /// If the player very generally achieves what they wanted with this option. True for critical success, success, and partial success. False for failure and critical failure.
+    /// </summary>
+    public bool IsSuccess { get; init; }
+
+    public Color Color { get; init; }
+
+
+    public OptionOutcomeDef(string defName) : base(defName) { }
+}
+
 public static class OptionOutcomeDefs
 {
     public static List<OptionOutcomeDef> Defs => new List<OptionOutcomeDef>()
@@ -50,4 +79,14 @@ public static class OptionOutcomeDefs
             IsSuccess = false,
         }
     };
+}
+
+[DefOf]
+public static class OptionOutcomeDefOf
+{
+    public static OptionOutcomeDef CriticalSuccess;
+    public static OptionOutcomeDef Success;
+    public static OptionOutcomeDef PartialSuccess;
+    public static OptionOutcomeDef Failure;
+    public static OptionOutcomeDef CriticalFailure;
 }

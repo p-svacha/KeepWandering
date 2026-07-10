@@ -59,7 +59,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetFilledDisplay()
     {
-        Background.color = ResourceManager.Color_Option_Slot;
+        Background.color = ResourceManager.Color_Option_Slot_Req_Met; // Green
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
         ItemIcon.color = Color.white;
@@ -72,7 +72,7 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetUnfilledDisplay()
     {
-        // Background is red if the player has no items that can be slotted here (only if required), otherwise white
+        // Background color
         Background.color = ResourceManager.Color_Option_Slot;
 
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
@@ -81,11 +81,16 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
         DestroyedIndicator.color = greyedOutIndicatorColor;
 
-        // Required indicator color
+        // Color handling for required slots
         if (ItemSlot.IsRequired)
         {
             bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
-            if (playerHasSlottableItems) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Meetable;
+
+            // Background color
+            Background.color = playerHasSlottableItems ? ResourceManager.Color_Option_Slot : ResourceManager.Color_Option_Slot_Req_Unmet;
+
+            // REQ indicator color
+            if (playerHasSlottableItems) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot;
             else IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Unmet;
         }
     }
@@ -143,8 +148,10 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void SetDragHighlighted(bool highlighted)
     {
         if (highlighted)
+        {
             Background.color = ResourceManager.Color_Button_Default;
-        else
-            Refresh();
+            if (ItemSlot.IsRequired) IsRequiredIndicator.color = ResourceManager.Color_Button_Default;
+        }
+        else Refresh();
     }
 }

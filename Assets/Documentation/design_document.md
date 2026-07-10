@@ -343,6 +343,8 @@ Skills also function as meaningful **requirements** on FixedOutcome options, giv
 
 Encounters are built from steps, exactly one active at a time, often generated dynamically from the encounter's current state. A step with **no options is a final step**: reaching it ends the encounter (free item use returns, and the player can advance the time of day).
 
+Each step can determine the ambient theme that should play given the current state of the encounter (Default / Tense / Uplifting).
+
 ## Encounter Options
 
 Each non-final step offers options determined by the current state of the encounter. Options are one of two technical types: FixedOutcome or SkillCheck.
@@ -418,6 +420,10 @@ Here's a list with some common examples of what an outcome can do, but it is not
 - Place traps (evening)
 - Initiate trade
 
+Non state altering things can also happen in an outcome, like: playing a sound, changing the camera zoom or offset, or changing the background sprite.
+- Playing a sound effect
+- Changing the encounter visually
+
 ## Sprite-Bound Options
 
 Because this is a point-and-click game, options can be attached to the actual scene sprites (e.g. the player's own head, an encounter prop) rather than living only in the option list:
@@ -448,8 +454,7 @@ Any encounter can start a trade session via `InitiateTrade`, temporarily replaci
 
 # Gameplay Loop
 
-The player must escape the zone; death ends the run (the screen fades to black with the cause of death, then offers a new game or the main menu). The game is day-based, each day split into **Morning, Afternoon, Evening, Night**. Transitions fade through black; Night→Morning shows the new day number. During the black screen, a short handcart-and-footstep sound plays (see *Audio*).
-
+The player must escape the zone; death ends the run (the screen fades to black with the cause of death, then offers a new game or the main menu). The game is day-based, each day split into **Morning, Afternoon, Evening, Night**. Transitions fade through black; Night→Morning shows the new day number. During the black screen, a short handcart-and-footstep sound plays.
 ## Morning
 
 On the world map at the current tile, no encounter, free item use. Any night events from the previous night are reported as bullet points. On day 1, the morning instead delivers the premise (escape ahead of the weapon test). Three actions:
@@ -508,15 +513,6 @@ The substance is the run's hard time limit and clear endpoint.
 - If the player is on (or fails to leave) a tile the substance spreads to, they **die**. As it spreads it eventually consumes the whole zone, so the pressure is ultimately unavoidable.
 
 The substance frames the whole run: escape by the time it would reach you, or die. It also gives the otherwise open-ended map a rising tension curve toward the late game.
-
----
-
-# Audio / FX
-
-- **SFX** for everything; the highest-priority single effect is the **skill-check resolution** sound.
-- **Ambient moods:** an enum that encounters set; the AudioManager plays a different ambient track set per mood. When the mood changes, the previous set **pauses rather than stops**, so returning to it resumes mid-track instead of restarting — the player isn't endlessly hearing track intros. Moods: **Default, Tense, Hopeful/Uplifting**, with **Desolate** and **Mystery** as optional additions.
-- **Transition sound:** during the black screen between times of day, hold black briefly and play a handcart-moving + footstep sound, optionally varying by biome.
-- **Aesthetic direction:** sparse, handmade acoustic instrumentation (fingerpicked guitar, solo piano, cello, fiddle, harmonica) for a post-apocalyptic folk-ambient feel, matching the hand-drawn stick-figure art. Avoid synths, chiptune, beats, and cinematic orchestration.
 
 ---
 

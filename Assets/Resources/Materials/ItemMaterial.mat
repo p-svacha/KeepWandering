@@ -70,7 +70,7 @@ Material:
     - Vector1_dc58af0f6dcc4ce39119224e5677d75c: 0.01
     - Vector1_ed3362873e3b4e5ebacedc7bb8fcdc74: 1
     - _EnableExternalAlpha: 0
-    - _IsGlowing: 1
+    - _IsGlowing: 0
     - _ZWrite: 0
     m_Colors:
     - White: {r: 1, g: 1, b: 1, a: 1}
