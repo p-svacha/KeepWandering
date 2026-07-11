@@ -32,4 +32,9 @@ public class HealthConditionStage
     /// The stats affected by this stage.
     /// </summary>
     public Dictionary<StatDef, int> StatModifiers { get; init; } = new Dictionary<StatDef, int>();
+
+    /// <summary>
+    /// The vitals that are affected by this stage at the end of the day, and how much their severity changes.
+    /// </summary>
+    public Dictionary<HealthConditionDef, float> EndOfDayVitalChanges { get; init; } = new Dictionary<HealthConditionDef, float>();
 }

@@ -5,13 +5,14 @@ public static class HealthConditionDefs
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
 
-        // Needs
+        // Vitals
         new HealthConditionDef("Hunger")
         {
             HealthConditionClass = typeof(HC_Hunger),
-            Category = HealthConditionCategoryDefOf.Need,
-            InitialSeverity = 5,
+            Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 5,
             MaxSeverity = 17,
+            NaturalSeverityChange = 1,
             IsLethal = true,
             LethalityMessage = "You starved.",
             Stages = new List<HealthConditionStage>()
@@ -77,9 +78,10 @@ public static class HealthConditionDefs
         new HealthConditionDef("Thirst")
         {
             HealthConditionClass = typeof(HC_Thirst),
-            Category = HealthConditionCategoryDefOf.Need,
-            InitialSeverity = 5,
+            Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 5,
             MaxSeverity = 13,
+            NaturalSeverityChange = 1,
             IsLethal = true,
             LethalityMessage = "You died of dehydration.",
             Stages = new List<HealthConditionStage>()
@@ -135,13 +137,10 @@ public static class HealthConditionDefs
             }
         },
 
-
-        // Unique conditions
         new HealthConditionDef("BloodLoss")
         {
             HealthConditionClass = typeof(HC_BloodLoss),
-            Category = HealthConditionCategoryDefOf.Negative,
-            MaxInstances = 1,
+            Category = HealthConditionCategoryDefOf.Vital,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = true,
@@ -297,7 +296,6 @@ public static class HealthConditionDefs
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "cut",
-            Description = "A cut wound.",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -308,10 +306,33 @@ public static class HealthConditionDefs
             HealthConditionClass = typeof(HC_BruiseWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
-            Description = "A bruise wound.",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
+        },
+
+        // Buffs
+        new HealthConditionDef("ChocolateHigh")
+        {
+            Category = HealthConditionCategoryDefOf.Positive,
+            Label = "Chocolate High",
+            MaxInstances = 1,
+            DefaultInitialSeverity = 2,
+            NaturalSeverityChange = -1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Chocolate High",
+                    Description = "That chocolate was amazing!",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Morale, +3 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
         },
     };
 }
@@ -327,4 +348,6 @@ public static class HealthConditionDefOf
 
     public static HealthConditionDef Bruise;
     public static HealthConditionDef Cut;
+
+    public static HealthConditionDef ChocolateHigh;
 }

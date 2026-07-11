@@ -20,6 +20,11 @@ public class ItemDef : Def
     public int MinInitialDurability { get; init; } = 1;
     public int MaxInitialDurability { get; init; } = 5;
 
+    /// <summary>
+    /// Passive stat changes that occur when the item is in the player's inventory.
+    /// </summary>
+    public Dictionary<StatDef, int> PassiveStatChanges { get; init; } = new Dictionary<StatDef, int>();
+
 
     // Consumption
     public ConsumptionProperties ConsumptionProperties { get; init; } = null;
@@ -43,10 +48,16 @@ public class ItemDef : Def
         {
             if (tag.Value < MIN_TAG_LEVEL || tag.Value > MAX_TAG_LEVEL)
             {
-                Debug.LogError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
-                return false;
+                ThrowValidationError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
             }
         }
+
+        foreach(var statChange in PassiveStatChanges)
+        {
+            if (statChange.Value == 0) ThrowValidationError($"ItemDef '{DefName}' has a passive stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
+        }
+
+        if (ConsumptionProperties != null) ConsumptionProperties.Validate();
 
         return base.Validate();
     }

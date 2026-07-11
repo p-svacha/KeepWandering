@@ -170,6 +170,7 @@ public class GameUI : Singleton<GameUI>
         UI_SimpleTooltip.Instance.Hide();
         UI_ItemTooltip.Instance.Hide();
         UI_StatTooltip.Instance.Hide();
+        UI_HealthConditionTooltip.Instance.Hide();
     }
 
     public void CloseAllWindows()

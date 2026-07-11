@@ -78,7 +78,7 @@ public class UI_DevmodeMenu : MonoBehaviour
         Game.EncounterManager.ForceEncounter(value == 0 ? null : DefDatabase<EncounterDef>.AllDefs[value - 1]);
     }
 
-    private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsNeed && !hc.IsWound && !hc.IsFracture).ToList();
+    private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsVital && !hc.IsWound && !hc.IsFracture).ToList();
     private void ApplyHealthCondition()
     {
         Game.Player.ApplyHealthCondition(ApplicableHealthConditions[HealthConditionDropwdown.value]);

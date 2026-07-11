@@ -154,4 +154,9 @@ public static class StringExtensions
 
         return str + "s";
     }
+
+    public static string Pluralize(this string str, float count)
+    {
+        return Pluralize(str, (int)count);
+    }
 }

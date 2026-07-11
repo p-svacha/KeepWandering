@@ -3,9 +3,6 @@ Roadmap with all to-do's for a v1.0 release
 
 Phase 0 — Foundations (do before mass-producing any content): These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
 
-Encounter option framework
-
-Skill-check roll animation (the bar with outcome segments)
 
 Item framework expansion
 

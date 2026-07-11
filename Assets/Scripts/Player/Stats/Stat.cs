@@ -48,6 +48,17 @@ public class Stat
             if (modifierValue != 0) modifiers.Add(new StatModifier(condition.GetReportLabel(), modifierValue));
         }
 
+        // Items (passive effects)
+        foreach (Item item in Game.Inventory)
+        {
+            if (item.Def.PassiveStatChanges.ContainsKey(Def))
+            {
+                int modifierValue = item.Def.PassiveStatChanges[Def];
+                if (modifierValue != 0) modifiers.Add(new StatModifier(item.Def.Label, modifierValue));
+            }
+        }
+
+
         return modifiers;
     }
 

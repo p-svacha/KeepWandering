@@ -9,18 +9,18 @@ public abstract class HealthCondition
     public Game Game => Player.Game;
     public PlayerCharacter Player { get; private set; }
     public HealthConditionDef Def { get; private set; }
-    public bool IsSingleStageCondition { get; private set; } // Single stage conditions are not affected by severity and always have the same effect.
     public virtual List<HealthConditionStage> Stages => Def.Stages;
     public HealthConditionStage ActiveStage { get; private set; }
     public int OriginDay { get; private set; }
     public int ActiveStageIndex => Stages.IndexOf(ActiveStage);
+    public List<string> Source { get; private set; }
 
     // Def overrides
     public virtual float GetNaturalHealing() => Def.NaturalHealing;
-    public virtual float InitialSeverity => Def.InitialSeverity;
+    public virtual float InitialSeverity => Def.DefaultInitialSeverity;
     public virtual float MaxSeverity => Def.MaxSeverity;
     public virtual bool IsLethal => Def.IsLethal;
-    public bool IsNeed => Def.IsNeed;
+    public bool IsNeed => Def.IsVital;
     public bool IsNegative => Def.Category == HealthConditionCategoryDefOf.Negative;
     public virtual string LethalityMessage => Def.LethalityMessage;
 
@@ -44,11 +44,25 @@ public abstract class HealthCondition
         if (SeverityValue <= 0) SeverityValue = InitialSeverity;
 
         OriginDay = Game.Instance.Day;
+        Source = new List<string>();
         OnInit();
 
         if (SeverityValue <= 0) throw new System.Exception($"Health condition {Def} cannot be initialized with non-positive severity value as that would remove it immediately.");
 
         UpdateStage();
+    }
+
+    /// <summary>
+    /// Executes the end of day effect for this health condition. This includes applying natural severity changes and any specific effects defined in the OnEndDay method.
+    /// </summary>
+    public void ExecuteEndDayEffect(MorningReport morningReport)
+    {
+        // End of day severity change (excluding natural healing as that is done separately in advance)
+        float endOfDaySeverityChange = GetEndOfDaySeverityChange(excludeNaturalHealing: true);
+        if (endOfDaySeverityChange != 0f) ModifySeverity(endOfDaySeverityChange);
+
+        // Specific effects
+        OnEndDay(morningReport);
     }
 
     /// <summary>
@@ -78,17 +92,10 @@ public abstract class HealthCondition
     public void UpdateStage()
     {
         // Remove if at 0
-        if (SeverityValue <= 0f && !Def.IsNeed)
+        if (SeverityValue <= 0f && !Def.IsVital)
         {
             OnRemoved();
             Player.RemoveHealthCondition(this);
-            return;
-        }
-
-        if (IsSingleStageCondition)
-        {
-            ActiveStage = Stages.First();
-            OnActiveStageChanged();
             return;
         }
 
@@ -101,16 +108,16 @@ public abstract class HealthCondition
             else break;
         }
 
+        // If current stage is hidden, clear all sources
+        if (!ActiveStage.IsVisible) Source.Clear();
+
         Debug.Log($"Updated active stage of {Def.DefName} to {ActiveStage.Label} based on severity value of {SeverityValue}. ActiveStageIndex is now {ActiveStageIndex}.");
         OnActiveStageChanged();
     }
 
-    public void ExecuteEndDayEffect(MorningReport morningReport)
-    {
-        // Specific effects
-        OnEndDay(morningReport);
-    }
-
+    /// <summary>
+    /// Applies natural healing to this health condition based on its natural healing rate and the given healing factor. The healing factor can be used to modify the amount of healing applied (e.g., if the player is resting, the healing factor might be higher). A random offset is applied to the healing amount to add some variability. If the resulting healing amount is greater than 0, it will reduce the severity of the condition accordingly.
+    /// </summary>
     public void ApplyNaturalHealing(float healingFactor = 1f)
     {
         float naturalHealing = GetNaturalHealing();
@@ -123,6 +130,26 @@ public abstract class HealthCondition
             Debug.Log($"Applying natural healing of {naturalHealing} to {Def.DefName} with a healing factor of {healingFactor}.");
             ModifySeverity(-naturalHealing);
         }
+    }
+
+    public float GetEndOfDaySeverityChange(bool excludeNaturalHealing = false)
+    {
+        // Natural severity change defined in the health condition definition
+        float endOfDaySeverityChange = Def.NaturalSeverityChange;
+
+        // Natural Healing
+        if (!excludeNaturalHealing) endOfDaySeverityChange -= GetNaturalHealing();
+
+        // Modifications from other health conditions
+        foreach (HealthCondition hc in Player.HealthConditions)
+        {
+            if (hc == this) continue; // Skip self
+
+            Dictionary<HealthConditionDef, float> endOfDayChanges = hc.GetCurrentEndOfDayVitalChanges();
+            if (endOfDayChanges.ContainsKey(Def)) endOfDaySeverityChange += endOfDayChanges[Def];
+        }
+
+        return endOfDaySeverityChange;
     }
 
     /// <summary>
@@ -156,23 +183,129 @@ public abstract class HealthCondition
     }
 
     #region Getters
+
+    /// <summary>
+    /// Returns the amount of days remaining until this health condition is resolved (severity reaches 0) under current conditions.
+    /// </summary>
+    public int GetRemainingDurationInDays()
+    {
+        float severityChangePerDay = GetEndOfDaySeverityChange();
+        if (severityChangePerDay >= 0f) return -1; // Severity is not decreasing, so the condition will never end
+        else return Mathf.CeilToInt(SeverityValue / -severityChangePerDay);
+    }
+
+    /// <summary>
+    /// Returns the amount of days remaining until this health condition reaches the next stage (severity reaches the next stage's threshold) under current conditions.
+    /// </summary>
+    public int GetDaysUntilWorsening()
+    {
+        float severityChangePerDay = GetEndOfDaySeverityChange();
+        if (severityChangePerDay <= 0f) return -1; // Severity is not increasing, so the condition will never worsen
+        if (ActiveStageIndex >= Stages.Count - 1) return -1; // Already at the last stage, so it cannot worsen
+
+        float nextStageThreshold = Stages[ActiveStageIndex + 1].SeverityThreshold;
+        float severityUntilNextStage = nextStageThreshold - SeverityValue;
+        return Mathf.CeilToInt(severityUntilNextStage / severityChangePerDay);
+    }
+
+    /// <summary>
+    /// Returns the amount of days remaining until this health condition reaches the previous stage (severity reaches the previous stage's threshold) under current conditions.
+    /// </summary>
+    public int GetDaysUntilImprovement()
+    {
+        float severityChangePerDay = GetEndOfDaySeverityChange();
+        if (severityChangePerDay >= 0f) return -1; // Severity is not decreasing, so the condition will never improve
+        if (ActiveStageIndex <= 0) return -1; // Already at the first stage, so it cannot improve
+
+        float previousStageThreshold = Stages[ActiveStageIndex - 1].SeverityThreshold;
+        float severityUntilPreviousStage = SeverityValue - previousStageThreshold;
+        return Mathf.CeilToInt(severityUntilPreviousStage / -severityChangePerDay);
+    }
+
+    /// <summary>
+    /// Returns the amount of days remaining until this health condition causes death (severity reaches MaxSeverity) under current conditions.
+    /// </summary>
+    public int GetDaysUntilDeath()
+    {
+        float severityChangePerDay = GetEndOfDaySeverityChange();
+        if (!IsLethal || severityChangePerDay >= 0f) return -1; // Not lethal or severity is not increasing, so the condition will never cause death
+
+        float severityUntilDeath = MaxSeverity - SeverityValue;
+        return Mathf.CeilToInt(severityUntilDeath / severityChangePerDay);
+    }
+
     public string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
     public string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
+    public virtual string GetInterActionsString() => Def.Interactions;
 
     public virtual string GetReportLabel() => Label;
     public virtual string GetReportDescription() => Description;
     public virtual Color GetReportTextColor() => ActiveStage.Color;
     public virtual Color GetReportBackgroundColor() => Color.clear;
 
+    public string GetTrendAsString()
+    {
+        float delta = GetEndOfDaySeverityChange();
+
+        // Special cases
+        if (this is HC_Hunger hunger && ActiveStageIndex == 0) return "Fading"; // Well fed
+        if (this is HC_Thirst thirst && ActiveStageIndex == 0) return "Fading"; // Well hydrated
+
+        if (delta > 0f) return IsNegative ? "Worsening" : "Intensifying";
+        else if (delta < 0f) return IsNegative ? "Improving" : "Fading";
+        else return "Stable";
+    }
+
+    /// <summary>
+    /// Returns all sources of this health condition as a single string.
+    /// </summary>
+    public string GetSourcesAsSingleString()
+    {
+        // Take the sources from this health condition first
+        List<string> sources = new List<string>(Source);
+
+        // Fetch other health conditions as sources
+        foreach (HealthCondition hc in Player.HealthConditions.Where(hc => hc != this && hc.ActiveStage.IsVisible))
+        {
+            Dictionary<HealthConditionDef, float> endOfDayChanges = hc.GetCurrentEndOfDayVitalChanges();
+            if (endOfDayChanges.ContainsKey(Def) && !sources.Contains(hc.Label))
+            {
+                sources.Add(hc.Label);
+            }
+        }
+
+        // Group sources by name and count duplicates
+        Dictionary<string, int> sourceGroups = new Dictionary<string, int>();
+        foreach (string source in sources)
+        {
+            if (sourceGroups.ContainsKey(source)) sourceGroups[source]++;
+            else sourceGroups[source] = 1;
+        }
+
+        // Display each group as one line, append " (xN)" if there are multiple sources of the same name
+        List<string> lines = new List<string>();
+        foreach (var kvp in sourceGroups)
+        {
+            if (kvp.Value > 1) lines.Add($"- {kvp.Key} (x{kvp.Value})");
+            else lines.Add($"- {kvp.Key}");
+        }
+
+        // Make into single string
+        string result = string.Join("\n", lines).Trim();
+        return result;
+    }
+
     // Stat modifiers
-    public virtual Dictionary<StatDef, int> GetCurrentModifiers() => ActiveStage.StatModifiers;
+    public virtual Dictionary<StatDef, int> GetStatCurrentModifiers() => ActiveStage.StatModifiers;
 
     public int GetStatModifierFor(StatDef stat)
     {
-        Dictionary<StatDef, int> modifiers = GetCurrentModifiers();
+        Dictionary<StatDef, int> modifiers = GetStatCurrentModifiers();
         if (modifiers.ContainsKey(stat)) return modifiers[stat];
         else return 0;
     }
+
+    public virtual Dictionary<HealthConditionDef, float> GetCurrentEndOfDayVitalChanges() => ActiveStage.EndOfDayVitalChanges;
 
     #endregion
 }

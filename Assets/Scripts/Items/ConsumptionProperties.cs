@@ -9,29 +9,49 @@ public class ConsumptionProperties
     /// <summary>
     /// The type of consumption for the item, such as food, drink, or drug. General categorization.
     /// </summary>
-    public ConsumptionTypeDef ConsumptionType { get; private set; }
+    public ConsumptionTypeDef ConsumptionType { get; init; }
 
     /// <summary>
     /// The amount of nutrition provided by consuming the item.
     /// </summary>
-    public float Nutrition { get; private set; } = 0f;
+    public float Nutrition { get; init; } = 0f;
 
     /// <summary>
     /// The amount of hydration provided by consuming the item.
     /// </summary>
-    public float Hydration { get; private set; } = 0f;
+    public float Hydration { get; init; } = 0f;
 
     /// <summary>
-    /// The amount by which the severity of a random negative health condition (e.g., infection, poisoning, etc.) is reduced when the item is consumed. This cannot fully cure a condition.
+    /// The amount by which the severity of a random negative health condition is reduced when the item is consumed. This cannot fully cure a condition.
     /// </summary>
-    public float SeverityReduction { get; private set; } = 0f;
+    public float SeverityReduction { get; init; } = 0f;
 
-    public ConsumptionProperties(ConsumptionTypeDef consumptionType, float Nutrition = 0f, float Hydration = 0f, float SeverityReduction = 0f)
+    /// <summary>
+    /// A dictionary of stat changes that occur when the item is consumed.
+    /// </summary>
+    public Dictionary<StatDef, int> StatChanges { get; init; } = new Dictionary<StatDef, int>();
+
+    /// <summary>
+    /// Health condition that gets applied when the item is consumed.
+    /// </summary>
+    public HealthConditionDef AppliedHealthCondition { get; init; }
+
+    /// <summary>
+    /// Can be used to apply a health condition with a specific severity when the item is consumed. If <= 0, the default initial severity from the health condition definition will be used. If > 0, this value will be used as the initial severity when applying the condition.
+    /// </summary>
+    public float AppliedHealthConditionSeverity { get; init; } = -1;
+
+    public void Validate()
     {
-        ConsumptionType = consumptionType;
-        this.Nutrition = Nutrition;
-        this.Hydration = Hydration;
-        this.SeverityReduction = SeverityReduction;
+        foreach (var statChange in StatChanges)
+        {
+            if (statChange.Value == 0) throw new System.Exception($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
+        }
+
+        if (AppliedHealthCondition == null && AppliedHealthConditionSeverity != -1)
+        {
+            throw new System.Exception($"ConsumptionProperties has a positive applied health condition severity of {AppliedHealthConditionSeverity} but no applied health condition. An applied health condition must be specified if the severity is greater than 0.");
+        }
     }
 }
 

@@ -1,14 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HC_CutWound : Wound
 {
-    public static float BLEED_PER_SEVERITY = 0.5f;
+    public static float UNBANDAGED_BLOOD_LOSS = 0.5f;
     protected override string GetUntendedEffectString() => "While untended, this wound causes bleeding.";
 
-    protected override void OnEndDay(MorningReport morningReport)
+    public override Dictionary<HealthConditionDef, float> GetCurrentEndOfDayVitalChanges()
     {
-        base.OnEndDay(morningReport);
-
-        if (!IsBandaged) Player.ApplyBloodLoss(BLEED_PER_SEVERITY);
+        Dictionary<HealthConditionDef, float> vitalChanges = new(ActiveStage.EndOfDayVitalChanges); // Copy to avoid modifying the original
+        if (!IsBandaged) vitalChanges[HealthConditionDefOf.BloodLoss] += UNBANDAGED_BLOOD_LOSS;
+        return vitalChanges;
     }
 }

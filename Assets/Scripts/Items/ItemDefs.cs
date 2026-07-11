@@ -44,11 +44,11 @@ public static class ItemDefs
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 2.5f,
-                Hydration: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties() {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 2.5f,
+                Hydration = 1f
+            },
         },
 
         new ItemDef("Berries")
@@ -56,11 +56,11 @@ public static class ItemDefs
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 1f,
-                Hydration: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties() {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 1f,
+                Hydration = 1f
+            },
         },
 
         new ItemDef("Bone")
@@ -158,22 +158,24 @@ public static class ItemDefs
                 { ItemTagDefOf.InfectionTreatment, 1 },
                 { ItemTagDefOf.PoisonTreatment, 1 }
             },
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Drug,
-                Nutrition: 0.2f,
-                Hydration: 0.2f,
-                SeverityReduction: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drug,
+                Nutrition = 0.2f,
+                Hydration = 0.2f,
+                SeverityReduction = 1f
+            },
         },
 
         new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 3f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 3f
+            },
         },
 
         new ItemDef("RawMeat")
@@ -181,10 +183,11 @@ public static class ItemDefs
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 3.5f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 3.5f
+            },
         },
 
         new ItemDef("Rope")
@@ -222,10 +225,11 @@ public static class ItemDefs
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Drink,
-                Hydration: 3f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drink,
+                Hydration = 3f
+            },
         },
     };
 }

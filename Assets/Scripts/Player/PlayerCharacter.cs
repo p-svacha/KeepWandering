@@ -13,14 +13,11 @@ public class PlayerCharacter
     public PlayerCharacterRenderer Renderer => PlayerCharacterRenderer.Instance;
 
     // Constants / Rules
-    public const float HUNGER_INCREASE_PER_DAY = 1f;
-    public const float THIRST_INCREASE_PER_DAY = 1f;
-
     public const float BASE_BONE_REGEN_PER_DAY = 0.1f;
     public const float BASE_BLOOD_REGEN_PER_DAY = 0.1f;
 
     public const int POISON_COUNTDOWN_START = 20; // How many days to live when poisoning starts
-    public const int REPOISON_STRENGTH = 5; // How much the poison countdown gets reduced when getting poisoned while already posioned
+    public const int REPOISON_STRENGTH = 5; // How much the poison countdown gets reduced when getting poisoned while already poisoned
     public const int EXTREME_POISONING_LIMIT = 3; // At how many days left the poisoning is considered extreme
     public const int MAJOR_POISONING_LIMIT = 10; // At how many days left the poisoning is considered major
 
@@ -43,16 +40,26 @@ public class PlayerCharacter
         foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) Stats.Add(stat, new Stat(Game, this, stat));
 
         // Add instance of each need
-        foreach(HealthConditionDef def in DefDatabase<HealthConditionDef>.AllDefs.Where(x => x.IsNeed))
+        foreach(HealthConditionDef def in DefDatabase<HealthConditionDef>.AllDefs.Where(x => x.IsVital))
         {
             ApplyHealthCondition(def);
         }
     }
 
+    /// <summary>
+    /// Applies a health condition to the player. If the health condition has a maximum amount of instances, and that amount has been reached, the severity will be added to a random existing instance instead of creating a new one. Optionally, an initial severity can be provided. If no severity is provided, the default initial severity from the health condition definition will be used.
+    /// </summary>
     public HealthCondition ApplyHealthCondition(HealthConditionDef def, float initialSeverity = -1f)
     {
+        // Validation
+        if (initialSeverity > def.MaxSeverity)
+        {
+            Debug.LogError($"Initial severity {initialSeverity} exceeds max severity {def.MaxSeverity} for health condition {def}. Clamping to max severity.");
+            initialSeverity = def.MaxSeverity;
+        }
+        
         // Take base initial severity if no severity was provided
-        if (initialSeverity < 0) initialSeverity = def.InitialSeverity;
+        if (initialSeverity < 0) initialSeverity = def.DefaultInitialSeverity;
 
         // Check if we can apply this health condition (max instances)
         int currentAmount = GetHealthConditionAmount(def);
@@ -81,7 +88,7 @@ public class PlayerCharacter
 
     public void RemoveHealthCondition(HealthCondition condition)
     {
-        if (condition.Def.IsNeed) throw new System.Exception($"Cannot remove permanent health condition {condition.Def}");
+        if (condition.Def.IsVital) throw new System.Exception($"Cannot remove permanent health condition {condition.Def}");
 
         Debug.Log($"Removing health condition {condition.Def} from player.");
         HealthConditions.Remove(condition);

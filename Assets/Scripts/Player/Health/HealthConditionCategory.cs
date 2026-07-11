@@ -14,10 +14,10 @@ public static class HealthConditionCategoryDefs
 {
     public static List<HealthConditionCategoryDef> Defs => new List<HealthConditionCategoryDef>()
     {
-        new HealthConditionCategoryDef("Need")
+        new HealthConditionCategoryDef("Vital")
         {
-            Label = "Need",
-            Description = "Needs are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for needs such as hunger and thirst."
+            Label = "Vital",
+            Description = "Vitals are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for vitals such as hunger and thirst."
         },
         new HealthConditionCategoryDef("Negative")
         {
@@ -40,7 +40,7 @@ public static class HealthConditionCategoryDefs
 [DefOf]
 public static class HealthConditionCategoryDefOf
 {
-    public static HealthConditionCategoryDef Need;
+    public static HealthConditionCategoryDef Vital;
     public static HealthConditionCategoryDef Negative;
     public static HealthConditionCategoryDef Positive;
     public static HealthConditionCategoryDef Neutral;

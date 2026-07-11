@@ -131,7 +131,7 @@ public abstract class Wound : HealthCondition
         }
     }
 
-    public override Dictionary<StatDef, int> GetCurrentModifiers()
+    public override Dictionary<StatDef, int> GetStatCurrentModifiers()
     {
         Dictionary<StatDef, int> modifiers = new(ActiveStage.StatModifiers); // Copy to avoid modifying the original
         modifiers.IncrementMultiple(IsBandaged ? BaseBandagedStatModifiers : BaseUnbandagedStatModifiers);
@@ -180,7 +180,7 @@ public abstract class Wound : HealthCondition
     protected abstract string GetUntendedEffectString();
     public override string GetReportDescription()
     {
-        string description = Def.Description;
+        string description = $"a {Def.Label} wound.";
         if (!IsBandaged) description += $"\nNeeds to be tended to heal. {GetUntendedEffectString()}";
         if (IsInfected) description += $"\n{ActiveStage.Description}";
         return description;

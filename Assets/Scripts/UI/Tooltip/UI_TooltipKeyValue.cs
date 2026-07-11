@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class UI_ItemTooltipKeyValue : MonoBehaviour
+public class UI_TooltipKeyValue : MonoBehaviour
 {
     [Header("Elements")]
     public TextMeshProUGUI LabelText;

@@ -84,28 +84,43 @@ Having low or high morale can also lead to various night events to happen.
 
 ---
 
-## Health System
+## Health Conditions
 
 Health is not a single bar. It is a **collection of conditions** the player currently has, each with its own behaviour, effects, and treatment.
 
 **Core mechanics shared by all conditions:**
 
-- **Severity** — a hidden meter. In general, higher severity means a stronger effect. How severity behaves is defined per condition.
-- **Stages** — each condition defines stages keyed to severity thresholds; the active stage determines current effects. Single-stage conditions are simply present or absent with a fixed effect.
-- **Natural healing** — each night (and on the Rest action) severity is reduced by the condition's natural-healing value, with small random variation.
-- **Lethal threshold** — some conditions kill the player if severity reaches their lethal value, ending the run.
-- **Max instances** — how many instances of a condition type can coexist. Gaining one beyond the max instead adds its severity to a random existing instance.
+- **Severity**: A hidden meter. In general, higher severity means a stronger effect. How severity behaves is defined per condition. Severity is a value on instances of a condition, not the condition type itself. For example, a player can have two instances of the same condition type (e.g. two cut wounds) with different severities.
+
+- **Stages**: see below.
+- **Initial Severity**: The severity a condition instance starts at when first applied (can optionally be overridden when the condition is applied).
+- **Max Severity**: The maximum severity a condition instance can reach.
+- **Is Lethal**: Whether the condition can kill the player if severity reaches the maximum.
+- **Max instances**: How many instances of a condition type can coexist. Gaining one beyond the max instead adds its severity to a random existing instance.
+- **Natural healing**: Each night (and on the Rest action) severity is reduced by the condition's natural-healing value, with small random variation.
+- **Natural severity change**: The absolute amount by which severity changes each night, unaffected by any modifiers or actions. Can for example be used to naturally increase severity over time (e.g. hunger, thirst) or naturally decrease it (e.g. a buff with remaining duration). This should not be used for "healing", as natural healing is already a separate mechanic.
+
 - A condition is removed when its severity reaches 0.
 
-Conditions split into two categories:
+### Health Condition Stages
 
-### Needs
+Each condition defines a set of stages keyed to severity thresholds. The active stage is the one with the highest threshold that is less than or equal to the current severity. Each stage defines a set of effects that are applied while the condition is in that stage.
 
-Permanently present conditions whose severity rises over time and is reduced by consuming items (e.g. hunger reduced by nutrition, thirst by hydration). Unlike normal conditions, needs are only shown in the health report once they pass a visibility threshold.
+The currently active stage defines the label, description and current effects of the condition.
+Possible effects are:
 
-### Conditions
+- **Stat modifiers**: Modifiers to one or more stats (morale or skills).
+- **End of day vital change**: A change to the severity of one or more vitals at the end of the day (hunger, thirst, blood loss).
+- **Custom effects**: Health conditions can define custom effects that are applied while the condition is in that stage. These effects can be anything, but should be used sparingly and only when necessary.
 
-Gained and lost throughout the run, always shown in the health report, applied with a defined initial severity. Includes fractures (which choose a random limb side and have their own instancing), blood loss, electrocution, and others — all defined in `HealthConditionDefs`.
+### Vitals
+
+Vitals are a subset of health conditions, where exactly one instance of the condition is always present on the player. Unlike normal conditions, vitals are only shown in the health report once they pass a visibility threshold.
+
+The following vitals exist:
+- **Hunger:** Naturally increases each night. Reduced by consuming items that give nutrition.
+- **Thirst:** Naturally increases each night. Reduced by consuming items that give hydration.
+- **Blood Loss:** Naturally decreases each night. Increased by bleeding/unbandaged cut wounds.
 
 ### Wounds
 
@@ -138,7 +153,7 @@ Encounters apply damage through standardized helpers rather than always targetin
 
 The player carries a wooden handcart representing their inventory. Items are physics sprites that settle in the cart and can be dragged freely; items added spawn above the cart and fall in; removed items vanish; items knocked offscreen respawn so they cannot be lost. Hovering shows a tooltip; clicking/right-clicking offers item actions (eat, drink, apply, etc.).
 
-This chapter covers different systems items can have (tags, consumption, medical). These do not exclude each other. While most items are focussed on a small number of use caese, items may have any combination of these properties.
+This chapter covers different systems items can have (tags, consumption, passive stat modifiers). These do not exclude each other. While most items are focussed on a small number of use caese, items may have any combination of these properties.
 
 ## Item Tags
 
@@ -166,7 +181,7 @@ When an item fills a skill-check slot that accepts one of its tags, the item's l
 | 4     | 80%                  |
 | 5     | 100%                 |
 
-## Durability
+### Durability
 
 Every item has a **durability** value, randomized **1–5** on creation. Each time an item is used in an encounter slot, its durability drops by 1; at 0 it breaks and is removed.
 
@@ -185,11 +200,14 @@ Items may have consumable properties. Each item has a ConsumptionCategory which 
 If the category is not None, the item has a **consumption effect**. The effect can be, regardless of category, any combination of:
 - Providing nutrition (reduces hunger severity)
 - Providing hydration (reduces thirst severity)
-- Applying a health condition
+- Applying a health condition (optionally with an initial severity value defined)
 - Permanently modifying one or more skills
 
 Consuming an item is a fixed outcome option available in the morning or at the very end of encounters. The item is destroyed on consumption.
 
+## Passive Stat Modifiers
+
+Items may have passive stat modifiers that are applied while the item is in the player's inventory. These can modify any stat by any value.
 
 ## Loot Tables
 

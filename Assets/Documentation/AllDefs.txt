@@ -378,11 +378,11 @@
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 2.5f,
-                Hydration: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties() {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 2.5f,
+                Hydration = 1f
+            },
         },
 
         new ItemDef("Berries")
@@ -390,11 +390,11 @@
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 1f,
-                Hydration: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties() {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 1f,
+                Hydration = 1f
+            },
         },
 
         new ItemDef("Bone")
@@ -492,22 +492,24 @@
                 { ItemTagDefOf.InfectionTreatment, 1 },
                 { ItemTagDefOf.PoisonTreatment, 1 }
             },
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Drug,
-                Nutrition: 0.2f,
-                Hydration: 0.2f,
-                SeverityReduction: 1f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drug,
+                Nutrition = 0.2f,
+                Hydration = 0.2f,
+                SeverityReduction = 1f
+            },
         },
 
         new ItemDef("NutSnack") {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 3f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 3f
+            },
         },
 
         new ItemDef("RawMeat")
@@ -515,10 +517,11 @@
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Food,
-                Nutrition: 3.5f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 3.5f
+            },
         },
 
         new ItemDef("Rope")
@@ -556,10 +559,11 @@
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
             Value = 1,
-            ConsumptionProperties = new ConsumptionProperties(
-                ConsumptionTypeDefOf.Drink,
-                Hydration: 3f
-            ),
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drink,
+                Hydration = 3f
+            },
         },
     };
 
@@ -626,10 +630,10 @@
 --- HealthConditionCategory.cs ---
     public static List<HealthConditionCategoryDef> Defs => new List<HealthConditionCategoryDef>()
     {
-        new HealthConditionCategoryDef("Need")
+        new HealthConditionCategoryDef("Vital")
         {
-            Label = "Need",
-            Description = "Needs are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for needs such as hunger and thirst."
+            Label = "Vital",
+            Description = "Vitals are special kind of health condition this health condition is always present on the player, and the condition is updated in every UpdatePermanentHealthConditions(). It does not mean that it is always active though, and while inactive, it has no effects and is not visible to the player. This is mostly used for vitals such as hunger and thirst."
         },
         new HealthConditionCategoryDef("Negative")
         {
@@ -652,13 +656,14 @@
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
 
-        // Needs
+        // Vitals
         new HealthConditionDef("Hunger")
         {
             HealthConditionClass = typeof(HC_Hunger),
-            Category = HealthConditionCategoryDefOf.Need,
-            InitialSeverity = 5,
+            Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 5,
             MaxSeverity = 17,
+            NaturalSeverityChange = 1,
             IsLethal = true,
             LethalityMessage = "You starved.",
             Stages = new List<HealthConditionStage>()
@@ -724,9 +729,10 @@
         new HealthConditionDef("Thirst")
         {
             HealthConditionClass = typeof(HC_Thirst),
-            Category = HealthConditionCategoryDefOf.Need,
-            InitialSeverity = 5,
+            Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 5,
             MaxSeverity = 13,
+            NaturalSeverityChange = 1,
             IsLethal = true,
             LethalityMessage = "You died of dehydration.",
             Stages = new List<HealthConditionStage>()
@@ -782,13 +788,10 @@
             }
         },
 
-
-        // Unique conditions
         new HealthConditionDef("BloodLoss")
         {
             HealthConditionClass = typeof(HC_BloodLoss),
-            Category = HealthConditionCategoryDefOf.Negative,
-            MaxInstances = 1,
+            Category = HealthConditionCategoryDefOf.Vital,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = true,
@@ -944,7 +947,6 @@
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "cut",
-            Description = "A cut wound.",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -955,10 +957,33 @@
             HealthConditionClass = typeof(HC_BruiseWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
-            Description = "A bruise wound.",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
+        },
+
+        // Buffs
+        new HealthConditionDef("ChocolateHigh")
+        {
+            Category = HealthConditionCategoryDefOf.Positive,
+            Label = "Chocolate High",
+            MaxInstances = 1,
+            DefaultInitialSeverity = 2,
+            NaturalSeverityChange = -1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Chocolate High",
+                    Description = "That chocolate was amazing!",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Morale, +3 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
         },
     };
 

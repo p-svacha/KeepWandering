@@ -1,10 +1,37 @@
 TODOS:
 ==============================================
 
+HC:
+- change need to "vitals"
+- make blood amount a vital (reverse from blood loss)
+- add new field to Def to change severity of vitals at end of day
+- validate for vitals only
+- use for cut wound applying blood loss
+- make a new getendofdayseveritychange() general function in health conditions
+  - used for changing severity at end of day
+  - takes into accoung natural healing, natural severity change, severtiy change from health conditions
+  - use in new tooltip for trend calculation
 
+Item framework expansion
 
->>>>> Skill-check roll animation (the bar with outcome segments)
-- audio
+Add system that consumable items can modify stats
+Add system that consumable items can give health conditions
+Add system that items can passively modify stats (by just being in inventory)
+Add some items using these systems (chocoalte for temp morale boost, alcohol for temp social boost (tipsy condtion), steroids for perm strength boost, survival book for passive survival boost, memento for passive morale boost, etc.)
+
+- Chocolate
+- Beer
+- Protein shake
+- Survival book
+- Nimble root
+- Postcard
+
+Health condition framework expansion
+
+Add possibility for temporary conditions (with days as duration)
+Add source
+Create dedicated tooltip for health conditions with more information such as affected stats, remaining duration, source, severity, stages, natural change, natural healing
+
 
 EVENING REWORK:
 - add option to train a specific skill (depending on biome)

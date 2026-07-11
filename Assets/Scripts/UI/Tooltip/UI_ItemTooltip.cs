@@ -31,9 +31,9 @@ public class UI_ItemTooltip : UI_TooltipBase
 
     public GameObject ConsumptionPerDayInfo;
 
-    public GameObject MedicalDivider;
-    public GameObject MedicalContainer;
-    public TextMeshProUGUI MedicalText;
+    public GameObject PassiveEffectsDivider;
+    public GameObject PassiveEffectsContainer;
+    public TextMeshProUGUI PassiveEffectsText;
 
     public GameObject DescriptionDivider;
     public GameObject DescriptionContainer;
@@ -41,7 +41,7 @@ public class UI_ItemTooltip : UI_TooltipBase
 
     [Header("Prefabs")]
     public UI_ItemTooltipTag TagPrefab;
-    public UI_ItemTooltipKeyValue KeyValuePrefab;
+    public UI_TooltipKeyValue KeyValuePrefab;
 
     private void Awake()
     {
@@ -79,28 +79,59 @@ public class UI_ItemTooltip : UI_TooltipBase
         ConsumptionContainer.SetActive(isConsumable);
         if (isConsumable)
         {
-            ConsumptionTypeText.text = item.Def.ConsumptionProperties.ConsumptionType.LabelCap;
+            ConsumptionProperties consumptionProps = item.Def.ConsumptionProperties;
+            ConsumptionTypeText.text = consumptionProps.ConsumptionType.LabelCap;
 
-            ConsumptionNutritionRow.SetActive(item.Def.ConsumptionProperties.Nutrition > 0);
-            ConsumptionNutritionText.text = $"{item.Def.ConsumptionProperties.Nutrition} days*";
-            ConsumptionHydrationRow.SetActive(item.Def.ConsumptionProperties.Hydration > 0);
-            ConsumptionHydrationText.text = $"{item.Def.ConsumptionProperties.Hydration} days*";
+            ConsumptionNutritionRow.SetActive(consumptionProps.Nutrition > 0);
+            ConsumptionNutritionText.text = $"{consumptionProps.Nutrition} {"day".Pluralize(consumptionProps.Nutrition)}*";
+            ConsumptionHydrationRow.SetActive(consumptionProps.Hydration > 0);
+            ConsumptionHydrationText.text = $"{consumptionProps.Hydration} {"day".Pluralize(consumptionProps.Hydration)}*";
 
-            ConsumptionPerDayInfo.SetActive(item.Def.ConsumptionProperties.Nutrition > 0 || item.Def.ConsumptionProperties.Hydration > 0);
+            ConsumptionPerDayInfo.SetActive(consumptionProps.Nutrition > 0 || consumptionProps.Hydration > 0);
 
             string additionalEffectsText = "";
-            if (item.Def.ConsumptionProperties.SeverityReduction > 0)
+
+            // Stat changes
+            if (consumptionProps.StatChanges.Count > 0)
+            {
+                foreach (var statChange in consumptionProps.StatChanges)
+                {
+                    additionalEffectsText += $"\n{statChange.Value.ToSignedString()} {statChange.Key.LabelCap}";
+                }
+            }
+
+            // Health condition
+            if (consumptionProps.AppliedHealthCondition != null)
+            {
+                additionalEffectsText += $"\n- Applies {consumptionProps.AppliedHealthCondition.LabelCap}";
+            }
+
+            // Severity reduction
+            if (consumptionProps.SeverityReduction > 0)
             {
                 additionalEffectsText += $"\n- Eases a random ailment";
             }
+
+            
+
             additionalEffectsText = additionalEffectsText.Trim();
             ConsumptionAdditionalInfoText.text = additionalEffectsText;
             ConsumptionAdditionalInfo.gameObject.SetActive(additionalEffectsText != "");
         }
 
-        // Medical
-        MedicalDivider.SetActive(false);
-        MedicalContainer.SetActive(false);
+        // Passive Effects
+        bool hasPassiveEffects = item.Def.PassiveStatChanges.Count > 0;
+        PassiveEffectsDivider.SetActive(hasPassiveEffects);
+        PassiveEffectsContainer.SetActive(hasPassiveEffects);
+        if (hasPassiveEffects)
+        {
+            string text = "";
+            foreach (var statChange in item.Def.PassiveStatChanges)
+            {
+                text += $"\n{statChange.Value.ToSignedString()} {statChange.Key.LabelCap}";
+            }
+            PassiveEffectsText.text = text.Trim();
+        }
 
         // Description
         bool hasDescription = item.Def.Description != "";

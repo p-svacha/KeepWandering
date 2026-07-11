@@ -803,12 +803,6 @@ public class Game : Singleton<Game>
         // End of day effects of health conditions
         Player.OnEndDay(this, LatestMorningReport);
 
-        /*
-        List<Companion> companionsCopy = new List<Companion>();
-        foreach (Companion c in Companions) companionsCopy.Add(c);
-        foreach (Companion c in companionsCopy) c.OnEndDay(this, LatestMorningReport);
-        */
-
         // Increase danger level on current tile
         ModifyDangerLevel(+1);
     }
@@ -929,9 +923,20 @@ public class Game : Singleton<Game>
     {
         if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
 
-        Player.ModifyHunger(-item.Def.ConsumptionProperties.Nutrition);
-        Player.ModifyThirst(-item.Def.ConsumptionProperties.Hydration);
-        Player.ReduceRandomNegativeHcSeverity(item.Def.ConsumptionProperties.SeverityReduction);
+        ConsumptionProperties consumptionProps = item.Def.ConsumptionProperties;
+
+        // Consumption effects
+        Player.ModifyHunger(-consumptionProps.Nutrition);
+        Player.ModifyThirst(-consumptionProps.Hydration);
+        Player.ReduceRandomNegativeHcSeverity(consumptionProps.SeverityReduction);
+        foreach (var statChange in consumptionProps.StatChanges) ModifyStatBaseValue(statChange.Key, statChange.Value);
+
+
+        if(consumptionProps.AppliedHealthCondition != null)
+        {
+            if (consumptionProps.AppliedHealthConditionSeverity > 0f) Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, consumptionProps.AppliedHealthConditionSeverity);
+            else Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition); // Apply with default severity if not specified
+        }
 
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 
