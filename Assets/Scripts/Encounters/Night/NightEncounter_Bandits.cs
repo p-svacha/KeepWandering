@@ -111,12 +111,12 @@ public class NightEncounter_Bandits : NightEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
         {
-            Game.ApplyBruiseDamage(Intensity);
+            Game.ApplyBruiseDamage(Intensity, source: "Fighting bandits");
             return $"You drive off the {bandits} but take some hits.";
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
-            Game.ApplyBruiseDamage(Intensity + 1);
+            Game.ApplyBruiseDamage(Intensity + 1, source: "Fighting bandits");
             Game.RemoveRandomItemFromInventory();
 
             string beat = Intensity == 1 ? "beats" : "beat";
@@ -124,8 +124,8 @@ public class NightEncounter_Bandits : NightEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            Game.ApplyCutDamage(Random.Range(2f, 3f));
-            Game.ApplyBruiseDamage(Random.Range(2f, 3f));
+            Game.ApplyCutDamage(Random.Range(2f, 3f), source: "Fighting bandits");
+            Game.ApplyBruiseDamage(Random.Range(2f, 3f), source: "Fighting bandits");
 
             for (int i = 0; i < Intensity; i++) Game.RemoveRandomItemFromInventory();
 
@@ -180,7 +180,7 @@ public class NightEncounter_Bandits : NightEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
         {
-            Game.ApplyBruiseWound();
+            Game.ApplyBruiseWound(source: "Sneaking away from bandits");
             for (int i = 0; i < Intensity; i++) Game.RemoveRandomItemFromInventory();
 
             return "You almost make it, but step on something. They spot you and shove you down before you can get far.";
@@ -188,7 +188,7 @@ public class NightEncounter_Bandits : NightEncounter
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
             for (int i = 0; i < Intensity + 1; i++) Game.RemoveRandomItemFromInventory();
-            Game.ApplyBruiseDamage(2f);
+            Game.ApplyBruiseDamage(2f, source: "Sneaking away from bandits");
             Game.ModifyMorale(-1);
 
             return $"They see you trying to run. One of them trips you.";
@@ -196,8 +196,8 @@ public class NightEncounter_Bandits : NightEncounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             for (int i = 0; i < Intensity + 1; i++) Game.RemoveRandomItemFromInventory();
-            Game.ApplyBruiseDamage(3f);
-            Game.ApplyCutWound();
+            Game.ApplyBruiseDamage(3f, source: "Sneaking away from bandits");
+            Game.ApplyCutWound(source: "Sneaking away from bandits");
             Game.ModifyMorale(-1);
 
             return "You stumble right into them. They don't take kindly to that.";
@@ -267,7 +267,7 @@ public class NightEncounter_Bandits : NightEncounter
         {
             for (int i = 0; i < Intensity; i++) Game.RemoveRandomItemFromInventory();
             Game.ModifyMorale(-1);
-            Game.ApplyBruiseWound();
+            Game.ApplyBruiseWound(source: "Intimidating bandits");
 
             return "They're not impressed. They shove you aside and help themselves.";
         }
@@ -380,7 +380,7 @@ public class NightEncounter_Bandits : NightEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
-            Game.ApplyBruiseWound();
+            Game.ApplyBruiseWound(source: "Begging bandits");
             Game.ModifyMorale(-1);
             for (int i = 0; i < Intensity + 1; i++) Game.RemoveRandomItemFromInventory();
 
@@ -388,7 +388,7 @@ public class NightEncounter_Bandits : NightEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            Game.ApplyBruiseDamage(2f);
+            Game.ApplyBruiseDamage(2f, source: "Begging bandits");
             for (int i = 0; i < Intensity + 1; i++) Game.RemoveRandomItemFromInventory();
             Game.ModifyMorale(-3);
             return "They laugh at you.";

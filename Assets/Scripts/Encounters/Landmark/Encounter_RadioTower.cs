@@ -199,7 +199,7 @@ public class Encounter_RadioTower : LocationEncounter
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             text = "The door holds. You sprain your shoulder.";
-            Game.ApplyArmFracture(2f);
+            Game.ApplyArmFracture(2f, source: "Failed attempt to force radio tower door");
         }
         return text;
     }
@@ -252,12 +252,12 @@ public class Encounter_RadioTower : LocationEncounter
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             text = "You slip while climbing and fall to the ground, hurting yourself.";
-            Game.ApplyBruiseDamage(2f);
+            Game.ApplyBruiseDamage(2f, source: "Failed attempt to climb radio tower");
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
             text = "You slip while climbing and fall to the ground, hurting yourself badly.";
-            Game.ApplyBruiseDamage(5f);
+            Game.ApplyBruiseDamage(5f, source: "Failed attempt to climb radio tower");
         }
         return text;
     }

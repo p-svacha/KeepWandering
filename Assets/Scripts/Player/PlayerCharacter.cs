@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 /// <summary>
 /// Visual entity representing the player.
@@ -40,16 +38,16 @@ public class PlayerCharacter
         foreach (StatDef stat in DefDatabase<StatDef>.AllDefs) Stats.Add(stat, new Stat(Game, this, stat));
 
         // Add instance of each need
-        foreach(HealthConditionDef def in DefDatabase<HealthConditionDef>.AllDefs.Where(x => x.IsVital))
+        foreach (HealthConditionDef def in DefDatabase<HealthConditionDef>.AllDefs.Where(x => x.IsVital))
         {
-            ApplyHealthCondition(def);
+            ApplyHealthCondition(def, "");
         }
     }
 
     /// <summary>
     /// Applies a health condition to the player. If the health condition has a maximum amount of instances, and that amount has been reached, the severity will be added to a random existing instance instead of creating a new one. Optionally, an initial severity can be provided. If no severity is provided, the default initial severity from the health condition definition will be used.
     /// </summary>
-    public HealthCondition ApplyHealthCondition(HealthConditionDef def, float initialSeverity = -1f)
+    public HealthCondition ApplyHealthCondition(HealthConditionDef def, string source, float initialSeverity = -1f)
     {
         // Validation
         if (initialSeverity > def.MaxSeverity)
@@ -57,7 +55,7 @@ public class PlayerCharacter
             Debug.LogError($"Initial severity {initialSeverity} exceeds max severity {def.MaxSeverity} for health condition {def}. Clamping to max severity.");
             initialSeverity = def.MaxSeverity;
         }
-        
+
         // Take base initial severity if no severity was provided
         if (initialSeverity < 0) initialSeverity = def.DefaultInitialSeverity;
 
@@ -65,11 +63,12 @@ public class PlayerCharacter
         int currentAmount = GetHealthConditionAmount(def);
 
         // Haven't reached max amount => new instance
-        if(currentAmount < def.MaxInstances)
+        if (currentAmount < def.MaxInstances)
         {
             HealthCondition newHC = (HealthCondition)System.Activator.CreateInstance(def.HealthConditionClass);
             newHC.Init(this, def, initialSeverity);
             HealthConditions.Add(newHC);
+            if (!string.IsNullOrEmpty(source)) newHC.Source.Add(source);
             return newHC;
         }
 
@@ -82,6 +81,7 @@ public class PlayerCharacter
             List<HealthCondition> existingInstances = HealthConditions.Where(hc => hc.Def == def).ToList();
             HealthCondition chosenInstance = existingInstances.RandomElement();
             chosenInstance.ModifySeverity(initialSeverity);
+            if (!string.IsNullOrEmpty(source)) chosenInstance.Source.Add(source);
             return null;
         }
     }
@@ -100,21 +100,35 @@ public class PlayerCharacter
     public void OnEndDay(Game game, MorningReport morningReport)
     {
         // Health conditions
-        List<HealthCondition> healthConditions = new List<HealthCondition>(HealthConditions); // Copy list in case it gets modified during the loop
-        foreach (HealthCondition hc in healthConditions) hc.ExecuteEndDayEffect(morningReport);
+        List<HealthCondition> existingHealthConditions = new List<HealthCondition>(HealthConditions); // Copy list in case it gets modified during the loop
+        foreach (HealthCondition hc in existingHealthConditions) hc.ExecuteEndDayEffect(morningReport);
+
+        // New health conditions applied by existing health conditions
+        foreach(HealthCondition hc in existingHealthConditions)
+        {
+            List<(HealthConditionDef Condition, float Chance)> newHcChances = hc.GetCurrentAppliedHealthConditions();
+            foreach ((HealthConditionDef condition, float chance) in newHcChances)
+            {
+                if (Random.value < chance)
+                {
+                    ApplyHealthCondition(condition, $"{hc.Def.Label}");
+                    morningReport.AddNightEvent($"You developed {condition.Label} due to {hc.Def.Label}.");
+                }
+            }
+        }
     }
 
     public void ModifyHunger(float value) => Hunger.ModifySeverity(value);
     public void ModifyThirst(float value) => Thirst.ModifySeverity(value);
 
-    public void ApplyBloodLoss(float severity) => ApplyHealthCondition(HealthConditionDefOf.BloodLoss, severity);
+    public void ApplyBloodLoss(float severity, string source) => ApplyHealthCondition(HealthConditionDefOf.BloodLoss, source, severity);
 
-    public void ApplyRandomFracture(float severity)
+    public void ApplyRandomFracture(float severity, string source)
     {
-        if (Random.value < 0.5f) ApplyLegFracture(severity);
-        else ApplyArmFracture(severity);
+        if (Random.value < 0.5f) ApplyLegFracture(severity, source);
+        else ApplyArmFracture(severity, source);
     }
-    public void ApplyLegFracture(float severity)
+    public void ApplyLegFracture(float severity, string source)
     {
         bool isRightLeg = Random.value < 0.5f;
 
@@ -130,10 +144,10 @@ public class PlayerCharacter
         }
 
         // If no existing fracture on that side, apply new fracture
-        HC_LegFracture newFracture = (HC_LegFracture)ApplyHealthCondition(HealthConditionDefOf.LegFracture, severity);
+        HC_LegFracture newFracture = (HC_LegFracture)ApplyHealthCondition(HealthConditionDefOf.LegFracture, source, severity);
         newFracture.SetSide(isRightLeg);
     }
-    public void ApplyArmFracture(float severity)
+    public void ApplyArmFracture(float severity, string source)
     {
         bool isRightArm = Random.value < 0.5f;
 
@@ -149,14 +163,14 @@ public class PlayerCharacter
         }
 
         // If no existing fracture on that side, apply new fracture
-        HC_ArmFracture newFracture = (HC_ArmFracture)ApplyHealthCondition(HealthConditionDefOf.ArmFracture, severity);
+        HC_ArmFracture newFracture = (HC_ArmFracture)ApplyHealthCondition(HealthConditionDefOf.ArmFracture, source, severity);
         newFracture.SetSide(isRightArm);
     }
 
 
-    public Wound AddWound(HealthConditionDef woundDef)
+    public Wound AddWound(HealthConditionDef woundDef, string source)
     {
-        Wound wound = (Wound)ApplyHealthCondition(woundDef);
+        Wound wound = (Wound)ApplyHealthCondition(woundDef, source);
         if (wound != null)
         {
             WoundRenderer renderer = Renderer.GetUnusedWoundRenderer(woundDef);
@@ -182,9 +196,9 @@ public class PlayerCharacter
     /// </summary>
     public void ReduceRandomNegativeHcSeverity(float amount)
     {
-        if(amount <= 0) return;
+        if (amount <= 0) return;
 
-        List<HealthCondition> candidates = HealthConditions.Where(hc => hc.IsNegative).ToList();
+        List<HealthCondition> candidates = HealthConditions.Where(hc => hc.IsNegative && !hc.IsSimpleBinaryCondition()).ToList();
         if (candidates.Count == 0) return;
 
         HealthCondition hc = candidates.RandomElement();

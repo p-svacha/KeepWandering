@@ -152,7 +152,7 @@ public class BiomeEncounter_Outskirts : BiomeEncounter
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
-            Game.ApplyBruiseWound();
+            Game.ApplyBruiseWound(source: "Failed flag down passerby attempt");
             Game.RemoveRandomItemFromInventory();
             return "A hostile stranger. They shove you down and grab something from your cart before running off.";
         }

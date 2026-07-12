@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class HealthCondition
+public class HealthCondition
 {
     private const float NATURAL_HEALING_RANDOM_OFFSET = 0.1f; // in %, both directions
 
@@ -47,7 +47,7 @@ public abstract class HealthCondition
         Source = new List<string>();
         OnInit();
 
-        if (SeverityValue <= 0) throw new System.Exception($"Health condition {Def} cannot be initialized with non-positive severity value as that would remove it immediately.");
+        if (SeverityValue <= 0 && !Def.IsVital) throw new System.Exception($"Health condition {Def} cannot be initialized with non-positive severity value as that would remove it immediately.");
 
         UpdateStage();
     }
@@ -160,7 +160,7 @@ public abstract class HealthCondition
     /// <summary>
     /// Gets called whenever the active stage of the condition changes. Should only be used for visual changes.
     /// </summary>
-    protected abstract void OnActiveStageChanged();
+    protected virtual void OnActiveStageChanged() { }
 
     /// <summary>
     /// Gets called at the end of each day. Performs all events that happen during the night and returns a list of them for the morning report.
@@ -183,6 +183,14 @@ public abstract class HealthCondition
     }
 
     #region Getters
+
+    /// <summary>
+    /// Returns true if this health condition is a simple binary condition, meaning that it is simply present or not, without being affected by severity.
+    /// </summary>
+    public bool IsSimpleBinaryCondition()
+    {
+        return Stages.Count == 1 && MaxSeverity == 1 && MaxSeverity == InitialSeverity;
+    }
 
     /// <summary>
     /// Returns the amount of days remaining until this health condition is resolved (severity reaches 0) under current conditions.
@@ -306,6 +314,8 @@ public abstract class HealthCondition
     }
 
     public virtual Dictionary<HealthConditionDef, float> GetCurrentEndOfDayVitalChanges() => ActiveStage.EndOfDayVitalChanges;
+    public virtual List<(HealthConditionDef Condition, float Chance)> GetCurrentAppliedHealthConditions() => ActiveStage.AppliedHealthConditions;
+    public virtual (int Modifier, float Chance)? GetCurrentSkillCheckModifier() => ActiveStage.SkillCheckModifier;
 
     #endregion
 }

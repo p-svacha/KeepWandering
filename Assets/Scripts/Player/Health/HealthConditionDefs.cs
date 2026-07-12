@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using static HealthConditionDef;
 
 public static class HealthConditionDefs
 {
@@ -8,6 +9,8 @@ public static class HealthConditionDefs
         // Vitals
         new HealthConditionDef("Hunger")
         {
+            Label = "Hunger",
+            Interactions = "Eat food to reduce hunger.",
             HealthConditionClass = typeof(HC_Hunger),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
@@ -77,6 +80,8 @@ public static class HealthConditionDefs
 
         new HealthConditionDef("Thirst")
         {
+            Label = "Thirst",
+            Interactions = "Drink water to reduce thirst.",
             HealthConditionClass = typeof(HC_Thirst),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
@@ -139,8 +144,11 @@ public static class HealthConditionDefs
 
         new HealthConditionDef("BloodLoss")
         {
+            Label = "Blood Loss",
+            Interactions = $"{HEALS_NATURALLY}\nIncreased by bleeding (unbandaged) cut wounds.",
             HealthConditionClass = typeof(HC_BloodLoss),
             Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 0,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = true,
@@ -194,6 +202,8 @@ public static class HealthConditionDefs
         // Fractures
         new HealthConditionDef("LegFracture")
         {
+            Label = "Leg Fracture",
+            Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_LegFracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
@@ -241,6 +251,8 @@ public static class HealthConditionDefs
 
         new HealthConditionDef("ArmFracture")
         {
+            Label = "Arm Fracture",
+            Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_ArmFracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
@@ -293,9 +305,9 @@ public static class HealthConditionDefs
         // Wounds
         new HealthConditionDef("Cut")
         {
+            Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
-            Label = "cut",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -311,11 +323,93 @@ public static class HealthConditionDefs
             // Everything else handled by Wound class
         },
 
-        // Buffs
+        // Other injuries / ailments
+        new HealthConditionDef("HeartArrhythmia")
+        {
+            Label = "Heart Arrhythmia",
+            Interactions = $"Will not go away naturally. Needs to be treated at a pharmacy.",
+            Category = HealthConditionCategoryDefOf.Negative,
+            MaxInstances = 1,
+            MaxSeverity = 1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Heart arrhythmia",
+                    Description = "My heartbeat is irregular.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -1 },
+                    },
+                    SkillCheckModifier = (-10, 0.2f),
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+            }
+        },
+
+        new HealthConditionDef("Electrocution")
+        {
+            Label = "Electrocution",
+            Interactions = $"{HEALS_NATURALLY}",
+            Category = HealthConditionCategoryDefOf.Negative,
+            MaxInstances = 1,
+            MaxSeverity = 10,
+            NaturalHealing = 1f,
+            IsLethal = true,
+            LethalityMessage = "You were electrocuted.",
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Sunned",
+                    Description = "I've been electrocuted!",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -3 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Shocked",
+                    Description = "I'm severely electrocuted!",
+                    SeverityThreshold = 4,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -5 },
+                    },
+                    AppliedHealthConditions =
+                    {
+                        (HealthConditionDefOf.HeartArrhythmia, 0.2f),
+                    },
+                    Color = ResourceManager.Color_Text_VeryNegative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Electrocuted",
+                    Description = "I'm critically electrocuted!",
+                    SeverityThreshold = 7,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -8 },
+                    },
+                    AppliedHealthConditions =
+                    {
+                        (HealthConditionDefOf.HeartArrhythmia, 0.4f),
+                    },
+                    Color = ResourceManager.Color_Text_ExtremelyNegative,
+                }
+            }
+        },
+
+        // Misc
         new HealthConditionDef("ChocolateHigh")
         {
-            Category = HealthConditionCategoryDefOf.Positive,
             Label = "Chocolate High",
+            Category = HealthConditionCategoryDefOf.Positive,
             MaxInstances = 1,
             DefaultInitialSeverity = 2,
             NaturalSeverityChange = -1,
@@ -334,6 +428,63 @@ public static class HealthConditionDefs
                 }
             }
         },
+
+        new HealthConditionDef("Intoxication")
+        {
+            Category = HealthConditionCategoryDefOf.Neutral,
+            Label = "Intoxication",
+            NaturalHealing = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Tipsy",
+                    Description = "I feel a bit tipsy.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Social, +2 },
+                        { StatDefOf.Dexterity, -2 },
+                        { StatDefOf.Morale, +1 }
+                    },
+                    Color = ResourceManager.Color_Text_Default,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Drunk",
+                    Description = "I'm drunk.",
+                    SeverityThreshold = 3,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Social, +1 },
+                        { StatDefOf.Dexterity, -4 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                }
+            }
+        },
+
+        new HealthConditionDef("SteadyHands")
+        {
+            Label = "Steady Hands",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Steady Hands",
+                    Description = "My hands are steady.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        }
     };
 }
 
@@ -349,5 +500,10 @@ public static class HealthConditionDefOf
     public static HealthConditionDef Bruise;
     public static HealthConditionDef Cut;
 
+    public static HealthConditionDef HeartArrhythmia;
+    public static HealthConditionDef Electrocution;
+
     public static HealthConditionDef ChocolateHigh;
+    public static HealthConditionDef Intoxication;
+    public static HealthConditionDef SteadyHands;
 }

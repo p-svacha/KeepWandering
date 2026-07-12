@@ -1,28 +1,14 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-Phase 0 — Foundations (do before mass-producing any content): These all touch every encounter with a skill check or item slot, or change how every encounter is presented. Building content before these land means retrofitting it all afterward.
-
-
-Item framework expansion
-
-Add system that consumable items can modify stats
-Add system that consumable items can give health conditions
-Add system that items can passively modify stats (by just being in inventory)
-Add some items using these systems (chocoalte for temp morale boost, alcohol for temp social boost (tipsy condtion), steroids for perm strength boost, survival book for passive survival boost, memento for passive morale boost, etc.)
-
-Health condition framework expansion
-
-Add possibility for temporary conditions (with days as duration)
-Add source
-Create dedicated tooltip for health conditions with more information such as affected stats, remaining duration, source, severity, stages
-
 World map rework
 
 Bigger hex tiles with textures/sprites
 Encounter assigned to every tile at generation (hidden unless landmark/special)
 Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
 Danger level overlay toggle
+
+
 
 Stub audio hooks
 
@@ -37,21 +23,33 @@ add SFX to items
 	- removing item from a slot
 	- item breaks (if durability reaches 0)
 	- item is consumed (if consumable)
-No actual audio assets yet — just the wiring so Phase 3 doesn't require touching every encounter again
 
+Evening Rework
+- single encounter class
+- set of available actions
+- biome can affect available actions (availability, difficulty, success/failure effects)
+- scavenging has own loot table per biome
+- option to improve skills
+- possibility to make camp
+  - option make fire (moral boost) and cook food (better food)
+  - option to use shelter items (sleeping bag, tent) for better rest (item slots for sleep action)
+  - show shelter items/fire in night encounter
 
-Phase 1 — Small systemic cleanups (cheap, unblock or de-risk later work)
-These are individually small but each blocks or complicates something downstream if left until later.
+Substance end Game
+- random deployment tile
+- spread mechanics
+- show next spread tiles on map
+- impassability
+- map marking of deployment on day 15
+- death on being on tile
 
-Rumour simplification — remove partial rumours; verify the remaining system is solid before the helicopter path (which depends on rumours) is built
-Health condition updates — add Electrocution, remove Heart Arrhythmia and any items that only existed for it; clarify all condition descriptions and colours; the Collapsed Building encounter already references electrocution so this is a live gap
-Evening encounter rework — generic action menu, no random place/setting, existing place sprites freed up for day encounters; add Cook action
-Substance end-game — deployment tile, spread mechanics, impassability, map marking on day 20; this is a map/time system, not content, and it defines the shell every run plays inside, so it belongs early
+New biome
+- Hills or Mountains biome?
 
 
 Phase 2 — Content production (the long continuous thread)
-Once Phase 0 is stable this is where the bulk of hours go. It runs continuously and can be worked on in any internal order, though the escape-route encounters have soft prerequisites noted below.
-Generic day encounters (target: ~20)
+
+>>> Work end-to-start. So take a win condition, and work backwards to create the content that leads to it, and the required content to help getting there. Then repeat for the next win condition, and so on. Everything should be designed to work towards the win conditions (both progression and setbacks), and the content should be designed to be fun and interesting in its own right, not just a means to an end.
 
 Spread across biomes during world generation by commonness and biome bias
 Simple encounters encouraged — not everything needs to be as complex as the Collapsed Building

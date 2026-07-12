@@ -37,4 +37,14 @@ public class HealthConditionStage
     /// The vitals that are affected by this stage at the end of the day, and how much their severity changes.
     /// </summary>
     public Dictionary<HealthConditionDef, float> EndOfDayVitalChanges { get; init; } = new Dictionary<HealthConditionDef, float>();
+
+    /// <summary>
+    /// The health conditions that can be applied to the player when this stage is active, and the chance of each being applied.
+    /// </summary>
+    public List<(HealthConditionDef Condition, float Chance)> AppliedHealthConditions { get; init; } = new List<(HealthConditionDef, float)>();
+
+    /// <summary>
+    /// The modifier to the rolled value of skillchecks that is applied when this stage is active. The first value is the modifier, and the second value is the chance of the modifier being applied.
+    /// </summary>
+    public (int Modifier, float Chance)? SkillCheckModifier { get; init; } = null;
 }

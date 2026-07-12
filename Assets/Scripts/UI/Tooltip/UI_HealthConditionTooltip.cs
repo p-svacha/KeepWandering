@@ -55,12 +55,17 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
         // Current Effects
         Dictionary<StatDef, int> statModifiers = healthCondition.GetStatCurrentModifiers();
         Dictionary<HealthConditionDef, float> endOfDayVitalChanges = healthCondition.GetCurrentEndOfDayVitalChanges();
-        bool hasCurrentEffects = statModifiers.Count > 0 || endOfDayVitalChanges.Count > 0;
+        List<(HealthConditionDef Condition, float Chance)> appliedHealthConditions = healthCondition.GetCurrentAppliedHealthConditions();
+        (int Modifier, float Chance)? skillCheckModifier = healthCondition.GetCurrentSkillCheckModifier();
+
+        bool hasCurrentEffects = statModifiers.Count > 0 || endOfDayVitalChanges.Count > 0 || appliedHealthConditions.Count > 0 || skillCheckModifier.HasValue;
         CurrentEffectsDivider.SetActive(hasCurrentEffects);
         CurrentEffectsText.gameObject.SetActive(hasCurrentEffects);
         if (hasCurrentEffects)
         {
             string currentEffectsText = "";
+
+            // Stat modifiers
             if (statModifiers.Count > 0)
             {
                 foreach (var statChange in statModifiers)
@@ -69,6 +74,7 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
                 }
             }
 
+            // End of day vital changes
             if (endOfDayVitalChanges.Count > 0)
             {
                 foreach (var vitalChange in endOfDayVitalChanges)
@@ -77,6 +83,21 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
                     string increases = isIncrease ? "Increases" : "Decreases";
                     currentEffectsText += $"\n{increases} {vitalChange.Key.Label} each night";
                 }
+            }
+
+            // Applied health conditions
+            if (appliedHealthConditions.Count > 0)
+            {
+                foreach (var appliedCondition in appliedHealthConditions)
+                {
+                    currentEffectsText += $"\n{appliedCondition.Chance * 100}% chance to apply {appliedCondition.Condition.Label} each night";
+                }
+            }
+
+            // Skill check modifier
+            if (skillCheckModifier.HasValue)
+            {
+                currentEffectsText += $"\n{skillCheckModifier.Value.Chance * 100}% chance to modify skill check rolls by {skillCheckModifier.Value.Modifier}";
             }
 
             CurrentEffectsText.text = currentEffectsText.TrimStart('\n');

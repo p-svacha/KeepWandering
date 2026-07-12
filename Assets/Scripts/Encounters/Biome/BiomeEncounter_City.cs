@@ -204,7 +204,7 @@ public class BiomeEncounter_City : BiomeEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            Game.ApplyBruiseDamage(2f);
+            Game.ApplyBruiseDamage(2f, source: "Failed attempt to climb radio tower");
             return "They noticed you listening. A rock comes flying from the darkness.";
         }
         throw new System.Exception("Invalid success level");

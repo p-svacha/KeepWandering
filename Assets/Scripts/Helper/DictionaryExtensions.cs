@@ -302,4 +302,20 @@ public static class DictionaryExtensions
 
         return results;
     }
+
+    public static void Increment<TKey>(this Dictionary<TKey, float> dictionary, TKey key, float amount = 1f)
+    {
+        if (dictionary == null)
+            throw new ArgumentNullException(nameof(dictionary));
+        if (key == null)
+            throw new ArgumentNullException(nameof(key));
+        if (dictionary.TryGetValue(key, out float current))
+        {
+            dictionary[key] = current + amount;
+        }
+        else
+        {
+            dictionary[key] = amount;
+        }
+    }
 }

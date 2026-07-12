@@ -186,7 +186,7 @@ public class Encounter_SupplyStash : LocationEncounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             Game.ModifyMorale(-1);
-            Game.ApplyRandomWound();
+            Game.ApplyRandomWound(source: "Breaking box lock");
             return "You slip and hurt yourself while trying to break it. The lock holds.";
         }
         throw new InvalidOutcomeException();
@@ -293,7 +293,7 @@ public class Encounter_SupplyStash : LocationEncounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             Game.ModifyMorale(-1);
-            Game.ApplyRandomWound();
+            Game.ApplyRandomWound(source: "Digging up crate");
             return "You hurt yourself while trying to dig it out. You fail to find anything.";
         }
         throw new InvalidOutcomeException();

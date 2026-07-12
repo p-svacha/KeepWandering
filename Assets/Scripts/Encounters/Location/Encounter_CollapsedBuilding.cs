@@ -124,7 +124,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         Game.ModifyMorale(-3);
         DestroyItems(visibleItems);
         DestroyItems(invisibleItems);
-        Game.ApplyBruiseDamage(Random.Range(2f, 4f));
+        Game.ApplyBruiseDamage(Random.Range(2f, 4f), source: "Building collapse");
 
         if (survivorState == SurvivorState.Stuck) survivorState = SurvivorState.Dead;
     }
@@ -231,7 +231,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Failed attempt to grab items from rubble");
             return "The rubble shifts as you reach in, scraping your arm.";
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
@@ -244,7 +244,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             }
             else
             {
-                Game.ApplyBruiseDamage(2f);
+                Game.ApplyBruiseDamage(2f, source: "Failed attempt to grab items from rubble");
                 DestroyItems(visibleItems);
                 return "A slab gives way as you reach in. The structure becomes more unstable, the items are destroyed.";
             }
@@ -321,7 +321,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             Game.ModifyMorale(-1);
-            Game.ApplyBruiseWound();
+            Game.ApplyBruiseWound(source: "Failed attempt to clear rubble");
             // todo: apply exhaustion
 
             return "The rubble is too heavy and unstable. You exhaust yourself.";
@@ -374,7 +374,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Failed attempt to crawl in");
             return "You get stuck and have to wriggle back out, scraping yourself up.";
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)

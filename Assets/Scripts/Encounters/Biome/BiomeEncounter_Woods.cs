@@ -148,7 +148,7 @@ public class BiomeEncounter_Woods : BiomeEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            Game.ApplyRandomWound();
+            Game.ApplyRandomWound(source: "Failed trap assembly attempt");
             return "The trap snaps shut on your hand.";
         }
         throw new InvalidOutcomeException();

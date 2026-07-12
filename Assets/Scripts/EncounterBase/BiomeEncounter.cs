@@ -193,7 +193,7 @@ public abstract class BiomeEncounter : Encounter
         if(outcome == OptionOutcomeDefOf.CriticalFailure)
         {
             Game.ModifyStatBaseValue(StatDefOf.Morale, -2);
-            Game.ApplyRandomWound();
+            Game.ApplyRandomWound(source: "Failed fortify attempt");
 
             return "You completely fail at building anything remotely helpful and hurt yourself in the process.";
         }
@@ -253,7 +253,7 @@ public abstract class BiomeEncounter : Encounter
         }
         if(outcome == OptionOutcomeDefOf.CriticalFailure)
         {
-            Game.ApplyCutDamage(1f);
+            Game.ApplyCutDamage(1f, source: "Failed scavenge attempt");
             return "You cut yourself on something sharp while digging through debris.";
         }
 

@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class HealthConditionDef : Def
@@ -11,6 +8,7 @@ public class HealthConditionDef : Def
     public override Sprite Sprite => ResourceManager.LoadSprite($"HealthConditions/{DefName}");
     public const float DEFAULT_INITIAL_SEVERITY = 1f;
     public const float DEFAULT_MAX_SEVERITY = 10f;
+    public const string HEALS_NATURALLY = "Heals naturally";
 
 
     /// <summary>
@@ -86,8 +84,10 @@ public class HealthConditionDef : Def
     {
         if (Category == null) ThrowValidationError($"Health condition {DefName} does not have a category.");
         if (!string.IsNullOrEmpty(Description)) ThrowValidationError($"Health condition {DefName} has a description. Health conditions should not have descriptions, as the description should come from stages.");
-        if (DefaultInitialSeverity <= 0) ThrowValidationError($"Health condition {DefName} must have a default initial severity greater than 0.");
+        if (!IsVital && DefaultInitialSeverity <= 0) ThrowValidationError($"Health condition {DefName} must have a default initial severity greater than 0.");
         if (DefaultInitialSeverity > MaxSeverity) ThrowValidationError($"Health condition {DefName} has a default initial severity of {DefaultInitialSeverity} which is greater than the max severity of {MaxSeverity}.");
+
+        if (Category == HealthConditionCategoryDefOf.Negative && string.IsNullOrEmpty(Interactions) && !IsWound) ThrowValidationError($"Health condition {DefName} is negative but does not have any interactions defined. Negative health conditions should have interactions define, so the player knows how to deal with them.");
 
         if (IsVital)
         {

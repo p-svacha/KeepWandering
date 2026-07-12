@@ -385,6 +385,21 @@
             },
         },
 
+        new ItemDef("Beer")
+        {
+            Label = "beer",
+            Description = "A refreshing alcoholic beverage.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 0.5f,
+                Hydration = 1.5f,
+                AppliedHealthCondition = HealthConditionDefOf.Intoxication,
+                AppliedHealthConditionSeverity = 2f,
+            },
+        },
+
         new ItemDef("Berries")
         {
             Label = "berries",
@@ -406,6 +421,19 @@
             {
                 { ItemTagDefOf.Weapon, 1 },
                 { ItemTagDefOf.DogToy, 4 },
+            },
+        },
+
+        new ItemDef("Chocolate")
+        {
+            Label = "chocolate",
+            Description = "A sweet treat that can boost morale.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 1f,
+                AppliedHealthCondition = HealthConditionDefOf.ChocolateHigh,
             },
         },
 
@@ -501,7 +529,21 @@
             },
         },
 
-        new ItemDef("NutSnack") {
+        new ItemDef("NimbleRoot")
+        {
+            Label = "nimble root",
+            Description = "Chewing this numbs your fingertips into perfect stillness.",
+            Value = 1,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drug,
+                Nutrition = 0.5f,
+                AppliedHealthCondition = HealthConditionDefOf.SteadyHands,
+            },
+        },
+
+        new ItemDef("NutSnack")
+        {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
@@ -509,6 +551,34 @@
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
                 Nutrition = 3f
+            },
+        },
+
+        new ItemDef("Postcard")
+        {
+            Label = "postcard",
+            Description = "A reminder of a better time and place.",
+            Value = 1,
+            PassiveStatChanges =
+            {
+                { StatDefOf.Morale, +1 }
+            },
+        },
+
+        new ItemDef("ProteinShake")
+        {
+            Label = "protein shake",
+            Description = "A drink that provides some nutrition and hydration, as well as increasing strength.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drink,
+                Nutrition = 1f,
+                Hydration = 1f,
+                StatChanges =
+                {
+                    { StatDefOf.Strength, +1 }
+                }
             },
         },
 
@@ -535,6 +605,19 @@
             },
         },
 
+        new ItemDef("Screwdriver")
+        {
+            Label = "screwdriver",
+            Description = "Useful for opening things big and small.",
+            Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.PryingTool, 3 },
+                { ItemTagDefOf.Lockpicking, 2 },
+                { ItemTagDefOf.Weapon, 1 },
+            },
+        },
+
         new ItemDef("Shovel")
         {
             Label = "shovel",
@@ -544,6 +627,17 @@
             {
                 { ItemTagDefOf.Digging, 4 },
                 { ItemTagDefOf.Weapon, 1 },
+            },
+        },
+
+        new ItemDef("SurvivalBook")
+        {
+            Label = "bush craft 101",
+            Description = "A book that provides useful information about survival.",
+            Value = 3,
+            PassiveStatChanges =
+            {
+                { StatDefOf.Survival, +2 }
             },
         },
 
@@ -659,6 +753,8 @@
         // Vitals
         new HealthConditionDef("Hunger")
         {
+            Label = "Hunger",
+            Interactions = "Eat food to reduce hunger.",
             HealthConditionClass = typeof(HC_Hunger),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
@@ -728,6 +824,8 @@
 
         new HealthConditionDef("Thirst")
         {
+            Label = "Thirst",
+            Interactions = "Drink water to reduce thirst.",
             HealthConditionClass = typeof(HC_Thirst),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
@@ -790,8 +888,11 @@
 
         new HealthConditionDef("BloodLoss")
         {
+            Label = "Blood Loss",
+            Interactions = $"{HEALS_NATURALLY}\nIncreased by bleeding (unbandaged) cut wounds.",
             HealthConditionClass = typeof(HC_BloodLoss),
             Category = HealthConditionCategoryDefOf.Vital,
+            DefaultInitialSeverity = 0,
             MaxSeverity = 10,
             NaturalHealing = 0.5f,
             IsLethal = true,
@@ -845,6 +946,8 @@
         // Fractures
         new HealthConditionDef("LegFracture")
         {
+            Label = "Leg Fracture",
+            Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_LegFracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
@@ -892,6 +995,8 @@
 
         new HealthConditionDef("ArmFracture")
         {
+            Label = "Arm Fracture",
+            Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_ArmFracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
@@ -944,9 +1049,9 @@
         // Wounds
         new HealthConditionDef("Cut")
         {
+            Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
-            Label = "cut",
             MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
@@ -962,11 +1067,93 @@
             // Everything else handled by Wound class
         },
 
-        // Buffs
+        // Other injuries / ailments
+        new HealthConditionDef("HeartArrhythmia")
+        {
+            Label = "Heart Arrhythmia",
+            Interactions = $"Will not go away naturally. Needs to be treated at a pharmacy.",
+            Category = HealthConditionCategoryDefOf.Negative,
+            MaxInstances = 1,
+            MaxSeverity = 1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Heart arrhythmia",
+                    Description = "My heartbeat is irregular.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -1 },
+                    },
+                    SkillCheckModifier = (-10, 0.2f),
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+            }
+        },
+
+        new HealthConditionDef("Electrocution")
+        {
+            Label = "Electrocution",
+            Interactions = $"{HEALS_NATURALLY}",
+            Category = HealthConditionCategoryDefOf.Negative,
+            MaxInstances = 1,
+            MaxSeverity = 10,
+            NaturalHealing = 1f,
+            IsLethal = true,
+            LethalityMessage = "You were electrocuted.",
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Sunned",
+                    Description = "I've been electrocuted!",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -3 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Shocked",
+                    Description = "I'm severely electrocuted!",
+                    SeverityThreshold = 4,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -5 },
+                    },
+                    AppliedHealthConditions =
+                    {
+                        (HealthConditionDefOf.HeartArrhythmia, 0.2f),
+                    },
+                    Color = ResourceManager.Color_Text_VeryNegative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Electrocuted",
+                    Description = "I'm critically electrocuted!",
+                    SeverityThreshold = 7,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, -8 },
+                    },
+                    AppliedHealthConditions =
+                    {
+                        (HealthConditionDefOf.HeartArrhythmia, 0.4f),
+                    },
+                    Color = ResourceManager.Color_Text_ExtremelyNegative,
+                }
+            }
+        },
+
+        // Misc
         new HealthConditionDef("ChocolateHigh")
         {
-            Category = HealthConditionCategoryDefOf.Positive,
             Label = "Chocolate High",
+            Category = HealthConditionCategoryDefOf.Positive,
             MaxInstances = 1,
             DefaultInitialSeverity = 2,
             NaturalSeverityChange = -1,
@@ -985,6 +1172,63 @@
                 }
             }
         },
+
+        new HealthConditionDef("Intoxication")
+        {
+            Category = HealthConditionCategoryDefOf.Neutral,
+            Label = "Intoxication",
+            NaturalHealing = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Tipsy",
+                    Description = "I feel a bit tipsy.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Social, +2 },
+                        { StatDefOf.Dexterity, -2 },
+                        { StatDefOf.Morale, +1 }
+                    },
+                    Color = ResourceManager.Color_Text_Default,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Drunk",
+                    Description = "I'm drunk.",
+                    SeverityThreshold = 3,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Social, +1 },
+                        { StatDefOf.Dexterity, -4 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                }
+            }
+        },
+
+        new HealthConditionDef("SteadyHands")
+        {
+            Label = "Steady Hands",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Steady Hands",
+                    Description = "My hands are steady.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        }
     };
 
 --- QuestDefs.cs ---

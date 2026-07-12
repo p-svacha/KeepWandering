@@ -4,12 +4,12 @@ using UnityEngine;
 public class HC_CutWound : Wound
 {
     public static float UNBANDAGED_BLOOD_LOSS = 0.5f;
-    protected override string GetUntendedEffectString() => "While untended, this wound causes bleeding.";
+    protected override string GetUnbandagedEffectString() => "While untended, this wound causes bleeding.";
 
     public override Dictionary<HealthConditionDef, float> GetCurrentEndOfDayVitalChanges()
     {
         Dictionary<HealthConditionDef, float> vitalChanges = new(ActiveStage.EndOfDayVitalChanges); // Copy to avoid modifying the original
-        if (!IsBandaged) vitalChanges[HealthConditionDefOf.BloodLoss] += UNBANDAGED_BLOOD_LOSS;
+        if (!IsBandaged) vitalChanges.Increment(HealthConditionDefOf.BloodLoss, UNBANDAGED_BLOOD_LOSS);
         return vitalChanges;
     }
 }

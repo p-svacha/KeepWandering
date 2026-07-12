@@ -111,6 +111,8 @@ Possible effects are:
 
 - **Stat modifiers**: Modifiers to one or more stats (morale or skills).
 - **End of day vital change**: A change to the severity of one or more vitals at the end of the day (hunger, thirst, blood loss).
+- **Chance to apply another conditions**: A chance to apply a new condition at the end of the day. Defined is the condition and the chance to apply it.
+- **Chance to modify skill check rolls**: A chance to modify the result value of a skill check roll. Defined is the modified roll value and the chance to apply it. This is applied at the very end of a skill check roll during the resolution phase (animated sequence).
 - **Custom effects**: Health conditions can define custom effects that are applied while the condition is in that stage. These effects can be anything, but should be used sparingly and only when necessary.
 
 ### Vitals

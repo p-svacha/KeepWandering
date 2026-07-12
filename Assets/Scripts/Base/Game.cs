@@ -932,10 +932,12 @@ public class Game : Singleton<Game>
         foreach (var statChange in consumptionProps.StatChanges) ModifyStatBaseValue(statChange.Key, statChange.Value);
 
 
-        if(consumptionProps.AppliedHealthCondition != null)
+        if (consumptionProps.AppliedHealthCondition != null)
         {
-            if (consumptionProps.AppliedHealthConditionSeverity > 0f) Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, consumptionProps.AppliedHealthConditionSeverity);
-            else Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition); // Apply with default severity if not specified
+            string hcSource = $"Consumed {item.Label}";
+
+            if (consumptionProps.AppliedHealthConditionSeverity > 0f) Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource, consumptionProps.AppliedHealthConditionSeverity);
+            else Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource); // Apply with default severity if not specified
         }
 
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
@@ -1014,59 +1016,59 @@ public class Game : Singleton<Game>
     }
 
 
-    public void ApplyRandomFracture(float severity)
+    public void ApplyRandomFracture(float severity, string source)
     {
-        Player.ApplyRandomFracture(severity);
+        Player.ApplyRandomFracture(severity, source);
         OnGameStateChanged();
     }
-    public void ApplyArmFracture(float severity)
+    public void ApplyArmFracture(float severity, string source)
     {
-        Player.ApplyArmFracture(severity);
+        Player.ApplyArmFracture(severity, source);
         OnGameStateChanged();
     }
-    public void ApplyLegFracture(float severity)
+    public void ApplyLegFracture(float severity, string source)
     {
-        Player.ApplyLegFracture(severity);
+        Player.ApplyLegFracture(severity, source);
         OnGameStateChanged();
     }
-    public void ApplyBloodLoss(float severity)
+    public void ApplyBloodLoss(float severity, string source)
     {
-        Player.ApplyBloodLoss(severity);
+        Player.ApplyBloodLoss(severity, source);
         OnGameStateChanged();
     }
 
-    public void ApplyRandomDamage(float severity)
+    public void ApplyRandomDamage(float severity, string source)
     {
         int damageType = Random.Range(0, 2);
-        if (damageType == 0) ApplyBruiseDamage(severity);
-        else ApplyCutDamage(severity);
+        if (damageType == 0) ApplyBruiseDamage(severity, source);
+        else ApplyCutDamage(severity, source);
     }
-    public void ApplyBruiseDamage(float fractureSeverity)
+    public void ApplyBruiseDamage(float fractureSeverity, string source)
     {
-        ApplyBruiseWound();
-        ApplyRandomFracture(fractureSeverity);
+        ApplyBruiseWound(source);
+        ApplyRandomFracture(fractureSeverity, source);
     }
-    public void ApplyCutDamage(float bloodLoss)
+    public void ApplyCutDamage(float bloodLoss, string source)
     {
-        ApplyCutWound();
-        ApplyBloodLoss(bloodLoss);
+        ApplyCutWound(source);
+        ApplyBloodLoss(bloodLoss, source);
     }
 
-    public void ApplyRandomWound()
+    public void ApplyRandomWound(string source)
     {
         List<HealthConditionDef> possibleWounds = new List<HealthConditionDef>() { HealthConditionDefOf.Bruise, HealthConditionDefOf.Cut };
         HealthConditionDef selectedWound = possibleWounds.RandomElement();
-        AddWound(selectedWound);
+        AddWound(selectedWound, source);
     }
-    public void ApplyBruiseWound() => AddWound(HealthConditionDefOf.Bruise);
-    public void ApplyCutWound() => AddWound(HealthConditionDefOf.Cut);
-    private void AddWound(HealthConditionDef woundDef)
+    public void ApplyBruiseWound(string source) => AddWound(HealthConditionDefOf.Bruise, source);
+    public void ApplyCutWound(string source) => AddWound(HealthConditionDefOf.Cut, source);
+    private void AddWound(HealthConditionDef woundDef, string source)
     {
         // Validate
         if (!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
 
         // Apply
-        Wound newWound = Player.AddWound(woundDef);
+        Wound newWound = Player.AddWound(woundDef, source);
         WoundsAddedSinceLastStep.Add(newWound);
         OnGameStateChanged();
     }
@@ -1328,7 +1330,7 @@ public class Game : Singleton<Game>
     /// <summary>
     /// Refreshes all UI elements.
     /// </summary>
-    private void RefreshUI()
+    public void RefreshUI()
     {
         UI.UpdateDayPanel();
         UI.UpdateHealthReports();

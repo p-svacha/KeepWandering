@@ -51,6 +51,21 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Beer")
+        {
+            Label = "beer",
+            Description = "A refreshing alcoholic beverage.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 0.5f,
+                Hydration = 1.5f,
+                AppliedHealthCondition = HealthConditionDefOf.Intoxication,
+                AppliedHealthConditionSeverity = 2f,
+            },
+        },
+
         new ItemDef("Berries")
         {
             Label = "berries",
@@ -72,6 +87,19 @@ public static class ItemDefs
             {
                 { ItemTagDefOf.Weapon, 1 },
                 { ItemTagDefOf.DogToy, 4 },
+            },
+        },
+
+        new ItemDef("Chocolate")
+        {
+            Label = "chocolate",
+            Description = "A sweet treat that can boost morale.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 1f,
+                AppliedHealthCondition = HealthConditionDefOf.ChocolateHigh,
             },
         },
 
@@ -167,7 +195,21 @@ public static class ItemDefs
             },
         },
 
-        new ItemDef("NutSnack") {
+        new ItemDef("NimbleRoot")
+        {
+            Label = "nimble root",
+            Description = "Chewing this numbs your fingertips into perfect stillness.",
+            Value = 1,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drug,
+                Nutrition = 0.5f,
+                AppliedHealthCondition = HealthConditionDefOf.SteadyHands,
+            },
+        },
+
+        new ItemDef("NutSnack")
+        {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
             Value = 1,
@@ -175,6 +217,34 @@ public static class ItemDefs
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
                 Nutrition = 3f
+            },
+        },
+
+        new ItemDef("Postcard")
+        {
+            Label = "postcard",
+            Description = "A reminder of a better time and place.",
+            Value = 1,
+            PassiveStatChanges =
+            {
+                { StatDefOf.Morale, +1 }
+            },
+        },
+
+        new ItemDef("ProteinShake")
+        {
+            Label = "protein shake",
+            Description = "A drink that provides some nutrition and hydration, as well as increasing strength.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Drink,
+                Nutrition = 1f,
+                Hydration = 1f,
+                StatChanges =
+                {
+                    { StatDefOf.Strength, +1 }
+                }
             },
         },
 
@@ -201,6 +271,19 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Screwdriver")
+        {
+            Label = "screwdriver",
+            Description = "Useful for opening things big and small.",
+            Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.PryingTool, 3 },
+                { ItemTagDefOf.Lockpicking, 2 },
+                { ItemTagDefOf.Weapon, 1 },
+            },
+        },
+
         new ItemDef("Shovel")
         {
             Label = "shovel",
@@ -210,6 +293,17 @@ public static class ItemDefs
             {
                 { ItemTagDefOf.Digging, 4 },
                 { ItemTagDefOf.Weapon, 1 },
+            },
+        },
+
+        new ItemDef("SurvivalBook")
+        {
+            Label = "bush craft 101",
+            Description = "A book that provides useful information about survival.",
+            Value = 3,
+            PassiveStatChanges =
+            {
+                { StatDefOf.Survival, +2 }
             },
         },
 

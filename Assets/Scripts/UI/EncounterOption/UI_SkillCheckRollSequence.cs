@@ -13,18 +13,24 @@ using UnityEngine.UI;
 /// </summary>
 public class UI_SkillCheckRollSequence : MonoBehaviour
 {
-    [Header("Tunables")]
     public const float FULL_SPEED_DURATION = 1f;
     public const float SETTLE_DURATION = 2.5f;
     public const float BOUNCE_SPEED = 6f; // normalized bar units per second
     public const float HOLD_AFTER_LANDING = 0.8f;
     private const float DECEL_F_PRIME_AT_ZERO = 3f; // f'(0) for f(τ)=1-(1-τ)^3
 
+    public const float POST_JUMP_DELAY = 0.8f;
+    private const float PUNCH_DURATION = 0.5f;
+    private const float PUNCH_SCALE = 1.3f;
+
+    private Coroutine PunchCoroutine;
+
     [Header("Elements")]
     public TextMeshProUGUI LabelText;
     public GameObject UsedItemsContainer;
     public GameObject OutcomeBarContainer;
     public RectTransform Marker;
+    public TextMeshProUGUI RollModifierText;
 
     [Header("Prefabs")]
     public GameObject UsedItemPrefab;
@@ -36,7 +42,7 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
     private bool MarkerGoingRight;
 
     // Audio
-    private const string BOUNCE_SOUND = "ItemPutDown";
+    private const string BOUNCE_SOUND = "PutDown";
 
     public void Play(SkillCheckOption option, int rollValue, Action onComplete)
     {
@@ -56,6 +62,9 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
 
         if (RollCoroutine != null) StopCoroutine(RollCoroutine);
         RollCoroutine = StartCoroutine(PlayRollSequence(option));
+
+        RollModifierText.gameObject.SetActive(false);
+        if (PunchCoroutine != null) StopCoroutine(PunchCoroutine); PunchCoroutine = null;
     }
 
     private void BuildBar(List<SkillCheckOutcomeChance> outcomes)
@@ -137,7 +146,39 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
             yield return null;
         }
 
-        SetMarkerPosition(target);
+        SetMarkerPosition(target); // settle at the raw, unmodified roll
+
+        // Figure out where the marker needs to end up even if the sequence gets skipped
+        int finalRollValue = option.LastRoll;
+        if (option.AppliedRollModifiers.Count > 0) finalRollValue = option.AppliedRollModifiers[^1].NewRollValue;
+
+        if (!SkipRequested)
+        {
+            Queue<(HealthCondition Condition, int NewRollValue)> pendingModifiers = new(option.AppliedRollModifiers);
+
+            while (!SkipRequested)
+            {
+                yield return new WaitForSeconds(POST_JUMP_DELAY);
+                if (SkipRequested || pendingModifiers.Count == 0) break;
+
+                var (condition, newRollValue) = pendingModifiers.Dequeue();
+
+                // Jump straight to the modified position - no easing, this is a snap
+                SetMarkerPosition(Mathf.Clamp01(newRollValue / 100f));
+                AudioManager.PlaySound("Bonk");
+
+                RollModifierText.gameObject.SetActive(true);
+                RollModifierText.text = condition.GetReportLabel();
+                RollModifierText.color = condition.GetReportTextColor();
+
+                if (PunchCoroutine != null) StopCoroutine(PunchCoroutine);
+                PunchCoroutine = StartCoroutine(PunchScale(RollModifierText.rectTransform));
+            }
+        }
+
+        RollModifierText.gameObject.SetActive(false);
+        SetMarkerPosition(Mathf.Clamp01(finalRollValue / 100f)); // guaranteed-correct final position, even if skipped
+
         AudioManager.PlaySound($"Outcome_{option.PendingOutcome.DefName}", pitchVariance: 0.05f);
         if (!SkipRequested) yield return new WaitForSeconds(HOLD_AFTER_LANDING);
 
@@ -146,6 +187,24 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
         Action callback = OnComplete;
         OnComplete = null;
         callback?.Invoke();
+    }
+
+    private IEnumerator PunchScale(RectTransform target)
+    {
+        Vector3 baseScale = Vector3.one;
+        target.localScale = baseScale;
+
+        float t = 0f;
+        while (t < PUNCH_DURATION)
+        {
+            t += Time.deltaTime;
+            float normalized = t / PUNCH_DURATION;
+            float scale = 1f + (PUNCH_SCALE - 1f) * (1f - normalized) * Mathf.Sin(normalized * Mathf.PI);
+            target.localScale = baseScale * scale;
+            yield return null;
+        }
+
+        target.localScale = baseScale;
     }
 
     private void SetMarkerPosition(float normalized)

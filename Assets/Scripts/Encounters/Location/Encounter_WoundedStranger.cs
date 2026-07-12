@@ -209,13 +209,13 @@ public class Encounter_WoundedStranger : LocationEncounter
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
             Game.ModifyMorale(-3);
-            Game.ApplyRandomDamage(2f);
+            Game.ApplyRandomDamage(2f, source: "Robbing wounded stranger");
             return "They fight back harder than expected.";
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             Game.ModifyMorale(-4);
-            Game.ApplyCutDamage(3f);
+            Game.ApplyCutDamage(3f, source: "Robbing wounded stranger");
             Game.RemoveRandomItemFromInventory();
             state = StrangerState.Gone;
 

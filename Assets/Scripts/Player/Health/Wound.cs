@@ -177,13 +177,20 @@ public abstract class Wound : HealthCondition
         return label;
     }
 
-    protected abstract string GetUntendedEffectString();
+    public override string GetInterActionsString()
+    {
+        if (IsBandaged && (IsTreated || !IsInfected)) return $"{HealthConditionDef.HEALS_NATURALLY}";
+
+        string s = $"";
+        if (!IsBandaged) s += $"\nNeeds to be bandaged to heal.\n{GetUnbandagedEffectString()}";
+        if (IsInfected) s += $"\n{ActiveStage.Description}";
+        return s.Trim();
+    }
+
+    protected abstract string GetUnbandagedEffectString();
     public override string GetReportDescription()
     {
-        string description = $"a {Def.Label} wound.";
-        if (!IsBandaged) description += $"\nNeeds to be tended to heal. {GetUntendedEffectString()}";
-        if (IsInfected) description += $"\n{ActiveStage.Description}";
-        return description;
+        return $"a {Def.Label} wound.";
     }
         
 }

@@ -156,13 +156,13 @@ public class Encounter_Crate : LocationEncounter
         {
             text = $"You manage to get the {VisibleCrateItem.Label} through the hole, but scratch yourself in the process.";
             TakeVisibleItem();
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Item crate");
         }
 
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             text = $"You fail to get the {VisibleCrateItem.Label} through the hole and hurt yourself in the process.";
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Item crate");
         }
 
         return text;
@@ -225,12 +225,12 @@ public class Encounter_Crate : LocationEncounter
         if (outcome == OptionOutcomeDefOf.Failure)
         {
             text = "You fail to smash the crate open, and hurt yourself in the process.";
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Smashing an item crate");
         }
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
             text = "You fail to smash the crate open, and cut yourself. You feel weak, your morale decreases.";
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Smashing an item crate");
             Game.ModifyStatBaseValue(StatDefOf.Morale, -1);
         }
 
@@ -321,7 +321,7 @@ public class Encounter_Crate : LocationEncounter
         if (outcome == OptionOutcomeDefOf.CriticalFailure)
         {
             text = "While peeking through the hole, something bit you!";
-            Game.ApplyCutWound();
+            Game.ApplyCutWound(source: "Peeking into item crate");
         }
 
         return text;

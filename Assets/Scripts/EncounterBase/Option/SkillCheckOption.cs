@@ -46,6 +46,11 @@ public class SkillCheckOption : EncounterOption
     /// </summary>
     public OptionOutcomeDef PendingOutcome { get; private set; }
 
+    /// <summary>
+    /// The sequence of roll modifiers applied by health conditions during the most recent roll, in the order they triggered, each paired with the roll value the marker should jump to.
+    /// </summary>
+    public List<(HealthCondition Condition, int NewRollValue)> AppliedRollModifiers { get; private set; } = new();
+
     public bool CanPartiallySucceed { get; init; } = true;
     public bool CanCriticallySucceed { get; init; } = true;
     public bool CanCriticallyFail { get; init; } = true;
@@ -145,40 +150,43 @@ public class SkillCheckOption : EncounterOption
         int roll = UnityEngine.Random.Range(1, 101);
         LastRoll = roll;
 
-        OptionOutcomeDef result;
+        // Precompute which health conditions modify this roll, and by how much, in sequence
+        AppliedRollModifiers.Clear();
+        int currentRoll = roll;
+        foreach (HealthCondition hc in Game.Instance.Player.HealthConditions)
+        {
+            var modifier = hc.GetCurrentSkillCheckModifier();
+            if (!modifier.HasValue) continue;
+
+            if (UnityEngine.Random.value < modifier.Value.Chance)
+            {
+                currentRoll = Mathf.Clamp(currentRoll + modifier.Value.Modifier, 1, 100);
+                AppliedRollModifiers.Add((hc, currentRoll));
+            }
+        }
+
+        OptionOutcomeDef result = DetermineOutcome(currentRoll, difficulty);
+        PendingOutcome = result;
+        return result;
+    }
+
+    private OptionOutcomeDef DetermineOutcome(int roll, int difficulty)
+    {
         if (roll > difficulty)
         {
             if (CanCriticallySucceed)
             {
                 float criticalThreshold = 100f - (100f - difficulty) * 0.1f;
-                if (roll > criticalThreshold)
-                {
-                    result = OptionOutcomeDefOf.CriticalSuccess;
-                    PendingOutcome = result;
-                    return result;
-                }
+                if (roll > criticalThreshold) return OptionOutcomeDefOf.CriticalSuccess;
             }
-            result = OptionOutcomeDefOf.Success;
+            return OptionOutcomeDefOf.Success;
         }
         else
         {
-            if (CanPartiallySucceed && roll > difficulty * 0.5f)
-            {
-                result = OptionOutcomeDefOf.PartialSuccess;
-                PendingOutcome = result;
-                return result;
-            }
-            if (CanCriticallyFail && roll < difficulty * 0.1f)
-            {
-                result = OptionOutcomeDefOf.CriticalFailure;
-                PendingOutcome = result;
-                return result;
-            }
-            result = OptionOutcomeDefOf.Failure;
+            if (CanPartiallySucceed && roll > difficulty * 0.5f) return OptionOutcomeDefOf.PartialSuccess;
+            if (CanCriticallyFail && roll < difficulty * 0.1f) return OptionOutcomeDefOf.CriticalFailure;
+            return OptionOutcomeDefOf.Failure;
         }
-
-        PendingOutcome = result;
-        return result;
     }
 
     /// <summary>
