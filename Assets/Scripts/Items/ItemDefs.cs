@@ -58,7 +58,7 @@ public static class ItemDefs
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
-                ConsumptionType = ConsumptionTypeDefOf.Food,
+                ConsumptionType = ConsumptionTypeDefOf.Drink,
                 Nutrition = 0.5f,
                 Hydration = 1.5f,
                 AppliedHealthCondition = HealthConditionDefOf.Intoxication,

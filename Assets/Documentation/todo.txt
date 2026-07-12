@@ -1,9 +1,12 @@
 TODOS:
 ==============================================
 
-redo sprites for:
-beer (smaller and longer)
-screwdriver
+World map rework
+
+Bigger hex tiles with textures/sprites (see https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2Fgood-hex-map-makers-v0-h3k1rk2d1msc1.jpeg%3Fwidth%3D2288%26format%3Dpjpg%26auto%3Dwebp%26s%3Dd2178c5d147f69fb80a6274141b6068b80fe314a)
+Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
+Danger level overlay toggle
+dynamic encounter sprites and labels (showing state of encounter)
 
 
 EVENING REWORK:
@@ -46,6 +49,11 @@ make encounters with more persistence across many days
 countdown locations
 
 more clearly show possible outcomes?
+
+- move morale back to stat panel
+  - remove title from stat panel, use morale as sole first line
+
+- change title from health report panel to "Health Conditions"
 
 
 - Replace destruction chance with "Uses Left" on items

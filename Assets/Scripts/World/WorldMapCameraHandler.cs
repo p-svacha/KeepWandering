@@ -13,15 +13,16 @@ public class WorldMapCameraHandler : MonoBehaviour
     private Game Game;
     public Camera Camera { get; private set; }
 
-    protected static float ZOOM_SPEED = 0.8f; // Mouse Wheel Speed
-    protected static float DRAG_SPEED = 0.025f; // Middle Mouse Drag Speed
-    protected static float PAN_SPEED = 20f; // WASD Speed
-    protected static float MIN_CAMERA_SIZE = 4f;
-    protected static float MAX_CAMERA_SIZE = 6.5f;
-    private static float EDGE_PADDING = 10f; // Padding from the edge of the map when zooming/panning
-    protected bool IsLeftMouseDown;
-    protected bool IsRightMouseDown;
-    protected bool IsMouseWheelDown;
+    private const float ZOOM_SPEED = 0.5f; // Mouse Wheel Speed
+    private const float DRAG_SPEED = 0.025f; // Middle Mouse Drag Speed
+    private const float PAN_SPEED = 20f; // WASD Speed
+    private const float MIN_CAMERA_SIZE = 2f;
+    private const float MAX_CAMERA_SIZE = 4f;
+    private const float INITIAL_CAMERA_SIZE = 3f;
+    private const float EDGE_PADDING = 10f; // Padding from the edge of the map when zooming/panning
+    private bool IsLeftMouseDown;
+    private bool IsRightMouseDown;
+    private bool IsMouseWheelDown;
 
     // Size
     private float CameraHeightWorld => Camera.orthographicSize;
@@ -44,6 +45,7 @@ public class WorldMapCameraHandler : MonoBehaviour
     {
         Game = game;
         Camera = GetComponent<Camera>();
+        SetZoom(INITIAL_CAMERA_SIZE);
     }
 
 
@@ -69,7 +71,7 @@ public class WorldMapCameraHandler : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Mouse2)) IsMouseWheelDown = false;
         if (Input.GetKeyDown(KeyCode.Mouse1)) IsRightMouseDown = true;
         if (Input.GetKeyUp(KeyCode.Mouse1)) IsRightMouseDown = false;
-        if (IsMouseWheelDown)
+        if (IsMouseWheelDown || IsRightMouseDown)
         {
             float speed = DRAG_SPEED * Camera.orthographicSize;
             float canvasScaleFactor = Game.UI.GetComponentInParent<Canvas>().scaleFactor;
