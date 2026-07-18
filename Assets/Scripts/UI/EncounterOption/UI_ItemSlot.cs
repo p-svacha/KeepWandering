@@ -72,8 +72,11 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetUnfilledDisplay()
     {
+        bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
+        Color targetColor = playerHasSlottableItems ? ResourceManager.Color_Option_Slot : ResourceManager.Color_Option_Slot_Req_Unmet;
+
         // Background color
-        Background.color = ResourceManager.Color_Option_Slot;
+        Background.color = targetColor;
 
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
@@ -81,18 +84,8 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
         DestroyedIndicator.color = greyedOutIndicatorColor;
 
-        // Color handling for required slots
-        if (ItemSlot.IsRequired)
-        {
-            bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
-
-            // Background color
-            Background.color = playerHasSlottableItems ? ResourceManager.Color_Option_Slot : ResourceManager.Color_Option_Slot_Req_Unmet;
-
-            // REQ indicator color
-            if (playerHasSlottableItems) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot;
-            else IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Unmet;
-        }
+        // REQ indicator
+        if (ItemSlot.IsRequired) IsRequiredIndicator.color = targetColor;
     }
 
     private void Update()

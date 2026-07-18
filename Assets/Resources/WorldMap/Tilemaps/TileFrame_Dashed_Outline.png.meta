@@ -1,0 +1,676 @@
+fileFormatVersion: 2
+guid: 15453db41512a8b429b530d466639f58
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 626297402470198024
+    second: TileFrame_12px_Dashedpng_0
+  - first:
+      213: 2428738644564832393
+    second: TileFrame_12px_Dashedpng_1
+  - first:
+      213: 8861114748305881201
+    second: TileFrame_12px_Dashedpng_2
+  - first:
+      213: 7800135316909243754
+    second: TileFrame_12px_Dashedpng_3
+  - first:
+      213: -1281604184246603053
+    second: TileFrame_12px_Dashedpng_4
+  - first:
+      213: 2488251813680526521
+    second: TileFrame_12px_Dashedpng_5
+  - first:
+      213: -3464260166196137751
+    second: TileFrame_12px_Dashedpng_6
+  - first:
+      213: -3300446361221967677
+    second: TileFrame_12px_Dashedpng_7
+  - first:
+      213: -3351551679555388362
+    second: TileFrame_12px_Dashedpng_8
+  - first:
+      213: 1555974272338315366
+    second: TileFrame_12px_Dashedpng_9
+  - first:
+      213: 3032637207825629246
+    second: TileFrame_12px_Dashedpng_10
+  - first:
+      213: -3862526308906127009
+    second: TileFrame_12px_Dashedpng_11
+  - first:
+      213: 7875620258301304019
+    second: TileFrame_12px_Dashedpng_12
+  - first:
+      213: -4378544283103462963
+    second: TileFrame_12px_Dashedpng_13
+  - first:
+      213: 5461825492677590087
+    second: TileFrame_12px_Dashedpng_14
+  - first:
+      213: -142617084386012224
+    second: TileFrame_12px_Dashedpng_15
+  - first:
+      213: -5520620465271758390
+    second: TileFrame_12px_Dashedpng_16
+  - first:
+      213: -5229151035403690683
+    second: TileFrame_12px_Dashedpng_17
+  - first:
+      213: -7552162074176538050
+    second: TileFrame_12px_Dashedpng_18
+  - first:
+      213: 5087706477135756035
+    second: TileFrame_12px_Dashedpng_19
+  - first:
+      213: -7343493490837994799
+    second: TileFrame_12px_Dashedpng_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 600
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_0
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 420
+        width: 49
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80b6cf55b2e01b800800000000000000
+      internalID: 626297402470198024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_1
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 455
+        width: 61
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 980fc81edec94b120800000000000000
+      internalID: 2428738644564832393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_2
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 461
+        width: 57
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1783fb65ae009fa70800000000000000
+      internalID: 8861114748305881201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_3
+      rect:
+        serializedVersion: 2
+        x: 305
+        y: 451
+        width: 61
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6dba5c6eb5af3c60800000000000000
+      internalID: 7800135316909243754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_4
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 417
+        width: 48
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d2b35fd8c3d63ee0800000000000000
+      internalID: -1281604184246603053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_5
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 364
+        width: 39
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b4362a57db088220800000000000000
+      internalID: 2488251813680526521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_6
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 354
+        width: 37
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e0f758bbb97cefc0800000000000000
+      internalID: -3464260166196137751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_7
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 311
+        width: 38
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c0522f55857232d0800000000000000
+      internalID: -3300446361221967677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_8
+      rect:
+        serializedVersion: 2
+        x: 451
+        y: 280
+        width: 50
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63cbcb53185ec71d0800000000000000
+      internalID: -3351551679555388362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_9
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 255
+        width: 35
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6684f565b5ee79510800000000000000
+      internalID: 1555974272338315366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_10
+      rect:
+        serializedVersion: 2
+        x: 482
+        y: 223
+        width: 28
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3044111977161a20800000000000000
+      internalID: 3032637207825629246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_11
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 204
+        width: 29
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f51bc0e59cc856ac0800000000000000
+      internalID: -3862526308906127009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_12
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 144
+        width: 34
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dc5be9e5e2db4d60800000000000000
+      internalID: 7875620258301304019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_13
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 156
+        width: 41
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc9fc4c4c294c33c0800000000000000
+      internalID: -4378544283103462963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_14
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 97
+        width: 41
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74c783cf85d4ccb40800000000000000
+      internalID: 5461825492677590087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_15
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 92
+        width: 35
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c315427482550ef0800000000000000
+      internalID: -142617084386012224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_16
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 53
+        width: 47
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac1a9b3bfe0d263b0800000000000000
+      internalID: -5520620465271758390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_17
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 35
+        width: 48
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54d95e9a6d25e67b0800000000000000
+      internalID: -5229151035403690683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_18
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 25
+        width: 60
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3ab78a4b94513790800000000000000
+      internalID: -7552162074176538050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_19
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 24
+        width: 60
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30b712bc51a2b9640800000000000000
+      internalID: 5087706477135756035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dashedpng_20
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 33
+        width: 51
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d2453cd39ba61a90800000000000000
+      internalID: -7343493490837994799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TileFrame_12px_Dashedpng_0: 626297402470198024
+      TileFrame_12px_Dashedpng_1: 2428738644564832393
+      TileFrame_12px_Dashedpng_10: 3032637207825629246
+      TileFrame_12px_Dashedpng_11: -3862526308906127009
+      TileFrame_12px_Dashedpng_12: 7875620258301304019
+      TileFrame_12px_Dashedpng_13: -4378544283103462963
+      TileFrame_12px_Dashedpng_14: 5461825492677590087
+      TileFrame_12px_Dashedpng_15: -142617084386012224
+      TileFrame_12px_Dashedpng_16: -5520620465271758390
+      TileFrame_12px_Dashedpng_17: -5229151035403690683
+      TileFrame_12px_Dashedpng_18: -7552162074176538050
+      TileFrame_12px_Dashedpng_19: 5087706477135756035
+      TileFrame_12px_Dashedpng_2: 8861114748305881201
+      TileFrame_12px_Dashedpng_20: -7343493490837994799
+      TileFrame_12px_Dashedpng_3: 7800135316909243754
+      TileFrame_12px_Dashedpng_4: -1281604184246603053
+      TileFrame_12px_Dashedpng_5: 2488251813680526521
+      TileFrame_12px_Dashedpng_6: -3464260166196137751
+      TileFrame_12px_Dashedpng_7: -3300446361221967677
+      TileFrame_12px_Dashedpng_8: -3351551679555388362
+      TileFrame_12px_Dashedpng_9: 1555974272338315366
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

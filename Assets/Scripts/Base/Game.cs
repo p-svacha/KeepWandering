@@ -545,7 +545,7 @@ public class Game : Singleton<Game>
 
         // Enable destination selection of adjacent tiles
         WorldMap.CanSelectDestination = true;
-        foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMapRenderer.HighlightTileRed(nextPositionTarget);
+        foreach (WorldMapTile nextPositionTarget in GetNextPositionTiles()) WorldMapRenderer.HighlightTile(nextPositionTarget);
 
         // Start encounter
         Encounter morningEncounter = EncounterManager.GenerateEncounter(EncounterDefOf.MorningEncounter, CurrentPosition);
@@ -566,6 +566,21 @@ public class Game : Singleton<Game>
             WorldMapTile adjTile = WorldMap.GetTile(adjCoord);
             if (adjTile.IsPassable()) tiles.Add(adjTile);
         }
+
+        // Road bonus: if start, mid, and end tiles all have roads, a 2-tile move is also available
+        if (CurrentPosition.HasRoad)
+        {
+            foreach (WorldMapTile mid in tiles.Where(t => t.HasRoad).ToList())
+            {
+                foreach (WorldMapTile end in mid.GetAdjacentTiles())
+                {
+                    if (end == CurrentPosition) continue;
+                    if (!end.HasRoad || !end.IsPassable()) continue;
+                    if (!tiles.Contains(end)) tiles.Add(end);
+                }
+            }
+        }
+
         return tiles;
     }
 
@@ -585,7 +600,7 @@ public class Game : Singleton<Game>
     {
         // Reset world map selection
         WorldMap.CanSelectDestination = false;
-        WorldMapRenderer.UnhighlightAllRedTiles();
+        WorldMapRenderer.UnhighlightAllTiles();
 
         // UI
         UI.CloseAllWindows();

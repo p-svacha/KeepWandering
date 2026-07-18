@@ -8,6 +8,9 @@ public static class WorldMapGenerator
     public static int MAX_CITY_SIZE = 10;
     public static int MIN_BIOME_AREA_SIZE = 5;
 
+    private const float EXISTING_ROAD_TILE_COST = 0.1f; // cost bias making pathing prefer merging into existing roads
+    private const float NEW_TILE_COST = 1f;
+
     private static WorldMap WorldMap => WorldMap.Instance;
     private static WorldMapRenderer Renderer => WorldMapRenderer.Instance;
 
@@ -17,6 +20,7 @@ public static class WorldMapGenerator
 
     private static Dictionary<Vector2Int, WorldMapTile> Tiles;
     private static List<WorldMapTile> QuarantineZoneTiles;
+    private static Area QuarantineZoneArea;
     private static List<WorldMapTile> OutsideZoneTiles;
     private static List<Area> Cities;
     private static List<Area> Forests;
@@ -48,12 +52,21 @@ public static class WorldMapGenerator
         ExpandMapEdge();
         QuarantineZoneTiles = new List<WorldMapTile>(Tiles.Values); // all tiles generated so far will make up quarantine zone
 
+        // Create the quarantine zone Area now - its Tiles list is already final, and this gives us
+        // PerimeterTiles (fence tiles) early, needed by both connectivity validation and road generation.
+        QuarantineZoneArea = new Area("Quarantine Zone", AreaType.QuarantineZone, QuarantineZoneTiles);
+
         // Create cities
         Cities = new List<Area>();
         GenerateCities(numCities);
 
         // Show city labels
         foreach (Area city in Cities) city.ShowLabel();
+
+        // Ensure every passable non-fence tile is reachable from the start without crossing impassable
+        // or fence tiles. Must run after biomes (including cities) are set, and before biome-area grouping
+        // below, since any carving here can change tile biomes.
+        ValidateZoneConnectivity();
 
         // Group biome clusters into named areas
         Forests = GenerateBiomeAreas(BiomeDefOf.Woods, GetRandomForestName);
@@ -69,12 +82,11 @@ public static class WorldMapGenerator
         // Add roads
         AddRoads();
 
-        // Create and draw quarantine zone
-        Area quarantineZone = new Area("Quarantine Zone", AreaType.QuarantineZone, QuarantineZoneTiles);
-        quarantineZone.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/FenceMaterial"), 0.4f);
+        // Draw quarantine zone fence
+        QuarantineZoneArea.DrawPerimeterFence(ResourceManager.LoadMaterial("WorldMap/FenceMaterial"), 0.4f);
 
         // Create world map
-        WorldMap worldMap = new WorldMap(Tiles, quarantineZone, Cities, Forests, Lakes);
+        WorldMap worldMap = new WorldMap(Tiles, QuarantineZoneArea, Cities, Forests, Lakes);
 
         // Add fence encounters
         GenerateFenceEncounters();
@@ -85,8 +97,15 @@ public static class WorldMapGenerator
         // Update renderer bounds
         Renderer.UpdateMapBounds(worldMap);
 
+        // Render roads
+        Renderer.RenderRoads(worldMap);
+
+        // Populate background elements (trees, etc.)
+        Renderer.PopulateTileElements(worldMap);
+
         // Clean up static state
         Tiles = null;
+        QuarantineZoneArea = null;
         Cities = null;
         Forests = null;
         Lakes = null;
@@ -311,7 +330,7 @@ public static class WorldMapGenerator
     private static void GenerateFenceEncounters()
     {
         // Add a fence encounter to each passable tile along the perimeter of the quarantine zone.
-        foreach(WorldMapTile tile in WorldMap.QuarantineZone.PerimeterTiles)
+        foreach (WorldMapTile tile in WorldMap.QuarantineZone.GetOrderedPerimeterTiles())
         {
             if (tile.IsPassable() && tile.Encounter == null)
             {
@@ -374,7 +393,7 @@ public static class WorldMapGenerator
                 }
 
                 // Pick location
-                if(candidateTiles.Count == 0)
+                if (candidateTiles.Count == 0)
                 {
                     Debug.LogWarning($"No valid location found for landmark {landmark.Label}");
                     continue;
@@ -387,30 +406,294 @@ public static class WorldMapGenerator
         }
     }
 
+    #region Connectivity Validation
+
+    /// <summary>
+    /// Ensures every passable, non-fence tile within the quarantine zone is reachable from the start tile
+    /// without crossing an impassable tile or a fence (perimeter) tile. If disconnected interior clusters
+    /// are found, each is connected to the main cluster (the one containing the start tile) by carving a
+    /// path of Outskirts tiles through impassable terrain - the carved path itself never crosses a fence tile.
+    /// <br/>Fence tiles themselves are not required to route through non-fence tiles to be reachable; given
+    /// the zone is grown as a single connected blob, they are naturally reachable once interior connectivity holds.
+    /// </summary>
+    private static void ValidateZoneConnectivity()
+    {
+        HashSet<WorldMapTile> fenceTiles = new HashSet<WorldMapTile>(QuarantineZoneArea.GetOrderedPerimeterTiles());
+        HashSet<WorldMapTile> zoneTileSet = new HashSet<WorldMapTile>(QuarantineZoneTiles);
+
+        // Candidate interior tiles: passable, in zone, not a fence tile
+        List<WorldMapTile> interiorTiles = QuarantineZoneTiles
+            .Where(t => t.IsPassable() && !fenceTiles.Contains(t))
+            .ToList();
+
+        List<List<WorldMapTile>> clusters = FindClusters(interiorTiles);
+        if (clusters.Count <= 1) return; // already fully connected (or trivially empty)
+
+        // Identify the main cluster (the one containing the start tile)
+        WorldMapTile startTile = Tiles[Vector2Int.zero];
+        List<WorldMapTile> mainCluster = clusters.First(c => c.Contains(startTile));
+        HashSet<WorldMapTile> mainClusterSet = new HashSet<WorldMapTile>(mainCluster);
+
+        foreach (List<WorldMapTile> cluster in clusters.Where(c => c != mainCluster))
+        {
+            ConnectClusterToMain(cluster, mainClusterSet, fenceTiles, zoneTileSet);
+        }
+    }
+
+    /// <summary>
+    /// Groups the given tiles into connected clusters, where adjacency is only considered within the given tile set.
+    /// </summary>
+    private static List<List<WorldMapTile>> FindClusters(List<WorldMapTile> candidateTiles)
+    {
+        HashSet<WorldMapTile> candidateSet = new HashSet<WorldMapTile>(candidateTiles);
+        HashSet<WorldMapTile> visited = new HashSet<WorldMapTile>();
+        List<List<WorldMapTile>> clusters = new List<List<WorldMapTile>>();
+
+        foreach (WorldMapTile tile in candidateTiles)
+        {
+            if (visited.Contains(tile)) continue;
+
+            List<WorldMapTile> cluster = new List<WorldMapTile>();
+            Queue<WorldMapTile> queue = new Queue<WorldMapTile>();
+            queue.Enqueue(tile);
+            visited.Add(tile);
+
+            while (queue.Count > 0)
+            {
+                WorldMapTile current = queue.Dequeue();
+                cluster.Add(current);
+
+                foreach (WorldMapTile adj in current.GetAdjacentTiles())
+                {
+                    if (candidateSet.Contains(adj) && !visited.Contains(adj))
+                    {
+                        visited.Add(adj);
+                        queue.Enqueue(adj);
+                    }
+                }
+            }
+
+            clusters.Add(cluster);
+        }
+
+        return clusters;
+    }
+
+    /// <summary>
+    /// Finds the shortest route from the given cluster to the main cluster, allowed to pass through any
+    /// zone tile that isn't a fence tile (regardless of current passability), then carves that route by
+    /// switching any impassable tile along it to Outskirts biome.
+    /// </summary>
+    private static void ConnectClusterToMain(List<WorldMapTile> cluster, HashSet<WorldMapTile> mainClusterSet, HashSet<WorldMapTile> fenceTiles, HashSet<WorldMapTile> zoneTileSet)
+    {
+        Queue<WorldMapTile> frontier = new Queue<WorldMapTile>();
+        Dictionary<WorldMapTile, WorldMapTile> cameFrom = new Dictionary<WorldMapTile, WorldMapTile>();
+
+        foreach (WorldMapTile tile in cluster)
+        {
+            frontier.Enqueue(tile);
+            cameFrom[tile] = null;
+        }
+
+        WorldMapTile reached = null;
+        while (frontier.Count > 0)
+        {
+            WorldMapTile current = frontier.Dequeue();
+            if (mainClusterSet.Contains(current))
+            {
+                reached = current;
+                break;
+            }
+
+            foreach (WorldMapTile adj in current.GetAdjacentTiles())
+            {
+                if (fenceTiles.Contains(adj)) continue; // never cross fence tiles
+                if (!zoneTileSet.Contains(adj)) continue; // stay within the zone
+                if (cameFrom.ContainsKey(adj)) continue;
+                cameFrom[adj] = current;
+                frontier.Enqueue(adj);
+            }
+        }
+
+        if (reached == null)
+        {
+            Debug.LogWarning("Could not find a connection path between a disconnected cluster and the main cluster.");
+            return;
+        }
+
+        // Walk back from the reached tile to the cluster, carving impassable tiles along the way
+        WorldMapTile step = reached;
+        while (step != null && !cluster.Contains(step))
+        {
+            if (!step.IsPassable()) step.SetBiome(BiomeDefOf.Outskirts);
+            step = cameFrom[step];
+        }
+    }
+
+    #endregion
+
     #region Roads
 
     private static void AddRoads()
     {
-        // Generate a road from the home center tile to a random tile outside the quarantine zone
-        WorldMapTile from = Tiles[Vector2Int.zero];
-        WorldMapTile to = OutsideZoneTiles.RandomElement();
-        List<WorldMapTile> homeRoad = FindPath(from, to);
+        HashSet<WorldMapTile> fenceTiles = new HashSet<WorldMapTile>(QuarantineZoneArea.GetOrderedPerimeterTiles());
+
+        List<WorldMapTile> pois = new List<WorldMapTile>();
+
+        // Player start
+        pois.Add(Tiles[Vector2Int.zero]);
+
+        // Random passable point on the quarantine zone's fence (candidate fence gate location)
+        List<WorldMapTile> passableFenceTiles = fenceTiles.Where(t => t.IsPassable()).ToList();
+        if (passableFenceTiles.Count > 0) pois.Add(passableFenceTiles.RandomElement());
+
+        // A random tile within each city
+        foreach (Area city in Cities) pois.Add(city.GetRandomPassableTile());
+
+        GenerateRoadNetwork(pois, fenceTiles);
+    }
+
+    /// <summary>
+    /// Connects all given points of interest with a road network. Builds a minimum spanning tree over the
+    /// POIs (by shortest-path distance), then lays down actual road tiles along each MST edge in ascending
+    /// distance order, using road-biased pathfinding so later edges prefer merging into roads built by
+    /// earlier edges instead of carving new parallel paths.
+    /// <br/>Paths never cross a fence tile, except where a POI itself is a fence tile (e.g. the fence gate).
+    /// </summary>
+    private static void GenerateRoadNetwork(List<WorldMapTile> pois, HashSet<WorldMapTile> fenceTiles)
+    {
+        if (pois.Count < 2) return;
+
+        int n = pois.Count;
+
+        // Pairwise distances (respecting the fence restriction) used purely for MST weighting
+        float[,] distances = new float[n, n];
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = i + 1; j < n; j++)
+            {
+                List<WorldMapTile> path = FindPath(pois[i], pois[j], fenceTiles);
+                float dist = path != null ? path.Count : float.MaxValue;
+                distances[i, j] = dist;
+                distances[j, i] = dist;
+            }
+        }
+
+        // Prim's algorithm to build MST edges over the POIs
+        List<(int from, int to)> mstEdges = new List<(int, int)>();
+        bool[] inTree = new bool[n];
+        inTree[0] = true;
+        int numInTree = 1;
+
+        while (numInTree < n)
+        {
+            float bestDist = float.MaxValue;
+            int bestFrom = -1, bestTo = -1;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (!inTree[i]) continue;
+                for (int j = 0; j < n; j++)
+                {
+                    if (inTree[j]) continue;
+                    if (distances[i, j] < bestDist)
+                    {
+                        bestDist = distances[i, j];
+                        bestFrom = i;
+                        bestTo = j;
+                    }
+                }
+            }
+
+            if (bestTo == -1 || bestDist == float.MaxValue) break; // remaining POIs unreachable
+            mstEdges.Add((bestFrom, bestTo));
+            inTree[bestTo] = true;
+            numInTree++;
+        }
+
+        // Build shorter connections first, so longer ones have more existing road to merge into
+        mstEdges = mstEdges.OrderBy(e => distances[e.from, e.to]).ToList();
+
+        foreach (var (i, j) in mstEdges)
+        {
+            List<WorldMapTile> roadPath = FindRoadBiasedPath(pois[i], pois[j], fenceTiles);
+            if (roadPath != null) AddRoad(roadPath);
+        }
     }
 
     private static void AddRoad(List<WorldMapTile> road)
     {
-        foreach(WorldMapTile tile in road)
+        for (int i = 0; i < road.Count; i++)
         {
-            if (tile.HasRoad) break; // Merge and stop
+            WorldMapTile tile = road[i];
+            if (tile.HasRoad)
+            {
+                if (i == 0) continue;
+                else break;
+            }
             tile.AddRoad();
         }
     }
 
     /// <summary>
+    /// Same shortest-path search as FindPath, but each step onto a tile that already has a road costs much
+    /// less than a step onto a fresh tile — biasing the route to merge into existing roads where reasonable
+    /// rather than always taking the absolute shortest raw-distance route.
+    /// <br/>If disallowedTiles is given, no intermediate tile may belong to it (the 'from'/'to' endpoints are exempt).
+    /// </summary>
+    public static List<WorldMapTile> FindRoadBiasedPath(WorldMapTile from, WorldMapTile to, HashSet<WorldMapTile> disallowedTiles = null)
+    {
+        if (from == null || to == null) return null;
+        if (!from.IsPassable() || !to.IsPassable()) return null;
+        if (from == to) return new List<WorldMapTile> { from };
+
+        Dictionary<WorldMapTile, float> bestDist = new Dictionary<WorldMapTile, float>() { { from, 0f } };
+        Dictionary<WorldMapTile, WorldMapTile> cameFrom = new Dictionary<WorldMapTile, WorldMapTile>();
+        List<WorldMapTile> frontier = new List<WorldMapTile>() { from };
+
+        while (frontier.Count > 0)
+        {
+            WorldMapTile current = frontier.OrderBy(t => bestDist[t]).First();
+            frontier.Remove(current);
+            if (current == to) break;
+
+            foreach (WorldMapTile next in current.GetAdjacentTiles())
+            {
+                if (!next.IsPassable()) continue;
+                if (disallowedTiles != null && disallowedTiles.Contains(next) && next != to) continue;
+
+                float stepCost = next.HasRoad ? EXISTING_ROAD_TILE_COST : NEW_TILE_COST;
+                float newDist = bestDist[current] + stepCost;
+
+                if (!bestDist.TryGetValue(next, out float existingDist) || newDist < existingDist)
+                {
+                    bestDist[next] = newDist;
+                    cameFrom[next] = current;
+                    if (!frontier.Contains(next)) frontier.Add(next);
+                }
+            }
+        }
+
+        if (to != from && !cameFrom.ContainsKey(to)) return null;
+
+        List<WorldMapTile> path = new List<WorldMapTile>();
+        WorldMapTile step = to;
+        while (step != from)
+        {
+            path.Add(step);
+            step = cameFrom[step];
+        }
+        path.Add(from);
+        path.Reverse();
+        return path;
+    }
+
+    /// <summary>
     /// Returns the shortest path of passable tiles from 'from' to 'to' (inclusive of both),
     /// or null if no passable path exists. All transitions are treated as equal cost.
+    /// <br/>If disallowedTiles is given, no intermediate tile may belong to it (the 'from'/'to' endpoints are exempt).
     /// </summary>
-    public static List<WorldMapTile> FindPath(WorldMapTile from, WorldMapTile to)
+    public static List<WorldMapTile> FindPath(WorldMapTile from, WorldMapTile to, HashSet<WorldMapTile> disallowedTiles = null)
     {
         if (from == null || to == null) return null;
         if (!from.IsPassable() || !to.IsPassable()) return null;
@@ -430,6 +713,7 @@ public static class WorldMapGenerator
             foreach (WorldMapTile next in current.GetAdjacentTiles())
             {
                 if (!next.IsPassable()) continue;
+                if (disallowedTiles != null && disallowedTiles.Contains(next) && next != to) continue;
                 if (cameFrom.ContainsKey(next)) continue; // already discovered
                 cameFrom[next] = current;
                 frontier.Enqueue(next);

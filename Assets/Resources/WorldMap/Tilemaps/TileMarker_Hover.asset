@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: TileMarkerTransparentWhite
+  m_Name: TileMarker_Hover
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: fedfdfdf75e559e45a55a387b85a0944, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 25d274b46db5d814eaefeb51d1f7c1e5, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0.19607843}
   m_Transform:
     e00: 1

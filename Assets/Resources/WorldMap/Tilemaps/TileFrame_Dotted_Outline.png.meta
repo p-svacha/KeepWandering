@@ -1,0 +1,1170 @@
+fileFormatVersion: 2
+guid: 38f9143ebd60aa04589fb80737abaf93
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7551689463637246855
+    second: TileFrame_12px_Dotted_0
+  - first:
+      213: 234149203997247525
+    second: TileFrame_12px_Dotted_1
+  - first:
+      213: 6771238678897838287
+    second: TileFrame_12px_Dotted_2
+  - first:
+      213: -7968100118892281162
+    second: TileFrame_12px_Dotted_3
+  - first:
+      213: 7968839151717228955
+    second: TileFrame_12px_Dotted_4
+  - first:
+      213: 5303432505198049191
+    second: TileFrame_12px_Dotted_5
+  - first:
+      213: 1821403524298070592
+    second: TileFrame_12px_Dotted_6
+  - first:
+      213: 6578096002641052993
+    second: TileFrame_12px_Dotted_7
+  - first:
+      213: 2728015541376877519
+    second: TileFrame_12px_Dotted_8
+  - first:
+      213: -2676771677163318196
+    second: TileFrame_12px_Dotted_9
+  - first:
+      213: 7827483242554578614
+    second: TileFrame_12px_Dotted_10
+  - first:
+      213: -1707026555905091277
+    second: TileFrame_12px_Dotted_11
+  - first:
+      213: 5430271793181145284
+    second: TileFrame_12px_Dotted_12
+  - first:
+      213: -5481353301451955842
+    second: TileFrame_12px_Dotted_13
+  - first:
+      213: -3103157845094368133
+    second: TileFrame_12px_Dotted_14
+  - first:
+      213: -3482501856205890647
+    second: TileFrame_12px_Dotted_15
+  - first:
+      213: 2036486286218362156
+    second: TileFrame_12px_Dotted_16
+  - first:
+      213: 7103488449612057715
+    second: TileFrame_12px_Dotted_17
+  - first:
+      213: -6372924283216289777
+    second: TileFrame_12px_Dotted_18
+  - first:
+      213: 816351854269504833
+    second: TileFrame_12px_Dotted_19
+  - first:
+      213: 3830288271544295781
+    second: TileFrame_12px_Dotted_20
+  - first:
+      213: -8170915687366353505
+    second: TileFrame_12px_Dotted_21
+  - first:
+      213: -5869546614080009207
+    second: TileFrame_12px_Dotted_22
+  - first:
+      213: 8373299058746028718
+    second: TileFrame_12px_Dotted_23
+  - first:
+      213: -5088588488829846386
+    second: TileFrame_12px_Dotted_24
+  - first:
+      213: -482125867066130977
+    second: TileFrame_12px_Dotted_25
+  - first:
+      213: -861947160757194518
+    second: TileFrame_12px_Dotted_26
+  - first:
+      213: -7495370038787306503
+    second: TileFrame_12px_Dotted_27
+  - first:
+      213: -6285950317964258871
+    second: TileFrame_12px_Dotted_28
+  - first:
+      213: 6188240796816190556
+    second: TileFrame_12px_Dotted_29
+  - first:
+      213: -2413765254930624974
+    second: TileFrame_12px_Dotted_30
+  - first:
+      213: -7480366281477386324
+    second: TileFrame_12px_Dotted_31
+  - first:
+      213: -5620142250674846795
+    second: TileFrame_12px_Dotted_32
+  - first:
+      213: 6087594463112130326
+    second: TileFrame_12px_Dotted_33
+  - first:
+      213: 4798612904234495651
+    second: TileFrame_12px_Dotted_34
+  - first:
+      213: 6660765537795543982
+    second: TileFrame_12px_Dotted_35
+  - first:
+      213: -6745459016192533175
+    second: TileFrame_12px_Dotted_36
+  - first:
+      213: -5978324059224354632
+    second: TileFrame_12px_Dotted_37
+  - first:
+      213: 4761186504769296580
+    second: TileFrame_12px_Dotted_38
+  - first:
+      213: -720903231361529307
+    second: TileFrame_12px_Dotted_39
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 600
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_0
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 428
+        width: 47
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 783882e7e8dfcc860800000000000000
+      internalID: 7551689463637246855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_1
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 454
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52842b0e57ddf3300800000000000000
+      internalID: 234149203997247525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_2
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 459
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc84711f3b548fd50800000000000000
+      internalID: 6771238678897838287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_3
+      rect:
+        serializedVersion: 2
+        x: 211
+        y: 459
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b28dae982f9b6190800000000000000
+      internalID: -7968100118892281162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_4
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 460
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b91a45edcf0079e60800000000000000
+      internalID: 7968839151717228955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_5
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 461
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a7f692c3c3999940800000000000000
+      internalID: 5303432505198049191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_6
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 457
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04a5e6aeadce64910800000000000000
+      internalID: 1821403524298070592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_7
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 443
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14546df46771a4b50800000000000000
+      internalID: 6578096002641052993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_8
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 386
+        width: 39
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc383856eabdbd520800000000000000
+      internalID: 2728015541376877519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_9
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 431
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c449add77523adad0800000000000000
+      internalID: -2676771677163318196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_10
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 404
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b6d9cd898ec0ac60800000000000000
+      internalID: 7827483242554578614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_11
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 336
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3395e11446c6f48e0800000000000000
+      internalID: -1707026555905091277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_12
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 360
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c8b262dc633c5b40800000000000000
+      internalID: 5430271793181145284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_13
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 359
+        width: 46
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e71aa8ab6325ee3b0800000000000000
+      internalID: -5481353301451955842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_14
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 342
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7cfe21916e5fe4d0800000000000000
+      internalID: -3103157845094368133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_15
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 284
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ab953b430babafc0800000000000000
+      internalID: -3482501856205890647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_16
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 309
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2dffffcc7d034c10800000000000000
+      internalID: 2036486286218362156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_17
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 290
+        width: 34
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37c8739eb19a49260800000000000000
+      internalID: 7103488449612057715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_18
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 235
+        width: 30
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f00ae6e2123de87a0800000000000000
+      internalID: -6372924283216289777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_19
+      rect:
+        serializedVersion: 2
+        x: 478
+        y: 263
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14d177dafa3445b00800000000000000
+      internalID: 816351854269504833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_20
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 235
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5612eb4a3eae72530800000000000000
+      internalID: 3830288271544295781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_21
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 208
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d9cd449731b9e80800000000000000
+      internalID: -8170915687366353505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_22
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 184
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90c0a23e37e2b8ea0800000000000000
+      internalID: -5869546614080009207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_23
+      rect:
+        serializedVersion: 2
+        x: 471
+        y: 210
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea27baa512fe33470800000000000000
+      internalID: 8373299058746028718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_24
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 181
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8cb72bdab3b169b0800000000000000
+      internalID: -5088588488829846386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_25
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 154
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fddfe7c04152f49f0800000000000000
+      internalID: -482125867066130977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_26
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 113
+        width: 44
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae039e3cf9fb904f0800000000000000
+      internalID: -861947160757194518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_27
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 128
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fb0af179a81bf790800000000000000
+      internalID: -7495370038787306503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_28
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 83
+        width: 41
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c19cfd7d71d3c8a0800000000000000
+      internalID: -6285950317964258871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_29
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 67
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5c2fcec73c01e550800000000000000
+      internalID: 6188240796816190556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_30
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 88
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23e0ea01a45908ed0800000000000000
+      internalID: -2413765254930624974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_31
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 59
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caf0bbaef76603890800000000000000
+      internalID: -7480366281477386324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_32
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 37
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b38c59566e3102b0800000000000000
+      internalID: -5620142250674846795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_33
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 34
+        width: 50
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61fee6629ea7b7450800000000000000
+      internalID: 6087594463112130326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_34
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 30
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aea0832309189240800000000000000
+      internalID: 4798612904234495651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_35
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 29
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea3977467facf6c50800000000000000
+      internalID: 6660765537795543982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_36
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 27
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94d53e483c05362a0800000000000000
+      internalID: -6745459016192533175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_37
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 27
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b0d2c151f9b80da0800000000000000
+      internalID: -5978324059224354632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_38
+      rect:
+        serializedVersion: 2
+        x: 297
+        y: 27
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c8582676e1231240800000000000000
+      internalID: 4761186504769296580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_12px_Dotted_39
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 28
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52ac341a456def5f0800000000000000
+      internalID: -720903231361529307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TileFrame_12px_Dotted_0: 7551689463637246855
+      TileFrame_12px_Dotted_1: 234149203997247525
+      TileFrame_12px_Dotted_10: 7827483242554578614
+      TileFrame_12px_Dotted_11: -1707026555905091277
+      TileFrame_12px_Dotted_12: 5430271793181145284
+      TileFrame_12px_Dotted_13: -5481353301451955842
+      TileFrame_12px_Dotted_14: -3103157845094368133
+      TileFrame_12px_Dotted_15: -3482501856205890647
+      TileFrame_12px_Dotted_16: 2036486286218362156
+      TileFrame_12px_Dotted_17: 7103488449612057715
+      TileFrame_12px_Dotted_18: -6372924283216289777
+      TileFrame_12px_Dotted_19: 816351854269504833
+      TileFrame_12px_Dotted_2: 6771238678897838287
+      TileFrame_12px_Dotted_20: 3830288271544295781
+      TileFrame_12px_Dotted_21: -8170915687366353505
+      TileFrame_12px_Dotted_22: -5869546614080009207
+      TileFrame_12px_Dotted_23: 8373299058746028718
+      TileFrame_12px_Dotted_24: -5088588488829846386
+      TileFrame_12px_Dotted_25: -482125867066130977
+      TileFrame_12px_Dotted_26: -861947160757194518
+      TileFrame_12px_Dotted_27: -7495370038787306503
+      TileFrame_12px_Dotted_28: -6285950317964258871
+      TileFrame_12px_Dotted_29: 6188240796816190556
+      TileFrame_12px_Dotted_3: -7968100118892281162
+      TileFrame_12px_Dotted_30: -2413765254930624974
+      TileFrame_12px_Dotted_31: -7480366281477386324
+      TileFrame_12px_Dotted_32: -5620142250674846795
+      TileFrame_12px_Dotted_33: 6087594463112130326
+      TileFrame_12px_Dotted_34: 4798612904234495651
+      TileFrame_12px_Dotted_35: 6660765537795543982
+      TileFrame_12px_Dotted_36: -6745459016192533175
+      TileFrame_12px_Dotted_37: -5978324059224354632
+      TileFrame_12px_Dotted_38: 4761186504769296580
+      TileFrame_12px_Dotted_39: -720903231361529307
+      TileFrame_12px_Dotted_4: 7968839151717228955
+      TileFrame_12px_Dotted_5: 5303432505198049191
+      TileFrame_12px_Dotted_6: 1821403524298070592
+      TileFrame_12px_Dotted_7: 6578096002641052993
+      TileFrame_12px_Dotted_8: 2728015541376877519
+      TileFrame_12px_Dotted_9: -2676771677163318196
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

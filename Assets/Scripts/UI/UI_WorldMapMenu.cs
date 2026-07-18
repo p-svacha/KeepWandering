@@ -8,6 +8,7 @@ public class UI_WorldMapMenu : MonoBehaviour
 {
     [Header("Elements")]
     public TextMeshProUGUI TileInfoText;
+    public RawImage MapImage;
     public Button CloseButton;
 
     private void Awake()

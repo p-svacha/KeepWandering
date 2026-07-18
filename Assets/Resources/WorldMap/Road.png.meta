@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 08cc7b14d987afe418b0e89dd0e5b1d2
+guid: d4988c0505de9ca46845194112dc31ed
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2214271534929784479
-    second: TileFrame_12px_0
+      213: 5121372577773941514
+    second: PathTexture_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 560
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TileFrame_12px_0
+      name: PathTexture_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 33
-        width: 512
-        height: 445
+        y: 0
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 161504c45c35541e0800000000000000
-      internalID: -2214271534929784479
+      spriteID: a0374aca935c21740800000000000000
+      internalID: 5121372577773941514
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TileFrame_12px_0: -2214271534929784479
+      PathTexture_0: 5121372577773941514
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

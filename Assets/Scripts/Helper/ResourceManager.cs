@@ -89,6 +89,15 @@ public static class ResourceManager
         CachedSprites.Add(resourcePath, loadedSprite);
         return loadedSprite;
     }
+    public static Sprite LoadRandomSprite(string directoryPath)
+    {
+        // Get all sprites in the directory
+        Sprite[] sprites = Resources.LoadAll<Sprite>(directoryPath);
+        if (sprites.Length == 0) throw new System.Exception($"No sprites found in directory {directoryPath}.");
+
+        // Return a random sprite
+        return sprites[Random.Range(0, sprites.Length)];
+    }
 
     private static Dictionary<string, AudioClip> CachedAudioClips = new Dictionary<string, AudioClip>();
     public static AudioClip LoadAudioClip(string resourcePath)

@@ -1274,7 +1274,7 @@
         },
     };
 
---- BiomeDefs.cs ---
+--- Biome.cs ---
     public static List<BiomeDef> Defs => new List<BiomeDef>()
     {
         new BiomeDef("Woods")
@@ -1291,6 +1291,9 @@
                 { LootTables.Medical, 1 },
             },
             TrapTriggerChance = 0.5f,
+            // Rendering
+            BaseColor = new Color(0.36f, 0.56f, 0.40f),
+            TreeDensity = 0.95f,
         },
 
         new BiomeDef("Outskirts")
@@ -1307,6 +1310,9 @@
                 { LootTables.Plants, 5 },
             },
             TrapTriggerChance = 0.3f,
+            // Rendering
+            BaseColor = new Color(0.73f, 0.89f, 0.78f),
+            TreeDensity = 0.12f,
         },
 
         new BiomeDef("City")
@@ -1324,6 +1330,9 @@
                 { ItemDefOf.Coin, 10 },
             },
             TrapTriggerChance = 0.1f,
+            // Rendering
+            BaseColor = new Color(0.91f, 0.92f, 0.93f),
+            TreeDensity = 0.02f,
         },
 
         new BiomeDef("Lake")
@@ -1331,6 +1340,9 @@
             Label = "lake",
             Description = "A serene body of water surrounded by nature.",
             IsPassable = false,
+            // Rendering
+            BaseColor = new Color(0.61f, 0.75f, 0.98f),
+            TreeDensity = 0.0f,
         }
     };
 

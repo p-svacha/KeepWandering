@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 08cc7b14d987afe418b0e89dd0e5b1d2
+guid: d501cc18d80cf5a489af159293f4e477
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2214271534929784479
-    second: TileFrame_12px_0
+      213: 5744472634509976459
+    second: TileFrame_Curvy_Outline_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 560
+  spritePixelsToUnits: 600
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TileFrame_12px_0
+      name: TileFrame_Curvy_Outline_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 33
-        width: 512
-        height: 445
+        x: 17
+        y: 30
+        width: 489
+        height: 455
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 161504c45c35541e0800000000000000
-      internalID: -2214271534929784479
+      spriteID: b836be1fc6778bf40800000000000000
+      internalID: 5744472634509976459
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TileFrame_12px_0: -2214271534929784479
+      TileFrame_Curvy_Outline_0: 5744472634509976459
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

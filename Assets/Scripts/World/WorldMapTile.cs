@@ -12,6 +12,7 @@ public class WorldMapTile
     public Vector2Int Coordinates { get; private set; }
     public int DistanceFromStart {  get; private set; }
     public Vector2 WorldPosition { get; private set; }
+    public Vector2 RoadPosition { get; private set; } // World position with some random offset for road placement
     public Dictionary<Direction, Vector2> CornerWorldPositions { get; private set; }
     public Dictionary<Direction, Vector2> SideMidpointWorldPositions { get; private set; }
     public BiomeDef Biome { get; private set; }
@@ -33,6 +34,7 @@ public class WorldMapTile
         AllTiles = allTiles;
         Coordinates = coordinates;
         WorldPosition = WorldMapRenderer.Instance.GetWorldPosition(coordinates);
+        RoadPosition = WorldPosition + new Vector2(Random.Range(-0.15f, 0.15f), Random.Range(-0.15f, 0.15f));
         Areas = new List<Area>();
         DangerLevel = DangerLevelDefOf.Safe;
         NumVisits = 0;

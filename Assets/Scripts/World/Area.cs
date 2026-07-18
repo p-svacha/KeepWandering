@@ -14,7 +14,6 @@ public class Area
     public Vector2 Center { get; private set; }
     public AreaType Type { get; private set; }
     public List<WorldMapTile> Tiles { get; private set; }
-    public List<WorldMapTile> PerimeterTiles { get; private set; }
 
     // Visual
     private Color FENCE_COLOR = Color.white;
@@ -34,8 +33,7 @@ public class Area
         Name = name;
         Type = type;
         Tiles = tiles;
-        PerimeterTiles = GetPerimeterTiles();
-        foreach(WorldMapTile tile in Tiles) tile.Areas.Add(this);
+        foreach (WorldMapTile tile in Tiles) tile.Areas.Add(this);
 
         // Center
         Vector2 center = Vector2.zero;
@@ -63,9 +61,10 @@ public class Area
         line.sortingLayerName = "WorldMap";
         line.sortingOrder = 100;
 
-        List<Vector2> fence = GetPerimeterPoints();
-        line.positionCount = fence.Count;
-        for (int i = 0; i < fence.Count; i++) line.SetPosition(i, fence[i]);
+        List<Vector2> fencePositions = new List<Vector2>();
+        foreach (WorldMapTile tile in GetOrderedPerimeterTiles()) fencePositions.Add(tile.RoadPosition);
+        line.positionCount = fencePositions.Count;
+        for (int i = 0; i < fencePositions.Count; i++) line.SetPosition(i, fencePositions[i]);
     }
 
     /// <summary>
@@ -124,94 +123,81 @@ public class Area
     #region Getters
 
     public bool ContainsTile(WorldMapTile tile) => Tiles.Contains(tile);
-    public bool IsOnPerimeter(WorldMapTile tile) => PerimeterTiles.Contains(tile);
+    public bool IsOnPerimeter(WorldMapTile tile) => GetOrderedPerimeterTiles().Contains(tile);
 
     /// <summary>
-    /// Returns the outside edge (fencing) points of the area,
+    /// Walks the outside boundary of the area tile-by-tile (each consecutive tile adjacent to the previous),
+    /// returning the perimeter tiles in that walk order.
     /// </summary>
-    public List<Vector2> GetPerimeterPoints()
+    public List<WorldMapTile> GetOrderedPerimeterTiles()
     {
-        List<Vector2> perimeterPoints = new List<Vector2>();
+        // Find an unordered set of perimeter tiles first, to know which tiles qualify and to pick a start tile
+        List<WorldMapTile> unorderedPerimeterTiles = new List<WorldMapTile>();
+        foreach (WorldMapTile tile in Tiles)
+        {
+            foreach (WorldMapTile adjTile in tile.GetAdjacentTiles())
+            {
+                if (!Tiles.Contains(adjTile) && !unorderedPerimeterTiles.Contains(tile))
+                {
+                    unorderedPerimeterTiles.Add(tile);
+                }
+            }
+        }
 
-        // Take a starting point
-        WorldMapTile currentTile = PerimeterTiles[0];
+        List<WorldMapTile> orderedTiles = new List<WorldMapTile>();
+        if (unorderedPerimeterTiles.Count == 0) return orderedTiles;
+
+        WorldMapTile currentTile = unorderedPerimeterTiles[0];
         Direction nextStartDir = Direction.N;
         bool perimeterDone = false;
 
-        // Follow the outside perimeter until reaching the first point again
+        orderedTiles.Add(currentTile);
+
         while (!perimeterDone)
         {
             Direction currentDir = nextStartDir;
             nextStartDir = Direction.None;
-            bool fenceDrawn = false;
 
-            while(!perimeterDone && nextStartDir == Direction.None)
+            while (!perimeterDone && nextStartDir == Direction.None)
             {
                 WorldMapTile adjTile = currentTile.GetAdjacentTile(currentDir);
 
-                // Adjacent tile is not within area => draw fence + go to next direction
+                // Adjacent tile is not within area => this is a boundary edge, try next direction
                 if (!Tiles.Contains(adjTile))
                 {
-                    perimeterPoints.Add(GetPerimeterPointForDirection(currentTile, currentDir));
-                    if (perimeterPoints.Count >= 1000 || (perimeterPoints.Count > 1 && perimeterPoints.First() == perimeterPoints.Last())) perimeterDone = true;
                     currentDir = HelperFunctions.GetNextHexDirectionClockwise(currentDir);
-                    fenceDrawn = true;
                 }
 
-                // Adjacent tile on perimeter and fence has been drawn already => continue on that tile
-                else if (PerimeterTiles.Contains(adjTile) && fenceDrawn)
+                // Adjacent tile is on the perimeter => step onto it
+                else if (unorderedPerimeterTiles.Contains(adjTile))
                 {
                     currentTile = adjTile;
+
+                    if (currentTile == orderedTiles[0])
+                    {
+                        perimeterDone = true;
+                        break;
+                    }
+
+                    orderedTiles.Add(currentTile);
+
                     nextStartDir = HelperFunctions.GetNextHexDirectionClockwise(
                         HelperFunctions.GetNextHexDirectionClockwise(
                             HelperFunctions.GetNextHexDirectionClockwise(
                                 HelperFunctions.GetNextHexDirectionClockwise(currentDir))));
                 }
 
-                // Adjacent tile is in area but on on perimeter => go to next direction
+                // Adjacent tile is in area but not on perimeter => go to next direction
                 else
                 {
                     currentDir = HelperFunctions.GetNextHexDirectionClockwise(currentDir);
                 }
+
+                if (orderedTiles.Count > Tiles.Count + 10) break; // safety net against infinite loop on malformed data
             }
         }
 
-        return perimeterPoints;
-    }
-
-    /// <summary>
-    /// Returns a list of all tiles bordering the outside of the area.
-    /// </summary>
-    private List<WorldMapTile> GetPerimeterTiles()
-    {
-        List<WorldMapTile> perimeterTiles = new List<WorldMapTile>();
-
-        foreach(WorldMapTile tile in Tiles)
-        {
-            foreach(WorldMapTile adjTile in tile.GetAdjacentTiles())
-            {
-                if (!Tiles.Contains(adjTile) && !perimeterTiles.Contains(tile)) perimeterTiles.Add(tile);
-            }
-        }
-
-        return perimeterTiles;
-    }
-
-    /// <summary>
-    /// Returns the the edge point of a tile in the given direction.
-    /// </summary>
-    private Vector3 GetPerimeterPointForDirection(WorldMapTile tile, Direction dir)
-    {
-        return dir switch
-        {
-            Direction.N => tile.CornerWorldPositions[Direction.NE],
-            Direction.NE => tile.CornerWorldPositions[Direction.E],
-            Direction.SE => tile.CornerWorldPositions[Direction.SE],
-            Direction.S => tile.CornerWorldPositions[Direction.SW],
-            Direction.SW => tile.CornerWorldPositions[Direction.W],
-            Direction.NW => tile.CornerWorldPositions[Direction.NW],
-            _ => throw new System.Exception("Invalid hex direction")
-        };
+        return orderedTiles;
     }
 
     public WorldMapTile GetRandomTile()
@@ -226,5 +212,12 @@ public class Area
     }
 
     #endregion
+}
 
+public enum AreaType
+{
+    QuarantineZone,
+    City,
+    Forest,
+    Lake,
 }

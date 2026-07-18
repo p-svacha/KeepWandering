@@ -16,9 +16,9 @@ public class WorldMapCameraHandler : MonoBehaviour
     private const float ZOOM_SPEED = 0.5f; // Mouse Wheel Speed
     private const float DRAG_SPEED = 0.025f; // Middle Mouse Drag Speed
     private const float PAN_SPEED = 20f; // WASD Speed
-    private const float MIN_CAMERA_SIZE = 2f;
-    private const float MAX_CAMERA_SIZE = 4f;
-    private const float INITIAL_CAMERA_SIZE = 3f;
+    private const float MIN_CAMERA_SIZE = 1f;
+    private const float MAX_CAMERA_SIZE = 6f;
+    public const float DEFAULT_CAMERA_SIZE = 1f;
     private const float EDGE_PADDING = 10f; // Padding from the edge of the map when zooming/panning
     private bool IsLeftMouseDown;
     private bool IsRightMouseDown;
@@ -45,7 +45,6 @@ public class WorldMapCameraHandler : MonoBehaviour
     {
         Game = game;
         Camera = GetComponent<Camera>();
-        SetZoom(INITIAL_CAMERA_SIZE);
     }
 
 
@@ -97,7 +96,6 @@ public class WorldMapCameraHandler : MonoBehaviour
         }
 
         // Bounds
-        // todo: paddgn
         float realMinX = MinX + CameraWidthWorld - EDGE_PADDING;
         float realMaxX = MaxX - CameraWidthWorld + EDGE_PADDING;
         float realMinY = MinY + CameraHeightWorld - EDGE_PADDING;

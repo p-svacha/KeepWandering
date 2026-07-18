@@ -2,12 +2,15 @@ Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
 World map rework
+make outline of trees gray at base (increase lightness on all base images)
+
+performance of sprites!
 
 Bigger hex tiles with textures/sprites
 Encounter assigned to every tile at generation (hidden unless landmark/special)
 Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
 Danger level overlay toggle
-
+feature labels toggle	
 
 
 Stub audio hooks
