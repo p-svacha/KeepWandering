@@ -45,13 +45,14 @@ public class WorldMapRenderer : MonoBehaviour
     private const float TILE_ELEMENT_SCATTER_RADIUS = 0.45f; // allows slight bleed into neighboring tiles
     private const string TILE_ELEMENT_SORTING_LAYER = "WorldMap";
     private const int TILE_ELEMENT_SORTING_ORDER = 20;
+    private const int Y_SORT_PRECISION_MULTIPLIER = 100; // scales fractional Y differences into distinct integer sorting orders
 
     [Header("Roads")]
     public GameObject RoadContainer;
     public Color RoadColor;
 
     private const string ROAD_SORTING_LAYER = "WorldMap";
-    private const int ROAD_SORTING_ORDER = 30;
+    private const int ROAD_SORTING_ORDER = 30000;
     private const float ROAD_WIDTH = 0.05f;
 
 
@@ -64,7 +65,7 @@ public class WorldMapRenderer : MonoBehaviour
     private WorldMapTile ContextMenuTile;
 
     // Tile Cache
-    public Dictionary<EncounterDef, Tile> EncounterMarkerCache;
+    public Dictionary<EncounterDef, Tile> EncounterMarkerCache { get; private set; }
 
     /// <summary>
     /// Called once.
@@ -201,6 +202,8 @@ public class WorldMapRenderer : MonoBehaviour
     private void UpdatePlayerPosition()
     {
         PlayerPositionMarker.transform.position = Game.CurrentPosition.WorldPosition;
+        float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * 0.1f;
+        PlayerPositionMarker.transform.localScale = new Vector3(targetScale, targetScale, 1f);
     }
 
     private void UpdatePathHistory()
@@ -215,6 +218,7 @@ public class WorldMapRenderer : MonoBehaviour
             PathHistoryRenderer.positionCount = Game.PathHistory.Count;
             PathHistoryRenderer.numCornerVertices = 2;
             PathHistoryRenderer.textureMode = LineTextureMode.Tile;
+            PathHistoryRenderer.textureScale = new Vector2(3f, 1f);
             for (int i = 0; i < Game.PathHistory.Count; i++)
             {
                 PathHistoryRenderer.SetPosition(i, Game.PathHistory[i].WorldPosition);
@@ -291,7 +295,7 @@ public class WorldMapRenderer : MonoBehaviour
     /// each with 'density' chance to spawn one sprite at a random offset within the scatter radius. Sprites may
     /// overlap each other and may spill slightly into neighboring tiles.
     /// </summary>
-    public void SpawnScatteredElements(Vector2 center, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, System.Func<Color> randomColorGenerator = null)
+    public void SpawnScatteredElements(WorldMapTile tile, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, bool randomFlipX = false, bool sortByYPosition = false, System.Func<Color> randomColorGenerator = null)
     {
         if (density <= 0f) return;
 
@@ -302,7 +306,7 @@ public class WorldMapRenderer : MonoBehaviour
             if (Random.value > density) continue;
 
             Vector2 offset = Random.insideUnitCircle * TILE_ELEMENT_SCATTER_RADIUS;
-            Vector2 position = center + offset;
+            Vector2 position = tile.WorldPosition + offset;
 
             Sprite sprite = ResourceManager.LoadRandomSprite(spriteFolderPath);
 
@@ -317,11 +321,20 @@ public class WorldMapRenderer : MonoBehaviour
             SpriteRenderer renderer = obj.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.sortingLayerName = TILE_ELEMENT_SORTING_LAYER;
-            renderer.sortingOrder = TILE_ELEMENT_SORTING_ORDER;
+
+            // Lower Y should draw in front (closer to "camera" in a 2D side-view sense), so sorting order
+            // is inverted relative to Y - higher Y (further back) gets a lower order, lower Y gets a higher order.
+            renderer.sortingOrder = sortByYPosition
+                ? TILE_ELEMENT_SORTING_ORDER - Mathf.RoundToInt(position.y * Y_SORT_PRECISION_MULTIPLIER)
+                : TILE_ELEMENT_SORTING_ORDER;
 
             if (randomizeColor && randomColorGenerator != null)
             {
                 renderer.color = randomColorGenerator();
+            }
+            if (randomFlipX)
+            {
+                renderer.flipX = Random.value > 0.5f;
             }
         }
     }
@@ -334,8 +347,9 @@ public class WorldMapRenderer : MonoBehaviour
     {
         foreach (WorldMapTile tile in worldMap.Tiles.Values)
         {
+            // Trees
             SpawnScatteredElements(
-                center: tile.WorldPosition,
+                tile: tile,
                 spriteFolderPath: TREES_PATH,
                 density: tile.Biome.TreeDensity,
                 densityVariance: TREE_DENSITY_VARIANCE,
@@ -343,7 +357,24 @@ public class WorldMapRenderer : MonoBehaviour
                 randomizeColor: true,
                 minScale: 0.12f,
                 maxScale: 0.15f,
+                randomFlipX: true,
+                sortByYPosition: false,
                 randomColorGenerator: GetRandomGreenShade
+            );
+
+            // City buildings
+            SpawnScatteredElements(
+                tile: tile,
+                spriteFolderPath: "WorldMap/TileElements/CityBuildings",
+                density: tile.Biome.CityBuildingDensity,
+                densityVariance: 0f,
+                randomizeRotation: false,
+                randomizeColor: true,
+                minScale: 0.25f,
+                maxScale: 0.30f,
+                randomFlipX: true,
+                sortByYPosition: true,
+                randomColorGenerator: GetRandomCityBuildingColor
             );
         }
     }
@@ -353,6 +384,14 @@ public class WorldMapRenderer : MonoBehaviour
         float hue = Random.Range(0.28f, 0.36f);
         float saturation = Random.Range(0.4f, 0.75f);
         float value = Random.Range(0.5f, 0.85f);
+        return Color.HSVToRGB(hue, saturation, value);
+    }
+
+    private static Color GetRandomCityBuildingColor()
+    {
+        float hue = Random.value;
+        float saturation = Random.Range(0f, 0.2f); // low saturation for grayish colors
+        float value = Random.Range(0.85f, 1f); // bright colors as the base images alredy have some darker base colors
         return Color.HSVToRGB(hue, saturation, value);
     }
 

@@ -1333,6 +1333,7 @@
             // Rendering
             BaseColor = new Color(0.91f, 0.92f, 0.93f),
             TreeDensity = 0.02f,
+            CityBuildingDensity = 0.3f,
         },
 
         new BiomeDef("Lake")

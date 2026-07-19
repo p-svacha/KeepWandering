@@ -29,11 +29,10 @@ public class BiomeDef : Def
     /// </summary>
     public Color BaseColor { get; init; }
 
-    /// <summary>
-    /// Visual only. Chance (0–1) for a tree sprite to be spawned on a tile of this biome, rolled independently
-    /// on each of a fixed 100 placement attempts per tile. E.g. 0.5 averages ~50 trees per tile.
-    /// </summary>
-    public float TreeDensity { get; init; }
+
+    // Scattered sprite densities: Chance (0–1) for a sprite to be spawned on a tile of this biome, rolled independently.  E.g. 0.5 averages ~50 sprites per tile.
+    public float TreeDensity { get; init; } = 0f;
+    public float CityBuildingDensity { get; init; } = 0f;
 
 
     public BiomeDef(string defName) : base(defName) { }
@@ -110,6 +109,7 @@ public static class BiomeDefs
             // Rendering
             BaseColor = new Color(0.91f, 0.92f, 0.93f),
             TreeDensity = 0.02f,
+            CityBuildingDensity = 0.3f,
         },
 
         new BiomeDef("Lake")

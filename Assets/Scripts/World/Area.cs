@@ -131,15 +131,22 @@ public class Area
     /// </summary>
     public List<WorldMapTile> GetOrderedPerimeterTiles()
     {
-        // Find an unordered set of perimeter tiles first, to know which tiles qualify and to pick a start tile
+        // Find an unordered set of perimeter tiles first, to know which tiles qualify and to pick a start tile.
+        // Checked via each tile's neighboring coordinates directly (not via WorldMapTile.GetAdjacentTiles(), which
+        // silently omits neighbors that don't have a WorldMapTile object yet - which would wrongly hide perimeter
+        // tiles if this Area is constructed before its outside neighbors exist, e.g. before the outer ring is generated).
+        HashSet<Vector2Int> areaCoordinates = new HashSet<Vector2Int>(Tiles.Select(t => t.Coordinates));
         List<WorldMapTile> unorderedPerimeterTiles = new List<WorldMapTile>();
+
         foreach (WorldMapTile tile in Tiles)
         {
-            foreach (WorldMapTile adjTile in tile.GetAdjacentTiles())
+            foreach (Direction dir in HelperFunctions.GetAdjacentHexDirections())
             {
-                if (!Tiles.Contains(adjTile) && !unorderedPerimeterTiles.Contains(tile))
+                Vector2Int adjCoord = HelperFunctions.GetAdjacentHexCoordinates(tile.Coordinates, dir);
+                if (!areaCoordinates.Contains(adjCoord))
                 {
                     unorderedPerimeterTiles.Add(tile);
+                    break;
                 }
             }
         }
@@ -162,13 +169,10 @@ public class Area
             {
                 WorldMapTile adjTile = currentTile.GetAdjacentTile(currentDir);
 
-                // Adjacent tile is not within area => this is a boundary edge, try next direction
                 if (!Tiles.Contains(adjTile))
                 {
                     currentDir = HelperFunctions.GetNextHexDirectionClockwise(currentDir);
                 }
-
-                // Adjacent tile is on the perimeter => step onto it
                 else if (unorderedPerimeterTiles.Contains(adjTile))
                 {
                     currentTile = adjTile;
@@ -186,14 +190,12 @@ public class Area
                             HelperFunctions.GetNextHexDirectionClockwise(
                                 HelperFunctions.GetNextHexDirectionClockwise(currentDir))));
                 }
-
-                // Adjacent tile is in area but not on perimeter => go to next direction
                 else
                 {
                     currentDir = HelperFunctions.GetNextHexDirectionClockwise(currentDir);
                 }
 
-                if (orderedTiles.Count > Tiles.Count + 10) break; // safety net against infinite loop on malformed data
+                if (orderedTiles.Count > Tiles.Count + 10) break;
             }
         }
 

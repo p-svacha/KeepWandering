@@ -1,23 +1,30 @@
 TODOS:
 ==============================================
 
-world gen validation: all passable tiles in zone must be reachable (not cut off by impassable AND fence. if so, cut a path to it)
-road generation: roads are not allowed to go outside of quarantine zone and also not on perimeter (except for the POI).
-
-give player position circle an outline
-scale player position circle with zoom
-
-add city building scattered sprites
-
 make path history a bit more dynamic (so no full overlap of lines when visiting a tile multiple times)
 
 Danger level overlay toggle
+
+rework map feature labels so they look good
 feature labels rework so they are more readable
 
 make encounter sprites smaller on map, but bigger images
 dynamic encounter sprites and labels (showing state of encounter)
 
 cart sound when travelling
+sound when opening and closing map (rustle1 and 2 with slight pitch variation)
+
+adjust pan speed so mouse stays stickied where rightclick was held down
+change zoom so camera zooms in on mouse position instead of center of screen
+
+rework map hover text
+  - add road
+  - remove distance
+  - remove coordinates
+
+add farm scattered sprites on outskirts (only keep if it looks good)
+
+add one road piece outside of quarantine zone adjacent to gate (so it looks like the road continues outside of the quarantine zone)
 
 
 EVENING REWORK:
@@ -44,7 +51,7 @@ actual interesting game mechanics
 add at least 1 more biome
 candidates: town, swamp, desert, hills/mountains
 
-
+FENCE GATE ENCOUNTER
 
 more generic encounters
 go to specific biome

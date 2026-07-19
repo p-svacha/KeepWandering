@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 /// This is the default controls for handling camera movement on the world map.
 /// Attach this script to the main camera.
 /// </summary>
-public class WorldMapCameraHandler : MonoBehaviour
+public class WorldMapCameraHandler : Singleton<WorldMapCameraHandler>
 {
     private Game Game;
     public Camera Camera { get; private set; }
