@@ -9,6 +9,8 @@ public class WorldMap
 {
     public static WorldMap Instance { get; private set; }
 
+    public WorldMapTile StartTile => Tiles[Vector2Int.zero];
+
     public float MinWorldX { get; private set; }
     public float MaxWorldX { get; private set; }
     public float MinWorldY { get; private set; }

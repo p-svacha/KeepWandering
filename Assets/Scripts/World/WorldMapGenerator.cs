@@ -376,7 +376,7 @@ public static class WorldMapGenerator
                         {
                             if (otherTile.Encounter != null && otherTile.Encounter.Def == landmark)
                             {
-                                int distance = tile.GetDistanceFromTile(otherTile.Coordinates);
+                                int distance = tile.GetHexDistance(otherTile);
                                 if (distance < landmark.MinDistanceBetween)
                                 {
                                     tooClose = true;

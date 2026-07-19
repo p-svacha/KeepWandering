@@ -30,8 +30,17 @@ public class WorldMapRenderer : MonoBehaviour
     public Tilemap HoverTilemap;
 
     [Header("Player Position")]
-    public LineRenderer PathHistoryRenderer;
+    public GameObject PathHistoryContainer;
     public GameObject PlayerPositionMarker;
+    public float PathHistoryOffsetStep = 0.05f; // perpendicular fan-out distance per repeated edge traversal
+    public float PathHistoryMinOpacity = 0.15f; // opacity floor for old path history
+
+    private const int PATH_HISTORY_RECENT_TILES = 5; // most recent tiles at full opacity
+    private const int PATH_HISTORY_FADE_TILES = 15; // opacity reaches the floor by this age
+    private const string PATH_HISTORY_SORTING_LAYER = "WorldMap";
+    private const int PATH_HISTORY_SORTING_ORDER = 17000; // adjust to sit correctly relative to roads/fence/markers
+
+    private int LastRenderedPathHistoryCount = -1;
 
     [Header("Area Labels")]
     public GameObject AreaLabelContainer;
@@ -45,19 +54,22 @@ public class WorldMapRenderer : MonoBehaviour
     private const float TILE_ELEMENT_SCATTER_RADIUS = 0.45f; // allows slight bleed into neighboring tiles
     private const string TILE_ELEMENT_SORTING_LAYER = "WorldMap";
     private const int TILE_ELEMENT_SORTING_ORDER = 20;
-    private const int Y_SORT_PRECISION_MULTIPLIER = 100; // scales fractional Y differences into distinct integer sorting orders
+    private const int Y_SORT_PRECISION_MULTIPLIER = 10; // scales fractional Y differences into distinct integer sorting orders
 
     [Header("Roads")]
     public GameObject RoadContainer;
     public Color RoadColor;
 
     private const string ROAD_SORTING_LAYER = "WorldMap";
-    private const int ROAD_SORTING_ORDER = 30000;
+    private const int ROAD_SORTING_ORDER = 20000;
     private const float ROAD_WIDTH = 0.05f;
 
 
     private Color PathVisualizationColor = new Color(0.8f, 0f, 0f, 1f);
-    public const float PATH_VISUALIZATION_WIDTH = 0.04f;
+    public const float PATH_VISUALIZATION_WIDTH = 0.06f;
+
+    [Header("Overlays")]
+    public Tilemap DangerOverlayTilemap;
 
     // Special tiles
     private WorldMapTile HoveredTile;
@@ -74,6 +86,7 @@ public class WorldMapRenderer : MonoBehaviour
     {
         Instance = this;
         Game = game;
+        LastRenderedPathHistoryCount = -1;
 
         // Cache
         EncounterMarkerCache = new Dictionary<EncounterDef, Tile>();
@@ -153,7 +166,7 @@ public class WorldMapRenderer : MonoBehaviour
         if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) UI_ContextMenu.Instance.Hide();
 
         // Update tile info text
-        Game.UI.WorldMapMenu.TileInfoText.text = HoveredTile == null ? "" : HoveredTile.GetWorldMapInfo();
+        Game.UI.WorldMapMenu.ShowTileInfo(HoveredTile);
     }
 
     /// <summary>
@@ -208,22 +221,105 @@ public class WorldMapRenderer : MonoBehaviour
 
     private void UpdatePathHistory()
     {
-        if (Game.PathHistory.Count >= 2)
+        if (Game.PathHistory.Count == LastRenderedPathHistoryCount) return;
+        LastRenderedPathHistoryCount = Game.PathHistory.Count;
+
+        // Clear previous segments
+        for (int i = PathHistoryContainer.transform.childCount - 1; i >= 0; i--)
         {
-            PathHistoryRenderer.material = ResourceManager.LoadMaterial("WorldMap/PathHistoryMaterial");
-            PathHistoryRenderer.startWidth = PATH_VISUALIZATION_WIDTH;
-            PathHistoryRenderer.endWidth = PATH_VISUALIZATION_WIDTH;
-            PathHistoryRenderer.startColor = PathVisualizationColor;
-            PathHistoryRenderer.endColor = PathVisualizationColor;
-            PathHistoryRenderer.positionCount = Game.PathHistory.Count;
-            PathHistoryRenderer.numCornerVertices = 2;
-            PathHistoryRenderer.textureMode = LineTextureMode.Tile;
-            PathHistoryRenderer.textureScale = new Vector2(3f, 1f);
-            for (int i = 0; i < Game.PathHistory.Count; i++)
-            {
-                PathHistoryRenderer.SetPosition(i, Game.PathHistory[i].WorldPosition);
-            }
+            GameObject.Destroy(PathHistoryContainer.transform.GetChild(i).gameObject);
         }
+
+        if (Game.PathHistory.Count < 2) return;
+
+        // Tracks how many times each undirected edge (tileA-tileB regardless of direction) has been
+        // walked before, so repeat traversals can fan out to alternating sides instead of overlapping.
+        Dictionary<(WorldMapTile, WorldMapTile), int> edgeOccurrences = new Dictionary<(WorldMapTile, WorldMapTile), int>();
+        int lastIndex = Game.PathHistory.Count - 1;
+
+        for (int i = 0; i < lastIndex; i++)
+        {
+            WorldMapTile tileA = Game.PathHistory[i];
+            WorldMapTile tileB = Game.PathHistory[i + 1];
+
+            // Canonical edge ordering, so the same edge walked in either direction maps to the same key
+            // and fans out consistently rather than potentially cancelling itself out.
+            bool aIsFirst = CompareTilesForEdgeKey(tileA, tileB) <= 0;
+            WorldMapTile first = aIsFirst ? tileA : tileB;
+            WorldMapTile second = aIsFirst ? tileB : tileA;
+            var edgeKey = (first, second);
+
+            edgeOccurrences.TryGetValue(edgeKey, out int occurrence);
+            edgeOccurrences[edgeKey] = occurrence + 1;
+
+            Vector2 dir = (second.WorldPosition - first.WorldPosition).normalized;
+            Vector2 perpendicular = new Vector2(-dir.y, dir.x);
+            Vector2 offset = perpendicular * GetEdgeOffsetMagnitude(occurrence);
+
+            // Age: how many tiles back the more recent end of this segment was visited, relative to now
+            int age = lastIndex - (i + 1);
+            float alpha = GetPathHistoryAlpha(age);
+
+            DrawPathHistorySegment(tileA.WorldPosition + offset, tileB.WorldPosition + offset, alpha);
+        }
+    }
+
+    private int CompareTilesForEdgeKey(WorldMapTile a, WorldMapTile b)
+    {
+        if (a.Coordinates.x != b.Coordinates.x) return a.Coordinates.x.CompareTo(b.Coordinates.x);
+        return a.Coordinates.y.CompareTo(b.Coordinates.y);
+    }
+
+    /// <summary>
+    /// Returns the perpendicular offset magnitude for the Nth traversal of an edge (0-indexed).
+    /// 0 = centered (first traversal), then fans out alternately: +1, -1, +2, -2, ...
+    /// </summary>
+    private float GetEdgeOffsetMagnitude(int occurrenceIndex)
+    {
+        if (occurrenceIndex == 0) return 0f;
+        int magnitudeSteps = (occurrenceIndex + 1) / 2;
+        float sign = (occurrenceIndex % 2 == 1) ? 1f : -1f;
+        return sign * magnitudeSteps * PathHistoryOffsetStep;
+    }
+
+    /// <summary>
+    /// Opacity for a path segment based on how many tiles old it is (0 = most recent move).
+    /// Full opacity for the most recent PATH_HISTORY_RECENT_TILES tiles, fading linearly down to
+    /// PathHistoryMinOpacity by PATH_HISTORY_FADE_TILES tiles old, then holding at that floor.
+    /// </summary>
+    private float GetPathHistoryAlpha(int age)
+    {
+        if (age < PATH_HISTORY_RECENT_TILES) return 1f;
+        if (age >= PATH_HISTORY_FADE_TILES) return PathHistoryMinOpacity;
+
+        float t = (age - PATH_HISTORY_RECENT_TILES) / (float)(PATH_HISTORY_FADE_TILES - PATH_HISTORY_RECENT_TILES);
+        return Mathf.Lerp(1f, PathHistoryMinOpacity, t);
+    }
+
+    private void DrawPathHistorySegment(Vector2 from, Vector2 to, float alpha)
+    {
+        GameObject obj = new GameObject("PathHistorySegment");
+        obj.transform.SetParent(PathHistoryContainer.transform);
+        obj.layer = PathHistoryContainer.layer;
+
+        LineRenderer line = obj.AddComponent<LineRenderer>();
+        line.material = ResourceManager.LoadMaterial("WorldMap/PathHistoryMaterial");
+        line.startWidth = PATH_VISUALIZATION_WIDTH;
+        line.endWidth = PATH_VISUALIZATION_WIDTH;
+        line.numCornerVertices = 2;
+        line.textureMode = LineTextureMode.Tile;
+        line.textureScale = new Vector2(2.5f, 1f);
+        line.sortingLayerName = PATH_HISTORY_SORTING_LAYER;
+        line.sortingOrder = PATH_HISTORY_SORTING_ORDER;
+
+        Color color = PathVisualizationColor;
+        color.a *= alpha;
+        line.startColor = color;
+        line.endColor = color;
+
+        line.positionCount = 2;
+        line.SetPosition(0, new Vector3(from.x, from.y, 0f));
+        line.SetPosition(1, new Vector3(to.x, to.y, 0f));
     }
 
     #endregion
@@ -240,6 +336,28 @@ public class WorldMapRenderer : MonoBehaviour
     {
         foreach (WorldMapTile tile in HighlightedTiles) SetTile(HighlightTilemap, tile.Coordinates, null);
         HighlightedTiles.Clear();
+    }
+
+    #endregion
+
+    #region Overlays
+
+    public void SetDangerOverlayVisible(bool visible)
+    {
+        if (!visible)
+        {
+            DangerOverlayTilemap.ClearAllTiles();
+            return;
+        }
+
+        else
+        {
+            foreach (WorldMapTile tile in WorldMap.Instance.QuarantineZone.Tiles)
+            {
+                SetTile(DangerOverlayTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/HexTileBase"));
+                SetTileColor(DangerOverlayTilemap, tile.Coordinates, tile.DangerLevel.Color);
+            }
+        }
     }
 
     #endregion

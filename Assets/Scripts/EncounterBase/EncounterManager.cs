@@ -73,7 +73,7 @@ public class EncounterManager
             {
                 if (otherTile.Encounter != null && otherTile.Encounter.Def == def)
                 {
-                    int distance = tile.GetDistanceFromTile(otherTile.Coordinates);
+                    int distance = tile.GetHexDistance(otherTile);
                     if (distance < def.MinDistanceBetween)
                     {
                         tooClose = true;

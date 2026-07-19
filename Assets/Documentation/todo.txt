@@ -1,14 +1,24 @@
 TODOS:
 ==============================================
 
-make path history a bit more dynamic (so no full overlap of lines when visiting a tile multiple times)
-
 Danger level overlay toggle
+
+fix tile distance calculation (both hex distance and shortest path distance, for shortest path make sure to count roads).
+
+rework map hover text:
+  - column 1:
+    - line 1: biome name (+ road if present)
+    - line 2: encounter label
+    - line 3: color coded danger level
+  - column 2:
+    - line 1: coordinates
+    - line 2: hex distance from player position
+    - line 3: shortest path distance from player position (if reachable)
 
 rework map feature labels so they look good
 feature labels rework so they are more readable
 
-make encounter sprites smaller on map, but bigger images
+make encounter sprites smaller on map, but bigger images (higher quality when zoomed in)
 dynamic encounter sprites and labels (showing state of encounter)
 
 cart sound when travelling
@@ -17,14 +27,13 @@ sound when opening and closing map (rustle1 and 2 with slight pitch variation)
 adjust pan speed so mouse stays stickied where rightclick was held down
 change zoom so camera zooms in on mouse position instead of center of screen
 
-rework map hover text
-  - add road
-  - remove distance
-  - remove coordinates
-
 add farm scattered sprites on outskirts (only keep if it looks good)
 
 add one road piece outside of quarantine zone adjacent to gate (so it looks like the road continues outside of the quarantine zone)
+
+map performance (many sprites, maybe unnecessary steps in worldmaprenderer.update)
+
+start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
 
 
 EVENING REWORK:

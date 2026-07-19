@@ -10,7 +10,6 @@ public class WorldMapTile
     // World
     private Dictionary<Vector2Int, WorldMapTile> AllTiles;
     public Vector2Int Coordinates { get; private set; }
-    public int DistanceFromStart {  get; private set; }
     public Vector2 WorldPosition { get; private set; }
     public Vector2 RoadPosition { get; private set; } // World position with some random offset for road placement
     public Dictionary<Direction, Vector2> CornerWorldPositions { get; private set; }
@@ -38,8 +37,6 @@ public class WorldMapTile
         Areas = new List<Area>();
         DangerLevel = DangerLevelDefOf.Safe;
         NumVisits = 0;
-
-        DistanceFromStart = GetDistanceFromTile(Vector2Int.zero);
 
         CornerWorldPositions = new Dictionary<Direction, Vector2>()
         {
@@ -76,22 +73,77 @@ public class WorldMapTile
         DangerLevel = DefDatabase<DangerLevelDef>.AllDefs.First(dl => (int)dl.DangerLevel == targetDangerLevel);
     }
 
-    public int GetDistanceFromTile(Vector2Int coordinates)
+    /// <summary>
+    /// Returns the straight-line hex distance (in tiles) to the given tile, ignoring passability and roads.
+    /// </summary>
+    public int GetHexDistance(WorldMapTile other) => HelperFunctions.GetHexDistance(Coordinates, other.Coordinates);
+
+    /// <summary>
+    /// Returns the minimum number of in-game days required for the player to travel from the given source
+    /// tile to this tile, accounting for passability and the road movement bonus (2 tiles per day when start,
+    /// mid, and end tiles all have roads - mirrors Game.GetNextPositionTiles()).
+    /// <br/>Returns -1 if this tile or the source tile is impassable, or if this tile is unreachable from the source.
+    /// </summary>
+    public int GetShortestPath(WorldMapTile source)
     {
-        // Convert to cube coordinates (odd-q offset, flat-top)
-        int col1 = Coordinates.x;
-        int row1 = Coordinates.y;
-        int q1 = col1;
-        int r1 = row1 - (col1 - (col1 & 1)) / 2;
-        int s1 = -q1 - r1;
+        if (!IsPassable() || !source.IsPassable()) return -1;
+        if (source == this) return 0;
 
-        int col2 = coordinates.x;
-        int row2 = coordinates.y;
-        int q2 = col2;
-        int r2 = row2 - (col2 - (col2 & 1)) / 2;
-        int s2 = -q2 - r2;
+        Queue<WorldMapTile> frontier = new Queue<WorldMapTile>();
+        HashSet<WorldMapTile> visited = new HashSet<WorldMapTile>() { source };
+        frontier.Enqueue(source);
+        int days = 0;
 
-        return (Mathf.Abs(q1 - q2) + Mathf.Abs(r1 - r2) + Mathf.Abs(s1 - s2)) / 2;
+        while (frontier.Count > 0)
+        {
+            int tilesAtCurrentDay = frontier.Count;
+            days++;
+
+            for (int i = 0; i < tilesAtCurrentDay; i++)
+            {
+                WorldMapTile current = frontier.Dequeue();
+
+                foreach (WorldMapTile next in GetNextDayReachableTiles(current))
+                {
+                    if (visited.Contains(next)) continue;
+                    if (next == this) return days;
+
+                    visited.Add(next);
+                    frontier.Enqueue(next);
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Returns all tiles reachable in a single day's move from the given tile - adjacent passable tiles,
+    /// plus any 2-tile road-bonus destinations. Mirrors Game.GetNextPositionTiles().
+    /// </summary>
+    private static List<WorldMapTile> GetNextDayReachableTiles(WorldMapTile from)
+    {
+        List<WorldMapTile> tiles = new List<WorldMapTile>();
+
+        foreach (WorldMapTile adj in from.GetAdjacentTiles())
+        {
+            if (adj.IsPassable()) tiles.Add(adj);
+        }
+
+        if (from.HasRoad)
+        {
+            foreach (WorldMapTile mid in tiles.Where(t => t.HasRoad).ToList())
+            {
+                foreach (WorldMapTile end in mid.GetAdjacentTiles())
+                {
+                    if (end == from) continue;
+                    if (!end.HasRoad || !end.IsPassable()) continue;
+                    if (!tiles.Contains(end)) tiles.Add(end);
+                }
+            }
+        }
+
+        return tiles;
     }
 
     public void SetBiome(BiomeDef biome)
@@ -109,6 +161,7 @@ public class WorldMapTile
 
     #region Getters
 
+    public int DistanceFromStart => GetHexDistance(WorldMap.Instance.StartTile);
     public bool HasEncounter => Encounter != null;
 
     /// <summary>
@@ -213,18 +266,6 @@ public class WorldMapTile
     }
 
     public override string ToString() => $"{Coordinates} {Biome.LabelCapWord}";
-
-    public string GetWorldMapInfo()
-    {
-        string info = $"{Coordinates} {Biome.LabelCapWord}";
-        if (Encounter != null && !Encounter.IsHidden) info += ", " + Encounter.Label;
-        if (Mission != null) info += ", Mission marker for \"" + Mission.Text + "\"";
-        // info += "\nDistance from start: " + DistanceFromStart; // debug
-        info += $", Distance: {GetDistanceFromTile(Game.Instance.CurrentPosition.Coordinates)}";
-        if (HasBeenVisited) info += $", {DangerLevel.Label}";
-        return info;
-    }
-
 
     #endregion
 }

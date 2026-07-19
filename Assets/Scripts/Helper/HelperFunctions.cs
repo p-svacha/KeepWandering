@@ -95,6 +95,28 @@ public static class HelperFunctions
         throw new System.Exception("Invalid direction adjacency for hex tiles!");
     }
 
+    /// <summary>
+    /// Converts this hex grid's offset coordinates to cube coordinates. Derived from the adjacency
+    /// rules in GetAdjacentHexCoordinates (column parity keyed off the y-coordinate).
+    /// </summary>
+    public static Vector3Int GetCubeCoordinates(Vector2Int offsetCoord)
+    {
+        int q = offsetCoord.y;
+        int r = (offsetCoord.y - Mod(offsetCoord.y, 2)) / 2 - offsetCoord.x;
+        int s = -q - r;
+        return new Vector3Int(q, r, s);
+    }
+
+    /// <summary>
+    /// Returns the straight-line hex distance (in tiles) between two offset coordinates on this hex grid.
+    /// </summary>
+    public static int GetHexDistance(Vector2Int a, Vector2Int b)
+    {
+        Vector3Int cubeA = GetCubeCoordinates(a);
+        Vector3Int cubeB = GetCubeCoordinates(b);
+        return (Mathf.Abs(cubeA.x - cubeB.x) + Mathf.Abs(cubeA.y - cubeB.y) + Mathf.Abs(cubeA.z - cubeB.z)) / 2;
+    }
+
     #endregion
 
     #region String
