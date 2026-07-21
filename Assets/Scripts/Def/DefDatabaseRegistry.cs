@@ -24,6 +24,7 @@ public static class DefDatabaseRegistry
     {
         ClearAllDatabases();
 
+        DefDatabase<AreaTypeDef>.AddDefs(AreaTypeDefs.Defs);
         DefDatabase<TimeOfDayDef>.AddDefs(TimeOfDayDefs.Defs);
         DefDatabase<DangerLevelDef>.AddDefs(DangerLevelDefs.Defs);
 

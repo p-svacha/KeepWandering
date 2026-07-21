@@ -4,7 +4,6 @@ using UnityEngine;
 public class EncounterDef : Def
 {
     public override string DefTypeLabel => "Encounter";
-    public Sprite WorldMapMarker => ResourceManager.LoadSprite("EncounterMarker/" + DefName);
 
     /// <summary>
     /// The class that gets instantiated when this encounter is selected. Must be a subclass of Encounter.

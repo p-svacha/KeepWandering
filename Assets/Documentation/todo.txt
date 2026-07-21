@@ -1,39 +1,29 @@
 TODOS:
 ==============================================
 
-Danger level overlay toggle
-
-fix tile distance calculation (both hex distance and shortest path distance, for shortest path make sure to count roads).
-
-rework map hover text:
-  - column 1:
-    - line 1: biome name (+ road if present)
-    - line 2: encounter label
-    - line 3: color coded danger level
-  - column 2:
-    - line 1: coordinates
-    - line 2: hex distance from player position
-    - line 3: shortest path distance from player position (if reachable)
-
-rework map feature labels so they look good
-feature labels rework so they are more readable
-
-make encounter sprites smaller on map, but bigger images (higher quality when zoomed in)
-dynamic encounter sprites and labels (showing state of encounter)
+(/) make encounter sprites scale with zoom like player marker
+(/) make encounter sprites smaller on map, but bigger images (higher quality when zoomed in)
+(/) try how it looks if they are within a white circle
+(/) dynamic encounter sprites and labels (showing state of encounter)
+if necessary, add a toggle to show/hide encounter sprites
 
 cart sound when travelling
 sound when opening and closing map (rustle1 and 2 with slight pitch variation)
 
-adjust pan speed so mouse stays stickied where rightclick was held down
-change zoom so camera zooms in on mouse position instead of center of screen
+(/) cadjust pan speed so mouse stays stickied where rightclick was held down
+(/) change zoom so camera zooms in on mouse position instead of center of screen
 
 add farm scattered sprites on outskirts (only keep if it looks good)
 
-add one road piece outside of quarantine zone adjacent to gate (so it looks like the road continues outside of the quarantine zone)
+(/) add one road piece outside of quarantine zone adjacent to gate (so it looks like the road continues outside of the quarantine zone)
 
-map performance (many sprites, maybe unnecessary steps in worldmaprenderer.update)
+map performance (many sprites, maybe unnecessary steps in worldmaprenderer.update) - currently FPS goes down by 200 when world map menu is open.
 
 start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
+
+fix hex distance calculations
+
+make path history line look nicer (geometry is already good now)
 
 
 EVENING REWORK:

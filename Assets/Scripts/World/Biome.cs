@@ -109,7 +109,7 @@ public static class BiomeDefs
             // Rendering
             BaseColor = new Color(0.91f, 0.92f, 0.93f),
             TreeDensity = 0.02f,
-            CityBuildingDensity = 0.3f,
+            CityBuildingDensity = 0.25f,
         },
 
         new BiomeDef("Lake")

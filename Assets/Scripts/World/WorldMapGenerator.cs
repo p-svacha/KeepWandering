@@ -54,14 +54,14 @@ public static class WorldMapGenerator
 
         // Create the quarantine zone Area now - its Tiles list is already final, and this gives us
         // PerimeterTiles (fence tiles) early, needed by both connectivity validation and road generation.
-        QuarantineZoneArea = new Area("Quarantine Zone", AreaType.QuarantineZone, QuarantineZoneTiles);
+        QuarantineZoneArea = new Area("Quarantine Zone", AreaTypeDefOf.QuarantineZone, QuarantineZoneTiles);
 
         // Create cities
         Cities = new List<Area>();
         GenerateCities(numCities);
 
-        // Show city labels
-        foreach (Area city in Cities) city.ShowLabel();
+        // Generate city labels
+        foreach (Area city in Cities) Renderer.GenerateLabel(city);
 
         // Ensure every passable non-fence tile is reachable from the start without crossing impassable
         // or fence tiles. Must run after biomes (including cities) are set, and before biome-area grouping
@@ -73,7 +73,7 @@ public static class WorldMapGenerator
         Lakes = GenerateBiomeAreas(BiomeDefOf.Lake, GetRandomLakeName);
 
         // Show biome area labels
-        foreach (Area area in Forests.Concat(Lakes)) area.ShowLabel();
+        foreach (Area area in Forests.Concat(Lakes)) Renderer.GenerateLabel(area);
 
         // Expand edge to create safety zone outside quarantine
         ExpandMapEdge();
@@ -246,7 +246,7 @@ public static class WorldMapGenerator
             }
 
             // Create area for the city
-            Area cityArea = new Area(GetRandomCityName(), AreaType.City, cityTiles);
+            Area cityArea = new Area(GetRandomCityName(), AreaTypeDefOf.City, cityTiles);
             Cities.Add(cityArea);
         }
     }
@@ -301,7 +301,7 @@ public static class WorldMapGenerator
 
             if (cluster.Count >= MIN_BIOME_AREA_SIZE)
             {
-                AreaType areaType = biome == BiomeDefOf.Woods ? AreaType.Forest : AreaType.Lake;
+                AreaTypeDef areaType = biome == BiomeDefOf.Woods ? AreaTypeDefOf.Forest : AreaTypeDefOf.Lake;
 
                 areas.Add(new Area(nameGenerator(), areaType, cluster));
             }
@@ -559,6 +559,13 @@ public static class WorldMapGenerator
         foreach (Area city in Cities) pois.Add(city.GetRandomPassableTile());
 
         GenerateRoadNetwork(pois, fenceTiles);
+
+        // Add a road to one tile outside the quarantine zone connected to the fence gate
+        List<WorldMapTile> outsideCandidates = OutsideZoneTiles.Where(t => t.IsPassable() && t.GetAdjacentTiles().Any(adj => adj.HasRoad)).ToList();
+        if (outsideCandidates.Count > 0)
+        {
+            outsideCandidates.RandomElement().AddRoad();
+        }
     }
 
     /// <summary>

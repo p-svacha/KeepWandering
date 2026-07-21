@@ -261,6 +261,10 @@ Additional impassable biomes exist to shape the map and create natural paths/bor
 
 A tile's known location encounter is shown on the map as a simplified marker indicating type and state. **Generic markers are grayscale; quest markers are coloured**, so important tiles stand out. An **area** is a named collection of tiles (the zone, a city, a forest, a lake) used by quests to reference locations generally ("go to city X" rather than a specific tile).
 
+The exact sprite that is used for a marker is determined by the encounter itself, and can vary depending on its state. This can be useful to easily identify on the map in what state an encounter was left. A simple example is if a container is opened/closed when the player left.
+
+The same dynamic system is also in place for the encounter label that is displayed on the world map when a tile is hovered with a visible location encounter.
+
 ## Areas
 
 An area is a named collection of connected tiles, usually a large same-biome cluster. Areas are used by quests to reference locations generally ("go to city X" rather than a specific tile). Areas are generated at world generation and are persistent.

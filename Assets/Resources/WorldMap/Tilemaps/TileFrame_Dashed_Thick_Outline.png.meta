@@ -1,0 +1,390 @@
+fileFormatVersion: 2
+guid: 2b2bfde084ee23a4ca974fd1db5408fe
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7784183986515931813
+    second: TileFrame_Dashed_Thick_Outline_0
+  - first:
+      213: -1811594980455324549
+    second: TileFrame_Dashed_Thick_Outline_1
+  - first:
+      213: 611902576807336813
+    second: TileFrame_Dashed_Thick_Outline_2
+  - first:
+      213: -8735977493017862370
+    second: TileFrame_Dashed_Thick_Outline_3
+  - first:
+      213: 1953814833888742478
+    second: TileFrame_Dashed_Thick_Outline_4
+  - first:
+      213: -7526419071567114986
+    second: TileFrame_Dashed_Thick_Outline_5
+  - first:
+      213: -6866564359628852511
+    second: TileFrame_Dashed_Thick_Outline_6
+  - first:
+      213: -2449155103471408211
+    second: TileFrame_Dashed_Thick_Outline_7
+  - first:
+      213: -4727291971970104982
+    second: TileFrame_Dashed_Thick_Outline_8
+  - first:
+      213: 3608902593974300356
+    second: TileFrame_Dashed_Thick_Outline_9
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 600
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_0
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 350
+        width: 90
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a2f096e71af60c60800000000000000
+      internalID: 7784183986515931813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_1
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 430
+        width: 113
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b746419a6fbebd6e0800000000000000
+      internalID: -1811594980455324549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_2
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 438
+        width: 127
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6b5fbfc62aed7800800000000000000
+      internalID: 611902576807336813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_3
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 344
+        width: 99
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1fdcda51c293c680800000000000000
+      internalID: -8735977493017862370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 242
+        width: 65
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4cc3da5d385d1b10800000000000000
+      internalID: 1953814833888742478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_5
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 200
+        width: 63
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61d44882bb9cc8790800000000000000
+      internalID: -7526419071567114986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_6
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 77
+        width: 101
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e2f6f4781015b0a0800000000000000
+      internalID: -6866564359628852511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_7
+      rect:
+        serializedVersion: 2
+        x: 122
+        y: 3
+        width: 133
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dab60c9d86ad20ed0800000000000000
+      internalID: -2449155103471408211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_8
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 11
+        width: 137
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a618a2d6ff8456eb0800000000000000
+      internalID: -4727291971970104982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TileFrame_Dashed_Thick_Outline_9
+      rect:
+        serializedVersion: 2
+        x: 409
+        y: 81
+        width: 85
+        height: 115
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cee2d6d9c5651230800000000000000
+      internalID: 3608902593974300356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TileFrame_Dashed_Thick_Outline_0: 7784183986515931813
+      TileFrame_Dashed_Thick_Outline_1: -1811594980455324549
+      TileFrame_Dashed_Thick_Outline_2: 611902576807336813
+      TileFrame_Dashed_Thick_Outline_3: -8735977493017862370
+      TileFrame_Dashed_Thick_Outline_4: 1953814833888742478
+      TileFrame_Dashed_Thick_Outline_5: -7526419071567114986
+      TileFrame_Dashed_Thick_Outline_6: -6866564359628852511
+      TileFrame_Dashed_Thick_Outline_7: -2449155103471408211
+      TileFrame_Dashed_Thick_Outline_8: -4727291971970104982
+      TileFrame_Dashed_Thick_Outline_9: 3608902593974300356
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

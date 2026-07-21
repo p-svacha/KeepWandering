@@ -12,23 +12,16 @@ public class Area
     private WorldMapRenderer Renderer => WorldMapRenderer.Instance;
     public string Name { get; private set; }
     public Vector2 Center { get; private set; }
-    public AreaType Type { get; private set; }
+    public AreaTypeDef Type { get; private set; }
     public List<WorldMapTile> Tiles { get; private set; }
 
     // Visual
     private Color FENCE_COLOR = Color.white;
     public GameObject FenceObject;
-    public GameObject LabelObject;
-
-    // Label
-    public static int SIZE_FOR_MIN_LABEL_SIZE = 4;
-    public static int SIZE_MAX_MIN_LABEL_SIZE = 30;
-    public static float MIN_LABEL_SIZE = 4;
-    public static float MAX_LABEL_SIZE = 8;
 
     public int TileCount => Tiles.Count;
 
-    public Area(string name, AreaType type, List<WorldMapTile> tiles)
+    public Area(string name, AreaTypeDef type, List<WorldMapTile> tiles)
     {
         Name = name;
         Type = type;
@@ -65,59 +58,6 @@ public class Area
         foreach (WorldMapTile tile in GetOrderedPerimeterTiles()) fencePositions.Add(tile.RoadPosition);
         line.positionCount = fencePositions.Count;
         for (int i = 0; i < fencePositions.Count; i++) line.SetPosition(i, fencePositions[i]);
-    }
-
-    /// <summary>
-    /// Shows a label for this area on the world map. Position is centered on the area and rotation aligns with the principal axis of the tile positions.
-    /// </summary>
-    public void ShowLabel()
-    {
-        HideLabel();
-
-        float t = Mathf.InverseLerp(SIZE_FOR_MIN_LABEL_SIZE, SIZE_MAX_MIN_LABEL_SIZE, TileCount);
-        float fontSize = Mathf.Lerp(MIN_LABEL_SIZE, MAX_LABEL_SIZE, t);
-
-        // Calculate rotation based on principal axis of tile positions (PCA)
-        float angle = 0f;
-        if (Tiles.Count >= 2)
-        {
-            float covXX = 0f, covYY = 0f, covXY = 0f;
-            foreach (WorldMapTile tile in Tiles)
-            {
-                float dx = tile.WorldPosition.x - Center.x;
-                float dy = tile.WorldPosition.y - Center.y;
-                covXX += dx * dx;
-                covYY += dy * dy;
-                covXY += dx * dy;
-            }
-            angle = 0.5f * Mathf.Atan2(2f * covXY, covXX - covYY) * Mathf.Rad2Deg;
-
-            // Scale rotation down linearly so it stays within -30/30 range
-            // (maps -90..90 to -30..30 while preserving proportions)
-            //angle = angle * (30f / 90f);
-        }
-
-        // Instantiate label from prefab
-        LabelObject = GameObject.Instantiate(Renderer.AreaLabelPrefab.gameObject, Renderer.AreaLabelContainer.transform);
-        LabelObject.name = Name + " Label";
-        LabelObject.transform.position = new Vector3(Center.x, Center.y, 0f);
-        LabelObject.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-
-        TextMeshPro tmp = LabelObject.GetComponent<TextMeshPro>();
-        tmp.text = Name;
-        tmp.fontSize = fontSize;
-    }
-
-    /// <summary>
-    /// Hides the label for this area.
-    /// </summary>
-    public void HideLabel()
-    {
-        if (LabelObject != null)
-        {
-            GameObject.Destroy(LabelObject);
-            LabelObject = null;
-        }
     }
 
     #region Getters
@@ -214,12 +154,4 @@ public class Area
     }
 
     #endregion
-}
-
-public enum AreaType
-{
-    QuarantineZone,
-    City,
-    Forest,
-    Lake,
 }

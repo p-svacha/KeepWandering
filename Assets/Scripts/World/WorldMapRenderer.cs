@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
 /// <summary>
@@ -17,6 +16,8 @@ public class WorldMapRenderer : MonoBehaviour
 
     private Game Game;
 
+    public const string WORLD_MAP_SORTING_LAYER = "WorldMap";
+
     [Header("Rendering")]
     public Camera MainCamera;
     public WorldMapCameraHandler RenderCamera;
@@ -25,26 +26,35 @@ public class WorldMapRenderer : MonoBehaviour
     [Header("Tilemaps")]
     public Grid HexGrid;
     public Tilemap BaseTextureTilemap;
-    public Tilemap MarkerTilemap;
     public Tilemap HighlightTilemap;
     public Tilemap HoverTilemap;
 
     [Header("Player Position")]
-    public GameObject PathHistoryContainer;
     public GameObject PlayerPositionMarker;
-    public float PathHistoryOffsetStep = 0.05f; // perpendicular fan-out distance per repeated edge traversal
-    public float PathHistoryMinOpacity = 0.15f; // opacity floor for old path history
 
+    public const int PLAYER_POSITION_MARKER_SORTING_ORDER = 24500;
+    public const float PLAYER_POSITION_MARKER_SIZE = 0.1f;
+
+    [Header("Path History")]
+    public GameObject PathHistoryContainer;
+
+    public const float PATH_HISTORY_LINE_WIDTH = 0.08f;
+
+    public const float PATH_HISTORY_OFFSET_STEP = 0.05f; // perpendicular fan-out distance per repeated edge traversal
+    public const float PATH_HISTORY_MIN_OPACITY = 0.15f; // opacity floor for old path history
+
+    private const int PATH_HISTORY_SORTING_ORDER = 20300;
     private const int PATH_HISTORY_RECENT_TILES = 5; // most recent tiles at full opacity
     private const int PATH_HISTORY_FADE_TILES = 15; // opacity reaches the floor by this age
-    private const string PATH_HISTORY_SORTING_LAYER = "WorldMap";
-    private const int PATH_HISTORY_SORTING_ORDER = 17000; // adjust to sit correctly relative to roads/fence/markers
 
     private int LastRenderedPathHistoryCount = -1;
 
-    [Header("Area Labels")]
-    public GameObject AreaLabelContainer;
-    public TextMeshPro AreaLabelPrefab;
+    [Header("Encounter Sprites")]
+    public GameObject EncounterSpriteContainer;
+    public GameObject EncounterWorldMapSpritePrefab;
+
+    public const int ENCOUNTER_SPRITE_SORTING_ORDER = 24000;
+    public const float ENCOUNTER_SPRITE_SIZE = 0.12f;
 
     [Header("Tile Elements")]
     public GameObject TileElementContainer;
@@ -52,7 +62,6 @@ public class WorldMapRenderer : MonoBehaviour
 
     private const int TILE_ELEMENT_ATTEMPTS = 100;
     private const float TILE_ELEMENT_SCATTER_RADIUS = 0.45f; // allows slight bleed into neighboring tiles
-    private const string TILE_ELEMENT_SORTING_LAYER = "WorldMap";
     private const int TILE_ELEMENT_SORTING_ORDER = 20;
     private const int Y_SORT_PRECISION_MULTIPLIER = 10; // scales fractional Y differences into distinct integer sorting orders
 
@@ -60,13 +69,20 @@ public class WorldMapRenderer : MonoBehaviour
     public GameObject RoadContainer;
     public Color RoadColor;
 
-    private const string ROAD_SORTING_LAYER = "WorldMap";
     private const int ROAD_SORTING_ORDER = 20000;
     private const float ROAD_WIDTH = 0.05f;
 
-
     private Color PathVisualizationColor = new Color(0.8f, 0f, 0f, 1f);
-    public const float PATH_VISUALIZATION_WIDTH = 0.06f;
+
+    [Header("Area Labels")]
+    public GameObject AreaLabelContainer;
+    public TextMeshPro AreaLabelPrefab;
+
+    private const int AREA_LABEL_SORTING_ORDER = 20500;
+    public static float HIDE_AREA_LABELS_BELOW_CAMERA_SIZE = 3.5f;
+
+    private static Dictionary<Area, TextMeshPro> AreaLabels = new Dictionary<Area, TextMeshPro>();
+
 
     [Header("Overlays")]
     public Tilemap DangerOverlayTilemap;
@@ -74,10 +90,8 @@ public class WorldMapRenderer : MonoBehaviour
     // Special tiles
     private WorldMapTile HoveredTile;
     private List<WorldMapTile> HighlightedTiles = new List<WorldMapTile>();
-    private WorldMapTile ContextMenuTile;
 
-    // Tile Cache
-    public Dictionary<EncounterDef, Tile> EncounterMarkerCache { get; private set; }
+    #region Base
 
     /// <summary>
     /// Called once.
@@ -87,19 +101,7 @@ public class WorldMapRenderer : MonoBehaviour
         Instance = this;
         Game = game;
         LastRenderedPathHistoryCount = -1;
-
-        // Cache
-        EncounterMarkerCache = new Dictionary<EncounterDef, Tile>();
-        foreach (EncounterDef def in DefDatabase<EncounterDef>.AllDefs)
-        {
-            if (def.Type == EncounterType.Morning) continue;
-            if (def.Type == EncounterType.Biome) continue;
-            if (def.Type == EncounterType.Night) continue;
-
-            // Only interested in location encounters
-            Tile markerTile = TileFactory.CreateTileFromSprite(def.WorldMapMarker);
-            EncounterMarkerCache.Add(def, markerTile);
-        }
+        AreaLabels = new Dictionary<Area, TextMeshPro>();
     }
 
     public void ResetCamera()
@@ -127,6 +129,8 @@ public class WorldMapRenderer : MonoBehaviour
         UpdatePathHistory();
         UpdateHoveredTile();
         UpdateTileSelection();
+        UpdateAreaLabels();
+        UpdateEncounterSprites();
     }
 
     /// <summary>
@@ -134,19 +138,16 @@ public class WorldMapRenderer : MonoBehaviour
     /// </summary>
     private void UpdateHoveredTile()
     {
-        // Get local position of cursor within our render rect
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(RenderTargetRect, Input.mousePosition, MainCamera, out Vector2 localPoint);
-
-        // Calcuate normalized cursor position within our render rect (0-1)
-        Vector2 normalizedPointInRect = new Vector2((localPoint.x / RenderTargetRect.rect.width) + 0.5f, (localPoint.y / RenderTargetRect.rect.height) + 0.5f);
-
         // Get world position of cursor within map camera
-        Vector3 cursorWorldPosition = RenderCamera.Camera.ViewportToWorldPoint(normalizedPointInRect);
+        Vector3 cursorWorldPosition = GetCursorWorldPosition();
 
         // Remove selection marker from previously hovered tile
         if (HoveredTile != null) SetTile(HoverTilemap, HoveredTile.Coordinates, null);
 
         // Identify new hovered tile
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(RenderTargetRect, Input.mousePosition, MainCamera, out Vector2 localPoint);
+        Vector2 normalizedPointInRect = new Vector2((localPoint.x / RenderTargetRect.rect.width) + 0.5f, (localPoint.y / RenderTargetRect.rect.height) + 0.5f);
+
         WorldMapTile newHoveredTile;
         if (normalizedPointInRect.x < 0 || normalizedPointInRect.x > 1 || normalizedPointInRect.y < 0 || normalizedPointInRect.y > 1) newHoveredTile = null;
         else newHoveredTile = GetTileAtWorldPosition(cursorWorldPosition);
@@ -162,9 +163,6 @@ public class WorldMapRenderer : MonoBehaviour
             }
         }
 
-        // Hide context menu
-        if (HoveredTile != ContextMenuTile && !EventSystem.current.IsPointerOverGameObject()) UI_ContextMenu.Instance.Hide();
-
         // Update tile info text
         Game.UI.WorldMapMenu.ShowTileInfo(HoveredTile);
     }
@@ -176,15 +174,14 @@ public class WorldMapRenderer : MonoBehaviour
     {
         if (!Game.WorldMap.CanSelectDestination) return;
         if (HoveredTile == null) return;
-        if (EventSystem.current.IsPointerOverGameObject()) return;
+        // if (EventSystem.current.IsPointerOverGameObject()) return;
         if (!GameUI.Instance.WorldMapMenu.gameObject.activeSelf) return;
 
         if (Input.GetMouseButtonDown(0))
         {
             if (Game.GetNextPositionTiles().Contains(HoveredTile))
             {
-                ContextMenuTile = HoveredTile;
-                Game.SelectTileOnMap(ContextMenuTile);
+                Game.SelectTileOnMap(HoveredTile);
             }
         }
     }
@@ -197,15 +194,66 @@ public class WorldMapRenderer : MonoBehaviour
         // If old tile was a selectable tile, reset to default
         if (Game.WorldMap.CanSelectDestination && Game.GetNextPositionTiles().Contains(oldTile))
         {
-            SetTile(HighlightTilemap, oldTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed"));
+            SetTile(HighlightTilemap, oldTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick"));
         }
 
         // If new tile is a selectable tile, highlight
         if (Game.WorldMap.CanSelectDestination && Game.GetNextPositionTiles().Contains(newTile))
         {
-            SetTile(HighlightTilemap, newTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Outline"));
+            SetTile(HighlightTilemap, newTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick_Outline"));
         }
     }
+
+    /// <summary>
+    /// Updates visibility of area labels based on camera zoom level.
+    /// </summary>
+    private void UpdateAreaLabels()
+    {
+        bool showAreaLabels = RenderCamera.Camera.orthographicSize >= HIDE_AREA_LABELS_BELOW_CAMERA_SIZE;
+        SetAreaLabelsVisible(showAreaLabels);
+
+        // Scale label font size based on camera zoom level
+        if (showAreaLabels)
+        {
+            foreach (var kvp in AreaLabels)
+            {
+                Area area = kvp.Key;
+                TextMeshPro label = kvp.Value;
+                float scaleFactor = RenderCamera.Camera.orthographicSize / WorldMapCameraHandler.DEFAULT_CAMERA_SIZE;
+                label.fontSize = area.Type.LabelFontSize * scaleFactor;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates the sprites that represent discovered encounters on the world map.
+    /// </summary>
+    private void UpdateEncounterSprites()
+    {
+        HelperFunctions.DestroyAllChildredImmediately(EncounterSpriteContainer);
+
+        foreach(WorldMapTile tile in Game.WorldMap.Tiles.Values)
+        {
+            if (tile.Encounter != null && tile.Encounter.IsVisible)
+            {
+                float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * ENCOUNTER_SPRITE_SIZE;
+
+                GameObject obj = GameObject.Instantiate(EncounterWorldMapSpritePrefab, EncounterSpriteContainer.transform);
+                obj.transform.position = new Vector3(tile.WorldPosition.x, tile.WorldPosition.y, 0f);
+                obj.transform.localScale = new Vector3(targetScale, targetScale, 1f);
+                SpriteRenderer frameRenderer = obj.GetComponent<SpriteRenderer>();
+                frameRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
+                frameRenderer.sortingOrder = ENCOUNTER_SPRITE_SORTING_ORDER;
+
+                SpriteRenderer innerRenderer = obj.transform.GetChild(0).GetComponent<SpriteRenderer>();
+                innerRenderer.sprite = tile.Encounter.GetWorldMapSprite();
+                innerRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
+                innerRenderer.sortingOrder = ENCOUNTER_SPRITE_SORTING_ORDER + 1;
+            }
+        }
+    }
+
+    #endregion
 
     #region Player Position
 
@@ -215,8 +263,12 @@ public class WorldMapRenderer : MonoBehaviour
     private void UpdatePlayerPosition()
     {
         PlayerPositionMarker.transform.position = Game.CurrentPosition.WorldPosition;
-        float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * 0.1f;
+        float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * PLAYER_POSITION_MARKER_SIZE;
         PlayerPositionMarker.transform.localScale = new Vector3(targetScale, targetScale, 1f);
+
+        SpriteRenderer markerRenderer = PlayerPositionMarker.GetComponent<SpriteRenderer>();
+        markerRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
+        markerRenderer.sortingOrder = PLAYER_POSITION_MARKER_SORTING_ORDER;
     }
 
     private void UpdatePathHistory()
@@ -279,7 +331,7 @@ public class WorldMapRenderer : MonoBehaviour
         if (occurrenceIndex == 0) return 0f;
         int magnitudeSteps = (occurrenceIndex + 1) / 2;
         float sign = (occurrenceIndex % 2 == 1) ? 1f : -1f;
-        return sign * magnitudeSteps * PathHistoryOffsetStep;
+        return sign * magnitudeSteps * PATH_HISTORY_OFFSET_STEP;
     }
 
     /// <summary>
@@ -290,10 +342,10 @@ public class WorldMapRenderer : MonoBehaviour
     private float GetPathHistoryAlpha(int age)
     {
         if (age < PATH_HISTORY_RECENT_TILES) return 1f;
-        if (age >= PATH_HISTORY_FADE_TILES) return PathHistoryMinOpacity;
+        if (age >= PATH_HISTORY_FADE_TILES) return PATH_HISTORY_MIN_OPACITY;
 
         float t = (age - PATH_HISTORY_RECENT_TILES) / (float)(PATH_HISTORY_FADE_TILES - PATH_HISTORY_RECENT_TILES);
-        return Mathf.Lerp(1f, PathHistoryMinOpacity, t);
+        return Mathf.Lerp(1f, PATH_HISTORY_MIN_OPACITY, t);
     }
 
     private void DrawPathHistorySegment(Vector2 from, Vector2 to, float alpha)
@@ -304,12 +356,12 @@ public class WorldMapRenderer : MonoBehaviour
 
         LineRenderer line = obj.AddComponent<LineRenderer>();
         line.material = ResourceManager.LoadMaterial("WorldMap/PathHistoryMaterial");
-        line.startWidth = PATH_VISUALIZATION_WIDTH;
-        line.endWidth = PATH_VISUALIZATION_WIDTH;
+        line.startWidth = PATH_HISTORY_LINE_WIDTH;
+        line.endWidth = PATH_HISTORY_LINE_WIDTH;
         line.numCornerVertices = 2;
         line.textureMode = LineTextureMode.Tile;
         line.textureScale = new Vector2(2.5f, 1f);
-        line.sortingLayerName = PATH_HISTORY_SORTING_LAYER;
+        line.sortingLayerName = WORLD_MAP_SORTING_LAYER;
         line.sortingOrder = PATH_HISTORY_SORTING_ORDER;
 
         Color color = PathVisualizationColor;
@@ -328,7 +380,7 @@ public class WorldMapRenderer : MonoBehaviour
 
     public void HighlightTile(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed"));
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick"));
         HighlightedTiles.Add(tile);
     }
 
@@ -390,19 +442,6 @@ public class WorldMapRenderer : MonoBehaviour
         tilemap.SetColor(pos, c);
     }
 
-    public void SetMarkerTile(WorldMapTile tile, EncounterDef encounter)
-    {
-        if (encounter == null)
-        {
-            SetTile(MarkerTilemap, tile.Coordinates, null);
-        }
-        else
-        {
-            Tile markerTile = EncounterMarkerCache[encounter];
-            SetTile(MarkerTilemap, tile.Coordinates, markerTile);
-        }
-    }
-
     public void UpdateMapBounds(WorldMap worldMap)
     {
         RenderCamera.SetBounds(worldMap.MinWorldX, worldMap.MinWorldY, worldMap.MaxWorldX, worldMap.MaxWorldY);
@@ -438,7 +477,7 @@ public class WorldMapRenderer : MonoBehaviour
 
             SpriteRenderer renderer = obj.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
-            renderer.sortingLayerName = TILE_ELEMENT_SORTING_LAYER;
+            renderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
 
             // Lower Y should draw in front (closer to "camera" in a 2D side-view sense), so sorting order
             // is inverted relative to Y - higher Y (further back) gets a lower order, lower Y gets a higher order.
@@ -500,7 +539,7 @@ public class WorldMapRenderer : MonoBehaviour
     private static Color GetRandomGreenShade()
     {
         float hue = Random.Range(0.28f, 0.36f);
-        float saturation = Random.Range(0.4f, 0.75f);
+        float saturation = Random.Range(0.1f, 0.35f);
         float value = Random.Range(0.5f, 0.85f);
         return Color.HSVToRGB(hue, saturation, value);
     }
@@ -601,7 +640,7 @@ public class WorldMapRenderer : MonoBehaviour
         line.endWidth = ROAD_WIDTH;
         line.numCornerVertices = 4;
         line.textureMode = LineTextureMode.Tile;
-        line.sortingLayerName = ROAD_SORTING_LAYER;
+        line.sortingLayerName = WORLD_MAP_SORTING_LAYER;
         line.sortingOrder = ROAD_SORTING_ORDER;
         line.startColor = RoadColor;
         line.endColor = RoadColor;
@@ -612,6 +651,59 @@ public class WorldMapRenderer : MonoBehaviour
             Vector2 pos = chain[i].RoadPosition;
             line.SetPosition(i, new Vector3(pos.x, pos.y, 0f));
         }
+    }
+
+    #endregion
+
+    #region Area Labels
+
+    public void SetAreaLabelsVisible(bool visible)
+    {
+        AreaLabelContainer.SetActive(visible);
+    }
+
+    /// <summary>
+    /// Generates a label for an area.
+    /// </summary>
+    public void GenerateLabel(Area area)
+    {
+        float fontSize = area.Type.LabelFontSize;
+
+        // Calculate rotation based on principal axis of tile positions (PCA)
+        float angle = 0f;
+        if (area.Tiles.Count >= 2)
+        {
+            float covXX = 0f, covYY = 0f, covXY = 0f;
+            foreach (WorldMapTile tile in area.Tiles)
+            {
+                float dx = tile.WorldPosition.x - area.Center.x;
+                float dy = tile.WorldPosition.y - area.Center.y;
+                covXX += dx * dx;
+                covYY += dy * dy;
+                covXY += dx * dy;
+            }
+            angle = 0.5f * Mathf.Atan2(2f * covXY, covXX - covYY) * Mathf.Rad2Deg;
+
+            // Scale rotation down linearly so it stays within -30/30 range
+            // (maps -90..90 to -30..30 while preserving proportions)
+            //angle = angle * (30f / 90f);
+        }
+
+        // Instantiate label from prefab
+        TextMeshPro label = GameObject.Instantiate(AreaLabelPrefab, AreaLabelContainer.transform);
+
+        label.color = area.Type.LabelColor;
+        label.name = area.Name + " Label";
+        label.transform.position = new Vector3(area.Center.x, area.Center.y, 0f);
+        label.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        label.sortingLayerID = SortingLayer.NameToID(WORLD_MAP_SORTING_LAYER);
+        label.sortingOrder = AREA_LABEL_SORTING_ORDER;
+
+        TextMeshPro tmp = label.GetComponent<TextMeshPro>();
+        tmp.text = area.Name;
+        tmp.fontSize = fontSize;
+
+        AreaLabels[area] = label;
     }
 
     #endregion
@@ -634,6 +726,17 @@ public class WorldMapRenderer : MonoBehaviour
     {
         Vector3 worldPos = HexGrid.CellToWorld(new Vector3Int(coordinates.x, coordinates.y, 0));
         return new Vector2(worldPos.x, worldPos.y);
+    }
+
+    /// <summary>
+    /// Converts the current mouse screen position to a world position on the world map, accounting for the
+    /// UI render-texture setup (mouse position is in UI/canvas space, not directly in the render camera's viewport).
+    /// </summary>
+    public Vector3 GetCursorWorldPosition()
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(RenderTargetRect, Input.mousePosition, MainCamera, out Vector2 localPoint);
+        Vector2 normalizedPointInRect = new Vector2((localPoint.x / RenderTargetRect.rect.width) + 0.5f, (localPoint.y / RenderTargetRect.rect.height) + 0.5f);
+        return RenderCamera.Camera.ViewportToWorldPoint(normalizedPointInRect);
     }
 
     #endregion

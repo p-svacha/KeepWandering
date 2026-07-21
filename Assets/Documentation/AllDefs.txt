@@ -1274,6 +1274,37 @@
         },
     };
 
+--- AreaType.cs ---
+    public static List<AreaTypeDef> Defs => new List<AreaTypeDef>()
+    {
+        new AreaTypeDef("QuarantineZone")
+        {
+            Label = "Quarantine Zone",
+            ShowLabel = false,
+        },
+        new AreaTypeDef("City")
+        {
+            Label = "City",
+            ShowLabel = true,
+            LabelFontSize = 2.2f,
+            LabelColor = new Color(0.82f, 0.67f, 0.48f)
+        },
+        new AreaTypeDef("Forest")
+        {
+            Label = "Forest",
+            ShowLabel = true,
+            LabelFontSize = 1.5f,
+            LabelColor = new Color(0.65f, 0.94f, 0.65f)
+        },
+        new AreaTypeDef("Lake")
+        {
+            Label = "Lake",
+            ShowLabel = true,
+            LabelFontSize = 1.5f,
+            LabelColor = new Color(0.65f, 0.65f, 0.94f)
+        }
+    };
+
 --- Biome.cs ---
     public static List<BiomeDef> Defs => new List<BiomeDef>()
     {
@@ -1333,7 +1364,7 @@
             // Rendering
             BaseColor = new Color(0.91f, 0.92f, 0.93f),
             TreeDensity = 0.02f,
-            CityBuildingDensity = 0.3f,
+            CityBuildingDensity = 0.25f,
         },
 
         new BiomeDef("Lake")

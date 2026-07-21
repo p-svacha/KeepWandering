@@ -6,6 +6,7 @@ using UnityEngine;
 public abstract class LocationEncounter : Encounter
 {
     public bool IsHidden { get; private set; }
+    public bool IsVisible => !IsHidden;
     public int NumVisits { get; private set; }
     protected bool IsFirstVisit => NumVisits == 1;
     public int LastVisitDay { get; private set; }
@@ -24,7 +25,6 @@ public abstract class LocationEncounter : Encounter
     public void Reveal()
     {
         IsHidden = false;
-        WorldMapRenderer.Instance.SetMarkerTile(Tile, Def);
     }
 
     protected override sealed void OnStartExtension()
