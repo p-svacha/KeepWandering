@@ -56,6 +56,9 @@ public class WorldMapRenderer : MonoBehaviour
     public const int ENCOUNTER_SPRITE_SORTING_ORDER = 24000;
     public const float ENCOUNTER_SPRITE_SIZE = 0.12f;
 
+    private bool RedrawEncounterSprites = true;
+    public void MarkRedrawEncounterSprites() => RedrawEncounterSprites = true;
+
     [Header("Tile Elements")]
     public GameObject TileElementContainer;
     public const string TREES_PATH = "WorldMap/TileElements/Trees";
@@ -230,17 +233,31 @@ public class WorldMapRenderer : MonoBehaviour
     /// </summary>
     private void UpdateEncounterSprites()
     {
+        if (RedrawEncounterSprites)
+        {
+            RedrawEncounterSprites = false;
+            RebuildEncounterSprites();
+        }
+
+        // Scale according to camera zoom level
+        float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * ENCOUNTER_SPRITE_SIZE;
+        foreach (Transform child in EncounterSpriteContainer.transform)
+        {
+            child.localScale = new Vector3(targetScale, targetScale, 1f);
+        }
+    }
+
+    private void RebuildEncounterSprites()
+    {
         HelperFunctions.DestroyAllChildredImmediately(EncounterSpriteContainer);
 
-        foreach(WorldMapTile tile in Game.WorldMap.Tiles.Values)
+        foreach (WorldMapTile tile in Game.WorldMap.Tiles.Values)
         {
             if (tile.Encounter != null && tile.Encounter.IsVisible)
             {
-                float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * ENCOUNTER_SPRITE_SIZE;
-
                 GameObject obj = GameObject.Instantiate(EncounterWorldMapSpritePrefab, EncounterSpriteContainer.transform);
                 obj.transform.position = new Vector3(tile.WorldPosition.x, tile.WorldPosition.y, 0f);
-                obj.transform.localScale = new Vector3(targetScale, targetScale, 1f);
+
                 SpriteRenderer frameRenderer = obj.GetComponent<SpriteRenderer>();
                 frameRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
                 frameRenderer.sortingOrder = ENCOUNTER_SPRITE_SORTING_ORDER;
@@ -447,12 +464,29 @@ public class WorldMapRenderer : MonoBehaviour
         RenderCamera.SetBounds(worldMap.MinWorldX, worldMap.MinWorldY, worldMap.MaxWorldX, worldMap.MaxWorldY);
     }
 
+    #endregion
+
+    #region Scattered Tile Sprites
+
+    private struct ScatteredElement
+    {
+        public Vector2 Position;
+        public Sprite Sprite;
+        public float RotationDegrees;
+        public float Scale;
+        public bool FlipX;
+        public Color Color;
+    }
+
+    private const int MAX_QUADS_PER_MESH = 16000; // stays under the 65535-vertex limit of a 16-bit-indexed mesh (16000*4 = 64000)
+    private Dictionary<Texture2D, Material> ScatteredElementMaterials = new Dictionary<Texture2D, Material>();
+
     /// <summary>
-    /// Scatters randomized sprites from a folder around a given center point. Rolls TILE_ELEMENT_ATTEMPTS times,
-    /// each with 'density' chance to spawn one sprite at a random offset within the scatter radius. Sprites may
-    /// overlap each other and may spill slightly into neighboring tiles.
+    /// Rolls TILE_ELEMENT_ATTEMPTS times, each with 'density' chance to add one randomized scattered element
+    /// around the given tile's center. Does not spawn any GameObjects - elements are collected into 'results'
+    /// so many tiles' worth can later be merged into a small number of combined meshes.
     /// </summary>
-    public void SpawnScatteredElements(WorldMapTile tile, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, bool randomFlipX = false, bool sortByYPosition = false, System.Func<Color> randomColorGenerator = null)
+    private void CollectScatteredElements(WorldMapTile tile, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, bool randomFlipX, System.Func<Color> randomColorGenerator, List<ScatteredElement> results)
     {
         if (density <= 0f) return;
 
@@ -463,77 +497,168 @@ public class WorldMapRenderer : MonoBehaviour
             if (Random.value > density) continue;
 
             Vector2 offset = Random.insideUnitCircle * TILE_ELEMENT_SCATTER_RADIUS;
-            Vector2 position = tile.WorldPosition + offset;
 
-            Sprite sprite = ResourceManager.LoadRandomSprite(spriteFolderPath);
-
-            GameObject obj = new GameObject("TileElement");
-            obj.transform.SetParent(TileElementContainer.transform);
-            obj.layer = TileElementContainer.layer;
-            obj.transform.position = new Vector3(position.x, position.y, 0f);
-            obj.transform.rotation = randomizeRotation ? Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)) : Quaternion.identity;
-            float scale = Random.Range(minScale, maxScale);
-            obj.transform.localScale = new Vector3(scale, scale, 1f);
-
-            SpriteRenderer renderer = obj.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
-
-            // Lower Y should draw in front (closer to "camera" in a 2D side-view sense), so sorting order
-            // is inverted relative to Y - higher Y (further back) gets a lower order, lower Y gets a higher order.
-            renderer.sortingOrder = sortByYPosition
-                ? TILE_ELEMENT_SORTING_ORDER - Mathf.RoundToInt(position.y * Y_SORT_PRECISION_MULTIPLIER)
-                : TILE_ELEMENT_SORTING_ORDER;
-
-            if (randomizeColor && randomColorGenerator != null)
+            results.Add(new ScatteredElement
             {
-                renderer.color = randomColorGenerator();
-            }
-            if (randomFlipX)
-            {
-                renderer.flipX = Random.value > 0.5f;
-            }
+                Position = tile.WorldPosition + offset,
+                Sprite = ResourceManager.LoadRandomSprite(spriteFolderPath),
+                RotationDegrees = randomizeRotation ? Random.Range(0f, 360f) : 0f,
+                Scale = Random.Range(minScale, maxScale),
+                FlipX = randomFlipX && Random.value > 0.5f,
+                Color = randomizeColor && randomColorGenerator != null ? randomColorGenerator() : Color.white
+            });
         }
     }
 
     /// <summary>
-    /// Populates every tile on the world map with its biome's background elements (trees, etc).
+    /// Populates every tile on the world map with its biome's background elements (trees, city buildings),
+    /// merging each element type into a small, fixed number of combined meshes rather than one GameObject
+    /// per element - avoiding one draw call per scattered sprite (~10k+ individually otherwise).
     /// Called once after world generation; elements are not regenerated afterward.
     /// </summary>
     public void PopulateTileElements(WorldMap worldMap)
     {
+        List<ScatteredElement> trees = new List<ScatteredElement>();
+        List<ScatteredElement> buildings = new List<ScatteredElement>();
+
         foreach (WorldMapTile tile in worldMap.Tiles.Values)
         {
-            // Trees
-            SpawnScatteredElements(
-                tile: tile,
-                spriteFolderPath: TREES_PATH,
-                density: tile.Biome.TreeDensity,
-                densityVariance: TREE_DENSITY_VARIANCE,
-                randomizeRotation: true,
-                randomizeColor: true,
-                minScale: 0.12f,
-                maxScale: 0.15f,
-                randomFlipX: true,
-                sortByYPosition: false,
-                randomColorGenerator: GetRandomGreenShade
-            );
+            CollectScatteredElements(tile, TREES_PATH, tile.Biome.TreeDensity, TREE_DENSITY_VARIANCE,
+                randomizeRotation: true, randomizeColor: true, minScale: 0.12f, maxScale: 0.15f,
+                randomFlipX: true, randomColorGenerator: GetRandomGreenShade, results: trees);
 
-            // City buildings
-            SpawnScatteredElements(
-                tile: tile,
-                spriteFolderPath: "WorldMap/TileElements/CityBuildings",
-                density: tile.Biome.CityBuildingDensity,
-                densityVariance: 0f,
-                randomizeRotation: false,
-                randomizeColor: true,
-                minScale: 0.25f,
-                maxScale: 0.30f,
-                randomFlipX: true,
-                sortByYPosition: true,
-                randomColorGenerator: GetRandomCityBuildingColor
-            );
+            CollectScatteredElements(tile, "WorldMap/TileElements/CityBuildings", tile.Biome.CityBuildingDensity, 0f,
+                randomizeRotation: false, randomizeColor: true, minScale: 0.20f, maxScale: 0.25f,
+                randomFlipX: true, randomColorGenerator: GetRandomCityBuildingColor, results: buildings);
         }
+
+        // Trees: flat sorting order, submission order within the mesh doesn't matter for correctness
+        BuildScatteredElementMeshes(trees, TileElementContainer, "Trees", TILE_ELEMENT_SORTING_ORDER);
+
+        // Buildings: sort by Y (descending) so triangles submit back-to-front within the merged mesh -
+        // this bakes the old per-instance Y-sort behavior into triangle order instead of sortingOrder,
+        // since a single merged Renderer can only have one sortingOrder.
+        buildings.Sort((a, b) => b.Position.y.CompareTo(a.Position.y));
+        BuildScatteredElementMeshes(buildings, TileElementContainer, "CityBuildings", TILE_ELEMENT_SORTING_ORDER);
+    }
+
+    /// <summary>
+    /// Builds one or more combined meshes (chunked to stay under Unity's per-mesh vertex limit) from a list of
+    /// scattered elements, all sharing the source sprite sheet's texture as a single material - collapsing what
+    /// would otherwise be one draw call per element into a small, fixed number of draw calls regardless of count.
+    /// </summary>
+    private void BuildScatteredElementMeshes(List<ScatteredElement> elements, GameObject container, string batchName, int sortingOrder)
+    {
+        if (elements.Count == 0) return;
+
+        Texture2D texture = elements[0].Sprite.texture;
+        Material material = GetOrCreateScatteredElementMaterial(texture);
+
+        for (int chunkStart = 0; chunkStart < elements.Count; chunkStart += MAX_QUADS_PER_MESH)
+        {
+            int chunkCount = Mathf.Min(MAX_QUADS_PER_MESH, elements.Count - chunkStart);
+
+            Vector3[] vertices = new Vector3[chunkCount * 4];
+            Vector2[] uvs = new Vector2[chunkCount * 4];
+            Color[] colors = new Color[chunkCount * 4];
+            int[] triangles = new int[chunkCount * 6];
+
+            for (int i = 0; i < chunkCount; i++)
+            {
+                AppendQuad(elements[chunkStart + i], vertices, uvs, colors, triangles, i);
+            }
+
+            Mesh mesh = new Mesh();
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt16;
+            mesh.vertices = vertices;
+            mesh.uv = uvs;
+            mesh.colors = colors;
+            mesh.triangles = triangles;
+            mesh.RecalculateBounds();
+
+            GameObject obj = new GameObject($"{batchName}Batch{chunkStart / MAX_QUADS_PER_MESH}");
+            obj.transform.SetParent(container.transform);
+            obj.layer = container.layer;
+
+            MeshFilter filter = obj.AddComponent<MeshFilter>();
+            filter.mesh = mesh;
+
+            MeshRenderer renderer = obj.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
+            renderer.sortingOrder = sortingOrder;
+        }
+    }
+
+    private Material GetOrCreateScatteredElementMaterial(Texture2D texture)
+    {
+        if (ScatteredElementMaterials.TryGetValue(texture, out Material mat)) return mat;
+
+        mat = new Material(Shader.Find("Sprites/Default"));
+        mat.mainTexture = texture;
+        ScatteredElementMaterials.Add(texture, mat);
+        return mat;
+    }
+
+    /// <summary>
+    /// Writes one quad's worth of vertex/uv/color/triangle data into the given arrays at slot 'index'.
+    /// Builds a plain rectangular quad from the sprite's pixel rect (for UVs) and bounds (for local corner
+    /// positions), independent of the sprite's own internal mesh/Mesh Type import setting.
+    /// </summary>
+    private void AppendQuad(ScatteredElement element, Vector3[] vertices, Vector2[] uvs, Color[] colors, int[] triangles, int index)
+    {
+        Sprite sprite = element.Sprite;
+        Bounds bounds = sprite.bounds;
+
+        float left = bounds.center.x - bounds.extents.x;
+        float right = bounds.center.x + bounds.extents.x;
+        float bottom = bounds.center.y - bounds.extents.y;
+        float top = bounds.center.y + bounds.extents.y;
+
+        Vector2[] localCorners = new Vector2[4]
+        {
+        new Vector2(left, bottom),
+        new Vector2(right, bottom),
+        new Vector2(right, top),
+        new Vector2(left, top)
+        };
+
+        float rotationRad = element.RotationDegrees * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(rotationRad);
+        float sin = Mathf.Sin(rotationRad);
+
+        int vertBase = index * 4;
+        for (int c = 0; c < 4; c++)
+        {
+            Vector2 corner = localCorners[c] * element.Scale;
+            float rotatedX = corner.x * cos - corner.y * sin;
+            float rotatedY = corner.x * sin + corner.y * cos;
+
+            vertices[vertBase + c] = new Vector3(element.Position.x + rotatedX, element.Position.y + rotatedY, 0f);
+            colors[vertBase + c] = element.Color;
+        }
+
+        Rect rect = sprite.rect;
+        Texture2D texture = sprite.texture;
+        float u0 = rect.x / texture.width;
+        float v0 = rect.y / texture.height;
+        float u1 = (rect.x + rect.width) / texture.width;
+        float v1 = (rect.y + rect.height) / texture.height;
+
+        if (element.FlipX) (u0, u1) = (u1, u0);
+
+        uvs[vertBase + 0] = new Vector2(u0, v0);
+        uvs[vertBase + 1] = new Vector2(u1, v0);
+        uvs[vertBase + 2] = new Vector2(u1, v1);
+        uvs[vertBase + 3] = new Vector2(u0, v1);
+
+        int triBase = index * 6;
+        triangles[triBase + 0] = vertBase + 0;
+        triangles[triBase + 1] = vertBase + 2;
+        triangles[triBase + 2] = vertBase + 1;
+        triangles[triBase + 3] = vertBase + 0;
+        triangles[triBase + 4] = vertBase + 3;
+        triangles[triBase + 5] = vertBase + 2;
     }
 
     private static Color GetRandomGreenShade()
@@ -547,8 +672,8 @@ public class WorldMapRenderer : MonoBehaviour
     private static Color GetRandomCityBuildingColor()
     {
         float hue = Random.value;
-        float saturation = Random.Range(0f, 0.2f); // low saturation for grayish colors
-        float value = Random.Range(0.85f, 1f); // bright colors as the base images alredy have some darker base colors
+        float saturation = Random.Range(0f, 0.2f);
+        float value = Random.Range(0.85f, 1f);
         return Color.HSVToRGB(hue, saturation, value);
     }
 

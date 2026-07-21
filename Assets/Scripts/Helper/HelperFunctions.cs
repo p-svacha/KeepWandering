@@ -102,7 +102,7 @@ public static class HelperFunctions
     public static Vector3Int GetCubeCoordinates(Vector2Int offsetCoord)
     {
         int q = offsetCoord.y;
-        int r = (offsetCoord.y - Mod(offsetCoord.y, 2)) / 2 - offsetCoord.x;
+        int r = offsetCoord.x - (offsetCoord.y - Mod(offsetCoord.y, 2)) / 2;
         int s = -q - r;
         return new Vector3Int(q, r, s);
     }

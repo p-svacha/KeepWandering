@@ -1,29 +1,19 @@
 TODOS:
 ==============================================
 
-(/) make encounter sprites scale with zoom like player marker
-(/) make encounter sprites smaller on map, but bigger images (higher quality when zoomed in)
-(/) try how it looks if they are within a white circle
-(/) dynamic encounter sprites and labels (showing state of encounter)
-if necessary, add a toggle to show/hide encounter sprites
-
 cart sound when travelling
 sound when opening and closing map (rustle1 and 2 with slight pitch variation)
-
-(/) cadjust pan speed so mouse stays stickied where rightclick was held down
-(/) change zoom so camera zooms in on mouse position instead of center of screen
+start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
 
 add farm scattered sprites on outskirts (only keep if it looks good)
 
-(/) add one road piece outside of quarantine zone adjacent to gate (so it looks like the road continues outside of the quarantine zone)
-
 map performance (many sprites, maybe unnecessary steps in worldmaprenderer.update) - currently FPS goes down by 200 when world map menu is open.
 
-start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
-
-fix hex distance calculations
+(/) fix hex distance calculations
 
 make path history line look nicer (geometry is already good now)
+
+make label value split nicer and more consistent below world map for hovered tile
 
 
 EVENING REWORK:

@@ -399,6 +399,9 @@ public class Game : Singleton<Game>
             UI.EventStepDisplay.Init(step, prevOutcome);
         }
 
+        // Update world map encounter sprites
+        WorldMapRenderer.MarkRedrawEncounterSprites();
+
         // Clear event step outcome
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();

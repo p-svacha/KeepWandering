@@ -36,7 +36,7 @@ public static class AreaTypeDefs
             Label = "City",
             ShowLabel = true,
             LabelFontSize = 2.2f,
-            LabelColor = new Color(0.82f, 0.67f, 0.48f)
+            LabelColor = new Color(0.67f, 0.67f, 0.67f)
         },
         new AreaTypeDef("Forest")
         {

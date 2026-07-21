@@ -89,13 +89,17 @@ public static class ResourceManager
         CachedSprites.Add(resourcePath, loadedSprite);
         return loadedSprite;
     }
-    public static Sprite LoadRandomSprite(string directoryPath)
-    {
-        // Get all sprites in the directory
-        Sprite[] sprites = Resources.LoadAll<Sprite>(directoryPath);
-        if (sprites.Length == 0) throw new System.Exception($"No sprites found in directory {directoryPath}.");
 
-        // Return a random sprite
+    private static Dictionary<string, Sprite[]> CachedSpriteSheets = new Dictionary<string, Sprite[]>();
+    public static Sprite LoadRandomSprite(string resourcePath)
+    {
+        if (!CachedSpriteSheets.TryGetValue(resourcePath, out Sprite[] sprites))
+        {
+            sprites = Resources.LoadAll<Sprite>(resourcePath);
+            if (sprites.Length == 0) throw new System.Exception($"No sprites found at {resourcePath}.");
+            CachedSpriteSheets.Add(resourcePath, sprites);
+        }
+
         return sprites[Random.Range(0, sprites.Length)];
     }
 
@@ -144,6 +148,7 @@ public static class ResourceManager
         CachedTextures.Clear();
         CachedPrefabs.Clear();
         CachedSprites.Clear();
+        CachedSpriteSheets.Clear();
         CachedAudioClips.Clear();
         CachedVideoClips.Clear();
         CachedTiles.Clear();
