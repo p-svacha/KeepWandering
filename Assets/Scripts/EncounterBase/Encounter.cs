@@ -212,7 +212,7 @@ public abstract class Encounter
 
     private string EndCurrentTimeOfDay()
     {
-        if (Game.CurrentEncounter.Def.Type == EncounterType.Biome)
+        if (Game.CurrentEncounter.Def.Type == EncounterType.Evening)
         {
             Game.EndEveningEncounter();
         }

@@ -1,6 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum AttackType
+{
+    None,
+    Human,
+    Wildlife,
+}
+
 public class EncounterDef : Def
 {
     public override string DefTypeLabel => "Encounter";
@@ -61,6 +68,11 @@ public class EncounterDef : Def
     /// </summary>
     public float CameraXOffset { get; init; } = 0f;
 
+    /// <summary>
+    /// The type of attack a night encounter represents.
+    /// </summary>
+    public AttackType AttackType { get; init; } = AttackType.None;
+
     public EncounterDef(string defName) : base(defName) { }
 
 
@@ -73,6 +85,7 @@ public class EncounterDef : Def
 
         if (EncounterClass == null) throw new System.Exception("EncounterClass cannot be null.");
         if (!EncounterClass.IsSubclassOf(typeof(Encounter))) throw new System.Exception("EncounterClass must be a subclass of Encounter.");
+        if (Type != EncounterType.Night && AttackType != AttackType.None) throw new System.Exception("Only night encounters can have an attack type set.");
 
         if (Type == EncounterType.Location)
         {
@@ -98,13 +111,13 @@ public class EncounterDef : Def
             if (MinDistanceBetween != -1) throw new System.Exception("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
         }
 
-        if (Type == EncounterType.Biome)
+        if (Type == EncounterType.Evening)
         {
-            if (MinDistanceFromStart != -1) throw new System.Exception("Biome encounters cannot have a minimum distance from the starting tile.");
-            if (MaxOccurences != -1) throw new System.Exception("Biome encounters cannot be limited.");
-            if (BaseProbability != 0f) throw new System.Exception("Biome encounters cannot have a probability set.");
-            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Biome encounters cannot have biome-specific probabilities.");
-            if (MinDistanceBetween != -1) throw new System.Exception("Biome encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
+            if (MinDistanceFromStart != -1) throw new System.Exception("Evening encounters cannot have a minimum distance from the starting tile.");
+            if (MaxOccurences != -1) throw new System.Exception("Evening encounters cannot be limited.");
+            if (BaseProbability != 0f) throw new System.Exception("Evening encounters cannot have a probability set.");
+            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Evening encounters cannot have biome-specific probabilities.");
+            if (MinDistanceBetween != -1) throw new System.Exception("Evening encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
             if (DefName != "EveningFallback" && !EncounterClass.IsSubclassOf(typeof(BiomeEncounter))) throw new System.Exception("EncounterClass must be a subclass of BiomeEncounter.");
         }
 
@@ -115,6 +128,7 @@ public class EncounterDef : Def
             if (MinDistanceBetween != -1) throw new System.Exception("Night encounters cannot have a minimum distance between occurences, as they happen independently from location in the world.");
             if (MinOccurences != 0) throw new System.Exception("Night encounters cannot have a minimum number of occurences.");
             if (MaxOccurences != -1) throw new System.Exception("Night encounters cannot be limited, as they are selected randomly each night based on their probability.");
+            if (AttackType == AttackType.None) throw new System.Exception("Night encounters must have an attack type set.");
         }
 
         return base.Validate();

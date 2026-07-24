@@ -17,38 +17,10 @@ public static class EncounterDefs
             CameraXOffset = -3.5f,
         },
 
-        new EncounterDef("EveningFallback")
+        new EncounterDef("Evening")
         {
-            EncounterClass = typeof(BiomeEncounter_Fallback),
-            Type = EncounterType.Biome,
-        },
-
-        #endregion
-
-        #region Biome Encounters
-
-        new EncounterDef("BiomeEncounter_Outskirts")
-        {
-            EncounterClass = typeof(BiomeEncounter_Outskirts),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
-        },
-
-        new EncounterDef("BiomeEncounter_Woods")
-        {
-            EncounterClass = typeof(BiomeEncounter_Woods),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
-        },
-
-        new EncounterDef("BiomeEncounter_City")
-        {
-            EncounterClass = typeof(BiomeEncounter_City),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the city biome. Randomly selects one of four settings (abandoned apartment, parking garage, boarded-up shop, alleyway) which affects step text and difficulties. Rest early is not available in the city. In addition to standard options, offers 'Keep watch' (Perception/Combat check, reduces danger level on success, increases it on critical failure, difficulty varies by setting) and 'Eavesdrop' (Perception/Charisma check, reveals nearby encounters or creates a supply stash, always available at apartment and parking garage, 50% at shop, never in alleyway).",
+            EncounterClass = typeof(EveningEncounter),
+            Type = EncounterType.Evening,
         },
 
         #endregion
@@ -59,6 +31,7 @@ public static class EncounterDefs
         {
             EncounterClass = typeof(NightEncounter_Bandits),
             Type = EncounterType.Night,
+            AttackType = AttackType.Human,
             BaseProbability = 5,
             BiomeProbabilityOverrides = new Dictionary<BiomeDef, float>()
             {

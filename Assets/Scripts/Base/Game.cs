@@ -714,13 +714,17 @@ public class Game : Singleton<Game>
         // Initialize morning report (things happening from here can be part of the report)
         LatestMorningReport = new MorningReport(Day);
 
+        // Select a night encounter that will happen if a night encounter will be rolled
+        EncounterDef selectedNightEncounterDef = EncounterManager.SelectNightEncounterDefFor(CurrentPosition);
+
         // Decide if there should be a night encounter
-        int nightEncounterIntensity = CurrentPosition.DangerLevel.NightEncounterIntensities.GetWeightedRandomElement();
-        if (nightEncounterIntensity == 0)
-        {
-            // No night encounter happening -> End day
-            SwitchState(GameState.DayTransitionFadeIn);
-        }
+        int nightEncounterIntensity = CurrentPosition.GetEffectiveDangerLevel().NightEncounterIntensities.GetWeightedRandomElement();
+
+        // Check if night encounter is negated by camp
+        if (Camp.Instance.HasFire && selectedNightEncounterDef.AttackType == AttackType.Wildlife) nightEncounterIntensity = 0;
+
+        // If no night encounter is happening, end the day
+        if (nightEncounterIntensity == 0) SwitchState(GameState.DayTransitionFadeIn);
 
         // Night encounter happening
         else
@@ -743,9 +747,8 @@ public class Game : Singleton<Game>
             // Else start night encounter with remaining intensity
             else
             {
-                EncounterDef def = EncounterManager.SelectNightEncounterDefFor(CurrentPosition);
-                NightEncounter = EncounterManager.GenerateEncounter(def, CurrentPosition) as NightEncounter;
-                NightEncounter.Init(this, def, CurrentPosition, nightEncounterIntensity);
+                NightEncounter = EncounterManager.GenerateEncounter(selectedNightEncounterDef, CurrentPosition) as NightEncounter;
+                NightEncounter.Init(this, selectedNightEncounterDef, CurrentPosition, nightEncounterIntensity);
                 SwitchState(GameState.EndEncounterTransitionIn);
             }
         }
@@ -782,15 +785,17 @@ public class Game : Singleton<Game>
         EndCurrentEncounter();
         NightEncounter = null;
 
-        // Clean up camp
-        Camp.Instance.CleanUpCamp(LatestMorningReport);
-
         // Apply natural healing
         float naturalHealingFactor = 1f;
         if (IsEarlyResting)
         {
             naturalHealingFactor += 0.5f;
             Debug.Log("Early resting bonus! Natural healing increased by 50% for this night.");
+        }
+        if (Camp.HasBedroll)
+        {
+            naturalHealingFactor += 0.5f;
+            Debug.Log("Bedroll bonus! Natural healing increased by 50% for this night.");
         }
         ApplyNaturalHealing(naturalHealingFactor);
         IsEarlyResting = false;
@@ -800,6 +805,9 @@ public class Game : Singleton<Game>
 
         // Increase danger level on current tile
         ModifyDangerLevel(+1);
+
+        // Clean up camp
+        Camp.Instance.CleanUpCamp(LatestMorningReport);
     }
 
     #endregion
@@ -997,6 +1005,13 @@ public class Game : Singleton<Game>
     {
         List<HealthCondition> healthConditionsCopy = new List<HealthCondition>(Player.HealthConditions);
         foreach (HealthCondition hc in healthConditionsCopy) hc.ApplyNaturalHealing(healingFactor);
+    }
+
+    public HealthCondition ApplyHealthCondition(HealthConditionDef hcDef, string source, float initialSeverity = -1f)
+    {
+        HealthCondition hc = Player.ApplyHealthCondition(hcDef, source, initialSeverity);
+        OnGameStateChanged();
+        return hc;
     }
 
     public void ModifyHunger(float value)

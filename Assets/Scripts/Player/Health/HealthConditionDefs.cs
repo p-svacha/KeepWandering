@@ -6,7 +6,8 @@ public static class HealthConditionDefs
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
 
-        // Vitals
+        #region Vitals
+
         new HealthConditionDef("Hunger")
         {
             Label = "Hunger",
@@ -199,7 +200,10 @@ public static class HealthConditionDefs
             }
         },
 
-        // Fractures
+        #endregion
+
+        #region Fractures
+
         new HealthConditionDef("LegFracture")
         {
             Label = "Leg Fracture",
@@ -301,8 +305,10 @@ public static class HealthConditionDefs
             }
         },
 
+        #endregion
 
-        // Wounds
+        #region Wounds
+
         new HealthConditionDef("Cut")
         {
             Label = "cut",
@@ -323,7 +329,10 @@ public static class HealthConditionDefs
             // Everything else handled by Wound class
         },
 
-        // Other injuries / ailments
+        #endregion
+
+        #region Misc. Ailments
+
         new HealthConditionDef("HeartArrhythmia")
         {
             Label = "Heart Arrhythmia",
@@ -405,7 +414,10 @@ public static class HealthConditionDefs
             }
         },
 
-        // Misc
+        #endregion
+
+        #region Buffs
+
         new HealthConditionDef("ChocolateHigh")
         {
             Label = "Chocolate High",
@@ -428,6 +440,51 @@ public static class HealthConditionDefs
                 }
             }
         },
+
+        new HealthConditionDef("SteadyHands")
+        {
+            Label = "Steady Hands",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Steady Hands",
+                    Description = "My hands are steady.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        new HealthConditionDef("WellRested")
+        {
+            Label = "Well Rested",
+            Category = HealthConditionCategoryDefOf.Positive,
+            HealthConditionClass = typeof(HC_WellRested),
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Well Rested",
+                    Description = "I feel well rested from having a nice camp last night.",
+                    SeverityThreshold = 0,
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        #endregion
+
+        #region Misc / Neutral
 
         new HealthConditionDef("Intoxication")
         {
@@ -464,46 +521,36 @@ public static class HealthConditionDefs
             }
         },
 
-        new HealthConditionDef("SteadyHands")
-        {
-            Label = "Steady Hands",
-            Category = HealthConditionCategoryDefOf.Positive,
-            NaturalSeverityChange = -1,
-            DefaultInitialSeverity = 2,
-            Stages = new List<HealthConditionStage>()
-            {
-                new HealthConditionStage()
-                {
-                    Label = "Steady Hands",
-                    Description = "My hands are steady.",
-                    SeverityThreshold = 0,
-                    StatModifiers = new Dictionary<StatDef, int>()
-                    {
-                        { StatDefOf.Dexterity, +2 },
-                    },
-                    Color = ResourceManager.Color_Text_Positive,
-                }
-            }
-        }
+    #endregion
+
     };
 }
 
 [DefOf]
 public static class HealthConditionDefOf
 {
+    // Vitals
     public static HealthConditionDef Hunger;
     public static HealthConditionDef Thirst;
-    public static HealthConditionDef LegFracture;
-    public static HealthConditionDef ArmFracture;
     public static HealthConditionDef BloodLoss;
 
+    // Fractures
+    public static HealthConditionDef LegFracture;
+    public static HealthConditionDef ArmFracture;
+
+    // Wounds
     public static HealthConditionDef Bruise;
     public static HealthConditionDef Cut;
 
+    // Misc Negative
     public static HealthConditionDef HeartArrhythmia;
     public static HealthConditionDef Electrocution;
 
+    // Positive
     public static HealthConditionDef ChocolateHigh;
-    public static HealthConditionDef Intoxication;
     public static HealthConditionDef SteadyHands;
+    public static HealthConditionDef WellRested;
+
+    // Neutral
+    public static HealthConditionDef Intoxication;
 }

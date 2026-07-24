@@ -243,11 +243,10 @@ public class HealthCondition
     }
 
     public string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
-    public string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
+    public virtual string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
     public virtual string GetInterActionsString() => Def.Interactions;
 
     public virtual string GetReportLabel() => Label;
-    public virtual string GetReportDescription() => Description;
     public virtual Color GetReportTextColor() => ActiveStage.Color;
     public virtual Color GetReportBackgroundColor() => Color.clear;
 

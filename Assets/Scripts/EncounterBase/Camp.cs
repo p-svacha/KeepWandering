@@ -6,11 +6,17 @@ using UnityEngine;
 /// </summary>
 public class Camp : Singleton<Camp>
 {
+    public const int BEDROLL_MORALE_BONUS = +3;
+    public const int TENT_MORALE_BONUS = +2;
+    public const int FIRE_MORALE_BONUS = +1;
+
     public Game Game => Game.Instance;
 
     public bool HasFire { get; private set; }
     public Item Tent { get; private set; }
+    public bool HasTent => Tent != null;
     public Item Bedroll { get; private set; }
+    public bool HasBedroll => Bedroll != null;
     public List<Item> Traps { get; private set; } = new List<Item>();
     public int NumTrapsUsedToDefendNightAttack { get; private set; }
     public int NumTraps => Traps.Count;
@@ -50,6 +56,20 @@ public class Camp : Singleton<Camp>
     /// </summary>
     public void CleanUpCamp(MorningReport morningReport)
     {
+        // Morale bonus
+        if (HasTent || HasBedroll || HasFire)
+        {
+            List<string> sources = new List<string>();
+            if (HasTent) sources.Add("a tent");
+            if (HasBedroll) sources.Add("a bedroll");
+            if (HasFire) sources.Add("a fire");
+            string elements = sources.ToNaturalLanguage();
+            string source = $"Slept in a camp with {elements}";
+
+            HC_WellRested wellRestedCondition = (HC_WellRested)Game.ApplyHealthCondition(HealthConditionDefOf.WellRested, source);
+            wellRestedCondition.Init(HasTent, HasBedroll, HasFire);
+        }
+
         // Fire
         if (HasFire)
         {
@@ -58,7 +78,7 @@ public class Camp : Singleton<Camp>
         }
 
         // Tent
-        if (Tent != null)
+        if (HasTent)
         {
             Game.ReduceItemDurability(Tent);
             if (!Tent.IsDestroyed)
@@ -75,7 +95,7 @@ public class Camp : Singleton<Camp>
         }
 
         // Bedroll
-        if (Bedroll != null)
+        if (HasBedroll)
         {
             Game.ReduceItemDurability(Bedroll);
             if (!Bedroll.IsDestroyed)

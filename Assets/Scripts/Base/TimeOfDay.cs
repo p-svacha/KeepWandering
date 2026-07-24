@@ -1,6 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class TimeOfDayDef : Def
+{
+    public override string DefTypeLabel => "Time of Day";
+
+    public Color SkyColor { get; init; }
+    public Color LightingAmbienceOverlayColor { get; init; }
+
+    public TimeOfDayDef(string defName) : base(defName) { }
+}
+
 public static class TimeOfDayDefs
 {
     public static List<TimeOfDayDef> Defs => new List<TimeOfDayDef>()
@@ -22,7 +32,7 @@ public static class TimeOfDayDefs
         new TimeOfDayDef("Evening")
         {
             Label = "Evening",
-            Description = "In the evening, the player encounters the Biome Encounter based on the biome they are in. They can only use items when the encounter is over before moving on, except for encounter options.",
+            Description = "Evening encounter, where the player can set up camp and choose how to spend the evening.",
             SkyColor = new Color(0.48f, 0.29f, 0.22f),
             LightingAmbienceOverlayColor = new Color(1f, 0.50f, 0.31f, 0.12f),
         },
@@ -34,4 +44,13 @@ public static class TimeOfDayDefs
             LightingAmbienceOverlayColor = new Color(0.10f, 0.10f, 0.44f, 0.25f),
         }
     };
+}
+
+[DefOf]
+public static class TimeOfDayDefOf
+{
+    public static TimeOfDayDef Morning;
+    public static TimeOfDayDef Afternoon;
+    public static TimeOfDayDef Evening;
+    public static TimeOfDayDef Night;
 }

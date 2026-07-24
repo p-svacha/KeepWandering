@@ -142,12 +142,20 @@ public class GameUI : Singleton<GameUI>
     public void UpdateDayPanel()
     {
         // Danger level
-        DangerLevelText.text = Game.CurrentPosition.DangerLevel.Label;
-        DangerLevelText.color = Game.CurrentPosition.DangerLevel.Color;
+        bool hasTent = Camp.Instance.HasTent;
+        bool hasFire = Camp.Instance.HasFire;
+        bool hasTraps = Camp.Instance.Traps.Count > 0;
+
+        DangerLevelText.text = Game.CurrentPosition.GetEffectiveDangerLevel().Label;
+        if (hasTent || hasFire || hasTraps) DangerLevelText.text += "*";
+        DangerLevelText.color = Game.CurrentPosition.GetEffectiveDangerLevel().Color;
         
-        string tooltipTitle = $"Danger Level: {Game.CurrentPosition.DangerLevel.Label}";
-        string tooltipDescription = Game.CurrentPosition.DangerLevel.Description;
+        string tooltipTitle = $"Danger Level: {Game.CurrentPosition.GetEffectiveDangerLevel().Label}";
+        string tooltipDescription = Game.CurrentPosition.GetEffectiveDangerLevel().Description;
         tooltipDescription += $"\n\nThe danger level increases after each night or when staying in the same location.";
+        if (hasTent) tooltipDescription += $"\n\n* You have a tent set up, which lowers the danger level for this night.";
+        if (hasFire) tooltipDescription += $"\n\n* The fire of your camp will prevent all wildlife attacks this night.";
+        if (hasTraps) tooltipDescription += $"\n\n* You have traps set up, which will help against any attacks happening this night.";  
         DangerLevelTooltipTarget.Init(tooltipTitle, tooltipDescription);
     }
 

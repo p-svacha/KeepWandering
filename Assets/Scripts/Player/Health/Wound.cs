@@ -187,12 +187,7 @@ public abstract class Wound : HealthCondition
         return s.Trim();
     }
 
-    protected abstract string GetUnbandagedEffectString();
-    public override string GetReportDescription()
-    {
-        return $"a {Def.Label} wound.";
-    }
-        
+    protected abstract string GetUnbandagedEffectString();      
 }
 
 public enum InfectionStage

@@ -469,7 +469,7 @@ public class WorldMapRenderer : MonoBehaviour
             foreach (WorldMapTile tile in WorldMap.Instance.QuarantineZone.Tiles)
             {
                 SetTile(DangerOverlayTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/HexTileBase"));
-                SetTileColor(DangerOverlayTilemap, tile.Coordinates, tile.DangerLevel.Color);
+                SetTileColor(DangerOverlayTilemap, tile.Coordinates, tile.BaseDangerLevel.Color);
             }
         }
     }

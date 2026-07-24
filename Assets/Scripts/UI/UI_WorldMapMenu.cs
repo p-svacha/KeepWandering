@@ -41,8 +41,8 @@ public class UI_WorldMapMenu : MonoBehaviour
 
         Biome.Init("Biome", tile.Biome.LabelCapWord);
         Encounter.Init("Location", tile.HasEncounter ? tile.Encounter.Label : "Undiscovered");
-        DangerLevel.Init("Danger Level", tile.DangerLevel.LabelCapWord);
-        DangerLevel.ValueText.color = tile.DangerLevel.Color;
+        DangerLevel.Init("Danger Level", tile.BaseDangerLevel.LabelCapWord);
+        DangerLevel.ValueText.color = tile.BaseDangerLevel.Color;
 
         HexDistance.Init("Hex Distance", $"{tile.GetHexDistance(Game.Instance.CurrentPosition)}");
         int shortestPath = tile.GetShortestPath(Game.Instance.CurrentPosition);

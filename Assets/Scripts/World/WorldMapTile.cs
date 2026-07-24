@@ -18,7 +18,7 @@ public class WorldMapTile
     public bool HasRoad { get; private set; }
     public LocationEncounter Encounter { get; private set; }
     public Quest Mission { get; private set; }
-    public DangerLevelDef DangerLevel { get; private set; }
+    public DangerLevelDef BaseDangerLevel { get; private set; } // Base danger level of the tile
     public int NumVisits { get; private set; }
     public bool HasBeenVisited => NumVisits > 0;
 
@@ -35,7 +35,7 @@ public class WorldMapTile
         WorldPosition = WorldMapRenderer.Instance.GetWorldPosition(coordinates);
         RoadPosition = WorldPosition + new Vector2(Random.Range(-0.15f, 0.15f), Random.Range(-0.15f, 0.15f));
         Areas = new List<Area>();
-        DangerLevel = DangerLevelDefOf.Safe;
+        BaseDangerLevel = DangerLevelDefOf.Safe;
         NumVisits = 0;
 
         CornerWorldPositions = new Dictionary<Direction, Vector2>()
@@ -64,13 +64,13 @@ public class WorldMapTile
     public void ModifyDangerLevel(int amount)
     {
         // Calculate target level
-        int targetDangerLevel = (int)DangerLevel.DangerLevel + amount;
+        int targetDangerLevel = (int)BaseDangerLevel.DangerLevel + amount;
         if (targetDangerLevel < 0) targetDangerLevel = 0;
         int maxDangerLevel = DefDatabase<DangerLevelDef>.AllDefs.Max(dl => (int)dl.DangerLevel);
         if (targetDangerLevel > maxDangerLevel) targetDangerLevel = maxDangerLevel;
 
         // Set new level
-        DangerLevel = DefDatabase<DangerLevelDef>.AllDefs.First(dl => (int)dl.DangerLevel == targetDangerLevel);
+        BaseDangerLevel = DefDatabase<DangerLevelDef>.AllDefs.First(dl => (int)dl.DangerLevel == targetDangerLevel);
     }
 
     /// <summary>
@@ -163,6 +163,20 @@ public class WorldMapTile
 
     public int DistanceFromStart => GetHexDistance(WorldMap.Instance.StartTile);
     public bool HasEncounter => Encounter != null;
+
+    /// <summary>
+    /// Returns the effective danger level of this tile, which is the base danger level modified by the current camp setup.
+    /// </summary>
+    /// <returns></returns>
+    public DangerLevelDef GetEffectiveDangerLevel()
+    {
+        int effectiveLevel = (int)BaseDangerLevel.DangerLevel;
+
+        if (Camp.Instance.HasTent) effectiveLevel -= 1;
+
+        effectiveLevel = Mathf.Clamp(effectiveLevel, 0, DefDatabase<DangerLevelDef>.AllDefs.Max(dl => (int)dl.DangerLevel));
+        return DefDatabase<DangerLevelDef>.AllDefs.First(dl => (int)dl.DangerLevel == effectiveLevel);
+    }
 
     /// <summary>
     /// Returns the adjacent tile in a specified direction

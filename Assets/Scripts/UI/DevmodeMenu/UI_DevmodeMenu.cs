@@ -62,21 +62,15 @@ public class UI_DevmodeMenu : MonoBehaviour
         gameObject.SetActive(false);
 
         // Health condition buttons
-        ApplyArmFractureButton.onClick.AddListener(() => { Game.Player.ApplyArmFracture(1f, "Devmode Menu"); RefreshGame(); });
-        ApplyLegFractureButton.onClick.AddListener(() => { Game.Player.ApplyLegFracture(1f, "Devmode Menu"); RefreshGame(); });
-        ApplyCutWoundButton.onClick.AddListener(() => { Game.Player.AddWound(HealthConditionDefOf.Cut, "Devmode Menu"); RefreshGame(); });
-        ApplyBruiseWoundButton.onClick.AddListener(() => { Game.Player.AddWound(HealthConditionDefOf.Bruise, "Devmode Menu"); RefreshGame(); });
-    }
-
-    private void RefreshGame()
-    {
-        Game.Instance.RefreshUI();
+        ApplyArmFractureButton.onClick.AddListener(() => Game.ApplyArmFracture(1f, "Devmode Menu"));
+        ApplyLegFractureButton.onClick.AddListener(() => Game.ApplyLegFracture(1f, "Devmode Menu"));
+        ApplyCutWoundButton.onClick.AddListener(() => Game.ApplyCutWound("Devmode Menu"));
+        ApplyBruiseWoundButton.onClick.AddListener(() => Game.ApplyBruiseWound("Devmode Menu"));
     }
 
     private void AddItem()
     {
         Game.AddNewItemToInventory(DefDatabase<ItemDef>.AllDefs[AddItemDropdown.value]);
-        RefreshGame();
     }
 
     private void ForceEncounter(int value)
@@ -87,7 +81,6 @@ public class UI_DevmodeMenu : MonoBehaviour
     private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsVital && !hc.IsWound && !hc.IsFracture).ToList();
     private void ApplyHealthCondition()
     {
-        Game.Player.ApplyHealthCondition(ApplicableHealthConditions[HealthConditionDropwdown.value], "Devmode Menu");
-        RefreshGame();
+        Game.ApplyHealthCondition(ApplicableHealthConditions[HealthConditionDropwdown.value], "Devmode Menu");
     }
 }

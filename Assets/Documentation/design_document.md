@@ -256,7 +256,7 @@ A toggleable danger overlay colour-codes every tile by (base) danger level for a
 
 ## Biomes
 
-A tile's biome determines which location encounters can appear there, the biome encounter used in the evening, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
+A tile's biome determines which location encounters can appear there, options in the evening encounter, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
 
 The following passable biomes exist:
 - **Woods:** Forested areas with trees, bushes, and undergrowth. Loot is mostly natural (plants, berries, mushrooms) and scavenged (wood, sticks, branches). Encounters are often wildlife or scavenging, sometimes abandonded or hidden objects and structures. Encountering people is very rare.
