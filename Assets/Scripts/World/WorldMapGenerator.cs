@@ -250,21 +250,6 @@ public static class WorldMapGenerator
             Cities.Add(cityArea);
         }
     }
-    private static string GetRandomCityName()
-    {
-        string[] prefixes = { "New ", "Old ", "North ", "South ", "East ", "West " };
-        string[] suffixes = { "ville", "town", "city", "burg", "polis", "grad" };
-        string[] middles = { "wood", "field", "stone", "river", "hill", "port", "ford", "haven" };
-        string[] names = { "Ash", "Bright", "Dark", "Green", "High", "Low", "Red", "White", "Wind", "Wolf" };
-
-        bool hasPrefix = Random.value < 0.2f;
-        bool hasSuffix = Random.value < 0.2f;
-        string prefix = hasPrefix ? prefixes[Random.Range(0, prefixes.Length)] : "";
-        string middle = middles[Random.Range(0, middles.Length)];
-        string name = names[Random.Range(0, names.Length)];
-        string suffix = hasSuffix ? suffixes[Random.Range(0, suffixes.Length)] : "";
-        return prefix + name + middle + suffix;
-    }
 
     /// <summary>
     /// Finds all clusters of adjacent tiles sharing a given biome and creates named areas for clusters above the minimum size.
@@ -310,24 +295,32 @@ public static class WorldMapGenerator
         return areas;
     }
 
+    private static string GetRandomCityName()
+    {
+        return GetRandomName();
+    }
+
     private static string GetRandomForestName()
     {
-        string[] adjectives = { "Dark", "Green", "Whispering", "Silent", "Mossy", "Twisted", "Ancient", "Misty", "Hollow", "Shadowed" };
+        string name = GetRandomName();
         string[] nouns = { "Forest", "Woods", "Thicket", "Grove", "Timberland" };
 
-        string adjective = adjectives[Random.Range(0, adjectives.Length)];
         string noun = nouns[Random.Range(0, nouns.Length)];
-        return adjective + " " + noun;
+        return name + " " + noun;
     }
 
     private static string GetRandomLakeName()
     {
-        string[] adjectives = { "Crystal", "Still", "Deep", "Black", "Blue", "Silver", "Murky", "Hidden", "Frozen", "Sunken" };
+        string name = GetRandomName();
         string[] nouns = { "Lake", "Pond", "Reservoir", "Basin", "Waters" };
 
-        string adjective = adjectives[Random.Range(0, adjectives.Length)];
         string noun = nouns[Random.Range(0, nouns.Length)];
-        return adjective + " " + noun;
+        return name + " " + noun;
+    }
+
+    private static string GetRandomName()
+    {
+        return MarkovChainWordGenerator.GenerateWord("Province", 5, 12).CapitalizeEachWord();
     }
 
     private static void GenerateFenceEncounters()

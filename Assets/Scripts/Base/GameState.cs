@@ -13,8 +13,8 @@ public enum GameState
     EndEncounterTransitionIn,
     EndEncounterTransitionOut,
 
-    EndMorningReportTransitionIn,
-    EndMorningReportTransitionOut,
+    EndMorningTransitionIn,
+    EndMorningTransitionOut,
 
     InGame,
     GameOver

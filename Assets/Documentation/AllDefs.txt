@@ -1344,6 +1344,7 @@
             // Rendering
             BaseColor = new Color(0.73f, 0.89f, 0.78f),
             TreeDensity = 0.12f,
+            FieldDensity = 0.03f,
         },
 
         new BiomeDef("City")
@@ -1363,7 +1364,7 @@
             TrapTriggerChance = 0.1f,
             // Rendering
             BaseColor = new Color(0.91f, 0.92f, 0.93f),
-            TreeDensity = 0.02f,
+            TreeDensity = 0f,
             CityBuildingDensity = 0.25f,
         },
 

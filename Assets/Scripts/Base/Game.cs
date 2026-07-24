@@ -1,3 +1,4 @@
+using ElectionTactics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -341,12 +342,13 @@ public class Game : Singleton<Game>
                 break;
 
             case GameState.EndEncounterTransitionIn:
-            case GameState.EndMorningReportTransitionIn:
+            case GameState.EndMorningTransitionIn:
                 UI.FadeInBlackTransition(GameUI.TRANSITION_FADE_TIME);
                 UI.BlackTransitionText.text = "";
                 break;
 
-            case GameState.EndMorningReportTransitionOut:
+            case GameState.EndMorningTransitionOut:
+                UI.CloseWorldMap(); // safe to hide now - screen is fully black at this point
                 if (DayAction == DayAction.Rest) StartEveningEncounter(); // Resting skips afternoon
                 else StartAfternoonEncounter();
                 EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset, GameUI.TRANSITION_FADE_TIME);
@@ -588,12 +590,17 @@ public class Game : Singleton<Game>
     }
 
     /// <summary>
-    /// Gets called when a tile is clicked on on the world map.
+    /// Gets called when a tile is clicked on on the world map to move to.
     /// </summary>
     public void SelectTileOnMap(WorldMapTile tile)
     {
         if (!GetNextPositionTiles().Contains(tile)) return;
 
+        // Play sound
+        AudioManager.PlaySound("CartRolling");
+        AudioManager.PlaySound("Footsteps");
+
+        // Set target
         SetDayAction(DayAction.Move);
         TargetPosition = tile;
         EndMorning();
@@ -605,11 +612,19 @@ public class Game : Singleton<Game>
         WorldMap.CanSelectDestination = false;
         WorldMapRenderer.UnhighlightAllTiles();
 
-        // UI
-        UI.CloseAllWindows();
+        // Close other UI immediately, but keep the world map open through the fade so the player marker
+        // can visibly move toward the new tile; the world map itself is closed once the fade-in completes
+        // (see SwitchState -> EndMorningTransitionOut).
+        UI.CloseAllWindowsExceptWorldMap();
+
+        // Animate player marker toward the target tile while the screen fades to black
+        if (DayAction == DayAction.Move && TargetPosition != null)
+        {
+            WorldMapRenderer.StartMovingPlayerMarkerTo(TargetPosition);
+        }
 
         // Switch state
-        SwitchState(GameState.EndMorningReportTransitionIn);
+        SwitchState(GameState.EndMorningTransitionIn);
     }
 
     #endregion
@@ -1382,7 +1397,7 @@ public class Game : Singleton<Game>
     {
         if (State == GameState.DayTransitionFadeIn) SwitchState(GameState.InDayTransition);
         else if (State == GameState.EndEncounterTransitionIn) SwitchState(GameState.EndEncounterTransitionOut);
-        else if (State == GameState.EndMorningReportTransitionIn) SwitchState(GameState.EndMorningReportTransitionOut);
+        else if (State == GameState.EndMorningTransitionIn) SwitchState(GameState.EndMorningTransitionOut);
         else if (State == GameState.GameOver) { } // game ended here
         else throw new System.Exception("State " + State.ToString() + " not handled.");
     }
@@ -1391,7 +1406,7 @@ public class Game : Singleton<Game>
     {
         if (State == GameState.DayTransitionFadeOut ||
             State == GameState.EndEncounterTransitionOut ||
-            State == GameState.EndMorningReportTransitionOut)
+            State == GameState.EndMorningTransitionOut)
         {
             SwitchState(GameState.InGame);
         }

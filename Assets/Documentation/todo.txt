@@ -1,19 +1,17 @@
 TODOS:
 ==============================================
 
-cart sound when travelling
-sound when opening and closing map (rustle1 and 2 with slight pitch variation)
-start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
+(/)cart sound when travelling
+(/)sound when opening and closing map (rustle1 and 2 with slight pitch variation)
+(/)start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
 
-add farm scattered sprites on outskirts (only keep if it looks good)
-
-map performance (many sprites, maybe unnecessary steps in worldmaprenderer.update) - currently FPS goes down by 200 when world map menu is open.
-
-(/) fix hex distance calculations
+(/)add farm scattered sprites on outskirts (only keep if it looks good)
 
 make path history line look nicer (geometry is already good now)
 
-make label value split nicer and more consistent below world map for hovered tile
+(/)make label value split nicer and more consistent below world map for hovered tile
+
+(/)better name generation for cities / lakes and forests
 
 
 EVENING REWORK:
@@ -33,7 +31,9 @@ EVENING REWORK:
 - chance for no encounter
 - add 3 generic encounters
 
-- add a dedicated tooltip for health conditions, showing affected stats, severity?, remaining duration, etc.
+ADD PROPER DAY 0:
+- game starts at home in the morning.
+- first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost. 
 
 actual interesting game mechanics
 

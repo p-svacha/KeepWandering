@@ -11,12 +11,10 @@ public class WorldMapRenderer : MonoBehaviour
 {
     public static WorldMapRenderer Instance;
 
-    public const float TILE_COLOR_VARIANCE = 0.04f; // Random variance applied to tile colors to make them look more natural
-    public const float TREE_DENSITY_VARIANCE = 0.05f; // Random variance applied to tree density to make them look more natural
-
     private Game Game;
 
     public const string WORLD_MAP_SORTING_LAYER = "WorldMap";
+    public const float TILE_COLOR_VARIANCE = 0.04f; // Random variance applied to tile colors to make them look more natural
 
     [Header("Rendering")]
     public Camera MainCamera;
@@ -34,6 +32,14 @@ public class WorldMapRenderer : MonoBehaviour
 
     public const int PLAYER_POSITION_MARKER_SORTING_ORDER = 24500;
     public const float PLAYER_POSITION_MARKER_SIZE = 0.1f;
+
+    private bool IsMarkerMoving;
+    private Vector2 MarkerMoveStartPos;
+    private Vector2 MarkerMoveTargetPos;
+    private float MarkerMoveDuration;
+    private float MarkerMoveElapsed;
+
+    public const float MARKER_MOVING_DURATION = GameUI.TRANSITION_FADE_TIME + 0.5f;
 
     [Header("Path History")]
     public GameObject PathHistoryContainer;
@@ -66,7 +72,12 @@ public class WorldMapRenderer : MonoBehaviour
     private const int TILE_ELEMENT_ATTEMPTS = 100;
     private const float TILE_ELEMENT_SCATTER_RADIUS = 0.45f; // allows slight bleed into neighboring tiles
     private const int TILE_ELEMENT_SORTING_ORDER = 20;
-    private const int Y_SORT_PRECISION_MULTIPLIER = 10; // scales fractional Y differences into distinct integer sorting orders
+
+    public const float TREE_DENSITY_VARIANCE = 0.05f; // Random variance applied to tree density to make them look more natural
+    public const float FIELD_DENSITY_VARIANCE = 0.1f; // Random variance applied to field density to make them look more natural
+
+    public const float FIELD_OVERLAP_PADDING = 0f; // extra world-unit gap enforced between field sprites, on top of their content radius
+    public const float FIELD_OVERLAP_RADIUS_MULTIPLIER = 0.80f; // shrinks the content-radius check slightly, since sprite bounds may include a bit of soft/feathered edge padding
 
     [Header("Roads")]
     public GameObject RoadContainer;
@@ -105,6 +116,7 @@ public class WorldMapRenderer : MonoBehaviour
         Game = game;
         LastRenderedPathHistoryCount = -1;
         AreaLabels = new Dictionary<Area, TextMeshPro>();
+        IsMarkerMoving = false;
     }
 
     public void ResetCamera()
@@ -279,7 +291,22 @@ public class WorldMapRenderer : MonoBehaviour
     /// </summary>
     private void UpdatePlayerPosition()
     {
-        PlayerPositionMarker.transform.position = Game.CurrentPosition.WorldPosition;
+        Vector2 targetPos;
+
+        if (IsMarkerMoving)
+        {
+            MarkerMoveElapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(MarkerMoveElapsed / MarkerMoveDuration);
+            targetPos = Vector2.Lerp(MarkerMoveStartPos, MarkerMoveTargetPos, t);
+
+            if (t >= 1f) IsMarkerMoving = false;
+        }
+        else
+        {
+            targetPos = Game.CurrentPosition.WorldPosition;
+        }
+
+        PlayerPositionMarker.transform.position = targetPos;
         float targetScale = WorldMapCameraHandler.Instance.Camera.orthographicSize * PLAYER_POSITION_MARKER_SIZE;
         PlayerPositionMarker.transform.localScale = new Vector3(targetScale, targetScale, 1f);
 
@@ -287,6 +314,24 @@ public class WorldMapRenderer : MonoBehaviour
         markerRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
         markerRenderer.sortingOrder = PLAYER_POSITION_MARKER_SORTING_ORDER;
     }
+
+    /// <summary>
+    /// Animates the player position marker moving toward the given tile over the given duration, instead of
+    /// snapping instantly. Used so the marker visibly travels while the screen fades to black on tile selection.
+    /// </summary>
+    public void StartMovingPlayerMarkerTo(WorldMapTile target)
+    {
+        float duration = MARKER_MOVING_DURATION;
+        IsMarkerMoving = true;
+        MarkerMoveStartPos = PlayerPositionMarker.transform.position;
+        MarkerMoveTargetPos = target.WorldPosition;
+        MarkerMoveDuration = Mathf.Max(duration, 0.0001f);
+        MarkerMoveElapsed = 0f;
+    }
+
+    #endregion
+
+    #region Path History
 
     private void UpdatePathHistory()
     {
@@ -354,7 +399,7 @@ public class WorldMapRenderer : MonoBehaviour
     /// <summary>
     /// Opacity for a path segment based on how many tiles old it is (0 = most recent move).
     /// Full opacity for the most recent PATH_HISTORY_RECENT_TILES tiles, fading linearly down to
-    /// PathHistoryMinOpacity by PATH_HISTORY_FADE_TILES tiles old, then holding at that floor.
+    /// PATH_HISTORY_MIN_OPACITY by PATH_HISTORY_FADE_TILES tiles old, then holding at that floor.
     /// </summary>
     private float GetPathHistoryAlpha(int age)
     {
@@ -485,8 +530,12 @@ public class WorldMapRenderer : MonoBehaviour
     /// Rolls TILE_ELEMENT_ATTEMPTS times, each with 'density' chance to add one randomized scattered element
     /// around the given tile's center. Does not spawn any GameObjects - elements are collected into 'results'
     /// so many tiles' worth can later be merged into a small number of combined meshes.
+    /// <br/>If avoidOverlap is true, a candidate is rejected (and the attempt simply skipped) if it would land
+    /// too close to any element already in 'results', where "too close" is based on each sprite's actual
+    /// content radius (from its trimmed sprite bounds, not the full texture square) times its instance scale -
+    /// approximating each sprite as a circle rather than using a fixed bounding box.
     /// </summary>
-    private void CollectScatteredElements(WorldMapTile tile, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, bool randomFlipX, System.Func<Color> randomColorGenerator, List<ScatteredElement> results)
+    private void CollectScatteredElements(WorldMapTile tile, string spriteFolderPath, float density, float densityVariance, bool randomizeRotation, bool randomizeColor, float minScale, float maxScale, bool randomFlipX, System.Func<Color> randomColorGenerator, List<ScatteredElement> results, bool avoidOverlap = false, float overlapPadding = 0f)
     {
         if (density <= 0f) return;
 
@@ -497,17 +546,48 @@ public class WorldMapRenderer : MonoBehaviour
             if (Random.value > density) continue;
 
             Vector2 offset = Random.insideUnitCircle * TILE_ELEMENT_SCATTER_RADIUS;
+            Vector2 position = tile.WorldPosition + offset;
+
+            Sprite sprite = ResourceManager.LoadRandomSprite(spriteFolderPath);
+            float scale = Random.Range(minScale, maxScale);
+
+            if (avoidOverlap && HasOverlap(position, GetSpriteContentRadius(sprite, scale) + overlapPadding, results))
+            {
+                continue; // reject this attempt; don't count against the remaining rolls otherwise
+            }
 
             results.Add(new ScatteredElement
             {
-                Position = tile.WorldPosition + offset,
-                Sprite = ResourceManager.LoadRandomSprite(spriteFolderPath),
+                Position = position,
+                Sprite = sprite,
                 RotationDegrees = randomizeRotation ? Random.Range(0f, 360f) : 0f,
-                Scale = Random.Range(minScale, maxScale),
+                Scale = scale,
                 FlipX = randomFlipX && Random.value > 0.5f,
                 Color = randomizeColor && randomColorGenerator != null ? randomColorGenerator() : Color.white
             });
         }
+    }
+
+    /// <summary>
+    /// Approximates a sprite instance's actual painted footprint as a circle, using its trimmed sprite
+    /// bounds (requires Mesh Type = Tight on import) times the instance's scale.
+    /// </summary>
+    private float GetSpriteContentRadius(Sprite sprite, float scale)
+    {
+        Bounds bounds = sprite.bounds;
+        float avgExtent = (bounds.extents.x + bounds.extents.y) / 2f;
+        return avgExtent * scale * FIELD_OVERLAP_RADIUS_MULTIPLIER;
+    }
+
+    private bool HasOverlap(Vector2 position, float radius, List<ScatteredElement> existing)
+    {
+        foreach (ScatteredElement e in existing)
+        {
+            float existingRadius = GetSpriteContentRadius(e.Sprite, e.Scale);
+            float minDist = radius + existingRadius;
+            if ((e.Position - position).sqrMagnitude < minDist * minDist) return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -520,6 +600,7 @@ public class WorldMapRenderer : MonoBehaviour
     {
         List<ScatteredElement> trees = new List<ScatteredElement>();
         List<ScatteredElement> buildings = new List<ScatteredElement>();
+        List<ScatteredElement> fields = new List<ScatteredElement>();
 
         foreach (WorldMapTile tile in worldMap.Tiles.Values)
         {
@@ -530,6 +611,11 @@ public class WorldMapRenderer : MonoBehaviour
             CollectScatteredElements(tile, "WorldMap/TileElements/CityBuildings", tile.Biome.CityBuildingDensity, 0f,
                 randomizeRotation: false, randomizeColor: true, minScale: 0.20f, maxScale: 0.25f,
                 randomFlipX: true, randomColorGenerator: GetRandomCityBuildingColor, results: buildings);
+
+            CollectScatteredElements(tile, "WorldMap/TileElements/Fields", tile.Biome.FieldDensity, FIELD_DENSITY_VARIANCE,
+                randomizeRotation: false, randomizeColor: true, minScale: 0.5f, maxScale: 0.55f,
+                randomFlipX: true, randomColorGenerator: GetRandomFieldColor, results: fields,
+                avoidOverlap: true, overlapPadding: FIELD_OVERLAP_PADDING);
         }
 
         // Trees: flat sorting order, submission order within the mesh doesn't matter for correctness
@@ -540,6 +626,12 @@ public class WorldMapRenderer : MonoBehaviour
         // since a single merged Renderer can only have one sortingOrder.
         buildings.Sort((a, b) => b.Position.y.CompareTo(a.Position.y));
         BuildScatteredElementMeshes(buildings, TileElementContainer, "CityBuildings", TILE_ELEMENT_SORTING_ORDER);
+
+        // Fields: sort by Y (descending) so triangles submit back-to-front within the merged mesh -
+        // this bakes the old per-instance Y-sort behavior into triangle order instead of sortingOrder,
+        // since a single merged Renderer can only have one sortingOrder.
+        fields.Sort((a, b) => b.Position.y.CompareTo(a.Position.y));
+        BuildScatteredElementMeshes(fields, TileElementContainer, "Fields", TILE_ELEMENT_SORTING_ORDER);
     }
 
     /// <summary>
@@ -674,6 +766,29 @@ public class WorldMapRenderer : MonoBehaviour
         float hue = Random.value;
         float saturation = Random.Range(0f, 0.2f);
         float value = Random.Range(0.85f, 1f);
+        return Color.HSVToRGB(hue, saturation, value);
+    }
+
+    private static Color GetRandomFieldColor()
+    {
+        List<Color> baseColors = new List<Color>()
+        {
+            //new Color(0.90f, 0.80f, 0.38f), // wheat
+            new Color(0.53f, 0.46f, 0.25f), // soil
+            new Color(0.38f, 0.47f, 0.29f), // green
+        };
+        float colorVariance = 0.05f;
+
+        Color baseColor = baseColors[Random.Range(0, baseColors.Count)];
+        float r = Mathf.Clamp01(baseColor.r + Random.Range(-colorVariance, colorVariance));
+        float g = Mathf.Clamp01(baseColor.g + Random.Range(-colorVariance, colorVariance));
+        float b = Mathf.Clamp01(baseColor.b + Random.Range(-colorVariance, colorVariance));
+        //return new Color(r, g, b);
+
+        // greenish-brownish hue, low saturation, high value
+        float hue = Random.Range(0.15f, 0.5f);
+        float saturation = Random.Range(0.1f, 0.25f);
+        float value = Random.Range(0.80f, 0.95f);
         return Color.HSVToRGB(hue, saturation, value);
     }
 

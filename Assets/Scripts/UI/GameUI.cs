@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using ElectionTactics;
 
 public class GameUI : Singleton<GameUI>
 {
@@ -45,7 +46,7 @@ public class GameUI : Singleton<GameUI>
     public Image BlackTransitionImage;
     public TextMeshProUGUI BlackTransitionText;
     public const float TRANSITION_HOLD_TIME = 3f;
-    public const float TRANSITION_FADE_TIME = 1f;
+    public const float TRANSITION_FADE_TIME = 1.5f;
     private float TransitionTargetTime;
     private float CurrentTransitionTime;
     private BlackTransitionState TransitionState;
@@ -181,6 +182,17 @@ public class GameUI : Singleton<GameUI>
         UI_ContextMenu.Instance.Hide();
     }
 
+    /// <summary>
+    /// Closes all other windows/UI but leaves the world map open. Used when a tile is selected on the map,
+    /// so the world map (and player marker animation on it) stays visible through the fade-in transition.
+    /// </summary>
+    public void CloseAllWindowsExceptWorldMap()
+    {
+        CloseEscapeMenu();
+        HideAllTooltips();
+        UI_ContextMenu.Instance.Hide();
+    }
+
     public void ToggleEscapeMenu()
     {
         if (Game.State != GameState.InGame) return;
@@ -204,6 +216,9 @@ public class GameUI : Singleton<GameUI>
     public void SetWorldMapVisible(bool visible)
     {
         if (Game.State != GameState.InGame) return;
+        if (WorldMapMenu.gameObject.activeSelf == visible) return;
+
+        AudioManager.PlaySound(visible ? "PaperRustle1" : "PaperRustle2", pitchVariance: 0.1f);
 
         WorldMapMenu.gameObject.SetActive(visible);
         Game.WorldMapRenderer.gameObject.SetActive(visible);
