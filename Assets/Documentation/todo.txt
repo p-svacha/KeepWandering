@@ -1,17 +1,18 @@
 TODOS:
 ==============================================
 
-(/)cart sound when travelling
-(/)sound when opening and closing map (rustle1 and 2 with slight pitch variation)
-(/)start moving player position marker towards the selected tile after selecting, so the marker moves while the black screen is fading in
+- chance to find coal in morning after fire (fuel)
+- animal attack event
+- attacker category human/animal
+- biomes set chance for each category per danger level
+- remove old trap display in UI
+- CampRenderer
+	- add trap display in camp
+	- limit traps per night to 3
+	- add tent display
+	- add bedroll display
+	- add fire display
 
-(/)add farm scattered sprites on outskirts (only keep if it looks good)
-
-make path history line look nicer (geometry is already good now)
-
-(/)make label value split nicer and more consistent below world map for hovered tile
-
-(/)better name generation for cities / lakes and forests
 
 
 EVENING REWORK:
@@ -33,14 +34,28 @@ EVENING REWORK:
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.
-- first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost. 
+- first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost.
+
+SUBSTANCE END GAME:
+
+add "days until/since deployment" to world map
+add spreading to morning report
+add deployment marker to world map on day 20
+add spreading markers to world map
+add game over when hit
+
+ITEM TAG ADDITION:
+keep current 5 star system, works very nice
+add a new 6th category, for the best of the best items in a category, represented by a purple star or something. Using an item that has a purple star in the tag associated with the skill check will GUARANTEE the best possible outcome. Should play a special animation that replaces the skill check sequence when option is selected.
+Could be an interesting mechanic and generally it feels good to have guaranteed success in some cases. Could also work very well for quest items/options, like cutting the fence in the fence gate encounter.
+
+FENCE GATE ENCOUNTER
+
 
 actual interesting game mechanics
 
 add at least 1 more biome
 candidates: town, swamp, desert, hills/mountains
-
-FENCE GATE ENCOUNTER
 
 more generic encounters
 go to specific biome

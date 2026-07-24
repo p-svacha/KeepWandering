@@ -117,10 +117,10 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         InitEncounterStepOutcomeNotes();
 
         // Trap display
-        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.NumEveningTraps > 0);
+        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.Camp.NumTraps > 0);
         if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
         {
-            TrapNumText.text = Game.NumEveningTraps.ToString();
+            TrapNumText.text = Game.Camp.NumTraps.ToString();
             string tooltipTitle = "Traps";
             string tooltipText = "Traps help defending against attacks in the night, or may catch wildlife, providing resources.";
             TrapImageTooltipTarget.Init(tooltipTitle, tooltipText);

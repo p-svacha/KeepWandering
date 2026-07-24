@@ -14,6 +14,11 @@ public class ItemDef : Def
     /// </summary>
     public bool IsQuestItem { get; init; }
 
+    /// <summary>
+    /// This indicates that the item is usable in the evening as a part of the camp.
+    /// </summary>
+    public bool IsCampComponent { get; init; }
+
     // General
     public Dictionary<ItemTagDef, int> Tags = new Dictionary<ItemTagDef, int>(); // Each tag has a level that defines the difficulty reduction when used in a slot requiring that tag.
     public int Value { get; init; } = 0;

@@ -63,6 +63,7 @@ public class Item
     public bool HasTag(ItemTagDef tag) => Def.HasTag(tag);
     public bool HasAnyTag => Def.Tags.Count > 0;
     public bool IsConsumable => Def.IsConsumable;
+    public bool IsCampComponent => Def.IsCampComponent;
     public bool HasMedicalProperties => Def.HasMedicalProperties;
 
     /// <summary>
@@ -70,7 +71,7 @@ public class Item
     /// </summary>
     public string GetTooltipSubtitle()
     {
-        if (HasAnyTag) return $"Remaining Uses: {Durability}";
+        if (HasAnyTag || IsCampComponent) return $"Remaining Uses: {Durability}";
         if (IsConsumable) return "Consumable Item";
         return "Special Item";
     }

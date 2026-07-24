@@ -60,14 +60,15 @@ The player character has skills, morale, health conditions, and an inventory.
 
 Four integer skills, default value 0, that act as direct modifiers to the difficulty of encounter options of their type:
 
-- **Strength** — raw physical force. Forcing things open, combat, moving heavy objects, climbing.
-- **Dexterity** — bodily coordination and control. Lockpicking, sneaking, dodging, crafting, running away, bypassing obstacles.
-- **Survival** — field knowledge and awareness. Scavenging, medical actions, cooking, scouting, noticing things others would miss.
-- **Social** — people skills. Persuading, trading, pleading, intimidating through personality, any interaction where how you speak matters more than what you do.
+- **Strength:** Raw physical force. Forcing things open, combat, moving heavy objects, climbing.
+- **Dexterity:** Bodily coordination and control. Lockpicking, sneaking, dodging, crafting, running away, bypassing obstacles.
+- **Survival:** Field knowledge and awareness. Scavenging, medical actions, cooking, scouting, noticing things others would miss.
+- **Social:** People skills. Persuading, trading, pleading, intimidating through personality, any interaction where how you speak matters more than what you do.
 
 Skills can be modified **temporarily** (by currently present health conditions) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the skill's base value, which starts at 0. Skills are clamped to **-30 / +30**.
 
-Skills go **up** through play — succeeding in a skill's own domain, completing quest beats, or reaching certain encounter outcomes. They rarely go down directly; negative pressure on skill checks comes from morale and temporary health penalties instead. This keeps skills a satisfying growth curve and concentrates volatility in the one stat built for it.
+The base value of skills generally go up during a playthrough, either by succeeding in certain skill checks, are more focussed by training a skill directly during the evening.
+Negative pressure on skill values mostly comes from effects from health conditions, which are mostly temporary or healable.
 
 ## Morale
 
@@ -148,6 +149,12 @@ Encounters apply damage through standardized helpers rather than always targetin
 - **Take Bruise Damage (severity X)** — a bruise wound plus fracture damage to a random limb.
 - **Take Cut Damage (severity X)** — a cut wound plus an immediate blood-loss increase.
 - **Take Random Damage (severity X)** — randomly one of the above.
+
+## Natural Healing
+
+Natural Healing is a mechanic that applies to all health conditions. Each condition defines a natural healing value, which is the amount by which the condition's severity when natural healing is applied. Natural healing always applied with a specific factor, which modifies the healing of every condition.
+
+This system can be used for dynamic healing effects with different factors / effectiveness.
 
 ---
 
@@ -241,9 +248,11 @@ Roads are drawn onto the map at generation and act as implicit guidance:
 
 ## Danger Level
 
-Each tile has a persistent danger level, shown to the player, that drives the chance and intensity of night encounters. It **starts at "safe"** and **increases by one level after each night the player spends on that tile**, which pushes the player to keep moving rather than camping. Encounters can also modify danger levels. The five levels and their exact night-encounter probabilities are defined in `DangerLevelDefs`.
+Each tile has a persistent danger level that drives the chance and intensity of night encounters. It starts at "safe" and increases by one level after each night the player spends on that tile, which pushes the player to keep moving rather than camping. This persistent value increased by nights spent on the tile, and can further be modified (in both ways) by certain encounter outcomes.
 
-A toggleable **danger overlay** colour-codes every tile by danger level for at-a-glance route planning.
+Camp setup during the evening can apply a temporary safety modifier that only affects that single night's encounter roll, without touching the tile's underlying danger level. Both the current danger level and the temporary modifier are shown to the player in the UI.
+
+A toggleable danger overlay colour-codes every tile by (base) danger level for at-a-glance route planning.
 
 ## Biomes
 
@@ -319,18 +328,34 @@ During an encounter, free item use is disabled — items can only be used throug
 The main afternoon encounters, bound to a tile and **persistent** — they keep their state and can be returned to. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
 
 ### Evening encounters
-The evening encounter, based purely on the current biome. **Not persistent** — a fresh instance each evening — so they carry no narrative weight and exist to give the player a moment of control.
 
-The evening is a **generic action menu** ("How would you like to spend your evening?") with **no scene-specific setting**.
+The evening encounter is a single, place-agnostic encounter, not tied to any specific setting or scene, and not persistent across days. Framed purely as a generic action menu ("How would you like to spend your evening?"), with no randomized location and no implied permanence, since evenings can never be revisited the way location encounters can.
 
-Standard evening actions, with availability or chances varying by biome/tile:
+Biome still meaningfully shapes the evening through option availability, difficulty, and which biome-exclusive option (if any) is offered.
 
-- **Set Trap** *(non-terminal)* — place a trap for the night; returns to the menu so it can be combined with one terminal action.
-- **Fortify** *(skill check)* — reinforce the sleeping spot to reduce the night's danger. Accepts building materials/tools to lower difficulty; a critical success grants a bonus.
-- **Scavenge** *(skill check)* — search for an item from the biome loot table. Accepts scavenging items.
-- **Cook** — turn raw food into a safer/better form.
-- **Rest Early** *(fixed outcome)* — turn in for extra natural healing.
-- **Find Trader** — seek out a trader and enter a trade session.
+Options split into two categories:
+
+**Camp options (non-terminal, sprite-bound)**: setting up camp, done in any combination before choosing how to spend the rest of the evening:
+
+**Set up Shelter:** Fixed outcome, requires a Tent. Provides a temporary safety modifier for tonight only (see Danger Level).
+**Set up Sleeping Spot:** Fixed outcome, requires a Bedroll. Boosts natural healing for the night.
+**Set Trap:** Fixed outcome, requires a Trap. Can help reduce night attack intensity or provide resources if the trap is triggered. If triggered, trap is destroyed.
+**Make Fire:** Skill check (Survival), requires a Fuel item (consumed) and accepts an optional Fire Starter item to reduce difficulty. Enables cooking and prevents animal-based night encounters.
+
+see Camp System for more details.
+
+Camp items leave the inventory the moment they're placed and reappear (or are reported lost/broken) in the morning report, using the same mechanism as the existing trap system generalized across all four camp components. Camp sprites remain visible into the Night encounter, and an active Shelter or Fire can affect that night's encounter difficulty or availability.
+
+Setting up a camp grants a temporary morale-boosting health condition the following day, scaled by which components were set up:
+- Bedroll: +3 morale
+- Tent: +2 morale
+- Fire: +1 morale
+
+**Spend-the-evening options (terminal, dialogue list)**: exactly one is chosen, ending the encounter:
+
+**Rest Early:** Fixed outcome, safe, available everywhere. Extra natural healing.
+**Scavenge:** Skill check (Survival), available everywhere. Draws from the current biome's loot table.
+**Train Skill:** Skill check, one option per biome, training a specific skill (see Skills). Difficulty self-scales against the player's current value in that skill so it tapers off as the skill grows. Each has an associated item tag for difficulty reduction. Woods trains Survival, Outskirts trains Dexterity, City trains Social.
 
 ### Night encounters
 Threat encounters during the night, **not persistent**, overwhelmingly about *avoiding* bad outcomes rather than gaining good ones (though critical success can still help). Usually an attack on the camp.
@@ -479,6 +504,7 @@ Any encounter can start a trade session via `InitiateTrade`, temporarily replaci
 # Gameplay Loop
 
 The player must escape the zone; death ends the run (the screen fades to black with the cause of death, then offers a new game or the main menu). The game is day-based, each day split into **Morning, Afternoon, Evening, Night**. Transitions fade through black; Night→Morning shows the new day number. During the black screen, a short handcart-and-footstep sound plays.
+
 ## Morning
 
 On the world map at the current tile, no encounter, free item use. Any night events from the previous night are reported as bullet points. On day 1, the morning instead delivers the premise (escape ahead of the weapon test). Three actions:
@@ -487,15 +513,29 @@ On the world map at the current tile, no encounter, free item use. Any night eve
 - **Stay** → afternoon on the same tile, resuming its location encounter in its saved state.
 - **Rest** → skip the afternoon, advance to evening, and apply all conditions' natural healing.
 
+The initial text of the morning encounter also always includes the **morning report**, basically acting as a log for night events that weren't directly visible to the player. Everything that happens during the night can append to the report. Examples are wounds infecting/healing, effect of traps, spread of the substance, and any other game-state events that happened during the night.
+
 ## Afternoon
 
 Always the current tile's **location encounter** — resumed in its saved state if visited before, or newly generated from biome and game state if not.
 
 ## Evening
 
-A generic evening encounter, where the player can choose from a variety of options, that may be affected by current location. A fresh instance each evening.
+A single generic evening encounter, place-agnostic and not persistent, where the player sets up camp (optional, non-terminal) and then chooses how to spend the rest of the evening (terminal). Biome affects option availability, difficulty, and the biome-exclusive option, but never the scene itself. See Evening encounters for the full option breakdown.
 
-### Trap System
+### Camp System
+
+Camp components (Tent, Bedroll, Traps, Fire) share a common lifecycle:
+
+The item used is removed from the inventory the moment it's placed and its sprite appears in the scene.
+The camp persists visually into the Night encounter, and an active camp component can affect that night's encounter.
+In the morning, each placed item either returns to the inventory (with durability reduced) or is reported lost/broken, and Fire simply extinguishes. All results appear in the morning report.
+
+Trap specifically:
+
+Reduces a night encounter's intensity by 1 (below 1 nullifies it).
+If unused on an encounter, has a biome-based chance to catch an animal and yield an item.
+If neither used nor triggered, an 80% chance to return to the cart in the morning (20% lost).
 
 Traps (from the Trap item or evening options) protect the night. Each trap:
 - Reduces a night encounter's intensity by 1 (below 1 nullifies it).
@@ -506,7 +546,7 @@ All trap results appear in the morning report.
 
 ## Night
 
-A chance of a **night encounter** based on the tile's danger level; if none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an unbandaged wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed (see below).
+A chance of a **night encounter** based on the tile's effective danger level (base danger level + modifiers from camp). If none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an unbandaged wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed.
 
 ---
 

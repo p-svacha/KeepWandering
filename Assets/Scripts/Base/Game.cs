@@ -18,8 +18,7 @@ public class Game : Singleton<Game>
     public MorningReport LatestMorningReport { get; private set; }
     public Encounter CurrentEncounter;
     public EncounterStep CurrentEncounterStep;
-    public int NumEveningTraps {  get; private set; }
-    public int NumTrapsUsedToDefendNightAttack { get; private set; }
+    public Camp Camp => Camp.Instance;
     public NightEncounter NightEncounter { get; private set; }
 
     // Encounter Step Outcome
@@ -463,7 +462,7 @@ public class Game : Singleton<Game>
             if (slot.IsDestroyingItem) DestroyOwnedItem(item);
             else
             {
-                ReduceItemDurability(item, 1);
+                ReduceItemDurability(item);
                 if (!item.IsDestroyed)
                 {
                     item.Show();
@@ -715,9 +714,6 @@ public class Game : Singleton<Game>
         // Initialize morning report (things happening from here can be part of the report)
         LatestMorningReport = new MorningReport(Day);
 
-        // Reset values
-        NumTrapsUsedToDefendNightAttack = 0;
-
         // Decide if there should be a night encounter
         int nightEncounterIntensity = CurrentPosition.DangerLevel.NightEncounterIntensities.GetWeightedRandomElement();
         if (nightEncounterIntensity == 0)
@@ -730,18 +726,17 @@ public class Game : Singleton<Game>
         else
         {
             // Reduce intensity based on traps
-            while (nightEncounterIntensity > 0 && NumEveningTraps > 0)
+            while (nightEncounterIntensity > 0 && Camp.NumTraps > 0)
             {
                 nightEncounterIntensity--;
-                NumEveningTraps--;
-                NumTrapsUsedToDefendNightAttack++;
+                Camp.UseTrapToDefendNightAttack();
             }
 
             // If intensity was reduced to 0, mention in morning report and end day
             if (nightEncounterIntensity == 0)
             {
-                string trap = NumTrapsUsedToDefendNightAttack == 1 ? "trap was" : "traps were";
-                LatestMorningReport.AddNightEvent($"{NumTrapsUsedToDefendNightAttack} {trap} used during the night to successfully defend against an attack.");
+                string trap = Camp.NumTrapsUsedToDefendNightAttack == 1 ? "trap was" : "traps were";
+                LatestMorningReport.AddNightEvent($"{Camp.NumTrapsUsedToDefendNightAttack} {trap} used during the night to successfully defend against an attack.");
                 SwitchState(GameState.DayTransitionFadeIn);
             }
 
@@ -787,41 +782,8 @@ public class Game : Singleton<Game>
         EndCurrentEncounter();
         NightEncounter = null;
 
-        // Trigger remaining traps
-        int numTriggeredTraps = 0;
-        for(int i = 0; i < NumEveningTraps; i++)
-        {
-            // Chance for triggering on wildlife
-            bool triggeredOnWildlife = Random.value < CurrentPosition.Biome.TrapTriggerChance;
-            if (triggeredOnWildlife)
-            {
-                ItemDef item = LootTables.TrapLoot.Resolve();
-                LatestMorningReport.AddNightEvent($"A trap was triggered during the night. You found {item.Label}.");
-                numTriggeredTraps++;
-                continue;
-            }
-
-            // Chance for breaking
-            float breakChance = 0.2f;
-            if (Random.value < breakChance)
-            {
-                LatestMorningReport.AddNightEvent($"A trap was triggered during the night but didn't catch anything.");
-                numTriggeredTraps++;
-                continue;
-            }
-        }
-
-        // Add remaining traps to inventory
-        int remainingTraps = NumEveningTraps - numTriggeredTraps;
-        if (remainingTraps > 0)
-        {
-            AddNewItemsToInventory(ItemDefOf.Trap, remainingTraps);
-            string trap = "trap".Pluralize(remainingTraps);
-            LatestMorningReport.AddNightEvent($"{remainingTraps} {trap} set during the evening were not triggered. You collect them.");
-        }
-        
-
-        NumEveningTraps = 0;
+        // Clean up camp
+        Camp.Instance.CleanUpCamp(LatestMorningReport);
 
         // Apply natural healing
         float naturalHealingFactor = 1f;
@@ -984,7 +946,7 @@ public class Game : Singleton<Game>
         item.SetDurability(durability);
     }
 
-    public void ReduceItemDurability(Item item, int amount)
+    public void ReduceItemDurability(Item item, int amount = 1)
     {
         item.ModifyDurability(-amount);
         if (item.Durability <= 0)
@@ -1157,9 +1119,51 @@ public class Game : Singleton<Game>
         RevealEncounter(chosenTile, showInOutcomeNote: true);
     }
 
-    public void PlaceEveningTrap()
+    public void PlaceEveningTrap(Item trap)
     {
-        NumEveningTraps++;
+        if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to place trap outside of evening.");
+        if (trap.Def != ItemDefOf.Trap) throw new System.Exception("Trying to place item that is not a trap.");
+
+        Inventory.Remove(trap);
+        trap.SetIsPlayerOwned(false);
+        trap.Hide();
+
+        Camp.AddTrap(trap);
+        OnGameStateChanged();
+    }
+
+    public void SetUpTent(Item tent)
+    {
+        if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to set up tent outside of evening.");
+        if (Camp.Tent != null) throw new System.Exception("Trying to set up tent when one is already set up.");
+        if (tent.Def != ItemDefOf.Tent) throw new System.Exception("Trying to set up item that is not a tent.");
+
+        Inventory.Remove(tent);
+        tent.SetIsPlayerOwned(false);
+        tent.Hide();
+        Camp.SetTent(tent);
+        OnGameStateChanged();
+    }
+
+    public void SetUpBedroll(Item bedroll)
+    {
+        if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to set up bedroll outside of evening.");
+        if (Camp.Bedroll != null) throw new System.Exception("Trying to set up bedroll when one is already set up.");
+        if (bedroll.Def != ItemDefOf.Bedroll) throw new System.Exception("Trying to set up item that is not a bedroll.");
+
+        Inventory.Remove(bedroll);
+        bedroll.SetIsPlayerOwned(false);
+        bedroll.Hide();
+        Camp.SetBedroll(bedroll);
+        OnGameStateChanged();
+    }
+
+    public void MakeFire()
+    {
+        if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to make fire outside of evening.");
+        if (Camp.HasFire) throw new System.Exception("Trying to make fire when one is already made.");
+
+        Camp.MakeFire();
         OnGameStateChanged();
     }
 

@@ -2,7 +2,7 @@ using NUnit.Framework.Internal;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Encounter_Morning : Encounter
+public class MorningEncounter : Encounter
 {
     private const string DANGER_LEVEL_WARNING = "\n\nThe danger level has increased by sleeping here.";
 

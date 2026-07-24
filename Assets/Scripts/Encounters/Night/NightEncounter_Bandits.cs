@@ -17,7 +17,7 @@ public class NightEncounter_Bandits : NightEncounter
         if (Intensity == 2) text = "Voices wake you. Two figures are going through your cart. One seems to notice you're awake.";
         if (Intensity == 3) text = "You're kicked awake. Three people surround your camp.";
 
-        if (Game.NumTrapsUsedToDefendNightAttack > 0) text += " It seems as your traps have weakened the attack.";
+        if (Game.Camp.NumTrapsUsedToDefendNightAttack > 0) text += " It seems as your traps have weakened the attack.";
 
         return text;
     }

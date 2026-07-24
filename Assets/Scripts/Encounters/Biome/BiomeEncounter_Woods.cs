@@ -131,13 +131,13 @@ public class BiomeEncounter_Woods : BiomeEncounter
             Game.ModifyRandomStat(1, 2, StatDefOf.Survival, StatDefOf.Dexterity);
 
             // Set trap
-            Game.PlaceEveningTrap();
+            Game.AddNewItemToInventory(ItemDefOf.Trap);
 
             return "You build an ingenious trap, improving your skills. You feel confident about tonight.";
         }
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
-            Game.PlaceEveningTrap();
+            Game.AddNewItemToInventory(ItemDefOf.Trap);
 
             return "You successfully rig a decent trap.";
         }

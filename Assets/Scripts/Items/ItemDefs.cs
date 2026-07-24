@@ -51,6 +51,16 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Bedroll")
+        {
+            Label = "bedroll",
+            Description = "Can be set up at your camp in the evening to provide a place to sleep, increasing healing during the night.",
+            Value = 5,
+            IsCampComponent = true,
+            MinInitialDurability = 2,
+            MaxInitialDurability = 8,
+        },
+
         new ItemDef("Beer")
         {
             Label = "beer",
@@ -307,11 +317,24 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Tent")
+        {
+            Label = "packed tent",
+            Description = "Can be set up at your camp in the evening to provide protection during the night.",
+            Value = 5,
+            MinInitialDurability = 2,
+            MaxInitialDurability = 10,
+            IsCampComponent = true,
+        },
+
         new ItemDef("Trap")
         {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
             Value = 3,
+            MinInitialDurability = 1,
+            MaxInitialDurability = 5,
+            IsCampComponent = true,
         },
 
         new ItemDef("WaterBottle")
@@ -335,6 +358,7 @@ public static class ItemDefOf
     public static ItemDef Antidote;
     public static ItemDef Bandage;
     public static ItemDef Beans;
+    public static ItemDef Bedroll;
     public static ItemDef Berries;
     public static ItemDef Bone;
     public static ItemDef Coin;
@@ -348,6 +372,7 @@ public static class ItemDefOf
     public static ItemDef RawMeat;
     public static ItemDef Shovel;
     public static ItemDef Rope;
+    public static ItemDef Tent;
     public static ItemDef Trap;
     public static ItemDef WaterBottle;
 
