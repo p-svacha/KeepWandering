@@ -83,7 +83,8 @@ public abstract class Def : ITooltipTarget
     public virtual void OnLoadingDefsDone() { }
 
     /// <summary>
-    /// Gets called when loading a Def and returns if it is valid. If not an error is thrown.
+    /// Gets called when loading a Def and returns if it is valid.
+    /// <br/>If the Def contains invalid data, an error should be thrown using ThrowValidationError(string msg).
     /// </summary>
     public virtual bool Validate()
     {

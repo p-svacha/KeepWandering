@@ -24,7 +24,7 @@ public class SpriteOptionIndicator : MonoBehaviour
     // Cached references
     private SpriteRenderer SpriteRenderer;
     public SpriteRenderer Sprite => SpriteRenderer;
-    private PolygonCollider2D Collider;
+    public PolygonCollider2D Collider; // gets set automatically
     private List<LineRenderer> OutlineRenderers = new List<LineRenderer>();
     private List<float> OutlinePerimeters = new List<float>();
 
@@ -35,6 +35,8 @@ public class SpriteOptionIndicator : MonoBehaviour
 
     private void Awake()
     {
+        Debug.Log($"Awake called on SpriteOptionIndicator for {gameObject.name}");
+
         SpriteRenderer = GetComponent<SpriteRenderer>();
         Collider = GetComponent<PolygonCollider2D>();
 
@@ -60,6 +62,8 @@ public class SpriteOptionIndicator : MonoBehaviour
     /// </summary>
     public void Bind(UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
     {
+        Debug.Log($"Binding SpriteOptionIndicator to container {container.name} with label {label.name} and {options.Count} options.");
+
         OptionsContainer = container;
         LabelElement = label;
         Options = options;

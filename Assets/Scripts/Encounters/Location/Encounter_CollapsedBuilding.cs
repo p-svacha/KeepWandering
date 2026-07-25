@@ -90,11 +90,11 @@ public class Encounter_CollapsedBuilding : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Building", true);
-        SetEncounterSpriteVisibility("SurvivorStuck", survivorState == SurvivorState.Stuck);
-        SetEncounterSpriteVisibility("SurvivorFreed", survivorState == SurvivorState.Freed);
-        SetEncounterSpriteVisibility("Wires", wireState != WireState.Absent);
-        SetEncounterSpriteVisibility("Rubble", rubbleState != RubbleState.Cleared);
+        SetObjectVisibility("Building", true);
+        SetObjectVisibility("SurvivorStuck", survivorState == SurvivorState.Stuck);
+        SetObjectVisibility("SurvivorFreed", survivorState == SurvivorState.Freed);
+        SetObjectVisibility("Wires", wireState != WireState.Absent);
+        SetObjectVisibility("Rubble", rubbleState != RubbleState.Cleared);
 
         SetSprite("Building", isCollapsed ? "Collapsed" : "Base");
         SetSprite("Wires", wireState == WireState.Cut ? "WiresCut" : "Wires");

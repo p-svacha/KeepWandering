@@ -75,10 +75,10 @@ public class Encounter_RadioTower : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Tower", true);
-        SetEncounterSpriteVisibility("Note", HasNoteOnDoor && !IsNoteTaken);
-        SetEncounterSpriteVisibility("DoorClosed", !IsDoorOpen);
-        SetEncounterSpriteVisibility("DoorOpen", IsDoorOpen);
+        SetObjectVisibility("Tower", true);
+        SetObjectVisibility("Note", HasNoteOnDoor && !IsNoteTaken);
+        SetObjectVisibility("DoorClosed", !IsDoorOpen);
+        SetObjectVisibility("DoorOpen", IsDoorOpen);
         ShowPlayerCharacter(CurrentPlayerPosition == PlayerPosition.Outside);
     }
 
@@ -225,7 +225,7 @@ public class Encounter_RadioTower : LocationEncounter
                 new ItemSlot()
                 {
                     IsRequired = false,
-                    Item = ItemDefOf.Rope,
+                    Tag = ItemTagDefOf.Climbing,
                 }
             }
         };

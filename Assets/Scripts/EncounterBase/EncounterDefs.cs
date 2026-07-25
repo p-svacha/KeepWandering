@@ -21,7 +21,7 @@ public static class EncounterDefs
         {
             EncounterClass = typeof(EveningEncounter),
             Type = EncounterType.Evening,
-            CameraZoomLevel = 8,
+            CameraZoomLevel = 10,
         },
 
         #endregion

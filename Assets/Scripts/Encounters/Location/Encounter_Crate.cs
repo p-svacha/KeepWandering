@@ -78,9 +78,9 @@ public class Encounter_Crate : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Crate_Destroyed", IsSmashed);
-        SetEncounterSpriteVisibility("Crate_Open", IsOpened);
-        SetEncounterSpriteVisibility("Crate", !IsSmashed && !IsOpened);
+        SetObjectVisibility("Crate_Destroyed", IsSmashed);
+        SetObjectVisibility("Crate_Open", IsOpened);
+        SetObjectVisibility("Crate", !IsSmashed && !IsOpened);
     }
 
     protected override void OnEnd()
@@ -294,13 +294,20 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Peek inside",
             Description = "Try to peek inside the crate to see if there are more items hidden within.",
-            Difficulty = 30,
+            Difficulty = 40,
             OncePerDay = true,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Survival, 1 },
+            },
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    Tag = ItemTagDefOf.LightSource,
+                }
             },
             Action = Peek,
         };

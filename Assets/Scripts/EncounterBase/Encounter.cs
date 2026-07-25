@@ -54,7 +54,9 @@ public abstract class Encounter
         UsedOncePerDayOptions.Clear();
 
         // Activate encounter sprite container
-        Game.EncounterContainer.transform.Find($"{Def.DefName}").gameObject.SetActive(true);
+        Transform encounterContainer = Game.EncounterContainer.transform.Find($"{Def.DefName}");
+        if(encounterContainer == null) throw new System.Exception($"Encounter container for {Def.DefName} not found in GameScreen/Encounters.");
+        encounterContainer.gameObject.SetActive(true);
 
         // Show encounter items
         foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Show();
@@ -268,10 +270,10 @@ public abstract class Encounter
     /// Sets the visibility of a gameobject belonging to this encounter. The gameobject will be hidden when the encounter ends.
     /// <br/>In the Unity hierarchy, the GameObject needs to be placed in GameScreen/Encounters/{EncounterDefName}/{spriteName}.
     /// </summary>
-    protected void SetEncounterSpriteVisibility(string spriteName, bool show)
+    protected void SetObjectVisibility(string spriteName, bool show)
     {
-        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
-        SetSpriteVisibility(spriteObj.GetComponent<SpriteRenderer>(), show);
+        GameObject obj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
+        obj.SetActive(show);
     }
 
     protected void SetSpriteVisibility(SpriteRenderer renderer, bool show)

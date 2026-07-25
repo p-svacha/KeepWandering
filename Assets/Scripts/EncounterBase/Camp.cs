@@ -5,8 +5,10 @@ using UnityEngine;
 /// Represents the players camp setup in the evening that persists into the night and gets cleaned up in the morning.
 /// <br/>The camp stores a reference to the items that were used to set up the camp (tent, bedroll, traps) and whether a fire was made. In the morning, exact copies of the items with reduced durability will be added back to the player's inventory if they are still usable.
 /// </summary>
-public class Camp : Singleton<Camp>
+public class Camp
 {
+    public static Camp Instance;
+
     public const int BEDROLL_MORALE_BONUS = +3;
     public const int TENT_MORALE_BONUS = +2;
     public const int FIRE_MORALE_BONUS = +1;
@@ -25,6 +27,11 @@ public class Camp : Singleton<Camp>
     public int NumTrapsUsedToDefendNightAttack { get; private set; }
     public int NumTraps => GetTraps().Count;
     public bool HasTrap => NumTraps > 0;
+
+    public Camp()
+    {
+        Instance = this;
+    }
 
     public void MakeFire()
     {
@@ -101,6 +108,13 @@ public class Camp : Singleton<Camp>
         {
             morningReport.AddNightEvent("The fire has burned out.");
             HasFire = false;
+
+            // 10% chance to find charcoal
+            if (Random.value < 0.1f)
+            {
+                Game.AddNewItemToInventory(ItemDefOf.Charcoal);
+                morningReport.AddNightEvent("You found some usable charcoal in the remains of the fire.");
+            }
         }
 
         // Tent

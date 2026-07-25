@@ -49,6 +49,8 @@ public class ItemDef : Def
 
     public override bool Validate()
     {
+        if (Sprite == null) ThrowValidationError($"ItemDef '{DefName}' has no sprite assigned. Make sure there is a sprite in Resources/Items/{DefName}.png");
+
         foreach (var tag in Tags)
         {
             if (tag.Value < MIN_TAG_LEVEL || tag.Value > MAX_TAG_LEVEL)

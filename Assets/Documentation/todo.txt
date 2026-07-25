@@ -1,6 +1,29 @@
 TODOS:
 ==============================================
 
+item sprites:
+- tent
+- bedroll
+- wood
+- oil lamp
+- matchbox
+- lighter
+- charcoal
+- cooked meat
+
+encounter sprites:
+- tent spot
+- tent
+- bedroll spot
+- bedroll
+- fire spot
+- fire
+- trap spot
+- trap
+
+- slot for survival training
+- slot for social training 
+
 Rework plan
 New Defs — Shelter, Bedding, FireStarter, Fuel tags plus a first pass of items carrying them; Charm tag (or your preferred name) for Social training; confirm final training-tag reuse list.
 Train Skill implementation — self-scaling difficulty formula off current skill value, four variants wired to their skill/tag/availability rule (including the Fire-gated Dexterity check).
@@ -8,13 +31,12 @@ Morning report coverage — extend existing trap reporting to Shelter/Bedding/Fi
 Art — design campsite sprites (tent, bedroll, firepit) using the existing sprite-option-interaction system; repurpose the now-freed setting sprites (shed, ditch, wall, barn, etc.) into new generic day encounters per the roadmap.
 Playtest pass — tune per-biome difficulty/availability numbers once the system is functionally complete.
 
-- evening encounter
 
-- chance to find coal in morning after fire (fuel)
+- test make fire first slot for fuel. inteded behaviour is that fuel is required, but still reduces difficulty based on tag level.
+
 - animal attack event
 - attacker category human/animal
-- biomes set chance for each category per danger level
-- remove old trap display in UI
+- remove old trap display in encounter display UI
 - CampRenderer
 	- add trap display in camp
 	- limit traps per night to 3
@@ -22,13 +44,24 @@ Playtest pass — tune per-biome difficulty/availability numbers once the system
 	- add bedroll display
 	- add fire display
 
+- add ProbabilityDef -> use in encounter prob and item prob
 - change encounter probability to an enum/def system with very common, common, uncommon, rare, very rare, extremely rare. Get rid of base probability and only use the probability dictionary per biome. validate that every biome has a value in every EncounterDef. Define fixed probability values for each category.
 
-- morale bonus
+- do the same for items appearing in loot tables (maybe even use same defs). 
 
-- remove trap display from UI_encounterdisplay
+- replace nested LootTables in biome loot tables with simpler lists of itemDefs for more control
+- make sure every item is considered in the loot tables of biomes
+ --> completely redo them
 
+- test morale bonus
+
+- cooked meat item
+- cooked beans item
 - cook action on fire
+- poisoning health condition
+- apply from raw meat consumption (chance)
+
+- repair mechanic: available skill check option to spend an evening, dexterity stat. chance to increase durability of an item.
 
 EVENING REWORK:
 - add option to train a specific skill (depending on biome)
@@ -65,6 +98,13 @@ add a new 6th category, for the best of the best items in a category, represente
 Could be an interesting mechanic and generally it feels good to have guaranteed success in some cases. Could also work very well for quest items/options, like cutting the fence in the fence gate encounter.
 
 FENCE GATE ENCOUNTER
+
+IDEAS TO START CREATING NEW (GENERIC) LOCATION ENCOUNTERS:
+- look for an item tag that isn't used often yet, and create a location encounter that incorporates it.
+- look for an item that doesn't appear often yet (in loot tables / requirements / rewards, etc, just generally in the game), and create a location encounter that incorporates it.
+- look for skills that aren't used often yet in encounter options (either as relevant stats in skill checks, or as threshold requirements), and create a location encounter that incorporates it.
+- look for a health condition that isn't used often yet, and create a location encounter that somehow incorporates it.
+- combine any of the above points
 
 
 actual interesting game mechanics

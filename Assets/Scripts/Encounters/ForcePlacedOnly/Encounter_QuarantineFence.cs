@@ -23,9 +23,9 @@ public class Encounter_QuarantineFence : LocationEncounter
     }
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("BackFence", !HasHole);
-        SetEncounterSpriteVisibility("BackFence_Hole", HasHole);
-        SetEncounterSpriteVisibility("SideFence", true);
+        SetObjectVisibility("BackFence", !HasHole);
+        SetObjectVisibility("BackFence_Hole", HasHole);
+        SetObjectVisibility("SideFence", true);
     }
     protected override List<EncounterOption> GetOptions()
     {

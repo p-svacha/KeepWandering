@@ -14,7 +14,7 @@ public class BiomeDef : Def
     public bool IsPassable { get; init; } = true;
 
     /// <summary>
-    /// General loot table for encounters that happen in this biome. This is used to add biome-specific items to the loot tables of encounters that happen in this biome, without having to modify the encounter defs themselves.
+    /// General loot table for encounters that happen in this biome. This is used to add biome-specific items to the loot tables of encounters that happen in this biome, without having to modify the encounter defs themselves. It is also the table used when scavenging loot in the evening in this biome.
     /// </summary>
     public LootTable LootTable { get; init; } = null;
 
@@ -53,8 +53,9 @@ public static class BiomeDefs
             Description = "A place of many wild animals and plants.",
             LootTable = new LootTable
             {
-                { LootTables.Food, 10 },
+                { ItemDefOf.Wood, 12 },
                 { LootTables.Plants, 12 },
+                { LootTables.Food, 10 },
                 { LootTables.Drinks, 9 },
                 { LootTables.Tools, 5 },
                 { ItemDefOf.Rope, 5 },
@@ -78,6 +79,7 @@ public static class BiomeDefs
                 { LootTables.Medical, 5 },
                 { LootTables.Tools, 5 },
                 { LootTables.Plants, 5 },
+                { ItemDefOf.Wood, 3 },
             },
             TrapTriggerChance = 0.3f,
             // Rendering

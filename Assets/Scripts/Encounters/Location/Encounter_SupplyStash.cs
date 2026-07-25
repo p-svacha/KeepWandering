@@ -81,9 +81,9 @@ public class Encounter_SupplyStash : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Backpack", containerType == ContainerType.Backpack);
-        SetEncounterSpriteVisibility("Box", containerType == ContainerType.Box);
-        SetEncounterSpriteVisibility("Crate", containerType == ContainerType.Crate);
+        SetObjectVisibility("Backpack", containerType == ContainerType.Backpack);
+        SetObjectVisibility("Box", containerType == ContainerType.Box);
+        SetObjectVisibility("Crate", containerType == ContainerType.Crate);
         SetSprite(containerType.ToString(), $"{containerType}_{state}");
     }
 

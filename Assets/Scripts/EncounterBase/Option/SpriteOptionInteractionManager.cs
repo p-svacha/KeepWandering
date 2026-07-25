@@ -50,10 +50,7 @@ public static class SpriteOptionInteractionManager
 
         // Get or add the indicator component
         SpriteOptionIndicator indicator = sprite.GetComponent<SpriteOptionIndicator>();
-        if (indicator == null)
-        {
-            indicator = sprite.gameObject.AddComponent<SpriteOptionIndicator>();
-        }
+        if (indicator == null) indicator = sprite.gameObject.AddComponent<SpriteOptionIndicator>();
 
         // Bind it with the container and options
         indicator.Bind(container, label, options);

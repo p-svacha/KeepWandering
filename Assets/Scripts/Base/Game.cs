@@ -91,7 +91,7 @@ public class Game : Singleton<Game>
         WorldMapRenderer.Init(this);
         SpriteOptionInteractionManager.Init();
 
-        HideAllEncounterSprites();
+        HideAllEncounters();
     }
 
     public void StartNewGame()
@@ -99,6 +99,9 @@ public class Game : Singleton<Game>
         Program.Instance.EnterState(ProgramState.Game);
 
         EncounterManager = new EncounterManager(this);
+
+        // Init camp
+        new Camp();
 
         // Init quests
         QuestStates = new Dictionary<QuestDef, QuestState>();
@@ -133,7 +136,7 @@ public class Game : Singleton<Game>
 
         // Init UI
         UI.Init(this);
-        HideAllEncounterSprites();
+        HideAllEncounters();
         WorldMapRenderer.gameObject.SetActive(false);
 
         SwitchState(GameState.InDayTransition);
@@ -375,11 +378,11 @@ public class Game : Singleton<Game>
         if (State != GameState.GameOver) CheckGameOver();
     }
 
-    public void HideAllEncounterSprites()
+    public void HideAllEncounters()
     {
-        foreach (SpriteRenderer sprite in EncounterContainer.GetComponentsInChildren<SpriteRenderer>())
+        for(int i = 0; i < EncounterContainer.transform.childCount; i++)
         {
-            sprite.gameObject.SetActive(false);
+            EncounterContainer.transform.GetChild(i).gameObject.SetActive(false);
         }
     }
     public void DisplayEncounterStep(EncounterStep step, OptionOutcomeDef prevOutcome = null)

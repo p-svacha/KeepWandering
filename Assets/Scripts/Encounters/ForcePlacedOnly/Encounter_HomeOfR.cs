@@ -24,7 +24,7 @@ public class Encounter_HomeOfR : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Building", true);
+        SetObjectVisibility("Building", true);
     }
 
     protected override List<EncounterOption> GetOptions()

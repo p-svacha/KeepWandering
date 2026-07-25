@@ -100,6 +100,18 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Charcoal")
+        {
+            Label = "charcoal",
+            Description = "The remains of burned wood, useful as fuel or for starting fires.",
+            Value = 1,
+            MaxInitialDurability = 2,
+            Tags =
+            {
+                { ItemTagDefOf.Fuel, 5 },
+            },
+        },
+
         new ItemDef("Chocolate")
         {
             Label = "chocolate",
@@ -155,9 +167,20 @@ public static class ItemDefs
             {
                 { ItemTagDefOf.Weapon, 2 },
                 { ItemTagDefOf.Cutting, 3 },
-                { ItemTagDefOf.Scavenging, 1 },
                 { ItemTagDefOf.Lockpicking, 1 },
                 { ItemTagDefOf.PryingTool, 1 },
+            },
+        },
+
+        new ItemDef("Lighter")
+        {
+            Label = "lighter",
+            Description = "A small device that can be used to start fires.",
+            Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.FireStarter, 5 },
+                { ItemTagDefOf.LightSource, 2 },
             },
         },
 
@@ -169,6 +192,43 @@ public static class ItemDefs
             Tags =
             {
                 { ItemTagDefOf.Lockpicking, 5 }
+            },
+        },
+
+        new ItemDef("Matchbox")
+        {
+            Label = "matchbox",
+            Description = "A small carton box containing a few matches and a surface to strike them on.",
+            Value = 1,
+            Tags =
+            {
+                { ItemTagDefOf.FireStarter, 4 },
+                { ItemTagDefOf.LightSource, 1 },
+                { ItemTagDefOf.Lockpicking, 1 },
+            },
+        },
+
+        new ItemDef("MeatRaw")
+        {
+            Label = "raw meat",
+            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 2.5f
+                // todo: add a chance of food poisoning when consumed raw
+            },
+        },
+        new ItemDef("MeatCooked")
+        {
+            Label = "cooked meat",
+            Description = "A delicious, safe and very nutritious meal.",
+            Value = 4,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 5f
             },
         },
 
@@ -230,6 +290,19 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("OilLamp")
+        {
+            Label = "oil lamp",
+            Description = "An old fashioned light source consisting out of a small container of flammable oil and a wick, and a mechanism to control the flame.",
+            Value = 3,
+            Tags =
+            {
+                { ItemTagDefOf.LightSource, 4 },
+                { ItemTagDefOf.Fuel, 2 },
+                { ItemTagDefOf.FireStarter, 1 },
+            },
+        },
+
         new ItemDef("Postcard")
         {
             Label = "postcard",
@@ -258,18 +331,6 @@ public static class ItemDefs
             },
         },
 
-        new ItemDef("RawMeat")
-        {
-            Label = "raw meat",
-            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
-            Value = 2,
-            ConsumptionProperties = new ConsumptionProperties()
-            {
-                ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 3.5f
-            },
-        },
-
         new ItemDef("Rope")
         {
             Label = "rope",
@@ -277,7 +338,7 @@ public static class ItemDefs
             Value = 2,
             Tags =
             {
-                { ItemTagDefOf.BuildingMaterial, 3 }
+                { ItemTagDefOf.Climbing, 3 }
             },
         },
 
@@ -348,6 +409,18 @@ public static class ItemDefs
                 Hydration = 3f
             },
         },
+
+        new ItemDef("Wood")
+        {
+            Label = "wood",
+            Description = "Just an ordinary, dry piece of wood.",
+            Value = 1,
+            Tags =
+            {
+                { ItemTagDefOf.Fuel, 3 },
+                { ItemTagDefOf.Weapon, 1 },
+            },
+        },
     };
 }
 
@@ -361,19 +434,24 @@ public static class ItemDefOf
     public static ItemDef Bedroll;
     public static ItemDef Berries;
     public static ItemDef Bone;
+    public static ItemDef Charcoal;
     public static ItemDef Coin;
     public static ItemDef Crowbar;
     public static ItemDef FenceCutter;
     public static ItemDef Knife;
+    public static ItemDef Lighter;
     public static ItemDef Lockpick;
+    public static ItemDef Matchbox;
+    public static ItemDef MeatRaw;
     public static ItemDef MedicalKit;
     public static ItemDef MedicinalHerbs;
     public static ItemDef NutSnack;
-    public static ItemDef RawMeat;
+    public static ItemDef OilLamp;
     public static ItemDef Shovel;
     public static ItemDef Rope;
     public static ItemDef Tent;
     public static ItemDef Trap;
     public static ItemDef WaterBottle;
+    public static ItemDef Wood;
 
 }

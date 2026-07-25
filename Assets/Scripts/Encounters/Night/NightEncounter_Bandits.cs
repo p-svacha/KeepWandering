@@ -26,9 +26,9 @@ public class NightEncounter_Bandits : NightEncounter
     {
         bool showBandits = !IsEncounterDone;
 
-        SetEncounterSpriteVisibility("Bandit1", showBandits && Intensity >= 1);
-        SetEncounterSpriteVisibility("Bandit2", showBandits && Intensity >= 2);
-        SetEncounterSpriteVisibility("Bandit3", showBandits && Intensity >= 3);
+        SetObjectVisibility("Bandit1", showBandits && Intensity >= 1);
+        SetObjectVisibility("Bandit2", showBandits && Intensity >= 2);
+        SetObjectVisibility("Bandit3", showBandits && Intensity >= 3);
     }
 
     protected override List<EncounterOption> GetOptions()

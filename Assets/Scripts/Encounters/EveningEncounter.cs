@@ -3,17 +3,19 @@ using UnityEngine;
 
 public class EveningEncounter : Encounter
 {
-    private SpriteRenderer TentSprite;
-    private SpriteRenderer BedrollSprite;
+    private SpriteRenderer TentSpotSprite;
+    private SpriteRenderer BedrollSpotSprite;
     private SpriteRenderer FireSprite;
     private SpriteRenderer Trap1Sprite;
     private SpriteRenderer Trap2Sprite;
     private SpriteRenderer Trap3Sprite;
 
+    private Camp Camp => Camp.Instance;
+
     protected override void OnInitialize()
     {
-        TentSprite = GetSprite("Tent");
-        BedrollSprite = GetSprite("Bedroll");
+        TentSpotSprite = GetSprite("TentSpot");
+        BedrollSpotSprite = GetSprite("BedrollSpot");
         FireSprite = GetSprite("Fire");
         Trap1Sprite = GetSprite("Trap1");
         Trap2Sprite = GetSprite("Trap2");
@@ -27,12 +29,12 @@ public class EveningEncounter : Encounter
 
     protected override void RefreshSprites()
     {
-        SetSprite(TentSprite, Camp.Instance.HasTent ? "Tent" : "TentSpot");
-        SetSprite(BedrollSprite, Camp.Instance.HasBedroll ? "Bedroll" : "BedrollSpot");
-        SetSprite(FireSprite, Camp.Instance.HasFire ? "Fire" : "FireSpot");
-        SetSprite(Trap1Sprite, Camp.Instance.Trap1 != null ? "Trap" : "TrapSpot");
-        SetSprite(Trap2Sprite, Camp.Instance.Trap2 != null ? "Trap" : "TrapSpot");
-        SetSprite(Trap3Sprite, Camp.Instance.Trap3 != null ? "Trap" : "TrapSpot");
+        SetObjectVisibility("Tent", Camp.HasTent);
+        SetObjectVisibility("Bedroll", Camp.HasBedroll);
+        SetSprite(FireSprite, Camp.HasFire ? "FireFull" : "FireSpot");
+        SetSprite(Trap1Sprite, Camp.Trap1 != null ? "Trap" : "TrapSpot");
+        SetSprite(Trap2Sprite, Camp.Trap2 != null ? "Trap" : "TrapSpot");
+        SetSprite(Trap3Sprite, Camp.Trap3 != null ? "Trap" : "TrapSpot");
     }
 
     protected override bool IsMoveOnOptionAvailable() => false;
@@ -67,7 +69,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Set up Shelter",
             Description = $"Pitch your tent. Decreases the chance of being attacked during the night and gives +{Camp.TENT_MORALE_BONUS} morale the next day.",
-            Sprite = TentSprite,
+            Sprite = TentSpotSprite,
             Action = SetUpTent,
             ItemSlots = new List<ItemSlot>()
             {
@@ -92,7 +94,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Set up Sleeping Spot",
             Description = $"Lay out your bedroll. Improves how much you heal overnight and gives +{Camp.BEDROLL_MORALE_BONUS} morale for the next day.",
-            Sprite = BedrollSprite,
+            Sprite = BedrollSpotSprite,
             Action = SetUpBedroll,
             ItemSlots = new List<ItemSlot>()
             {
@@ -117,7 +119,12 @@ public class EveningEncounter : Encounter
         {
             Text = "Make Fire",
             Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
+            Sprite = FireSprite,
             Difficulty = 40,
+            BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
+            {
+                { BiomeDefOf.Woods, -10 },
+            },
             Action = MakeFire,
             CanPartiallySucceed = false,
             CanCriticallySucceed = false,
@@ -225,7 +232,7 @@ public class EveningEncounter : Encounter
             },
             ItemSlots = new List<ItemSlot>()
             {
-                new ItemSlot() { Tag = ItemTagDefOf.Scavenging }
+                new ItemSlot() { Tag = ItemTagDefOf.LightSource }
             }
         };
     }

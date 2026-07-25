@@ -14,10 +14,10 @@ public static class ItemTagDefs
 {
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
-        new ItemTagDef("BuildingMaterial")
+        new ItemTagDef("Climbing")
         {
-            Label = "Building Material",
-            Description = "Items with this tag can be used to construct buildings and structures."
+            Label = "Climbing Tool",
+            Description = "Items with this tag can be used for climbing."
         },
         new ItemTagDef("Cutting")
         {
@@ -49,6 +49,11 @@ public static class ItemTagDefs
             Label = "Infection Treatment",
             Description = "Items with this tag can be used to treat infections."
         },
+        new ItemTagDef("LightSource")
+        {
+            Label = "Light Source",
+            Description = "Items with this tag can be used to provide light."
+        },
         new ItemTagDef("Lockpicking")
         {
             Label = "Lockpicking Tool",
@@ -63,11 +68,6 @@ public static class ItemTagDefs
         {
             Label = "Prying Tool",
             Description = "Items with this tag can be used to pry open objects or containers."
-        },
-        new ItemTagDef("Scavenging")
-        {
-            Label = "Scavenging",
-            Description = "Items with this tag can be used for scavenging resources from the environment."
         },
         new ItemTagDef("Weapon")
         {
@@ -85,18 +85,17 @@ public static class ItemTagDefs
 [DefOf]
 public static class ItemTagDefOf
 {
-    public static ItemTagDef BuildingMaterial;
+    public static ItemTagDef Climbing;
     public static ItemTagDef Cutting;
     public static ItemTagDef Digging;
     public static ItemTagDef DogToy;
     public static ItemTagDef FireStarter;
     public static ItemTagDef Fuel;
     public static ItemTagDef InfectionTreatment;
+    public static ItemTagDef LightSource;
     public static ItemTagDef Lockpicking;
     public static ItemTagDef PoisonTreatment;
     public static ItemTagDef PryingTool;
-    public static ItemTagDef Scavenging;
     public static ItemTagDef Weapon;
     public static ItemTagDef WoundBandaging;
-    
 }

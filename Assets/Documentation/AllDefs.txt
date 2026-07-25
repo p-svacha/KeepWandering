@@ -56,7 +56,7 @@
         {
             EncounterClass = typeof(EveningEncounter),
             Type = EncounterType.Evening,
-            CameraZoomLevel = 8,
+            CameraZoomLevel = 10,
         },
 
         #endregion
@@ -339,6 +339,18 @@
             },
         },
 
+        new ItemDef("Charcoal")
+        {
+            Label = "charcoal",
+            Description = "The remains of burned wood, useful as fuel or for starting fires.",
+            Value = 1,
+            MaxInitialDurability = 2,
+            Tags =
+            {
+                { ItemTagDefOf.Fuel, 5 },
+            },
+        },
+
         new ItemDef("Chocolate")
         {
             Label = "chocolate",
@@ -394,9 +406,20 @@
             {
                 { ItemTagDefOf.Weapon, 2 },
                 { ItemTagDefOf.Cutting, 3 },
-                { ItemTagDefOf.Scavenging, 1 },
                 { ItemTagDefOf.Lockpicking, 1 },
                 { ItemTagDefOf.PryingTool, 1 },
+            },
+        },
+
+        new ItemDef("Lighter")
+        {
+            Label = "lighter",
+            Description = "A small device that can be used to start fires.",
+            Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.FireStarter, 5 },
+                { ItemTagDefOf.LightSource, 2 },
             },
         },
 
@@ -408,6 +431,43 @@
             Tags =
             {
                 { ItemTagDefOf.Lockpicking, 5 }
+            },
+        },
+
+        new ItemDef("Matchbox")
+        {
+            Label = "matchbox",
+            Description = "A small carton box containing a few matches and a surface to strike them on.",
+            Value = 1,
+            Tags =
+            {
+                { ItemTagDefOf.FireStarter, 4 },
+                { ItemTagDefOf.LightSource, 1 },
+                { ItemTagDefOf.Lockpicking, 1 },
+            },
+        },
+
+        new ItemDef("MeatRaw")
+        {
+            Label = "raw meat",
+            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Value = 2,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 2.5f
+                // todo: add a chance of food poisoning when consumed raw
+            },
+        },
+        new ItemDef("MeatCooked")
+        {
+            Label = "cooked meat",
+            Description = "A delicious, safe and very nutritious meal.",
+            Value = 4,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 5f
             },
         },
 
@@ -469,6 +529,19 @@
             },
         },
 
+        new ItemDef("OilLamp")
+        {
+            Label = "oil lamp",
+            Description = "An old fashioned light source consisting out of a small container of flammable oil and a wick, and a mechanism to control the flame.",
+            Value = 3,
+            Tags =
+            {
+                { ItemTagDefOf.LightSource, 4 },
+                { ItemTagDefOf.Fuel, 2 },
+                { ItemTagDefOf.FireStarter, 1 },
+            },
+        },
+
         new ItemDef("Postcard")
         {
             Label = "postcard",
@@ -497,18 +570,6 @@
             },
         },
 
-        new ItemDef("RawMeat")
-        {
-            Label = "raw meat",
-            Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
-            Value = 2,
-            ConsumptionProperties = new ConsumptionProperties()
-            {
-                ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 3.5f
-            },
-        },
-
         new ItemDef("Rope")
         {
             Label = "rope",
@@ -516,7 +577,7 @@
             Value = 2,
             Tags =
             {
-                { ItemTagDefOf.BuildingMaterial, 3 }
+                { ItemTagDefOf.Climbing, 3 }
             },
         },
 
@@ -587,15 +648,27 @@
                 Hydration = 3f
             },
         },
+
+        new ItemDef("Wood")
+        {
+            Label = "wood",
+            Description = "Just an ordinary, dry piece of wood.",
+            Value = 1,
+            Tags =
+            {
+                { ItemTagDefOf.Fuel, 3 },
+                { ItemTagDefOf.Weapon, 1 },
+            },
+        },
     };
 
 --- ItemTag.cs ---
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
-        new ItemTagDef("BuildingMaterial")
+        new ItemTagDef("Climbing")
         {
-            Label = "Building Material",
-            Description = "Items with this tag can be used to construct buildings and structures."
+            Label = "Climbing Tool",
+            Description = "Items with this tag can be used for climbing."
         },
         new ItemTagDef("Cutting")
         {
@@ -627,6 +700,11 @@
             Label = "Infection Treatment",
             Description = "Items with this tag can be used to treat infections."
         },
+        new ItemTagDef("LightSource")
+        {
+            Label = "Light Source",
+            Description = "Items with this tag can be used to provide light."
+        },
         new ItemTagDef("Lockpicking")
         {
             Label = "Lockpicking Tool",
@@ -641,11 +719,6 @@
         {
             Label = "Prying Tool",
             Description = "Items with this tag can be used to pry open objects or containers."
-        },
-        new ItemTagDef("Scavenging")
-        {
-            Label = "Scavenging",
-            Description = "Items with this tag can be used for scavenging resources from the environment."
         },
         new ItemTagDef("Weapon")
         {
@@ -1290,8 +1363,9 @@
             Description = "A place of many wild animals and plants.",
             LootTable = new LootTable
             {
-                { LootTables.Food, 10 },
+                { ItemDefOf.Wood, 12 },
                 { LootTables.Plants, 12 },
+                { LootTables.Food, 10 },
                 { LootTables.Drinks, 9 },
                 { LootTables.Tools, 5 },
                 { ItemDefOf.Rope, 5 },
@@ -1315,6 +1389,7 @@
                 { LootTables.Medical, 5 },
                 { LootTables.Tools, 5 },
                 { LootTables.Plants, 5 },
+                { ItemDefOf.Wood, 3 },
             },
             TrapTriggerChance = 0.3f,
             // Rendering

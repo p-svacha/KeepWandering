@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 25d6a46790c206d48ad4306d4224d99a
+guid: 389f56a24d15b6d45bab0551a092749c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4260756864988875726
-    second: RawMeat_0
+      213: -7531082456918979710
+    second: FireWood_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RawMeat_0
+      name: FireWood_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 130
-        height: 102
+        x: 38
+        y: 23
+        width: 72
+        height: 35
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 234f70ca430ced4c0800000000000000
-      internalID: -4260756864988875726
+      spriteID: 28b0b2528683c7790800000000000000
+      internalID: -7531082456918979710
       vertices: []
       indices: 
       edges: []
@@ -135,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RawMeat_0: -4260756864988875726
+      FireWood_0: -7531082456918979710
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -51,7 +51,7 @@ public class Encounter_WoundedStranger : LocationEncounter
 
     protected override void RefreshSprites()
     {
-        SetEncounterSpriteVisibility("Stranger", state != StrangerState.Gone);
+        SetObjectVisibility("Stranger", state != StrangerState.Gone);
         if (state != StrangerState.Gone) SetSprite("Stranger", $"{state}");
     }
 

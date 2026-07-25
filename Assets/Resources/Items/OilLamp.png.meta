@@ -1,7 +1,10 @@
 fileFormatVersion: 2
-guid: ea4d1677b2da259459f88570e314461d
+guid: 155ebf9d83970a740bf2bc0abc10a0e0
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -3573182324773099651
+    second: OilLamp_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -94,7 +97,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Server
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -108,7 +111,29 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: OilLamp_0
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 35
+        width: 44
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d77e13e6b91896ec0800000000000000
+      internalID: -3573182324773099651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -122,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      OilLamp_0: -3573182324773099651
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
