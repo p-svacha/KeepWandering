@@ -24,7 +24,7 @@ public class SkillCheckOption : EncounterOption
     /// <summary>
     /// Fixed difficulty modifiers that apply to this encounter step option, with a label for each modifier to be displayed in the UI.
     /// </summary>
-    public Dictionary<string, int> FixedDifficultyModifiers { get; init; } = new Dictionary<string, int>();
+    public List<DifficultyModifier> FixedDifficultyModifiers { get; init; } = new List<DifficultyModifier>();
 
     /// <summary>
     /// Modifiers based on the biome the encounter is taking place in.
@@ -86,7 +86,7 @@ public class SkillCheckOption : EncounterOption
     {
         int difficulty = Difficulty;
 
-        foreach (var modifier in GetDifficultyModifiers()) difficulty += modifier.Value;
+        foreach (DifficultyModifier modifier in GetDifficultyModifiers()) difficulty += modifier.Value;
 
         // Clamp
         difficulty = Mathf.Clamp(difficulty, MIN_DIFFICULTY, MAX_DIFFICULTY);
@@ -94,14 +94,14 @@ public class SkillCheckOption : EncounterOption
         return difficulty;
     }
 
-    public Dictionary<string, int> GetDifficultyModifiers()
+    public List<DifficultyModifier> GetDifficultyModifiers()
     {
-        Dictionary<string, int> modifiers = new Dictionary<string, int>();
+        List<DifficultyModifier> modifiers = new List<DifficultyModifier>();
 
         // Fixed moidifers
-        foreach (var modifier in FixedDifficultyModifiers)
+        foreach (DifficultyModifier modifier in FixedDifficultyModifiers)
         {
-            if (modifier.Value != 0) modifiers.Add(modifier.Key, modifier.Value);
+            if (modifier.Value != 0) modifiers.Add(modifier);
         }
 
         // Player stat modifiers
@@ -112,18 +112,18 @@ public class SkillCheckOption : EncounterOption
             int modifierAmount = -(int)(statValue * factor);
             string label = statEntry.Key.LabelCapWord;
             if(modifierAmount != 1f) label += $" (x{factor})";
-            if (modifierAmount != 0) modifiers.Add(label, modifierAmount);
+            if (modifierAmount != 0) modifiers.Add(new DifficultyModifier(label, modifierAmount));
         }
 
         // Morale modifier
         int moraleValue = Game.Instance.Player.Morale;
-        if (moraleValue != 0) modifiers.Add("Morale", -moraleValue);
+        if (moraleValue != 0) modifiers.Add(new DifficultyModifier("Morale", -moraleValue));
 
         // Biome modifier
         BiomeDef biome = Game.Instance.CurrentPosition.Biome;
         if (BiomeDifficultyModifiers.TryGetValue(biome, out int biomeModifier) && biomeModifier != 0)
         {
-            modifiers.Add($"Being in {biome.LabelCapWord}", biomeModifier);
+            modifiers.Add(new DifficultyModifier($"Being in {biome.LabelCapWord}", biomeModifier));
         }
 
         // Item slots (only tag-slots that are filled affect difficulty)
@@ -132,7 +132,7 @@ public class SkillCheckOption : EncounterOption
             if (slot.Tag != null && slot.IsFilled)
             {
                 int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
-                if (modifierAmount != 0) modifiers.Add($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount);
+                if (modifierAmount != 0) modifiers.Add(new DifficultyModifier($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount));
             }
         }
 

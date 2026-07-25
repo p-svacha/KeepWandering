@@ -64,9 +64,9 @@ public class Encounter_QuarantineFence : LocationEncounter
                     IsDestroyingItem = true,
                 }
             },
-            FixedDifficultyModifiers = new Dictionary<string, int>()
+            FixedDifficultyModifiers =
             {
-                { "Electrified", IsElectrified ? 200 : 0 }
+                new ("Electrified", IsElectrified ? 200 : 0)
             }
         };
     }

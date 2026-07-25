@@ -120,7 +120,7 @@ public class EveningEncounter : Encounter
             Text = "Make Fire",
             Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
             Sprite = FireSprite,
-            Difficulty = 40,
+            Difficulty = 120,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {
                 { BiomeDefOf.Woods, -10 },
@@ -301,11 +301,17 @@ public class EveningEncounter : Encounter
             Difficulty = 50,
             CanCriticallyFail = false,
             CanPartiallySucceed = false,
-            FixedDifficultyModifiers = new Dictionary<string, int>()
+            FixedDifficultyModifiers =
             {
-                { "Current Survival Skill (x10)", difficultyIncreaseFromExistingSkill },
+                new ("Current Survival Skill (x10)", difficultyIncreaseFromExistingSkill),
             },
-            // todo: maybe add a slot with a tag?
+            ItemSlots =
+            {
+                new ItemSlot()
+                {
+                    Tag = ItemTagDefOf.FieldGuide,
+                }
+            },
             Action = TrainSurvival,
         };
     }
@@ -359,11 +365,10 @@ public class EveningEncounter : Encounter
             Difficulty = 50,
             CanCriticallyFail = false,
             CanPartiallySucceed = false,
-            FixedDifficultyModifiers = new Dictionary<string, int>()
+            FixedDifficultyModifiers =
             {
-                { "Current Social Skill (x10)", difficultyIncreaseFromExistingSkill },
+                new ("Current Social Skill (x10)", difficultyIncreaseFromExistingSkill),
             },
-            // todo: maybe add a slot with a tag?
             Action = TrainSocial,
         };
     }

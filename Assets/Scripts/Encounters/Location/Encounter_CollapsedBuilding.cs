@@ -186,10 +186,10 @@ public class Encounter_CollapsedBuilding : LocationEncounter
 
     private EncounterOption GetGrabItemsOption()
     {
-        Dictionary<string, int> difficultyModifiers = new Dictionary<string, int>();
-        if (structuralIntegrity == 1) difficultyModifiers.Add("Very Unstable", +20);
-        else if (structuralIntegrity == 2) difficultyModifiers.Add("Unstable", +10);
-        if (wireState == WireState.Active) difficultyModifiers.Add("Sparking Wires", +10);
+        List<DifficultyModifier> difficultyModifiers = new List<DifficultyModifier>();
+        if (structuralIntegrity == 1) difficultyModifiers.Add(new ("Very Unstable", +20));
+        else if (structuralIntegrity == 2) difficultyModifiers.Add(new ("Unstable", +10));
+        if (wireState == WireState.Active) difficultyModifiers.Add(new ("Sparking Wires", +10));
 
         return new SkillCheckOption()
         {
@@ -259,10 +259,10 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             ? "Spend time clearing the rubble. You might be able to reach whoever is calling."
             : "Spend time clearing the rubble to get deeper inside.";
 
-        Dictionary<string, int> difficultyModifiers = new Dictionary<string, int>();
-        if (structuralIntegrity == 1) difficultyModifiers.Add("Very Unstable", +20);
-        else if (structuralIntegrity == 2) difficultyModifiers.Add("Unstable", +10);
-        if (wireState == WireState.Active) difficultyModifiers.Add("Sparking Wires", +10);
+        List<DifficultyModifier> difficultyModifiers = new List<DifficultyModifier>();
+        if (structuralIntegrity == 1) difficultyModifiers.Add(new ("Very Unstable", +20));
+        else if (structuralIntegrity == 2) difficultyModifiers.Add(new ("Unstable", +10));
+        if (wireState == WireState.Active) difficultyModifiers.Add(new ("Sparking Wires", +10));
 
         return new SkillCheckOption()
         {
@@ -338,12 +338,12 @@ public class Encounter_CollapsedBuilding : LocationEncounter
 
     private EncounterOption GetCrawlInOption()
     {
-        Dictionary<string, int> difficultyModifiers = new Dictionary<string, int>();
-        if(structuralIntegrity == 1) difficultyModifiers.Add("Very Unstable", +30);
-        else if(structuralIntegrity == 2) difficultyModifiers.Add("Unstable", +15);
-        if(wireState == WireState.Active) difficultyModifiers.Add("Sparking Wires", +10);
-        if(Game.Player.IsWellFed) difficultyModifiers.Add("Thick Body", +10);
-        if(Game.Player.IsVeryHungry) difficultyModifiers.Add("Thin Body", -20);
+        List<DifficultyModifier> difficultyModifiers = new List<DifficultyModifier>();
+        if(structuralIntegrity == 1) difficultyModifiers.Add(new ("Very Unstable", +30));
+        else if(structuralIntegrity == 2) difficultyModifiers.Add(new ("Unstable", +15));
+        if(wireState == WireState.Active) difficultyModifiers.Add(new ("Sparking Wires", +10));
+        if(Game.Player.IsWellFed) difficultyModifiers.Add(new ("Thick Body", +10));
+        if(Game.Player.IsVeryHungry) difficultyModifiers.Add(new ("Thin Body", -20));
 
         return new SkillCheckOption()
         {

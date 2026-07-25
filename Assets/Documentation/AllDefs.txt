@@ -545,11 +545,15 @@
         new ItemDef("Postcard")
         {
             Label = "postcard",
-            Description = "A reminder of a better time and place.",
+            Description = "A postcard from the area and a reminder of a better time and place.",
             Value = 1,
             PassiveStatChanges =
             {
                 { StatDefOf.Morale, +1 }
+            },
+            Tags =
+            {
+                { ItemTagDefOf.FieldGuide, 1 },
             },
         },
 
@@ -614,6 +618,10 @@
             PassiveStatChanges =
             {
                 { StatDefOf.Survival, +2 }
+            },
+            Tags =
+            {
+                { ItemTagDefOf.FieldGuide, 5 },
             },
         },
 
@@ -684,6 +692,11 @@
         {
             Label = "Dog Toy",
             Description = "Items with this tag can be used to entertain and play with dogs."
+        },
+        new ItemTagDef("FieldGuide")
+        {
+            Label = "Field Guide",
+            Description = "Items with this tag are helpful when navigating the wilderness."
         },
         new ItemTagDef("FireStarter")
         {

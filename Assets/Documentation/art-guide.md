@@ -14,7 +14,7 @@ Item sprites are generally diagonally angled from bottom left to top right.
 Make 2 layers: Outlines in front and Fill in back.
 
 OUTLINE
-For outlines, use black color, 6px, 100% hardness
+For outlines, use black color, 8px, 100% hardness
 100% opacity, and 100% flow.
 Activate pen pressure for size.
 

@@ -1,39 +1,6 @@
 TODOS:
 ==============================================
 
-item sprites:
-- tent
-- bedroll
-- wood
-- oil lamp
-- matchbox
-- lighter
-- charcoal
-- cooked meat
-
-encounter sprites:
-- tent spot
-- tent
-- bedroll spot
-- bedroll
-- fire spot
-- fire
-- trap spot
-- trap
-
-- slot for survival training
-- slot for social training 
-
-Rework plan
-New Defs — Shelter, Bedding, FireStarter, Fuel tags plus a first pass of items carrying them; Charm tag (or your preferred name) for Social training; confirm final training-tag reuse list.
-Train Skill implementation — self-scaling difficulty formula off current skill value, four variants wired to their skill/tag/availability rule (including the Fire-gated Dexterity check).
-Morning report coverage — extend existing trap reporting to Shelter/Bedding/Fire outcomes and the new morale bonus.
-Art — design campsite sprites (tent, bedroll, firepit) using the existing sprite-option-interaction system; repurpose the now-freed setting sprites (shed, ditch, wall, barn, etc.) into new generic day encounters per the roadmap.
-Playtest pass — tune per-biome difficulty/availability numbers once the system is functionally complete.
-
-
-- test make fire first slot for fuel. inteded behaviour is that fuel is required, but still reduces difficulty based on tag level.
-
 - animal attack event
 - attacker category human/animal
 - remove old trap display in encounter display UI

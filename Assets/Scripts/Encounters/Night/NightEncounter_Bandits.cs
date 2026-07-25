@@ -76,9 +76,9 @@ public class NightEncounter_Bandits : NightEncounter
             Description = description,
             Action = Fight,
             Difficulty = difficulty,
-            FixedDifficultyModifiers = new Dictionary<string, int>()
+            FixedDifficultyModifiers =
             {
-                { "Caught hiding", IsPlayerCaughtHiding ? +15 : 0  },
+                new ("Caught hiding", IsPlayerCaughtHiding ? +15 : 0),
             },
             RelevantStats = new Dictionary<StatDef, int>()
             {

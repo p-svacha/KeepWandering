@@ -306,11 +306,15 @@ public static class ItemDefs
         new ItemDef("Postcard")
         {
             Label = "postcard",
-            Description = "A reminder of a better time and place.",
+            Description = "A postcard from the area and a reminder of a better time and place.",
             Value = 1,
             PassiveStatChanges =
             {
                 { StatDefOf.Morale, +1 }
+            },
+            Tags =
+            {
+                { ItemTagDefOf.FieldGuide, 1 },
             },
         },
 
@@ -375,6 +379,10 @@ public static class ItemDefs
             PassiveStatChanges =
             {
                 { StatDefOf.Survival, +2 }
+            },
+            Tags =
+            {
+                { ItemTagDefOf.FieldGuide, 5 },
             },
         },
 
@@ -453,5 +461,4 @@ public static class ItemDefOf
     public static ItemDef Trap;
     public static ItemDef WaterBottle;
     public static ItemDef Wood;
-
 }

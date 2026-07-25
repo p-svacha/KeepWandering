@@ -94,10 +94,10 @@ public class UI_OptionDetails : MonoBehaviour
             baseValueLabel.SetBold(true);
 
             // Modifiers
-            foreach (KeyValuePair<string, int> modifier in skillCheckOption.GetDifficultyModifiers())
+            foreach (DifficultyModifier modifier in skillCheckOption.GetDifficultyModifiers())
             {
                 UI_LabelValueRow label = Instantiate(DifficultyModifierPrefab, DifficultyModifiersContainer.transform);
-                string labelText = modifier.Key;
+                string labelText = modifier.Label;
                 string valueText = modifier.Value > 0 ? $"+{modifier.Value}" : modifier.Value.ToString();
                 label.Init(labelText, valueText);
             }

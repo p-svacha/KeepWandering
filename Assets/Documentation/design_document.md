@@ -168,13 +168,8 @@ This chapter covers different systems items can have (tags, consumption, passive
 
 Each item can have any number of **tags**. Tags are the mechanism by which item slots decide which items they accept.
 
-Tags are used in a way to describe what an item is good for, rather than what it is, since mechanically they are used to reduce the difficulty of skill checks.
-
-Some examples of tags are:
-- Weapon
-- Lockpick
-- Cutting tool
-- Digging tool
+**Tag Design Philosophy:**
+Tags are used in a way to describe what an item is good for, rather than what it is, since mechanically they are used to reduce the difficulty of skill checks. Tags should generally be designed in a was, so that it makes sense to describe it as "Item can be used as [tag]". Since tags are tightly coupled to the durability system, they should also be designed so it makes sense that items with a tag can be used multiple, but a limited number of times, for that purpose.
 
 ### Tag Levels
 
