@@ -144,7 +144,7 @@ public class GameUI : Singleton<GameUI>
         // Danger level
         bool hasTent = Camp.Instance.HasTent;
         bool hasFire = Camp.Instance.HasFire;
-        bool hasTraps = Camp.Instance.Traps.Count > 0;
+        bool hasTraps = Camp.Instance.HasTrap;
 
         DangerLevelText.text = Game.CurrentPosition.GetEffectiveDangerLevel().Label;
         if (hasTent || hasFire || hasTraps) DangerLevelText.text += "*";

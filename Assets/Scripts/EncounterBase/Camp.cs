@@ -17,9 +17,13 @@ public class Camp : Singleton<Camp>
     public bool HasTent => Tent != null;
     public Item Bedroll { get; private set; }
     public bool HasBedroll => Bedroll != null;
-    public List<Item> Traps { get; private set; } = new List<Item>();
+    public Item Trap1 { get; private set; }
+    public Item Trap2 { get; private set; }
+    public Item Trap3 { get; private set; }
+    public List<Item> GetTraps() => new List<Item>() { Trap1, Trap2, Trap3 }.FindAll(t => t != null);
     public int NumTrapsUsedToDefendNightAttack { get; private set; }
-    public int NumTraps => Traps.Count;
+    public int NumTraps => GetTraps().Count;
+    public bool HasTrap => NumTraps > 0;
 
     public void MakeFire()
     {
@@ -36,18 +40,41 @@ public class Camp : Singleton<Camp>
         Bedroll = bedroll;
     }
 
-    public void AddTrap(Item trap)
+    public void AddTrap(int slot, Item trap)
     {
-        Traps.Add(trap);
+        switch (slot)
+        {
+            case 1:
+                if (Trap1 != null) throw new System.Exception("Trap slot 1 is already occupied.");
+                Trap1 = trap;
+                break;
+            case 2:
+                if (Trap2 != null) throw new System.Exception("Trap slot 2 is already occupied.");
+                Trap2 = trap;
+                break;
+            case 3:
+                if (Trap3 != null) throw new System.Exception("Trap slot 3 is already occupied.");
+                Trap3 = trap;
+                break;
+            default:
+                throw new System.ArgumentOutOfRangeException(nameof(slot), "Invalid trap slot.");
+        }
     }
 
     public void UseTrapToDefendNightAttack()
     {
-        Item triggeredTrap = Traps[Random.Range(0, Traps.Count)];
-        Game.DestroyItem(triggeredTrap);
-        Traps.Remove(triggeredTrap);
-
+        Item triggeredTrap = GetTraps().RandomElement();
+        RemoveTrap(triggeredTrap);
         NumTrapsUsedToDefendNightAttack++;
+    }
+
+    private void RemoveTrap(Item trap)
+    {
+        Game.DestroyItem(trap);
+
+        if (trap == Trap1) Trap1 = null;
+        else if (trap == Trap2) Trap2 = null;
+        else if (trap == Trap3) Trap3 = null;
     }
 
 
@@ -113,7 +140,7 @@ public class Camp : Singleton<Camp>
 
 
         // Traps
-        List<Item> traps = new List<Item>(Traps); // Make a copy of the list to avoid modifying it while iterating
+        List<Item> traps = new List<Item>(GetTraps()); // Make a copy of the list to avoid modifying it while iterating
         foreach (Item trap in traps)
         {
             if (trap.IsDestroyed) throw new System.Exception("Trap is destroyed but still in camp. This should not happen.");
@@ -124,8 +151,7 @@ public class Camp : Singleton<Camp>
             {
                 ItemDef item = LootTables.TrapLoot.Resolve();
                 morningReport.AddNightEvent($"A trap was triggered during the night. You found {item.Label}. The trap is now broken.");
-                Game.DestroyItem(trap);
-                Traps.Remove(trap);
+                RemoveTrap(trap);
                 continue;
             }
 
@@ -134,8 +160,7 @@ public class Camp : Singleton<Camp>
             if (Random.value < breakChance)
             {
                 morningReport.AddNightEvent($"A trap was triggered during the night but didn't catch anything. The trap is now broken.");
-                Game.DestroyItem(trap);
-                Traps.Remove(trap);
+                RemoveTrap(trap);
                 continue;
             }
         }
@@ -143,7 +168,8 @@ public class Camp : Singleton<Camp>
         // Add remaining traps to inventory
         int numTrapsDestroyedByDurability = 0;
         int numTrapsAddedToInventory = 0;
-        foreach (Item trap in Traps)
+        traps = new List<Item>(GetTraps());
+        foreach (Item trap in traps)
         {
             Game.ReduceItemDurability(trap);
             if (!trap.IsDestroyed)
@@ -166,7 +192,9 @@ public class Camp : Singleton<Camp>
             morningReport.AddNightEvent($"{numTrapsAddedToInventory} {trap} set during the evening were not triggered. You collect them.");
         }
 
-        Traps.Clear();
+        Trap1 = null;
+        Trap2 = null;
+        Trap3 = null;
         NumTrapsUsedToDefendNightAttack = 0;
     }
 }

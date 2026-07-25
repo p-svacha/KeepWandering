@@ -120,7 +120,7 @@ public class Encounter_Crate : LocationEncounter
                 { StatDefOf.Dexterity, 2 },
             },
             Action = TakeItem,
-            Sprite = VisibleCrateItem.Renderer.gameObject,
+            Sprite = VisibleCrateItem.Renderer.SpriteRenderer,
         };
     }
     private string TakeItem(OptionOutcomeDef outcome)

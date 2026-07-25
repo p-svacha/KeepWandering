@@ -28,7 +28,6 @@ public abstract class Encounter
 
     // During encounter
     protected bool IsEncounterDone; // If set to true, the next step will have no more options (will default to "continue journey" (or similar based on time of day))
-    private List<GameObject> EncounterSprites = new List<GameObject>();
     private HashSet<string> UsedOncePerDayOptions = new HashSet<string>();
     private HashSet<string> UsedOnceEverOptions = new HashSet<string>();
 
@@ -53,6 +52,9 @@ public abstract class Encounter
     {
         IsEncounterDone = false;
         UsedOncePerDayOptions.Clear();
+
+        // Activate encounter sprite container
+        Game.EncounterContainer.transform.Find($"{Def.DefName}").gameObject.SetActive(true);
 
         // Show encounter items
         foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Show();
@@ -264,37 +266,49 @@ public abstract class Encounter
     protected virtual void OnEnd() { }
 
     /// <summary>
-    /// Makes a gameobject belonging to this encounter visible. The gameobject will be hidden when the encounter ends.
+    /// Sets the visibility of a gameobject belonging to this encounter. The gameobject will be hidden when the encounter ends.
     /// <br/>In the Unity hierarchy, the GameObject needs to be placed in GameScreen/Encounters/{EncounterDefName}/{spriteName}.
     /// </summary>
-    protected void ShowEncounterSprite(string spriteName)
-    {
-        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
-        spriteObj.gameObject.SetActive(true);
-
-        EncounterSprites.Add(spriteObj);
-    }
-    protected void HideEncounterSprite(string spriteName)
-    {
-        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
-        spriteObj.gameObject.SetActive(false);
-        EncounterSprites.Remove(spriteObj);
-    }
     protected void SetEncounterSpriteVisibility(string spriteName, bool show)
     {
-        if (show) ShowEncounterSprite(spriteName);
-        else HideEncounterSprite(spriteName);
+        GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
+        SetSpriteVisibility(spriteObj.GetComponent<SpriteRenderer>(), show);
     }
+
+    protected void SetSpriteVisibility(SpriteRenderer renderer, bool show)
+    {
+        renderer.gameObject.SetActive(show);
+    }
+
+    /// <summary>
+    /// Sets the sprite of the GameObject named <paramref name="objectName"/> to the sprite named <paramref name="spriteName"/>.
+    /// <br/>The GameObject must be placed in GameScreen/Encounters/{EncounterDefName}/{objectName} in the Unity hierarchy.
+    /// <br/>The sprite must be placed in Resources/Encounters/{EncounterDefName}/{EncounterDefName}_{spriteName}.png.
+    /// </summary>
     protected void SetSprite(string objectName, string spriteName)
     {
         SpriteRenderer renderer = Game.EncounterContainer.transform.Find($"{Def.DefName}/{objectName}").gameObject.GetComponent<SpriteRenderer>();
+        SetSprite(renderer, spriteName);
+    }
+
+    /// <summary>
+    /// Sets the sprite of the given <paramref name="renderer"/> to the sprite named <paramref name="spriteName"/>.
+    /// <br/>The sprite must be placed in Resources/Encounters/{EncounterDefName}/{EncounterDefName}_{spriteName}.png.
+    /// </summary>
+    public void SetSprite(SpriteRenderer renderer, string spriteName)
+    {
         Sprite sprite = ResourceManager.LoadSprite($"Encounters/{Def.DefName}/{Def.DefName}_{spriteName}");
         renderer.sprite = sprite;
     }
-    public GameObject GetSprite(string objectName)
+
+    /// <summary>
+    /// Returns the SpriteRenderer of the GameObject named <paramref name="objectName"/>.
+    /// <br/>The GameObject must be placed in GameScreen/Encounters/{EncounterDefName}/{objectName} in the Unity hierarchy.
+    /// </summary>
+    public SpriteRenderer GetSprite(string objectName)
     {
         GameObject spriteObj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{objectName}").gameObject;
-        return spriteObj;
+        return spriteObj.GetComponent<SpriteRenderer>();
     }
     protected void SetBackground(string backgroundName)
     {
@@ -311,13 +325,12 @@ public abstract class Encounter
         // Hide encounter items
         foreach (Item item in EncounterItems.Where(i => !i.IsPlayerOwned && !i.IsDestroyed)) item.Hide();
 
-        // Hide encounter sprites
-        foreach (GameObject sprite in EncounterSprites) sprite.gameObject.SetActive(false);
+        // Hide encounter sprite container
+        Game.EncounterContainer.transform.Find($"{Def.DefName}").gameObject.SetActive(false);
 
         // Reset some state flags
         IsTrading = false;
 
-        EncounterSprites.Clear();
         OnEnd();
     }
 
@@ -349,7 +362,7 @@ public abstract class Encounter
             Text = "Consume Item",
             Description = "Use items from your inventory.",
             Action = ConsumeItem,
-            Sprite = torso ? PlayerCharacterRenderer.Instance.RightArm.gameObject : PlayerCharacterRenderer.Instance.Head,
+            Sprite = torso ? PlayerCharacterRenderer.Instance.RightArm.Renderer : PlayerCharacterRenderer.Instance.Head,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
@@ -391,7 +404,7 @@ public abstract class Encounter
                 CanPartiallySucceed = false,
                 CanCriticallySucceed = true,
                 CanCriticallyFail = true,
-                Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
+                Sprite = wound.Renderer.WoundSpriteRenderer,
                 ItemSlots = new List<ItemSlot>()
                 {
                     new ItemSlot()
@@ -454,7 +467,7 @@ public abstract class Encounter
                 CanCriticallyFail = false,
                 CanPartiallySucceed = false,
                 CanCriticallySucceed = false,
-                Sprite = wound.Renderer.WoundSpriteRenderer.gameObject,
+                Sprite = wound.Renderer.WoundSpriteRenderer,
                 ItemSlots = new List<ItemSlot>()
                 {
                     new ItemSlot()

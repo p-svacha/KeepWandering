@@ -730,7 +730,7 @@ public class Game : Singleton<Game>
         else
         {
             // Reduce intensity based on traps
-            while (nightEncounterIntensity > 0 && Camp.NumTraps > 0)
+            while (nightEncounterIntensity > 0 && Camp.HasTrap)
             {
                 nightEncounterIntensity--;
                 Camp.UseTrapToDefendNightAttack();
@@ -1134,7 +1134,7 @@ public class Game : Singleton<Game>
         RevealEncounter(chosenTile, showInOutcomeNote: true);
     }
 
-    public void PlaceEveningTrap(Item trap)
+    public void PlaceEveningTrap(Item trap, int slot)
     {
         if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to place trap outside of evening.");
         if (trap.Def != ItemDefOf.Trap) throw new System.Exception("Trying to place item that is not a trap.");
@@ -1143,7 +1143,7 @@ public class Game : Singleton<Game>
         trap.SetIsPlayerOwned(false);
         trap.Hide();
 
-        Camp.AddTrap(trap);
+        Camp.AddTrap(slot, trap);
         OnGameStateChanged();
     }
 

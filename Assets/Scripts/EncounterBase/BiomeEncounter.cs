@@ -121,7 +121,7 @@ public abstract class BiomeEncounter : Encounter
     }
     private string PlaceTrap()
     {
-        Game.PlaceEveningTrap(ItemUsedInOption);
+        Game.PlaceEveningTrap(ItemUsedInOption, -1); // old system didnt have slots
         return "You set up a trap for the night." + SPEND_EVENING_TEXT;
     }
 
@@ -168,7 +168,6 @@ public abstract class BiomeEncounter : Encounter
             // 25% to set a trap for the night
             if (Random.value < 0.25f)
             {
-                Game.PlaceEveningTrap(ItemUsedInOption); // todo: remove
                 return "You build an excellent shelter and even manage to set up a trap that will help defend against attacks in the night, or maybe catch something useful.";
             }
 

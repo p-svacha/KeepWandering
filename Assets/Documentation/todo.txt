@@ -44,6 +44,8 @@ Playtest pass — tune per-biome difficulty/availability numbers once the system
 
 - remove trap display from UI_encounterdisplay
 
+- cook action on fire
+
 EVENING REWORK:
 - add option to train a specific skill (depending on biome)
 - one option per skill (social = find a trader, survival = forage, dexterity = repair a tool, strength )

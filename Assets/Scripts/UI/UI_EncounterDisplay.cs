@@ -77,11 +77,11 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         // Handle sprite-bound options
         foreach (var spriteGroup in spriteGroups)
         {
-            GameObject spriteGameObject = spriteGroup.Key;
+            SpriteRenderer spriteRenderer = spriteGroup.Key;
             List<EncounterOption> optionsForSprite = spriteGroup.ToList();
 
             // Configure the sprite GameObject
-            SpriteOptionInteractionManager.SetupEncounterSpriteCollider(spriteGameObject);
+            SpriteOptionInteractionManager.SetupEncounterSpriteCollider(spriteRenderer);
 
             // Instantiate container for this sprite's options
             UI_SpriteEncounterOptionContainer container = Instantiate(SpriteEncounterOptionContainer, FloatingOptionsContainer.transform);
@@ -95,10 +95,10 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 
             // Instantiate and initialize the sprite label
             UI_EncounterOptionSpriteLabel spriteLabel = Instantiate(EncounterOptionSpriteLabelPrefab, FloatingOptionsContainer.transform);
-            spriteLabel.Init(spriteGameObject.name);
+            spriteLabel.Init(spriteRenderer.name);
 
             // Register with the interaction manager
-            SpriteOptionInteractionManager.RegisterSprite(spriteGameObject, container, spriteLabel, optionsForSprite);
+            SpriteOptionInteractionManager.RegisterSprite(spriteRenderer, container, spriteLabel, optionsForSprite);
         }
 
         // Handle non-sprite-bound options
@@ -117,7 +117,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         InitEncounterStepOutcomeNotes();
 
         // Trap display
-        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.Camp.NumTraps > 0);
+        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.Camp.HasTrap);
         if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
         {
             TrapNumText.text = Game.Camp.NumTraps.ToString();

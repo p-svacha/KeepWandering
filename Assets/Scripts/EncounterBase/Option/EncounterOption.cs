@@ -22,7 +22,7 @@ public abstract class EncounterOption
     /// <summary>
     /// The world space sprite in the encounter scene this option is associated with. The option will be visually bound to this sprite, and the player can click on the sprite to select the option. If null, the option will only be selectable through the UI.
     /// </summary>
-    public GameObject Sprite { get; init; } = null;
+    public SpriteRenderer Sprite { get; init; } = null;
 
     /// <summary>
     /// When true, the option can only be selected once per encounter visit (day). It will automatically be hidden after being selected once.

@@ -9,7 +9,7 @@ public class PlayerCharacterRenderer : MonoBehaviour
     public PlayerCharacter Character => Game.Instance.Player;
 
     [Header("Sprites")]
-    public GameObject Head;
+    public SpriteRenderer Head;
 
     public GameObject Torso;
     public GameObject DehydrationOverlay;

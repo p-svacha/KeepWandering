@@ -5,7 +5,7 @@ public class ItemRenderer : MonoBehaviour
     public Item Item { get; private set; }
 
     // Components
-    private SpriteRenderer SpriteRenderer;
+    public SpriteRenderer SpriteRenderer { get; private set; }
     private Rigidbody2D Rigidbody;
     private PolygonCollider2D Collider;
     private HingeJoint2D DragHinge;

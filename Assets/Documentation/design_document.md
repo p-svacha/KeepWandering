@@ -466,7 +466,6 @@ Here's a list with some common examples of what an outcome can do, but it is not
 - Learn rumours
 - Change tile danger levels
 - Reveal encounters on other tiles
-- Place traps (evening)
 - Initiate trade
 
 Non state altering things can also happen in an outcome, like: playing a sound, changing the camera zoom or offset, or changing the background sprite.

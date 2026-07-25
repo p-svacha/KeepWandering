@@ -25,8 +25,8 @@ public static class SpriteOptionInteractionManager
 
     // State
     private static bool SubscribedToCameraEvents = false;
-    private static Dictionary<GameObject, SpriteOptionIndicator> ActiveIndicators = new Dictionary<GameObject, SpriteOptionIndicator>();
-    public static IReadOnlyDictionary<GameObject, SpriteOptionIndicator> GetActiveIndicators() => ActiveIndicators;
+    private static Dictionary<SpriteRenderer, SpriteOptionIndicator> ActiveIndicators = new Dictionary<SpriteRenderer, SpriteOptionIndicator>();
+    public static IReadOnlyDictionary<SpriteRenderer, SpriteOptionIndicator> GetActiveIndicators() => ActiveIndicators;
     public static SpriteOptionIndicator HoveredIndicator { get; private set; }
     public static SpriteOptionIndicator LockedIndicator { get; private set; }
 
@@ -43,7 +43,7 @@ public static class SpriteOptionInteractionManager
     /// <summary>
     /// Registers a sprite with bound options, creating/binding an indicator component.
     /// </summary>
-    public static void RegisterSprite(GameObject sprite, UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
+    public static void RegisterSprite(SpriteRenderer sprite, UI_SpriteEncounterOptionContainer container, UI_EncounterOptionSpriteLabel label, List<EncounterOption> options)
     {
         if (sprite == null) return;
         EnsureSubscribedToCamera();
@@ -52,7 +52,7 @@ public static class SpriteOptionInteractionManager
         SpriteOptionIndicator indicator = sprite.GetComponent<SpriteOptionIndicator>();
         if (indicator == null)
         {
-            indicator = sprite.AddComponent<SpriteOptionIndicator>();
+            indicator = sprite.gameObject.AddComponent<SpriteOptionIndicator>();
         }
 
         // Bind it with the container and options
@@ -113,7 +113,7 @@ public static class SpriteOptionInteractionManager
     /// <summary>
     /// Refreshes the availability color of a specific sprite's indicator.
     /// </summary>
-    public static void RefreshAvailability(GameObject sprite)
+    public static void RefreshAvailability(SpriteRenderer sprite)
     {
         if (sprite == null) return;
         if (ActiveIndicators.TryGetValue(sprite, out SpriteOptionIndicator indicator))
@@ -361,7 +361,7 @@ public static class SpriteOptionInteractionManager
 
         foreach (RaycastHit2D hit in hits)
         {
-            if (!ActiveIndicators.TryGetValue(hit.collider.gameObject, out SpriteOptionIndicator indicator)) continue;
+            if (!ActiveIndicators.TryGetValue(hit.collider.GetComponent<SpriteRenderer>(), out SpriteOptionIndicator indicator)) continue;
             if (filterItem != null && !IndicatorHasSlotFor(indicator, filterItem)) continue;
 
             SpriteRenderer sr = indicator.Sprite;
@@ -387,10 +387,11 @@ public static class SpriteOptionInteractionManager
 
 
     /// <summary>
-    /// Ensures that the given game object is configured to have an enlarged PolygonCollider2D that matches the sprite's bounds, so that the sprite can be hovered and interacted with even if its visible sprite is small.
+    /// Ensures that the given sprite renderer is configured to have an enlarged PolygonCollider2D that matches the sprite's bounds, so that the sprite can be hovered and interacted with even if its visible sprite is small.
     /// </summary>
-    public static void SetupEncounterSpriteCollider(GameObject obj)
+    public static void SetupEncounterSpriteCollider(SpriteRenderer spriteRenderer)
     {
+        GameObject obj = spriteRenderer.gameObject;
         // If there is no collider yet, add one and enlarge it
         if (obj.GetComponent<PolygonCollider2D>() == null)
         {
