@@ -3,6 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Represents the players camp setup in the evening that persists into the night and gets cleaned up in the morning.
+/// <br/>The camp stores a reference to the items that were used to set up the camp (tent, bedroll, traps) and whether a fire was made. In the morning, exact copies of the items with reduced durability will be added back to the player's inventory if they are still usable.
 /// </summary>
 public class Camp : Singleton<Camp>
 {
@@ -70,8 +71,6 @@ public class Camp : Singleton<Camp>
 
     private void RemoveTrap(Item trap)
     {
-        Game.DestroyItem(trap);
-
         if (trap == Trap1) Trap1 = null;
         else if (trap == Trap2) Trap2 = null;
         else if (trap == Trap3) Trap3 = null;
@@ -107,10 +106,12 @@ public class Camp : Singleton<Camp>
         // Tent
         if (HasTent)
         {
-            Game.ReduceItemDurability(Tent);
-            if (!Tent.IsDestroyed)
+            Item returnedTent = Game.CopyItem(Tent);
+            Game.ReduceItemDurability(returnedTent);
+
+            if (!returnedTent.IsDestroyed)
             {
-                Game.AddExistingItemToInventory(Tent);
+                Game.AddExistingItemToInventory(returnedTent);
                 morningReport.AddNightEvent("You have packed up the tent.");
             }
             else
@@ -124,10 +125,12 @@ public class Camp : Singleton<Camp>
         // Bedroll
         if (HasBedroll)
         {
-            Game.ReduceItemDurability(Bedroll);
-            if (!Bedroll.IsDestroyed)
+            Item returnedBedroll = Game.CopyItem(Bedroll);
+            Game.ReduceItemDurability(returnedBedroll);
+
+            if (!returnedBedroll.IsDestroyed)
             {
-                Game.AddExistingItemToInventory(Bedroll);
+                Game.AddExistingItemToInventory(returnedBedroll);
                 morningReport.AddNightEvent("You have packed up the bedroll.");
             }
             else
@@ -143,8 +146,6 @@ public class Camp : Singleton<Camp>
         List<Item> traps = new List<Item>(GetTraps()); // Make a copy of the list to avoid modifying it while iterating
         foreach (Item trap in traps)
         {
-            if (trap.IsDestroyed) throw new System.Exception("Trap is destroyed but still in camp. This should not happen.");
-
             // Chance for triggering on wildlife
             bool triggeredOnWildlife = Random.value < Game.CurrentPosition.Biome.TrapTriggerChance;
             if (triggeredOnWildlife)
@@ -171,10 +172,12 @@ public class Camp : Singleton<Camp>
         traps = new List<Item>(GetTraps());
         foreach (Item trap in traps)
         {
-            Game.ReduceItemDurability(trap);
-            if (!trap.IsDestroyed)
+            Item returnedTrap = Game.CopyItem(trap);
+            Game.ReduceItemDurability(returnedTrap);
+
+            if (!returnedTrap.IsDestroyed)
             {
-                Game.AddExistingItemToInventory(trap);
+                Game.AddExistingItemToInventory(returnedTrap);
                 numTrapsAddedToInventory++;
             }
             else numTrapsDestroyedByDurability++;

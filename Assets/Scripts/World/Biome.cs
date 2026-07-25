@@ -7,7 +7,6 @@ public class BiomeDef : Def
     public override string DefTypeLabel => "Biome";
     public Sprite BackgroundSprite => ResourceManager.LoadSprite($"Backgrounds/{DefName}");
     public GameObject Visuals { get; private set; } // Container for background or particle stuff
-    public EncounterDef EveningEncounter { get; private set; }
 
     /// <summary>
     /// If the player can move on this tile.
@@ -41,12 +40,6 @@ public class BiomeDef : Def
     public override void OnLoadingDefsDone()
     {
         Visuals = Game.Instance.BiomeBackgroundContainer.transform.Find(DefName).gameObject;
-
-        if (DefDatabase<EncounterDef>.TryGetNamed($"BiomeEncounter_{DefName}", out var encounter))
-        {
-            EveningEncounter = encounter;
-        }
-        else EveningEncounter = EncounterDefOf.EveningFallback;
     }
 }
 

@@ -88,7 +88,6 @@ public abstract class Encounter
         if (option.OnceEver) UsedOnceEverOptions.Add(option.Text);
     }
 
-
     /// <summary>
     /// Generates an item belonging to this encounter, that will automatically shown when the encounter starts and hidden when the encounter ends.
     /// <br/>Handles automatically if the item is destroyed or taken by the player during the encounter.
@@ -631,8 +630,14 @@ public abstract class Encounter
     private string DoneTrading()
     {
         IsTrading = false;
+        OnTradingDone();
         return "You finish trading.";
     }
+
+    /// <summary>
+    /// Called when the player has finished trading and is moving on to the next step of the encounter.
+    /// </summary>
+    protected virtual void OnTradingDone() { }
 
     #endregion
 

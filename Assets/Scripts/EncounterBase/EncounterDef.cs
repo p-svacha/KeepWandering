@@ -29,7 +29,7 @@ public class EncounterDef : Def
     public string DevNotes { get; init; }
 
     /// <summary>
-    /// Base probability of this encounter being selected in a weighted random selection. The probability is relative to the base probabilities of all other encounters that are eligible to occur at the same time. This applies to all encounters except Biome encounters, as those appear at fixed times.
+    /// Base probability of this encounter being selected in a weighted random selection. The probability is relative to the base probabilities of all other encounters that are eligible to occur at the same time. This applies to location and night encounters.
     /// </summary>
     public float BaseProbability { get; init; } = 0f;
 
@@ -111,14 +111,13 @@ public class EncounterDef : Def
             if (MinDistanceBetween != -1) throw new System.Exception("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
         }
 
-        if (Type == EncounterType.Evening)
+        if (Type == EncounterType.Evening || Type == EncounterType.Morning)
         {
-            if (MinDistanceFromStart != -1) throw new System.Exception("Evening encounters cannot have a minimum distance from the starting tile.");
-            if (MaxOccurences != -1) throw new System.Exception("Evening encounters cannot be limited.");
-            if (BaseProbability != 0f) throw new System.Exception("Evening encounters cannot have a probability set.");
-            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Evening encounters cannot have biome-specific probabilities.");
-            if (MinDistanceBetween != -1) throw new System.Exception("Evening encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
-            if (DefName != "EveningFallback" && !EncounterClass.IsSubclassOf(typeof(BiomeEncounter))) throw new System.Exception("EncounterClass must be a subclass of BiomeEncounter.");
+            if (MinDistanceFromStart != -1) throw new System.Exception("Evening and morning encounters cannot have a minimum distance from the starting tile.");
+            if (MaxOccurences != -1) throw new System.Exception("Evening and morning encounters cannot be limited.");
+            if (BaseProbability != 0f) throw new System.Exception("Evening and morning encounters cannot have a probability set.");
+            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Evening and morning encounters cannot have biome-specific probabilities.");
+            if (MinDistanceBetween != -1) throw new System.Exception("Evening and morning encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
         }
 
         if (Type == EncounterType.Night)

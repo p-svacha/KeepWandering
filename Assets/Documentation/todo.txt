@@ -2,25 +2,11 @@ TODOS:
 ==============================================
 
 Rework plan
-Camp component system (core framework work) — generalize the existing Trap lifecycle (remove-on-place → track reference → sprite in scene → resolve in morning) into a shared mechanism usable by Shelter, Bedding, and Trap alike. This is the load-bearing piece everything else sits on.
-Deferred durability tick — special-case Shelter/Bedding slots so durability only reduces in the morning resolution, not at placement (Trap doesn't need this since it's always destroyed-on-use already).
-Danger Level split — separate the tile's persistent base value from a new temporary per-night modifier; update the UI (stat panel, tile tooltip, map overlay) to show effective vs. base as designed.
-Single EveningEncounter class — replace BiomeEncounter_Outskirts/Woods/City with one class taking biome as data; wire up the new option set (camp options + Rest Early/Scavenge/Train Skill/Find Trader) with biome-driven availability/difficulty.
 New Defs — Shelter, Bedding, FireStarter, Fuel tags plus a first pass of items carrying them; Charm tag (or your preferred name) for Social training; confirm final training-tag reuse list.
 Train Skill implementation — self-scaling difficulty formula off current skill value, four variants wired to their skill/tag/availability rule (including the Fire-gated Dexterity check).
-Night encounter hook-in — let active Shelter/Fire influence night encounter difficulty/availability (e.g. Fire blocking animal encounters).
 Morning report coverage — extend existing trap reporting to Shelter/Bedding/Fire outcomes and the new morale bonus.
 Art — design campsite sprites (tent, bedroll, firepit) using the existing sprite-option-interaction system; repurpose the now-freed setting sprites (shed, ditch, wall, barn, etc.) into new generic day encounters per the roadmap.
 Playtest pass — tune per-biome difficulty/availability numbers once the system is functionally complete.
-
-- danger level addition
-- effect of tent
-- effect of bedroll
-- effect of fire
-- effect of traps
-- morale bonus
-
---> review
 
 - evening encounter
 
@@ -35,8 +21,6 @@ Playtest pass — tune per-biome difficulty/availability numbers once the system
 	- add tent display
 	- add bedroll display
 	- add fire display
-
-- get rid of "biome encounter" everyhwere in project
 
 - change encounter probability to an enum/def system with very common, common, uncommon, rare, very rare, extremely rare. Get rid of base probability and only use the probability dictionary per biome. validate that every biome has a value in every EncounterDef. Define fixed probability values for each category.
 
@@ -191,16 +175,10 @@ more clearly show possible outcomes?
 
 - crate encounter: when peeking, make it clear that you are looking for ADDITIONAL items to the visible one. And improve text of outcome. Also when coming back while having succesfully peeked before, write it that you remember what's inside.
 
-- in biome encounter, show setting as fixed difficulty modifier in fortify, scavenge etc.
-  - currently it just changes the base difficulty, but would be cool if the base difficulty of these options are fixed, and the setting shows as a modifier in the difficulty breakdown.
-  - same for biome-specific options
-
 - improve path history rendering (the dashed line on the world map showing your path)
   - currently the points used for the line renderer are always the center of hexes
   - that means if a tile is visited twice, the lines overlap perfectly, which looks weird
   - find a solution to make it look nice and dynamic
-
-- Visual: Setting background (the randomized setting of the biome encounter where the player sets up camp) of evening encounter should still be shown during night encounter
 
 - cooking system:
   - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition

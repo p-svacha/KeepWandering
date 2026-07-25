@@ -183,7 +183,7 @@ Make changes to encounters, also their design & philosophy:
 	- Rest Early
 	- Find Trader
   - Availability or chances of these options can still be affected by biome / tile, that is totally fine.
-  - The sprites of the current 12 different "encounter variants" of the current evening/biome encounters (alley, ditch, shed, tree, barn, etc.) can be reused for more generic (biome-specific) day encounters
+  - The sprites of the current 12 different "encounter variants" of the old evening encounters (alley, ditch, shed, tree, barn, etc.) can be reused for more generic (biome-specific) day encounters
 - Add more generic/simple day encounters. Many current day encounters are quite complex in that they give many different options and paths. Normal, random day encounters are allowed to be simple, with simple options and outcomes. Try not to give too many options at once. And if you do, make sure not more than 3 or available without any requirements.
 - Increase item effects. Currently there's many encounter options with item slots that don't have a big effect. Items should have a big effect generally (see item section for new system).
 - More fixed outcome options. Skill checks are cool, but don't overuse them. FixedOutcome options are often very fine too. Try to usually have both skill checks and fixed outcomes available.

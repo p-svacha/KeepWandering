@@ -17,10 +17,11 @@ public static class EncounterDefs
             CameraXOffset = -3.5f,
         },
 
-        new EncounterDef("Evening")
+        new EncounterDef("EveningEncounter")
         {
             EncounterClass = typeof(EveningEncounter),
             Type = EncounterType.Evening,
+            CameraZoomLevel = 8,
         },
 
         #endregion
@@ -135,4 +136,22 @@ public static class EncounterDefs
 
         #endregion
     };
+}
+
+[DefOf]
+public class EncounterDefOf : MonoBehaviour
+{
+    // Time of Day
+    public static EncounterDef MorningEncounter;
+    public static EncounterDef EveningEncounter;
+
+    // Landmarks
+    public static EncounterDef RadioTower;
+
+    // Location
+    public static EncounterDef SupplyStash;
+
+    // Special
+    public static EncounterDef QuarantineFence;
+    public static EncounterDef HomeOfR;
 }

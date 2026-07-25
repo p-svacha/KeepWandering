@@ -34,6 +34,16 @@ public static class ItemTagDefs
             Label = "Dog Toy",
             Description = "Items with this tag can be used to entertain and play with dogs."
         },
+        new ItemTagDef("FireStarter")
+        {
+            Label = "Fire Starter",
+            Description = "Items with this tag can be used to ignite fires."
+        },
+        new ItemTagDef("Fuel")
+        {
+            Label = "Fuel",
+            Description = "Items with this tag can be used as fuel for fires or engines."
+        },
         new ItemTagDef("InfectionTreatment")
         {
             Label = "Infection Treatment",
@@ -79,6 +89,8 @@ public static class ItemTagDefOf
     public static ItemTagDef Cutting;
     public static ItemTagDef Digging;
     public static ItemTagDef DogToy;
+    public static ItemTagDef FireStarter;
+    public static ItemTagDef Fuel;
     public static ItemTagDef InfectionTreatment;
     public static ItemTagDef Lockpicking;
     public static ItemTagDef PoisonTreatment;

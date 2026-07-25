@@ -1,6 +1,6 @@
 ﻿=== SOURCE DEF LISTS (List of all Content Blueprints) ===
 
---- TimeOfDayDefs.cs ---
+--- TimeOfDay.cs ---
     public static List<TimeOfDayDef> Defs => new List<TimeOfDayDef>()
     {
         new TimeOfDayDef("Morning")
@@ -20,7 +20,7 @@
         new TimeOfDayDef("Evening")
         {
             Label = "Evening",
-            Description = "In the evening, the player encounters the Biome Encounter based on the biome they are in. They can only use items when the encounter is over before moving on, except for encounter options.",
+            Description = "Evening encounter, where the player can set up camp and choose how to spend the evening.",
             SkyColor = new Color(0.48f, 0.29f, 0.22f),
             LightingAmbienceOverlayColor = new Color(1f, 0.50f, 0.31f, 0.12f),
         },
@@ -39,75 +39,6 @@
 
     };
 
---- DangerLevelDefs.cs ---
-    public static List<DangerLevelDef> Defs => new List<DangerLevelDef>()
-    {
-        new DangerLevelDef("VerySafe")
-        {
-            Label = "Very Safe",
-            Description = "Noone will attack during the night.",
-            DangerLevel = DangerLevel.VerySafe,
-            Color = ResourceManager.Color_Text_VeryPositive,
-            NightEncounterIntensities = new Dictionary<int, float>()
-            {
-                { 0, 100 },
-            },
-        },
-        new DangerLevelDef("Safe")
-        {
-            Label = "Safe",
-            Description = "There is a very small chance of a small attack happening at night.",
-            DangerLevel = DangerLevel.Safe,
-            Color = ResourceManager.Color_Text_Positive,
-            NightEncounterIntensities = new Dictionary<int, float>()
-            {
-                { 0, 95 },
-                { 1, 5 },
-            },
-        },
-        new DangerLevelDef("Precarious")
-        {
-            Label = "Precarious",
-            Description = "There is a small chance of an attack happening at night.",
-            DangerLevel = DangerLevel.Precarious,
-            Color = ResourceManager.Color_Text_Negative,
-            NightEncounterIntensities = new Dictionary<int, float>()
-            {
-                { 0, 75 },
-                { 1, 20 },
-                { 2, 5 },
-            },
-        },
-        new DangerLevelDef("Dangerous")
-        {
-            Label = "Dangerous",
-            Description = "There is a significant chance of an attack happening at night.",
-            DangerLevel = DangerLevel.Dangerous,
-            Color = ResourceManager.Color_Text_VeryNegative,
-            NightEncounterIntensities = new Dictionary<int, float>()
-            {
-                { 0, 50 },
-                { 1, 20 },
-                { 2, 20 },
-                { 3, 10 },
-            },
-        },
-        new DangerLevelDef("VeryDangerous")
-        {
-            Label = "Very Dangerous",
-            Description = "There is a very high chance of a potentially devastating attack happening at night.",
-            DangerLevel = DangerLevel.VeryDangerous,
-            Color = ResourceManager.Color_Text_ExtremelyNegative,
-            NightEncounterIntensities = new Dictionary<int, float>()
-            {
-                { 0, 20 },
-                { 1, 10 },
-                { 2, 35 },
-                { 3, 35 },
-            },
-        }
-    };
-
 --- EncounterDefs.cs ---
     public static List<EncounterDef> Defs => new List<EncounterDef>()
     {
@@ -115,44 +46,17 @@
 
         new EncounterDef("MorningEncounter")
         {
-            EncounterClass = typeof(Encounter_Morning),
+            EncounterClass = typeof(MorningEncounter),
             Type = EncounterType.Morning,
             DevNotes = "This is the daily wake-up encounter that plays at the start of each day. On day one it delivers the game's premise (escaping a quarantine zone) and offers a single option to open the map. On subsequent days it reports any night events and gives the player three choices: move to a new location, stay to continue yesterday's encounters (increasing exposure), or rest to recover energy and heal (skipping the afternoon encounter). Both staying and resting come with a warning about increased exposure leading to nighttime attacks. It's a simple routing encounter with no skill checks — just narrative framing and a daily strategic decision.",
             CameraXOffset = -3.5f,
         },
 
-        new EncounterDef("EveningFallback")
+        new EncounterDef("EveningEncounter")
         {
-            EncounterClass = typeof(BiomeEncounter_Fallback),
-            Type = EncounterType.Biome,
-        },
-
-        #endregion
-
-        #region Biome Encounters
-
-        new EncounterDef("BiomeEncounter_Outskirts")
-        {
-            EncounterClass = typeof(BiomeEncounter_Outskirts),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the outskirts biome. Randomly selects one of four settings (abandoned farmstead, roadside ditch, crumbling wall, old shed) which affects the step text and fortify difficulty. In addition to the standard options, offers a 'Flag down passerby' charisma check (always available at roadside, 50% elsewhere) that on success opens a trading step where the player can buy an item or information for coins.",
-        },
-
-        new EncounterDef("BiomeEncounter_Woods")
-        {
-            EncounterClass = typeof(BiomeEncounter_Woods),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the woods biome. Randomly selects one of four settings (dense thicket, forest clearing, fallen tree, stream bank) which affects step text and difficulties. Stream bank grants a small morale bonus on arrival. In addition to standard options, offers 'Set a trap' (Intelligence/Dexterity check, crafts a trap for the night) and 'Forage' (Perception/Intelligence check, yields food or medicinal plants, difficulty varies by setting).",
-        },
-
-        new EncounterDef("BiomeEncounter_City")
-        {
-            EncounterClass = typeof(BiomeEncounter_City),
-            Type = EncounterType.Biome,
-            CameraZoomLevel = 8f,
-            DevNotes = "Evening encounter for the city biome. Randomly selects one of four settings (abandoned apartment, parking garage, boarded-up shop, alleyway) which affects step text and difficulties. Rest early is not available in the city. In addition to standard options, offers 'Keep watch' (Perception/Combat check, reduces danger level on success, increases it on critical failure, difficulty varies by setting) and 'Eavesdrop' (Perception/Charisma check, reveals nearby encounters or creates a supply stash, always available at apartment and parking garage, 50% at shop, never in alleyway).",
+            EncounterClass = typeof(EveningEncounter),
+            Type = EncounterType.Evening,
+            CameraZoomLevel = 8,
         },
 
         #endregion
@@ -163,6 +67,7 @@
         {
             EncounterClass = typeof(NightEncounter_Bandits),
             Type = EncounterType.Night,
+            AttackType = AttackType.Human,
             BaseProbability = 5,
             BiomeProbabilityOverrides = new Dictionary<BiomeDef, float>()
             {
@@ -383,6 +288,16 @@
                 Nutrition = 2.5f,
                 Hydration = 1f
             },
+        },
+
+        new ItemDef("Bedroll")
+        {
+            Label = "bedroll",
+            Description = "Can be set up at your camp in the evening to provide a place to sleep, increasing healing during the night.",
+            Value = 5,
+            IsCampComponent = true,
+            MinInitialDurability = 2,
+            MaxInitialDurability = 8,
         },
 
         new ItemDef("Beer")
@@ -641,11 +556,24 @@
             },
         },
 
+        new ItemDef("Tent")
+        {
+            Label = "packed tent",
+            Description = "Can be set up at your camp in the evening to provide protection during the night.",
+            Value = 5,
+            MinInitialDurability = 2,
+            MaxInitialDurability = 10,
+            IsCampComponent = true,
+        },
+
         new ItemDef("Trap")
         {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
             Value = 3,
+            MinInitialDurability = 1,
+            MaxInitialDurability = 5,
+            IsCampComponent = true,
         },
 
         new ItemDef("WaterBottle")
@@ -683,6 +611,16 @@
         {
             Label = "Dog Toy",
             Description = "Items with this tag can be used to entertain and play with dogs."
+        },
+        new ItemTagDef("FireStarter")
+        {
+            Label = "Fire Starter",
+            Description = "Items with this tag can be used to ignite fires."
+        },
+        new ItemTagDef("Fuel")
+        {
+            Label = "Fuel",
+            Description = "Items with this tag can be used as fuel for fires or engines."
         },
         new ItemTagDef("InfectionTreatment")
         {
@@ -750,7 +688,8 @@
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
 
-        // Vitals
+        #region Vitals
+
         new HealthConditionDef("Hunger")
         {
             Label = "Hunger",
@@ -943,7 +882,10 @@
             }
         },
 
-        // Fractures
+        #endregion
+
+        #region Fractures
+
         new HealthConditionDef("LegFracture")
         {
             Label = "Leg Fracture",
@@ -1045,8 +987,10 @@
             }
         },
 
+        #endregion
 
-        // Wounds
+        #region Wounds
+
         new HealthConditionDef("Cut")
         {
             Label = "cut",
@@ -1067,7 +1011,10 @@
             // Everything else handled by Wound class
         },
 
-        // Other injuries / ailments
+        #endregion
+
+        #region Misc. Ailments
+
         new HealthConditionDef("HeartArrhythmia")
         {
             Label = "Heart Arrhythmia",
@@ -1149,7 +1096,10 @@
             }
         },
 
-        // Misc
+        #endregion
+
+        #region Buffs
+
         new HealthConditionDef("ChocolateHigh")
         {
             Label = "Chocolate High",
@@ -1172,6 +1122,51 @@
                 }
             }
         },
+
+        new HealthConditionDef("SteadyHands")
+        {
+            Label = "Steady Hands",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Steady Hands",
+                    Description = "My hands are steady.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Dexterity, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        new HealthConditionDef("WellRested")
+        {
+            Label = "Well Rested",
+            Category = HealthConditionCategoryDefOf.Positive,
+            HealthConditionClass = typeof(HC_WellRested),
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Well Rested",
+                    Description = "I feel well rested from having a nice camp last night.",
+                    SeverityThreshold = 0,
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        #endregion
+
+        #region Misc / Neutral
 
         new HealthConditionDef("Intoxication")
         {
@@ -1208,27 +1203,8 @@
             }
         },
 
-        new HealthConditionDef("SteadyHands")
-        {
-            Label = "Steady Hands",
-            Category = HealthConditionCategoryDefOf.Positive,
-            NaturalSeverityChange = -1,
-            DefaultInitialSeverity = 2,
-            Stages = new List<HealthConditionStage>()
-            {
-                new HealthConditionStage()
-                {
-                    Label = "Steady Hands",
-                    Description = "My hands are steady.",
-                    SeverityThreshold = 0,
-                    StatModifiers = new Dictionary<StatDef, int>()
-                    {
-                        { StatDefOf.Dexterity, +2 },
-                    },
-                    Color = ResourceManager.Color_Text_Positive,
-                }
-            }
-        }
+    #endregion
+
     };
 
 --- QuestDefs.cs ---
@@ -1376,6 +1352,75 @@
             // Rendering
             BaseColor = new Color(0.61f, 0.75f, 0.98f),
             TreeDensity = 0.0f,
+        }
+    };
+
+--- DangerLevel.cs ---
+    public static List<DangerLevelDef> Defs => new List<DangerLevelDef>()
+    {
+        new DangerLevelDef("VerySafe")
+        {
+            Label = "Very Safe",
+            Description = "Noone will attack during the night.",
+            DangerLevel = DangerLevel.VerySafe,
+            Color = ResourceManager.Color_Text_VeryPositive,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 100 },
+            },
+        },
+        new DangerLevelDef("Safe")
+        {
+            Label = "Safe",
+            Description = "There is a very small chance of a small attack happening at night.",
+            DangerLevel = DangerLevel.Safe,
+            Color = ResourceManager.Color_Text_Positive,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 95 },
+                { 1, 5 },
+            },
+        },
+        new DangerLevelDef("Precarious")
+        {
+            Label = "Precarious",
+            Description = "There is a small chance of an attack happening at night.",
+            DangerLevel = DangerLevel.Precarious,
+            Color = ResourceManager.Color_Text_Negative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 75 },
+                { 1, 20 },
+                { 2, 5 },
+            },
+        },
+        new DangerLevelDef("Dangerous")
+        {
+            Label = "Dangerous",
+            Description = "There is a significant chance of an attack happening at night.",
+            DangerLevel = DangerLevel.Dangerous,
+            Color = ResourceManager.Color_Text_VeryNegative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 50 },
+                { 1, 20 },
+                { 2, 20 },
+                { 3, 10 },
+            },
+        },
+        new DangerLevelDef("VeryDangerous")
+        {
+            Label = "Very Dangerous",
+            Description = "There is a very high chance of a potentially devastating attack happening at night.",
+            DangerLevel = DangerLevel.VeryDangerous,
+            Color = ResourceManager.Color_Text_ExtremelyNegative,
+            NightEncounterIntensities = new Dictionary<int, float>()
+            {
+                { 0, 20 },
+                { 1, 10 },
+                { 2, 35 },
+                { 3, 35 },
+            },
         }
     };
 

@@ -37,7 +37,7 @@ public class Game : Singleton<Game>
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
-    public bool IsEarlyResting; // If true, some extra natural healing is applied when going to sleep.
+    public bool IsEarlyResting { get; set; } // If true, some extra natural healing is applied when going to sleep.
     public List<WorldMapTile> PathHistory = new List<WorldMapTile>();
     public WorldMapTile CurrentPosition { get; private set; } // Position the player is currently at.
     public WorldMapTile TargetPosition { get; private set; } // Position the player is moving towards.
@@ -702,8 +702,8 @@ public class Game : Singleton<Game>
         SetTimeOfDay(TimeOfDayDefOf.Evening);
 
         // Start encounter
-        Encounter eveningBiomeEncounter = EncounterManager.GenerateEncounter(CurrentPosition.Biome.EveningEncounter, CurrentPosition) as Encounter;
-        SetCurrentEncounter(eveningBiomeEncounter);
+        Encounter eveningEncounter = EncounterManager.GenerateEncounter(EncounterDefOf.EveningEncounter, CurrentPosition);
+        SetCurrentEncounter(eveningEncounter);
     }
 
     public void EndEveningEncounter()
@@ -821,15 +821,25 @@ public class Game : Singleton<Game>
         ItemDef itemDef = GetRandomItemDefWithTag(itemTag);
         return CreateItem(itemDef, hidden, frozen);
     }
-    public Item CreateItem(ItemDef itemDef, bool hidden = false, bool frozen = true)
+    public Item CreateItem(ItemDef itemDef, bool hidden = false, bool frozen = true, int initialDurability = -1)
     {
         Item item = new Item(this, ItemIdCounter++, itemDef);
         if (hidden) item.Renderer.Hide();
         if (frozen) item.Renderer.Freeze();
 
-        int initialDurability = Random.Range(itemDef.MinInitialDurability, itemDef.MaxInitialDurability + 1);
+        if (initialDurability < 0) initialDurability = Random.Range(itemDef.MinInitialDurability, itemDef.MaxInitialDurability + 1);
         SetItemDurability(item, initialDurability);
 
+        return item;
+    }
+
+    /// <summary>
+    /// Generates and returns an exact copy of the given item, including its durability and other properties.
+    /// <br/>The copy will never be marked as destroyed or player-owned, regardless of the state of the original item.
+    /// </summary>
+    public Item CopyItem(Item existingItem, bool hidden = false, bool frozen = true)
+    {
+        Item item = CreateItem(existingItem.Def, hidden, frozen, existingItem.Durability);
         return item;
     }
 
@@ -1139,10 +1149,6 @@ public class Game : Singleton<Game>
         if (TimeOfDay != TimeOfDayDefOf.Evening) throw new System.Exception("Trying to place trap outside of evening.");
         if (trap.Def != ItemDefOf.Trap) throw new System.Exception("Trying to place item that is not a trap.");
 
-        Inventory.Remove(trap);
-        trap.SetIsPlayerOwned(false);
-        trap.Hide();
-
         Camp.AddTrap(slot, trap);
         OnGameStateChanged();
     }
@@ -1153,9 +1159,6 @@ public class Game : Singleton<Game>
         if (Camp.Tent != null) throw new System.Exception("Trying to set up tent when one is already set up.");
         if (tent.Def != ItemDefOf.Tent) throw new System.Exception("Trying to set up item that is not a tent.");
 
-        Inventory.Remove(tent);
-        tent.SetIsPlayerOwned(false);
-        tent.Hide();
         Camp.SetTent(tent);
         OnGameStateChanged();
     }
@@ -1166,9 +1169,6 @@ public class Game : Singleton<Game>
         if (Camp.Bedroll != null) throw new System.Exception("Trying to set up bedroll when one is already set up.");
         if (bedroll.Def != ItemDefOf.Bedroll) throw new System.Exception("Trying to set up item that is not a bedroll.");
 
-        Inventory.Remove(bedroll);
-        bedroll.SetIsPlayerOwned(false);
-        bedroll.Hide();
         Camp.SetBedroll(bedroll);
         OnGameStateChanged();
     }
@@ -1406,6 +1406,10 @@ public class Game : Singleton<Game>
 
     private List<ItemDef> RandomItemPool => DefDatabase<ItemDef>.AllDefs.Where(i => !i.IsQuestItem).ToList();
     public ItemDef GetRandomItemDefWithTag(ItemTagDef tag) => RandomItemPool.Where(x => x.HasTag(tag)).ToList().RandomElement();
+
+    /// <summary>
+    /// Returns a random non-quest item def.
+    /// </summary>
     public ItemDef GetRandomItemDef() => RandomItemPool.RandomElement();
 
     #endregion

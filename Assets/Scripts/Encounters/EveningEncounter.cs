@@ -22,7 +22,7 @@ public class EveningEncounter : Encounter
 
     protected override string OnStart()
     {
-        return "How would you like to spend your evening?";
+        return "How would you like to spend your evening?\n\nYou can set up your camp before deciding on an activity below. After choosing an activity, it will be too dark to make further changes.";
     }
 
     protected override void RefreshSprites()
@@ -37,21 +37,11 @@ public class EveningEncounter : Encounter
 
     protected override bool IsMoveOnOptionAvailable() => false;
 
-    /// <summary>
-    /// "Find Trader" hands off to the base class's trading system, which doesn't naturally end the
-    /// encounter on its own. We only want the evening to end once the player is actually done trading.
-    /// </summary>
-    public override void OnOptionChosen(EncounterOption option)
-    {
-        base.OnOptionChosen(option);
-        if (option.Text == "Done trading") IsEncounterDone = true;
-    }
-
     protected override List<EncounterOption> GetOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
 
-        // Camp options - non-terminal, sprite-bound, any combination, done before the terminal choice below
+        // Camp options (non-terminal, sprite-bound, any combination, done before the terminal choice below)
         if (!Camp.Instance.HasTent) options.Add(GetSetUpShelterOption());
         if (!Camp.Instance.HasBedroll) options.Add(GetSetUpSleepingSpotOption());
         if (!Camp.Instance.HasFire) options.Add(GetMakeFireOption());
@@ -59,11 +49,12 @@ public class EveningEncounter : Encounter
         if (Camp.Instance.Trap2 == null) options.Add(GetSetTrapOption(2, Trap2Sprite));
         if (Camp.Instance.Trap3 == null) options.Add(GetSetTrapOption(3, Trap3Sprite));
 
-        // Spend-the-evening options - terminal, dialogue list, exactly one ends the encounter
+        // Spend-the-evening options (terminal, dialogue list, exactly one ends the encounter)
         options.Add(GetRestEarlyOption());
         options.Add(GetScavengeOption());
-        options.AddRange(GetTrainSkillOptions());
-        if (Biome == BiomeDefOf.City) options.Add(GetFindTraderOption());
+
+        // Biome-specific options
+        options.AddRange(GetBiomeSpecificOptions());
 
         return options;
     }
@@ -75,21 +66,21 @@ public class EveningEncounter : Encounter
         return new FixedOutcomeOption()
         {
             Text = "Set up Shelter",
-            Description = "Pitch your tent. Makes tonight safer, but only for tonight.",
+            Description = $"Pitch your tent. Decreases the chance of being attacked during the night and gives +{Camp.TENT_MORALE_BONUS} morale the next day.",
             Sprite = TentSprite,
-            Action = SetUpShelter,
+            Action = SetUpTent,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
                 {
                     IsRequired = true,
                     Item = ItemDefOf.Tent,
-                    IsDestroyingItem = true, // see system note below
+                    IsDestroyingItem = true,
                 }
             }
         };
     }
-    private string SetUpShelter()
+    private string SetUpTent()
     {
         Game.SetUpTent(ItemUsedInOption);
         return "You set up your tent for the night.";
@@ -100,21 +91,21 @@ public class EveningEncounter : Encounter
         return new FixedOutcomeOption()
         {
             Text = "Set up Sleeping Spot",
-            Description = "Lay out your bedroll. Improves how much you heal overnight.",
+            Description = $"Lay out your bedroll. Improves how much you heal overnight and gives +{Camp.BEDROLL_MORALE_BONUS} morale for the next day.",
             Sprite = BedrollSprite,
-            Action = SetUpSleepingSpot,
+            Action = SetUpBedroll,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
                 {
                     IsRequired = true,
                     Item = ItemDefOf.Bedroll,
-                    IsDestroyingItem = true, // see system note below
+                    IsDestroyingItem = true,
                 }
             }
         };
     }
-    private string SetUpSleepingSpot()
+    private string SetUpBedroll()
     {
         Game.SetUpBedroll(ItemUsedInOption);
         return "You lay out your bedroll for the night.";
@@ -125,10 +116,11 @@ public class EveningEncounter : Encounter
         return new SkillCheckOption()
         {
             Text = "Make Fire",
-            Description = "Get a fire going. Enables cooking and keeps wildlife away for the night.",
+            Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
             Difficulty = 40,
             Action = MakeFire,
             CanPartiallySucceed = false,
+            CanCriticallySucceed = false,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Survival, 2 },
@@ -138,19 +130,19 @@ public class EveningEncounter : Encounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    Item = ItemDefOf.Fuel, // new item def needed, see notes below
+                    Tag = ItemTagDefOf.Fuel,
                     IsDestroyingItem = true,
                 },
                 new ItemSlot()
                 {
-                    Tag = ItemTagDefOf.FireStarter, // new tag def needed, see notes below
+                    Tag = ItemTagDefOf.FireStarter,
                 }
             }
         };
     }
     private string MakeFire(OptionOutcomeDef outcome)
     {
-        if (outcome.SuccessLevel == SuccessLevel.Success || outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
+        if (outcome.SuccessLevel == SuccessLevel.Success)
         {
             Game.MakeFire();
             return "You get a fire going.";
@@ -181,7 +173,7 @@ public class EveningEncounter : Encounter
                 {
                     IsRequired = true,
                     Item = ItemDefOf.Trap,
-                    IsDestroyingItem = true, // see system note below
+                    IsDestroyingItem = true,
                 }
             }
         };
@@ -194,7 +186,7 @@ public class EveningEncounter : Encounter
 
     #endregion
 
-    #region Spend-the-Evening Options
+    #region Spend-the-Evening Options (Base)
 
     private EncounterOption GetRestEarlyOption()
     {
@@ -209,7 +201,7 @@ public class EveningEncounter : Encounter
     {
         Game.IsEarlyResting = true;
         IsEncounterDone = true;
-        return "You lie down early. The extra rest will help a little. Now is the last chance to use items before going to sleep.";
+        return "You lie down early. The extra rest will help a little.";
     }
 
     private int GetScavengeDifficulty()
@@ -270,62 +262,147 @@ public class EveningEncounter : Encounter
         throw new InvalidOutcomeException();
     }
 
-    private int GetTrainSkillDifficulty(StatDef stat)
+    #endregion
+
+    #region Spend-the-Evening Options (Biome specific)
+
+    private List<EncounterOption> GetBiomeSpecificOptions()
     {
-        int currentValue = Game.Player.GetStatValue(stat);
-        return Mathf.Clamp(20 + currentValue * 4, 10, 95);
+        if (Biome == BiomeDefOf.Woods) return GetWoodsOptions();
+        else if (Biome == BiomeDefOf.Outskirts) return GetOutskirtsOptions();
+        else if (Biome == BiomeDefOf.City) return GetCityOptions();
+        else throw new System.Exception("No biome-specific options defined for biome " + Biome.DefName);
     }
-    private List<EncounterOption> GetTrainSkillOptions()
+
+    // Woods
+    private List<EncounterOption> GetWoodsOptions()
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
-        if (Biome == BiomeDefOf.Woods) options.Add(GetTrainSkillOption(StatDefOf.Survival, ItemTagDefOf.Scavenging, "Track and forage with purpose, sharpening your survival instincts."));
-        if (Biome == BiomeDefOf.Outskirts) options.Add(GetTrainSkillOption(StatDefOf.Strength, ItemTagDefOf.Digging, "Put in some hard, honest labor to build your strength."));
-        if (Biome == BiomeDefOf.City) options.Add(GetTrainSkillOption(StatDefOf.Social, ItemTagDefOf.Charm, "Practice reading and talking to people to sharpen your social skills."));
-        if (Camp.Instance.HasFire) options.Add(GetTrainSkillOption(StatDefOf.Dexterity, ItemTagDefOf.Lockpicking, "Tinker with your gear by the firelight to steady your hands."));
-
-        // todo: replace these
-
-        return options;
-    }
-    private EncounterOption GetTrainSkillOption(StatDef stat, ItemTagDef tag, string description)
-    {
-        return new SkillCheckOption()
+        return new List<EncounterOption>()
         {
-            Text = $"Train {stat.LabelCapWord}",
-            Description = description,
-            Difficulty = GetTrainSkillDifficulty(stat),
-            Action = (outcome) => TrainSkill(outcome, stat),
-            CanCriticallyFail = false,
-            ItemSlots = new List<ItemSlot>()
-            {
-                new ItemSlot() { Tag = tag }
-            }
+            GetTrainSurvivalOption(),
         };
     }
-    private string TrainSkill(OptionOutcomeDef outcome, StatDef stat)
+
+    private EncounterOption GetTrainSurvivalOption()
+    {
+        int difficultyIncreaseFromExistingSkill = Game.Player.GetStatValue(StatDefOf.Survival) * 10;
+
+        return new SkillCheckOption()
+        {
+            Text = "Train Survival Skill",
+            Description = "Try studying the wilderness and your bushcraft skills.",
+            Difficulty = 50,
+            CanCriticallyFail = false,
+            CanPartiallySucceed = false,
+            FixedDifficultyModifiers = new Dictionary<string, int>()
+            {
+                { "Current Survival Skill (x10)", difficultyIncreaseFromExistingSkill },
+            },
+            // todo: maybe add a slot with a tag?
+            Action = TrainSurvival,
+        };
+    }
+    private string TrainSurvival(OptionOutcomeDef outcome)
     {
         IsEncounterDone = true;
 
-        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess || outcome.SuccessLevel == SuccessLevel.Success)
+        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
-            Game.ModifyStatBaseValue(stat, +1);
-            return $"You spend the evening deliberately practicing, and your {stat.LabelCapWord.ToLower()} improves.";
+            Game.ModifyStatBaseValue(StatDefOf.Survival, +2);
+            return "You have a breakthrough in your understanding of the wilderness!";
         }
-        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess || outcome.SuccessLevel == SuccessLevel.Failure)
+        if (outcome.SuccessLevel == SuccessLevel.Success)
         {
-            return "You practice, but it doesn't seem to have paid off tonight.";
+            Game.ModifyStatBaseValue(StatDefOf.Survival, +1);
+            return "You make some progress in your survival skills.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            return "You fail to accomplish anything useful.";
         }
         throw new InvalidOutcomeException();
     }
+
+
+    // Outskirts
+    private List<EncounterOption> GetOutskirtsOptions()
+    {
+        return new List<EncounterOption>() { };
+    }
+
+
+    // City
+    private List<EncounterOption> GetCityOptions()
+    {
+        return new List<EncounterOption>()
+        {
+            GetTrainSocialOption(),
+            GetFindTraderOption(),
+        };
+    }
+
+    private EncounterOption GetTrainSocialOption()
+    {
+        int difficultyIncreaseFromExistingSkill = Game.Player.GetStatValue(StatDefOf.Social) * 10;
+
+        return new SkillCheckOption()
+        {
+            Text = "Train Social Skill",
+            Description = "Try to meet and talk to people to improve your social skills.",
+            Difficulty = 50,
+            CanCriticallyFail = false,
+            CanPartiallySucceed = false,
+            FixedDifficultyModifiers = new Dictionary<string, int>()
+            {
+                { "Current Social Skill (x10)", difficultyIncreaseFromExistingSkill },
+            },
+            // todo: maybe add a slot with a tag?
+            Action = TrainSocial,
+        };
+    }
+    private string TrainSocial(OptionOutcomeDef outcome)
+    {
+        IsEncounterDone = true;
+
+        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
+        {
+            // 50% to receive a gift
+            if (Random.value < 0.5f)
+            {
+                Game.ModifyStatBaseValue(StatDefOf.Social, +1);
+                Game.AddNewItemToInventory(Game.GetRandomItemDef());
+                return "You manage to find someone you connect with. They even give you a gift!";
+            }
+
+            // 50% for +2 social
+            else
+            {
+                Game.ModifyStatBaseValue(StatDefOf.Social, +2);
+                return "You manage to find great company and have a wonderful time socializing.";
+            }
+            
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Success)
+        {
+            Game.ModifyStatBaseValue(StatDefOf.Social, +1);
+            return "You have a pleasant interaction and improve your social skills.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            return "You fail to find anyone to interact with.";
+        }
+        throw new InvalidOutcomeException();
+    }
+
 
     private EncounterOption GetFindTraderOption()
     {
         return new SkillCheckOption()
         {
             Text = "Find Trader",
-            Description = "Seek out someone willing to trade. There's no guarantee of luck.",
+            Description = "Seek out someone willing to trade.",
             Difficulty = 55,
+            CanPartiallySucceed = false,
             Action = FindTrader,
             RelevantStats = new Dictionary<StatDef, int>()
             {
@@ -345,12 +422,6 @@ public class EveningEncounter : Encounter
             List<ItemDef> offeredItems = BiomeLootTable.ResolveMultiple(2);
             return InitiateTrade("You track down a trader willing to do business.", offeredItems, canBuyRumour: true);
         }
-        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
-        {
-            IsEncounterDone = true;
-            Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
-            return "You don't find a trader, but you enjoy a quiet walk through the streets.";
-        }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
             IsEncounterDone = true;
@@ -365,5 +436,11 @@ public class EveningEncounter : Encounter
         throw new InvalidOutcomeException();
     }
 
+    protected override void OnTradingDone()
+    {
+        IsEncounterDone = true;
+    }
+
     #endregion
+
 }
