@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum AttackType
@@ -29,14 +30,9 @@ public class EncounterDef : Def
     public string DevNotes { get; init; }
 
     /// <summary>
-    /// Base probability of this encounter being selected in a weighted random selection. The probability is relative to the base probabilities of all other encounters that are eligible to occur at the same time. This applies to location and night encounters.
+    /// Describes how common it is for this encounter to occur in each biome. If a biome is not listed here, the encounter cannot occur in that biome.
     /// </summary>
-    public float BaseProbability { get; init; } = 0f;
-
-    /// <summary>
-    /// Can be used to override the base probability of this encounter in specific biomes.
-    /// </summary>
-    public Dictionary<BiomeDef, float> BiomeProbabilityOverrides { get; init; } = new Dictionary<BiomeDef, float>();
+    public Dictionary<BiomeDef, Rarity> Rarity { get; init; } = new Dictionary<BiomeDef, Rarity>();
 
     /// <summary>
     /// If set to a positive number, this encounter can only occur up to this many times in a single playthrough. If -1 (the default), there is no limit to the number of times this encounter can occur.
@@ -78,56 +74,56 @@ public class EncounterDef : Def
 
     public override bool Validate()
     {
-        if (Type == EncounterType.Invalid) throw new System.Exception("Encounter type must be set.");
-        if (MaxOccurences == 0) throw new System.Exception("MaxOccurences cannot be set to 0. Use -1 for no limit.");
-        if (MinDistanceFromStart == 0 || MinDistanceFromStart == 1) throw new System.Exception("MinDistanceFromStart cannot be set to 0 or 1. Use -1 for no minimum distance.");
-        if (Type != EncounterType.Landmark && MinOccurences != 0) throw new System.Exception("Only landmark encounters can have a minimum number of occurences.");
+        int numPassableBiomes = DefDatabase<BiomeDef>.AllDefs.Count(b => b.IsPassable);
 
-        if (EncounterClass == null) throw new System.Exception("EncounterClass cannot be null.");
-        if (!EncounterClass.IsSubclassOf(typeof(Encounter))) throw new System.Exception("EncounterClass must be a subclass of Encounter.");
-        if (Type != EncounterType.Night && AttackType != AttackType.None) throw new System.Exception("Only night encounters can have an attack type set.");
+        if (Type == EncounterType.Invalid) ThrowValidationError("Encounter type must be set.");
+        if (MaxOccurences == 0) ThrowValidationError("MaxOccurences cannot be set to 0. Use -1 for no limit.");
+        if (MinDistanceFromStart == 0 || MinDistanceFromStart == 1) ThrowValidationError("MinDistanceFromStart cannot be set to 0 or 1. Use -1 for no minimum distance.");
+        if (Type != EncounterType.Landmark && MinOccurences != 0) ThrowValidationError("Only landmark encounters can have a minimum number of occurences.");
+
+        if (EncounterClass == null) ThrowValidationError("EncounterClass cannot be null.");
+        if (!EncounterClass.IsSubclassOf(typeof(Encounter))) ThrowValidationError("EncounterClass must be a subclass of Encounter.");
+        if (Type != EncounterType.Night && AttackType != AttackType.None) ThrowValidationError("Only night encounters can have an attack type set.");
 
         if (Type == EncounterType.Location)
         {
-            if (BaseProbability == 0f) throw new System.Exception("Location encounters must have a base probability set.");
-            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
+            if (Rarity.Count != numPassableBiomes) ThrowValidationError("Location encounters must have a rarity defined for all passable biomes.");
+            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) ThrowValidationError("EncounterClass must be a subclass of LocationEncounter.");
         }
 
         if (Type == EncounterType.Landmark)
         {
-            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
-            if (BaseProbability != 0f) throw new System.Exception("Landmark encounters cannot have a probability, as their placement depends purely on Min and MaxOccurences. For biome preferences, use BiomeProbabilityOverrides.");
-            if (MaxOccurences <= 0) throw new System.Exception("Landmark encounters must have a positive maximum number of occurences.");
-            if (MaxOccurences < MinOccurences) throw new System.Exception("MaxOccurences cannot be less than MinOccurences.");
+            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) ThrowValidationError("EncounterClass must be a subclass of LocationEncounter.");
+            if (Rarity.Count != numPassableBiomes) ThrowValidationError("Landmark encounters must have a rarity defined for all passable biomes.");
+            if (MaxOccurences <= 0) ThrowValidationError("Landmark encounters must have a positive maximum number of occurences.");
+            if (MaxOccurences < MinOccurences) ThrowValidationError("MaxOccurences cannot be less than MinOccurences.");
         }
 
         if (Type == EncounterType.ForcePlacedOnly)
         {
-            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) throw new System.Exception("EncounterClass must be a subclass of LocationEncounter.");
-            if (BaseProbability != 0f) throw new System.Exception("Special encounters cannot have a probability, as they are only force placed.");
-            if (BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Special encounters cannot have biome-specific probabilities, as they are only force placed.");
-            if (MaxOccurences != -1) throw new System.Exception("Special encounters cannot be limited, as they are only force placed.");
-            if (MinDistanceFromStart != -1) throw new System.Exception("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
-            if (MinDistanceBetween != -1) throw new System.Exception("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
+            if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) ThrowValidationError("EncounterClass must be a subclass of LocationEncounter.");
+            if (Rarity.Count > 0) ThrowValidationError("Special encounters cannot have a rarity defined, as they are only force placed.");
+            if (MaxOccurences != -1) ThrowValidationError("Special encounters cannot be limited, as they are only force placed.");
+            if (MinDistanceFromStart != -1) ThrowValidationError("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
+            if (MinDistanceBetween != -1) ThrowValidationError("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
         }
 
         if (Type == EncounterType.Evening || Type == EncounterType.Morning)
         {
-            if (MinDistanceFromStart != -1) throw new System.Exception("Evening and morning encounters cannot have a minimum distance from the starting tile.");
-            if (MaxOccurences != -1) throw new System.Exception("Evening and morning encounters cannot be limited.");
-            if (BaseProbability != 0f) throw new System.Exception("Evening and morning encounters cannot have a probability set.");
-            if (BiomeProbabilityOverrides != null && BiomeProbabilityOverrides.Count > 0) throw new System.Exception("Evening and morning encounters cannot have biome-specific probabilities.");
-            if (MinDistanceBetween != -1) throw new System.Exception("Evening and morning encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
+            if (MinDistanceFromStart != -1) ThrowValidationError("Evening and morning encounters cannot have a minimum distance from the starting tile.");
+            if (MaxOccurences != -1) ThrowValidationError("Evening and morning encounters cannot be limited.");
+            if (Rarity.Count > 0) ThrowValidationError("Evening and morning encounters cannot have a rarity defined.");
+            if (MinDistanceBetween != -1) ThrowValidationError("Evening and morning encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
         }
 
         if (Type == EncounterType.Night)
         {
-            if (!EncounterClass.IsSubclassOf(typeof(NightEncounter))) throw new System.Exception("EncounterClass must be a subclass of NightEncounter.");
-            if (BaseProbability == 0f) throw new System.Exception("Night encounters must have a base probability set.");
-            if (MinDistanceBetween != -1) throw new System.Exception("Night encounters cannot have a minimum distance between occurences, as they happen independently from location in the world.");
-            if (MinOccurences != 0) throw new System.Exception("Night encounters cannot have a minimum number of occurences.");
-            if (MaxOccurences != -1) throw new System.Exception("Night encounters cannot be limited, as they are selected randomly each night based on their probability.");
-            if (AttackType == AttackType.None) throw new System.Exception("Night encounters must have an attack type set.");
+            if (!EncounterClass.IsSubclassOf(typeof(NightEncounter))) ThrowValidationError("EncounterClass must be a subclass of NightEncounter.");
+            if (Rarity.Count != numPassableBiomes) ThrowValidationError("Night encounters must have a rarity defined for all passable biomes.");
+            if (MinDistanceBetween != -1) ThrowValidationError("Night encounters cannot have a minimum distance between occurences, as they happen independently from location in the world.");
+            if (MinOccurences != 0) ThrowValidationError("Night encounters cannot have a minimum number of occurences.");
+            if (MaxOccurences != -1) ThrowValidationError("Night encounters cannot be limited, as they are selected randomly each night based on their probability.");
+            if (AttackType == AttackType.None) ThrowValidationError("Night encounters must have an attack type set.");
         }
 
         return base.Validate();

@@ -5,20 +5,18 @@ using UnityEngine;
 
 public static class DictionaryExtensions
 {
+    #region Weighted Random Selection
+
     /// <summary>
     /// Selects a random key from the dictionary based on integer weights.
     /// </summary>
-    /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
-    /// <param name="weightDictionary">Dictionary mapping keys to integer weights.</param>
-    /// <returns>A randomly selected key, where probability is proportional to its weight.</returns>
-    /// <exception cref="Exception">Thrown if the dictionary is empty or all weights are zero.</exception>
-    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, int> weightDictionary, bool? debug = null)
+    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, float> weightDictionary, bool? debug = null)
     {
-        int probabilitySum = weightDictionary.Sum(x => x.Value);
+        float probabilitySum = weightDictionary.Sum(x => x.Value);
         if (probabilitySum == 0) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
 
-        int rng = UnityEngine.Random.Range(0, probabilitySum);
-        int tmpSum = 0;
+        float rng = UnityEngine.Random.Range(0f, probabilitySum);
+        float tmpSum = 0f;
         TKey chosenValue = default;
         foreach (var kvp in weightDictionary)
         {
@@ -47,45 +45,51 @@ public static class DictionaryExtensions
     }
 
     /// <summary>
-    /// Selects a random key from the dictionary based on float weights.
+    /// Selects a random key from the dictionary based on Rarity weights.
     /// </summary>
-    /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
-    /// <param name="weightDictionary">Dictionary mapping keys to float weights.</param>
-    /// <returns>A randomly selected key, where probability is proportional to its weight.</returns>
-    /// <exception cref="Exception">Thrown if the dictionary is empty or all weights are zero.</exception>
-    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, float> weightDictionary, bool? debug = null)
+    public static TKey GetWeightedRandomElement<TKey>(this Dictionary<TKey, Rarity> dict, bool? debug = null)
     {
-        float probabilitySum = weightDictionary.Sum(x => x.Value);
-        if (probabilitySum == 0f) throw new Exception("Can't select from " + typeof(TKey).FullName + " because all weights are 0.");
-
-        float rng = UnityEngine.Random.Range(0f, probabilitySum);
-        float tmpSum = 0f;
-        TKey chosenValue = default;
-        foreach (var kvp in weightDictionary)
-        {
-            tmpSum += kvp.Value;
-            if (rng < tmpSum)
-            {
-                chosenValue = kvp.Key;
-                break;
-            }
-        }
-
-        if (debug ?? Game.DEBUG_RANDOM_CHOICES)
-        {
-            string output = "Probabilities for " + typeof(TKey).FullName;
-            output += "\n------------------------------";
-            foreach (var kvp in weightDictionary.Where(x => x.Value > 0).OrderByDescending(x => x.Value))
-            {
-                float pct = kvp.Value / probabilitySum * 100f;
-                output += "\n" + (kvp.Key.Equals(chosenValue) ? "* " : "  ") + kvp.Key + ": " + pct.ToString("0.0") + "%";
-            }
-            output += "\n------------------------------";
-            Debug.Log(output);
-        }
-
-        return chosenValue;
+        Dictionary<TKey, float> weightDictionary = dict.ToDictionary(kvp => kvp.Key, kvp => (float)kvp.Value);
+        return GetWeightedRandomElement(weightDictionary, debug);
     }
+
+    /// <summary>
+    /// Selects a specified number of random keys from the dictionary based on Rarity weights.
+    /// </summary>
+    public static List<TKey> GetWeightedRandomElements<TKey>(this Dictionary<TKey, Rarity> weightDictionary, int amount, bool allowRepeating = false)
+    {
+        if (weightDictionary == null)
+            throw new ArgumentNullException(nameof(weightDictionary));
+        if (amount < 1)
+            throw new ArgumentException("Amount must be at least 1.", nameof(amount));
+        if (!allowRepeating && amount > weightDictionary.Count)
+            throw new ArgumentException("Amount cannot be greater than the number of unique elements when repetition is disallowed.", nameof(amount));
+
+        var results = new List<TKey>(amount);
+
+        if (allowRepeating)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                results.Add(weightDictionary.GetWeightedRandomElement());
+            }
+        }
+        else
+        {
+            // Create a temporary copy to remove selected items
+            var tempDict = new Dictionary<TKey, Rarity>(weightDictionary);
+            for (int i = 0; i < amount; i++)
+            {
+                TKey selected = tempDict.GetWeightedRandomElement();
+                results.Add(selected);
+                tempDict.Remove(selected);
+            }
+        }
+
+        return results;
+    }
+
+    #endregion
 
     /// <summary>
     /// Increments the integer value associated with the specified key by a given amount.
@@ -256,51 +260,6 @@ public static class DictionaryExtensions
         {
             dictionary.Add(key, new List<T> { value });
         }
-    }
-
-    /// <summary>
-    /// Selects multiple random keys from the dictionary based on float weights.
-    /// </summary>
-    /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
-    /// <param name="weightDictionary">Dictionary mapping keys to float weights.</param>
-    /// <param name="amount">The number of keys to select.</param>
-    /// <param name="allowRepeating">If true, the same key can be selected multiple times; otherwise selections are unique.</param>
-    /// <returns>A list of randomly selected keys.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="weightDictionary"/> is null.</exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="amount"/> is less than 1, or if <paramref name="allowRepeating"/> is false and <paramref name="amount"/> exceeds the number of available keys.
-    /// </exception>
-    public static List<TKey> GetWeightedRandomElements<TKey>(this Dictionary<TKey, float> weightDictionary, int amount, bool allowRepeating = false)
-    {
-        if (weightDictionary == null)
-            throw new ArgumentNullException(nameof(weightDictionary));
-        if (amount < 1)
-            throw new ArgumentException("Amount must be at least 1.", nameof(amount));
-        if (!allowRepeating && amount > weightDictionary.Count)
-            throw new ArgumentException("Amount cannot be greater than the number of unique elements when repetition is disallowed.", nameof(amount));
-
-        var results = new List<TKey>(amount);
-
-        if (allowRepeating)
-        {
-            for (int i = 0; i < amount; i++)
-            {
-                results.Add(weightDictionary.GetWeightedRandomElement());
-            }
-        }
-        else
-        {
-            // Create a temporary copy to remove selected items
-            var tempDict = new Dictionary<TKey, float>(weightDictionary);
-            for (int i = 0; i < amount; i++)
-            {
-                TKey selected = tempDict.GetWeightedRandomElement();
-                results.Add(selected);
-                tempDict.Remove(selected);
-            }
-        }
-
-        return results;
     }
 
     public static void Increment<TKey>(this Dictionary<TKey, float> dictionary, TKey key, float amount = 1f)

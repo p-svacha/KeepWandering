@@ -381,11 +381,10 @@ public static class WorldMapGenerator
                     }
 
                     // Biome modifier
-                    if (landmark.BiomeProbabilityOverrides.Count > 0)
-                    {
-                        if (landmark.BiomeProbabilityOverrides.ContainsKey(tile.Biome)) candidateTiles.Add(tile, landmark.BiomeProbabilityOverrides[tile.Biome]);
-                    }
-                    else candidateTiles.Add(tile, 1f); // If no biome requirements, all tiles are valid with equal probability
+                    Rarity rarity = landmark.Rarity[tile.Biome];
+                    if (rarity == Rarity.Never) continue; // Skip if this landmark cannot occur in this biome
+
+                    candidateTiles.Add(tile, (int)rarity);
                 }
 
                 // Pick location

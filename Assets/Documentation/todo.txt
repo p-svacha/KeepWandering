@@ -20,6 +20,8 @@ TODOS:
 - make sure every item is considered in the loot tables of biomes
  --> completely redo them
 
+- redo loot tables without nested loot tables, and with more control over item probabilities. Make sure every item is considered in the loot tables of biomes.
+
 - test morale bonus
 
 - cooked meat item

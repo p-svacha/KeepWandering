@@ -9,14 +9,14 @@ public class Encounter_Crate : LocationEncounter
 
     private static LootTable ItemTable = new LootTable
     {
-        { ItemDefOf.Beans, 10 },
-        { ItemDefOf.WaterBottle, 10 },
-        { ItemDefOf.Bandage, 5 },
-        { ItemDefOf.Antibiotics, 5 },
-        { ItemDefOf.Bone, 3 },
-        { ItemDefOf.Knife, 3 },
-        { ItemDefOf.NutSnack, 10 },
-        { ItemDefOf.MedicalKit, 1 }
+        { ItemDefOf.Beans, Rarity.Common },
+        { ItemDefOf.WaterBottle, Rarity.Common },
+        { ItemDefOf.NutSnack, Rarity.Common },
+        { ItemDefOf.Bandage, Rarity.Occasional },
+        { ItemDefOf.Antibiotics, Rarity.Occasional },
+        { ItemDefOf.Bone, Rarity.Rare },
+        { ItemDefOf.Knife, Rarity.Rare },
+        { ItemDefOf.MedicalKit, Rarity.Rare }
     };
 
     // State

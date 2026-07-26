@@ -17,6 +17,7 @@ public class Program : Singleton<Program>
         ResourceManager.ClearCache();
         DefDatabaseRegistry.InitDefs();
         MarkovChainWordGenerator.Init();
+        LootTables.Init();
 
         // Hide all elements
         UI_MainMenu.Instance.gameObject.SetActive(false);

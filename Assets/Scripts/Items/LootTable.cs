@@ -7,62 +7,89 @@ using UnityEngine;
 /// A loot table contains chances for different items and can be resolved to get random ones based on those chances.
 /// Can also reference other LootTables as entries, so an entire category of items competes as a single weighted entry.
 /// </summary>
-public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
+public class LootTable : IEnumerable<KeyValuePair<ItemDef, Rarity>>
 {
-    private Dictionary<ItemDef, float> Items { get; init; }
-    private Dictionary<LootTable, float> SubTables { get; init; }
+    private Dictionary<ItemDef, Rarity> Items { get; init; }
+    private Dictionary<LootTable, Rarity> SubTables { get; init; }
 
     public LootTable()
     {
-        Items = new Dictionary<ItemDef, float>();
-        SubTables = new Dictionary<LootTable, float>();
+        Items = new Dictionary<ItemDef, Rarity>();
+        SubTables = new Dictionary<LootTable, Rarity>();
     }
 
-    public LootTable(Dictionary<ItemDef, float> items)
+    public LootTable(Dictionary<ItemDef, Rarity> items)
     {
         Items = items;
-        SubTables = new Dictionary<LootTable, float>();
+        SubTables = new Dictionary<LootTable, Rarity>();
     }
 
-    public LootTable(Dictionary<ItemDef, float> items, Dictionary<LootTable, float> subTables)
+    public LootTable(Dictionary<ItemDef, Rarity> items, Dictionary<LootTable, Rarity> subTables)
     {
         Items = items;
         SubTables = subTables;
     }
 
-    public void Add(ItemDef item, float weight)
+    public void Add(ItemDef item, Rarity rarity)
     {
-        Items.Add(item, weight);
+        Items.Add(item, rarity);
     }
 
-    public void Add(LootTable table, float weight)
+    public void Add(LootTable table, Rarity rarity)
     {
-        SubTables.Add(table, weight);
+        SubTables.Add(table, rarity);
     }
 
-    public IEnumerator<KeyValuePair<ItemDef, float>> GetEnumerator() => Items.GetEnumerator();
+    public IEnumerator<KeyValuePair<ItemDef, Rarity>> GetEnumerator() => Items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
-    /// Returns the union of two LootTables as a new LootTable that contains the added up chances of all items and sub-tables.
+    /// Returns the union of two LootTables as a new LootTable that contains the averaged out rarities of the two tables. Rarity is always rounded to the nearest rarity value, and rounded up in case of a tie.
     /// </summary>
     public LootTable Union(LootTable other)
     {
-        Dictionary<ItemDef, float> newItems = new Dictionary<ItemDef, float>(Items);
-        foreach(var kvp in other.Items)
+        Dictionary<ItemDef, Rarity> newItems = new Dictionary<ItemDef, Rarity>(Items);
+        foreach (var kvp in other.Items)
         {
-            if (newItems.ContainsKey(kvp.Key)) newItems[kvp.Key] += kvp.Value;
-            else newItems.Add(kvp.Key, kvp.Value);
+            if (newItems.TryGetValue(kvp.Key, out Rarity existing))
+                newItems[kvp.Key] = AverageRarity(existing, kvp.Value);
+            else
+                newItems.Add(kvp.Key, kvp.Value);
         }
 
-        Dictionary<LootTable, float> newSubTables = new Dictionary<LootTable, float>(SubTables);
-        foreach(var kvp in other.SubTables)
+        Dictionary<LootTable, Rarity> newSubTables = new Dictionary<LootTable, Rarity>(SubTables);
+        foreach (var kvp in other.SubTables)
         {
-            if (newSubTables.ContainsKey(kvp.Key)) newSubTables[kvp.Key] += kvp.Value;
-            else newSubTables.Add(kvp.Key, kvp.Value);
+            if (newSubTables.TryGetValue(kvp.Key, out Rarity existing))
+                newSubTables[kvp.Key] = AverageRarity(existing, kvp.Value);
+            else
+                newSubTables.Add(kvp.Key, kvp.Value);
         }
 
         return new LootTable(newItems, newSubTables);
+    }
+
+    /// <summary>
+    /// Averages two Rarity values and snaps the result to the nearest defined Rarity, rounding up on a tie.
+    /// </summary>
+    private static Rarity AverageRarity(Rarity a, Rarity b)
+    {
+        float avg = ((int)a + (int)b) / 2f;
+
+        Rarity closest = Rarity.ExtremelyRare;
+        float smallestDiff = float.MaxValue;
+
+        foreach (Rarity candidate in System.Enum.GetValues(typeof(Rarity)).Cast<Rarity>().OrderBy(r => (int)r))
+        {
+            float diff = Mathf.Abs((int)candidate - avg);
+            if (diff < smallestDiff || (diff == smallestDiff && (int)candidate > (int)closest))
+            {
+                smallestDiff = diff;
+                closest = candidate;
+            }
+        }
+
+        return closest;
     }
 
     public List<ItemDef> ResolveMultiple(int amount, bool debug = true)
@@ -82,8 +109,8 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         }
 
         float totalWeight = 0f;
-        foreach (var kvp in Items) totalWeight += kvp.Value;
-        foreach (var kvp in SubTables) totalWeight += kvp.Value;
+        foreach (var kvp in Items) totalWeight += (int)kvp.Value;
+        foreach (var kvp in SubTables) totalWeight += (int)kvp.Value;
 
         if (totalWeight == 0f)
             throw new System.Exception("Can't resolve LootTable because all weights are 0.");
@@ -93,7 +120,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
 
         foreach (var kvp in Items)
         {
-            tmpSum += kvp.Value;
+            tmpSum += (int)kvp.Value;
             if (rng < tmpSum)
             {
                 ItemDef resolvedItem = kvp.Key;
@@ -104,7 +131,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
 
         foreach (var kvp in SubTables)
         {
-            tmpSum += kvp.Value;
+            tmpSum += (int)kvp.Value;
             if (rng < tmpSum)
             {
                 ItemDef resolvedItem = kvp.Key.Resolve(debug: false);
@@ -161,8 +188,8 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         Dictionary<ItemDef, float> result = new Dictionary<ItemDef, float>();
 
         float totalWeight = 0f;
-        foreach (var kvp in Items) totalWeight += kvp.Value;
-        foreach (var kvp in SubTables) totalWeight += kvp.Value;
+        foreach (var kvp in Items) totalWeight += (int)kvp.Value;
+        foreach (var kvp in SubTables) totalWeight += (int)kvp.Value;
 
         if (totalWeight == 0f) return result;
 
@@ -170,9 +197,9 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
         foreach (var kvp in Items)
         {
             if (result.ContainsKey(kvp.Key))
-                result[kvp.Key] += kvp.Value;
+                result[kvp.Key] += (int)kvp.Value;
             else
-                result.Add(kvp.Key, kvp.Value);
+                result.Add(kvp.Key, (int)kvp.Value);
         }
 
         // Add items from sub-tables with adjusted weights
@@ -186,7 +213,7 @@ public class LootTable : IEnumerable<KeyValuePair<ItemDef, float>>
             foreach (var itemKvp in subTableProbabilities)
             {
                 // Weight in this table = (sub-table weight) * (item's proportion in sub-table)
-                float adjustedWeight = subTableKvp.Value * (itemKvp.Value / subTableTotalWeight);
+                float adjustedWeight = (int)subTableKvp.Value * (itemKvp.Value / subTableTotalWeight);
 
                 if (result.ContainsKey(itemKvp.Key))
                     result[itemKvp.Key] += adjustedWeight;

@@ -61,11 +61,12 @@ public class EncounterManager
     {
         // Get relevant data
         int numAppearances = Game.WorldMap.GetNumAppearances(def);
-        bool hasBiomeOverride = def.BiomeProbabilityOverrides.TryGetValue(tile.Biome, out float biomeOverride);
+        Rarity rarity = def.Rarity[tile.Biome];
 
         // Check if the event can even occur
         if (numAppearances >= def.MaxOccurences && def.MaxOccurences > 0) return 0f; // Cannot occur more than once and it already happened
-        if (hasBiomeOverride && biomeOverride <= 0f) return 0f; // Cannot occur in this biome
+        if (rarity == Rarity.Never) return 0f; // Cannot occur in this biome
+
         if (def.MinDistanceBetween > 0)
         {
             bool tooClose = false;
@@ -85,8 +86,7 @@ public class EncounterManager
         }
 
         // Base probability
-        float probability = def.BaseProbability;
-        if (hasBiomeOverride) probability = biomeOverride;
+        float probability = (float)rarity;
 
         // Repetition modifier
         if (numAppearances > 0)
@@ -118,14 +118,13 @@ public class EncounterManager
     {
         // Get relevant data
         int numAppearances = NightEncounterAppearances.TryGetValue(def, out int appearances) ? appearances : 0;
-        bool hasBiomeOverride = def.BiomeProbabilityOverrides.TryGetValue(tile.Biome, out float biomeOverride);
+        Rarity rarity = def.Rarity[tile.Biome];
 
         // Check if the event can even occur
-        if (hasBiomeOverride && biomeOverride <= 0f) return 0f; // Cannot occur in this biome
+        if (rarity == Rarity.Never) return 0f; // Cannot occur in this biome
 
         // Base probability
-        float probability = def.BaseProbability;
-        if (hasBiomeOverride) probability = biomeOverride;
+        float probability = (float)rarity;
 
         // Repetition modifier
         if (numAppearances > 0)

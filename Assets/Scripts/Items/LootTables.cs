@@ -5,89 +5,107 @@ using UnityEngine;
 /// </summary>
 public static class LootTables
 {
-    public static LootTable Food => new LootTable
-    {
-        { ItemDefOf.Beans, 10 },
-        { ItemDefOf.NutSnack, 8 },
-        { ItemDefOf.MeatRaw, 3 },
-    };
+    public static LootTable Food { get; private set; }
+    public static LootTable Drinks { get; private set; }
+    public static LootTable Medical { get; private set; }
+    public static LootTable Plants { get; private set; }
+    public static LootTable Tools { get; private set; }
+    public static LootTable Weapons { get; private set; }
+    public static LootTable Trash { get; private set; }
+    public static LootTable TrapLoot { get; private set; }
+    public static LootTable Bandit { get; private set; }
+    public static LootTable Civilian { get; private set; }
+    public static LootTable Building { get; private set; }
 
-    public static LootTable Drinks => new LootTable
-    {
-        { ItemDefOf.WaterBottle, 10 },
-    };
 
-    public static LootTable Medical => new LootTable
+    public static void Init()
     {
-        { ItemDefOf.Bandage, 10 },
-        { ItemDefOf.Antibiotics, 6 },
-        { ItemDefOf.MedicalKit, 3 },
-        { ItemDefOf.Antidote, 2 },
-    };
+        // Base tables first, since composite tables below reference them as sub-tables
+        Food = new LootTable
+        {
+            { ItemDefOf.Beans, Rarity.Common },
+            { ItemDefOf.NutSnack, Rarity.Occasional },
+            { ItemDefOf.MeatRaw, Rarity.Rare },
+        };
 
-    public static LootTable Plants => new LootTable
-    {
-        { ItemDefOf.Berries, 10 },
-        { ItemDefOf.MedicinalHerbs, 8 },
-    };
+        Drinks = new LootTable
+        {
+            { ItemDefOf.WaterBottle, Rarity.Common },
+        };
 
-    public static LootTable Tools => new LootTable
-    {
-        { ItemDefOf.Crowbar, 7 },
-        { ItemDefOf.Rope, 5 },
-        { ItemDefOf.Knife, 5 },
-        { ItemDefOf.Lockpick, 3 },
-        { ItemDefOf.Shovel, 3 },
-        { ItemDefOf.Trap, 1 },
-        { ItemDefOf.FenceCutter, 0.1f },
-    };
+        Medical = new LootTable
+        {
+            { ItemDefOf.Bandage, Rarity.Common },
+            { ItemDefOf.Antibiotics, Rarity.Occasional },
+            { ItemDefOf.MedicalKit, Rarity.Rare },
+            { ItemDefOf.Antidote, Rarity.VeryRare },
+        };
 
-    public static LootTable Weapons => new LootTable
-    {
-        { ItemDefOf.Knife, 10 },
-        { ItemDefOf.Crowbar, 3 },
-        { ItemDefOf.Shovel, 1 },
-    };
+        Plants = new LootTable
+        {
+            { ItemDefOf.Berries, Rarity.Common },
+            { ItemDefOf.MedicinalHerbs, Rarity.Occasional },
+        };
 
-    public static LootTable Trash => new LootTable
-    {
-        { ItemDefOf.Bone, 5 },
-        { ItemDefOf.Coin, 2 }
-    };
+        Tools = new LootTable
+        {
+            { ItemDefOf.Crowbar, Rarity.Occasional },
+            { ItemDefOf.Rope, Rarity.Rare },
+            { ItemDefOf.Knife, Rarity.Rare },
+            { ItemDefOf.Lockpick, Rarity.VeryRare },
+            { ItemDefOf.Shovel, Rarity.VeryRare },
+            { ItemDefOf.Trap, Rarity.ExtremelyRare },
+            { ItemDefOf.FenceCutter, Rarity.ExtremelyRare },
+        };
 
-    public static LootTable TrapLoot => new LootTable
-    {
-        { ItemDefOf.MeatRaw, 40 },
-        { ItemDefOf.Bone, 25 },
-    };
+        Weapons = new LootTable
+        {
+            { ItemDefOf.Knife, Rarity.Common },
+            { ItemDefOf.Crowbar, Rarity.Rare },
+            { ItemDefOf.Shovel, Rarity.VeryRare },
+        };
 
-    public static LootTable Bandit => new LootTable
-    {
-        { Weapons, 10 },
-        { Tools, 8 },
-        { Food, 6 },
-        { Drinks, 6 },
-        { Medical, 4 },
-    };
+        Trash = new LootTable
+        {
+            { ItemDefOf.Bone, Rarity.Common },
+            { ItemDefOf.Coin, Rarity.Rare },
+        };
 
-    public static LootTable Civilian => new LootTable
-    {
-        { Food, 12 },
-        { Drinks, 10 },
-        { ItemDefOf.Coin, 10 },
-        { Tools, 5 },
-        { Medical, 8 },
-        { Trash, 5 },
-        { Plants, 2 },
-    };
+        TrapLoot = new LootTable
+        {
+            { ItemDefOf.MeatRaw, Rarity.VeryCommon },
+            { ItemDefOf.Bone, Rarity.Common },
+        };
 
-    public static LootTable Building => new LootTable
-    {
-        { Tools, 10 },
-        { Medical, 8 },
-        { ItemDefOf.Coin, 8 },
-        { Food, 5 },
-        { Drinks, 5 },
-        { Plants, 2 },
-    };
+        // Composite tables, built from the ones above
+        Bandit = new LootTable
+        {
+            { Weapons, Rarity.Occasional },
+            { Tools, Rarity.Rare },
+            { Food, Rarity.Rare },
+            { Drinks, Rarity.Rare },
+            { Medical, Rarity.VeryRare },
+        };
+
+        Civilian = new LootTable
+        {
+            { Food, Rarity.Occasional },
+            { Drinks, Rarity.Rare },
+            { ItemDefOf.Coin, Rarity.Rare },
+            { Tools, Rarity.VeryRare },
+            { Medical, Rarity.Rare },
+            { Trash, Rarity.VeryRare },
+            { Plants, Rarity.ExtremelyRare },
+        };
+
+        Building = new LootTable
+        {
+            { Tools, Rarity.Occasional },
+            { Medical, Rarity.Rare },
+            { ItemDefOf.Coin, Rarity.Rare },
+            { Food, Rarity.VeryRare },
+            { Drinks, Rarity.VeryRare },
+            { Plants, Rarity.ExtremelyRare },
+        };
+    }
 }
