@@ -1,28 +1,11 @@
 TODOS:
 ==============================================
 
-- animal attack event
-- attacker category human/animal
-- remove old trap display in encounter display UI
-- CampRenderer
-	- add trap display in camp
-	- limit traps per night to 3
-	- add tent display
-	- add bedroll display
-	- add fire display
-
-- add ProbabilityDef -> use in encounter prob and item prob
-- change encounter probability to an enum/def system with very common, common, uncommon, rare, very rare, extremely rare. Get rid of base probability and only use the probability dictionary per biome. validate that every biome has a value in every EncounterDef. Define fixed probability values for each category.
-
-- do the same for items appearing in loot tables (maybe even use same defs). 
-
-- replace nested LootTables in biome loot tables with simpler lists of itemDefs for more control
-- make sure every item is considered in the loot tables of biomes
- --> completely redo them
-
-- redo loot tables without nested loot tables, and with more control over item probabilities. Make sure every item is considered in the loot tables of biomes.
-
-- test morale bonus
+- show camp in night encounter
+ - make sprite container for camp and make it a prefab
+ - then use prefab in both evening and night encounter
+ - the sprite handling can then be handled seperately in the two, and for night in the base night class
+ - traps need to be changed depending on defense -> night base class
 
 - cooked meat item
 - cooked beans item
@@ -32,25 +15,23 @@ TODOS:
 
 - repair mechanic: available skill check option to spend an evening, dexterity stat. chance to increase durability of an item.
 
-EVENING REWORK:
-- add option to train a specific skill (depending on biome)
-- one option per skill (social = find a trader, survival = forage, dexterity = repair a tool, strength )
+- animal attack event (wolves, reusing dog toy tag)
+- attacker category human/animal
 
-- road system
-- rework map
-- commit to 2d art style
-- simpler encounters
-- split encounter options into individual encounters
-- At very first morning, show house behind character
-- Initial guidance quest
-- Add more drag & drop and clicking on elements directly in encounter
-- Make evening encounter more generic
-- Resuse current evening sprites for day encounters
-- chance for no encounter
-- add 3 generic encounters
+- check "todo's" in whole project (poisoning/electrocution can be added now)
+
+VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
+- don't show stars in item slots that are not a skillcheck
+- camp items shouldn't be displayed as "item will be destroyed", need extra handling. handling should be on SLOT not on item. it should instead say something "item will be removed until morning". UI CHANGE ONLY
+- fuel needs to be required for fire
+- fire should be animated
+- when deciding on the color of an item slot if player has a specific item, don't count items already slotted
+- player still moves on map when opening map in afternoon after moving in morning
+- dont explicitly mention crowbar in crate encounter option
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.
+- At very first morning, show house behind character
 - first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost.
 
 SUBSTANCE END GAME:
@@ -69,11 +50,18 @@ Could be an interesting mechanic and generally it feels good to have guaranteed 
 FENCE GATE ENCOUNTER
 
 IDEAS TO START CREATING NEW (GENERIC) LOCATION ENCOUNTERS:
+- add "no encounter" that can happen in any biome with different chances. (Technically normal encounter, just with no options)
+- use existing sprites that are currently ununsed (from very old version, or from old evening encounter places)
 - look for an item tag that isn't used often yet, and create a location encounter that incorporates it.
 - look for an item that doesn't appear often yet (in loot tables / requirements / rewards, etc, just generally in the game), and create a location encounter that incorporates it.
 - look for skills that aren't used often yet in encounter options (either as relevant stats in skill checks, or as threshold requirements), and create a location encounter that incorporates it.
 - look for a health condition that isn't used often yet, and create a location encounter that somehow incorporates it.
 - combine any of the above points
+
+UNLOCKABLE EVENING ENCOUNTER MECHANICS:
+- instead of all options being always available, hide all at first except "rest early" and "scavenge"
+- camp options should only be shown if the related camp item is in the inventory
+- repair option should be unlockable somehow
 
 
 actual interesting game mechanics

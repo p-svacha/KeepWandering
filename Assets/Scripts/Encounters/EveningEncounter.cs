@@ -171,7 +171,7 @@ public class EveningEncounter : Encounter
         return new FixedOutcomeOption()
         {
             Text = "Set Trap",
-            Description = "Set up a trap. May help defend against a night attack, or catch something useful if unused.",
+            Description = "Traps help defending against attacks in the night, or may catch wildlife, providing resources.",
             Sprite = sprite,
             Action = () => SetTrap(slot),
             ItemSlots = new List<ItemSlot>()

@@ -8,7 +8,7 @@ This document describes the game's **systems and design**. Concrete content (spe
 
 # Lore
 
-The game takes place in a quarantine zone: a large area sealed off from the outside world ahead of a weapon test. The "outbreak" the public was told about is a cover — the real reason for the quarantine is that a disintegrating, spreading substance is scheduled to be deployed inside the zone. The player character is one of the survivors trapped inside, and their goal is to escape before the substance reaches them.
+The game takes place in a quarantine zone: a large area sealed off from the outside world ahead of a weapon test. The "outbreak" the public was told about is a cover. The real reason for the quarantine is that a disintegrating, spreading substance is scheduled to be deployed inside the zone. The player character is one of the survivors trapped inside, and their goal is to escape before the substance reaches them.
 
 This gives the run a hard outer time limit: the substance is deployed on a fixed day and spreads from there, eventually consuming the entire zone (see *End-Game: The Substance*).
 
@@ -28,7 +28,9 @@ Encounter texts are strictly written in the present tense, when describing what 
 
 ## Art Direction
 
-Strictly **2D side-view comic style with no 3D depth or perspective**. Everything is sprite-based, hand-drawn, with no animation — state changes are communicated by swapping sprites, playing a sound, and simple effects rather than motion.
+Strictly **2D side-view comic style with no 3D depth or perspective**. Everything is sprite-based and hand-drawn, with no frame-based animations. State changes are communicated by swapping sprites, playing a sound, and simple effects rather than motion.
+
+Sprites may have simple shader- or transform-based animations (e.g. a flickering fire, a waving flag, a bouncing item) but these are purely cosmetic and do not affect gameplay.
 
 - Foreground (player + encounter): black outlines, strong saturated colours.
 - Background (biome + sky): no outlines, washed-out colours, minimal shading.
@@ -46,7 +48,7 @@ Sprites change to reflect state, giving immediate visual feedback without text:
 
 A point-and-click game with heavy emphasis on dragging and dropping items. Every item is a physics object resting in the cart and can be dragged freely; an item dragged offscreen respawns above the cart so nothing is ever lost.
 
-Items can be dragged into encounter option **item slots**, or directly onto relevant sprites — e.g. dragging a bandage onto a wound sprite bandages it, dragging a crowbar onto a crate fills that option's slot.
+Items can be dragged into encounter option **item slots**, or directly onto relevant sprites: i.e. dragging a bandage onto a wound sprite bandages it, dragging a crowbar onto a crate fills that option's slot.
 
 Encounter options can be **bound to sprites** in the scene (see *Encounters → Sprite-Bound Options*), so the player can interact with the world directly, not only through the option list.
 
@@ -76,10 +78,10 @@ Morale is a separate integer stat, also starting at 0 and clamped to **-30 / +30
 
 Morale is intended as a **strategic trade-off lever** rather than a passive health indicator. Options that touch morale should almost always pair an immediate effect with an opposite morale shift, creating a genuine dilemma:
 
-- **Immediate gain, morale cost** — rob the stranger (items now, harder checks for days), take the easy selfish route, cut a corner.
-- **Immediate cost, morale gain** — help the stranger (nothing now, easier checks ahead), take the honest hard option, make a sacrifice.
+- **Immediate gain, morale cost:** Rob the stranger (items now, harder checks for days), take the easy selfish route, cut a corner.
+- **Immediate cost, morale gain:** Help the stranger (nothing now, easier checks ahead), take the honest hard option, make a sacrifice.
 
-This means morale options have a shape: they trade present-tense outcomes against future-tense skill check odds. If a morale change doesn't create that tension, it probably shouldn't touch morale. Morale also passively aggregates the run's condition — hunger, thirst, injuries, and events all feed it — so a player who's been grinding themselves down feels it on everything.
+This means morale options often trade present-tense outcomes against future-tense skill check odds. If a morale change doesn't create that tension, it probably shouldn't touch morale (except for clear rewards or penalties). Morale also passively aggregates the run's condition (hunger, thirst, injuries, and events all feed it) so a player who's been grinding themselves down feels it on everything.
 
 Having low or high morale can also lead to various night events to happen.
 
@@ -145,10 +147,10 @@ Another subcategory of condition, with its own instancing rules and healing logi
 
 Encounters apply damage through standardized helpers rather than always targeting a specific condition:
 
-- **Apply Random Wound** — a new wound from a pool (typically cut/bruise).
-- **Take Bruise Damage (severity X)** — a bruise wound plus fracture damage to a random limb.
-- **Take Cut Damage (severity X)** — a cut wound plus an immediate blood-loss increase.
-- **Take Random Damage (severity X)** — randomly one of the above.
+- **Apply Random Wound:** A new wound from a pool (typically cut/bruise).
+- **Take Bruise Damage (severity X):** A bruise wound plus fracture damage to a random limb.
+- **Take Cut Damage (severity X):** A cut wound plus an immediate blood-loss increase.
+- **Take Random Damage (severity X):** Randomly one of the above.
 
 ## Natural Healing
 
@@ -215,7 +217,11 @@ Items may have passive stat modifiers that are applied while the item is in the 
 
 ## Loot Tables
 
-Loot tables are weighted random item selections used wherever random items are generated (searching, containers, rewards). A table maps items — and optionally other tables as sub-entries — to weights. Each biome has its own loot table, typically referencing the general tables. Loot tables should be kept small and varied between encounters and biomes so individual items retain distinct identity and use cases.
+Loot tables are weighted random item selections used wherever random items are generated (general biome tables, searching, containers, rewards). A table maps items (and optionally other tables as sub-entries) to a rarity tier (from extremely rare to very common, which scale by x2 on every tier), rather than arbitrary numbers, so the relative commonness between entries stays easy to read and reason about at a glance.
+
+When an encounter's loot table is used in a specific biome, it can be combined with that biome's loot table. When using this, items or categories present in both are averaged toward a shared rarity, while items unique to either side are carried over unchanged. This lets a biome introduce its own flavor items into an encounter's loot without needing bespoke per-biome logic, and keeps a biome's overall tendency from silently overpowering an encounter's own identity.
+
+Loot tables should be kept small and varied between encounters and biomes so individual items retain distinct identity and use cases.
 
 ---
 
@@ -365,14 +371,15 @@ The first priority of every encounter is **interesting, meaningful choices**. Fu
 - **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~6–12) for a sense of scale (a crate is tight; a radio tower is wide), or a **x offset** to set the camera position, if something behind the player or very far away from the player should be visible.
 - **Lightweight biome influence only**, never per-biome bespoke handling.
 - **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
+- **Focussed.** Encounters should have a clear purpose and avoid unnecessary complexity.
 
 ### Step Composition (rule of thumb)
 
 A good step often offers:
 
-- **One FixedOutcome option, no requirements** — safe and consistent, with neutral or mildly +/- effect.
-- **One SkillCheck option with a tag item slot** — the gamble: strong on success, painful on failure, made safer by a good item. If a step has more than one skill check, their success effects must be clearly distinct.
-- **One FixedOutcome option with requirements** — a safe "good" outcome gated behind an item/level/skill requirement. If more than one, requirements and effects must be clearly distinct.
+- **One FixedOutcome option, no requirements:** Safe and consistent, with neutral or mildly +/- effect.
+- **One SkillCheck option with a tag item slot:** The gamble: strong on success, painful on failure, made safer by a good item. If a step has more than one skill check, their success effects must be clearly distinct.
+- **One FixedOutcome option with requirements:** A safe "good" outcome gated behind an item/level/skill requirement. If more than one, requirements and effects must be clearly distinct.
 
 This is guidance, not law. The number of options can vary a lot. Make sure to use sprite-bound options where appropriate, as those can offer more choice variety without making the option list feel cluttered. It also always possible to bind multiple options to the same sprite, so a single sprite can offer multiple distinct choices.
 
@@ -471,13 +478,13 @@ Non state altering things can also happen in an outcome, like: playing a sound, 
 
 Because this is a point-and-click game, options can be attached to the actual scene sprites (e.g. the player's own head, an encounter prop) rather than living only in the option list:
 
-- Every interactable sprite is traced with a **dashed outline** following the shape of its collider — there are no hidden interactions.
+- Every interactable sprite is traced with a **dashed outline** following the shape of its collider. There are no hidden interactions.
 - The outline's colour communicates **availability**: the accent colour if at least one bound option is currently selectable, grey/dim if none are.
 - Outlines sit at a **low default opacity** and brighten the closer the cursor gets to that specific sprite's shape, independently of any other sprite. Holding **Left Alt** reveals every hotspot at full opacity at once, regardless of cursor position.
-- Hovering a sprite shows its option card(s) — the same visuals used in the option list — grouped and centered near the sprite.
+- Hovering a sprite shows its option card(s)
 - Clicking a sprite **locks** its card(s) in place; only one sprite can be locked at a time. Clicking a different sprite transfers the lock directly, and clicking empty space clears it. Holding a dragged item over a sprite for a short moment also locks it, so the player can drop the item without needing a separate click first.
 - While a sprite is locked, hover-previews from other sprites are **suppressed** so only the locked card is shown, avoiding visual clutter.
-- Locked/hovered options behave exactly like list options — greyed out if requirements aren't met, accepting dragged items into their slots, then resolving on click.
+- Locked/hovered options behave exactly like dialogue options: greyed out if requirements aren't met, accepting dragged items into their slots, then resolving on click.
 - General options that can't be tied to a sprite (e.g. "Move On") stay in the list below the encounter text.
 
 Options are the primary interaction point and are drawn large; their descriptive text lives in the details box rather than the option itself.
@@ -488,10 +495,10 @@ Options are the primary interaction point and are drawn large; their descriptive
 
 Any encounter can start a trade session via `InitiateTrade`, temporarily replacing the normal options with trade options. The encounter defines what's buyable/sellable and whether information (rumours) can be bought.
 
-- **Buy [item]** — costs coins equal to its value, each coin placed in a required slot.
-- **Sell [item]** — place the item in a required slot to receive coins equal to its value.
-- **Buy information** (if enabled, once per day) — 3 coins to reveal a rumour.
-- **Done trading** — return to the encounter's normal options.
+- **Buy [item]:** Costs coins equal to its value, each coin placed in a required slot.
+- **Sell [item]:** Place the item in a required slot to receive coins equal to its value.
+- **Buy information** (if enabled, once per day): 3 coins to reveal a rumour.
+- **Done trading:** Return to the encounter's normal options.
 
 ---
 
@@ -511,7 +518,7 @@ The initial text of the morning encounter also always includes the **morning rep
 
 ## Afternoon
 
-Always the current tile's **location encounter** — resumed in its saved state if visited before, or newly generated from biome and game state if not.
+Always the current tile's **location encounter**. Resumed in its saved state if visited before, or newly generated from biome and game state if not.
 
 ## Evening
 
@@ -546,14 +553,14 @@ A chance of a **night encounter** based on the tile's effective danger level (ba
 
 # Ways to Win / Story Progression
 
-The goal is to reach a freedom tile outside the fence. There are **multiple escape routes**, and they are deliberately **not linear quest lines** — the design takes from immersive sims: a key piece of information or item can be found by more than one path (a note, a rumour, or stumbling onto it). Guidance mechanisms always exist so the player can find *a* way, but they never block alternative means.
+The goal is to reach a freedom tile outside the fence. There are **multiple escape routes**, and they are deliberately **not linear quest lines**. The design takes from immersive sims: a key piece of information or item can be found by more than one path (a note, a rumour, or stumbling onto it). Guidance mechanisms always exist so the player can find *a* way, but they never block alternative means.
 
 A **StoryManager** tracks progression and the state of each route, and places the predetermined (often hidden) encounters that support them.
 
 The four escape routes for 1.0 (with exact costs, items, and locations defined in the Defs / StoryManager rather than here):
 
-1. **Fence Gate — bribe the guard.** The road from the start leads to a guarded gate; enough coins opens it. Coins are acquired broadly through normal encounters.
-2. **Fence Gate — VIP license.** The same guard opens the gate for a license, which is locked in a town-hall safe requiring lockpicking skill/tools to crack.
+1. **Fence Gate: Bribe the guard.** The road from the start leads to a guarded gate; enough coins opens it. Coins are acquired broadly through normal encounters.
+2. **Fence Gate: VIP license.** The same guard opens the gate for a license, which is locked in a town-hall safe requiring lockpicking skill/tools to crack.
 3. **Cut through the fence.** One fence tile is unpowered and can be cut with a fence cutter. The fence cutter and the tile's location come from an NPC (Eli) in exchange for medicine; Eli's whereabouts can be learned at a radio tower (among other means).
 4. **Helicopter.** A helipad tile holds a helicopter that needs a key and fuel. The helipad's location can surface via rumour; the key's location is revealed at the helipad; fuel comes from normal encounters or a fuel station.
 
@@ -586,10 +593,10 @@ The substance frames the whole run: escape by the time it would reach you, or di
 
 A diary-style book with bookmark tabs along the top acting as a table of contents. Sections:
 
-- **Quest Log** — an in-depth version of the HUD's Notes panel listing all learned information and quests.
-- **Item Compendium** — encountered items shown with full info; unencountered items shown as blank silhouettes. Filterable by tag and ordered by tag level within a filter.
+- **Quest Log:** An in-depth version of the HUD's Notes panel listing all learned information and quests.
+- **Item Compendium:** Encountered items shown with full info; unencountered items shown as blank silhouettes. Filterable by tag and ordered by tag level within a filter.
 
-The handbook also serves as the place to **signal acquisition routes** — how a given item can be obtained, how a given skill can be raised — so the player has a reference for working toward goals. (The HUD button for the handbook already exists.)
+The handbook also serves as the place to **signal acquisition routes** (how a given item can be obtained, how a given skill can be raised) so the player has a reference for working toward goals. (The HUD button for the handbook already exists.)
 
 ---
 

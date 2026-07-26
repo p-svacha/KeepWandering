@@ -26,12 +26,6 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
     [Header("Skill Check Roll Sequence")]
     public UI_SkillCheckRollSequence RollSequenceDisplay;
 
-    [Header("Trap Display")]
-    public GameObject TrapDisplay;
-    public TextMeshProUGUI TrapNumText;
-    public UI_TooltipTarget TrapImageTooltipTarget;
-    public UI_TooltipTarget TrapTextTooltipTarget;
-
     [Header("Prefabs")]
     public UI_EncounterStepOption EncounterOptionPrefab;
     public UI_EncounterOutcomeNote OutcomeNotePrefab;
@@ -115,17 +109,6 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
 
         // Outcome notes
         InitEncounterStepOutcomeNotes();
-
-        // Trap display
-        TrapDisplay.SetActive(Game.TimeOfDay == TimeOfDayDefOf.Evening && Game.Camp.HasTrap);
-        if(Game.TimeOfDay == TimeOfDayDefOf.Evening)
-        {
-            TrapNumText.text = Game.Camp.NumTraps.ToString();
-            string tooltipTitle = "Traps";
-            string tooltipText = "Traps help defending against attacks in the night, or may catch wildlife, providing resources.";
-            TrapImageTooltipTarget.Init(tooltipTitle, tooltipText);
-            TrapTextTooltipTarget.Init(tooltipTitle, tooltipText);
-        }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
