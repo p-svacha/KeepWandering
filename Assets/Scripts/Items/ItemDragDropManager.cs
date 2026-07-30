@@ -258,7 +258,7 @@ public static class ItemDragDropManager
         if (Game.Instance == null) return;
 
         float offScreenMaxX = 12f;
-        float offScreenMinX = OFF_SCREEN_MIN_X + Game.Instance.CurrentEncounter.Def.CameraXOffset;
+        float offScreenMinX = OFF_SCREEN_MIN_X + Game.Instance.CurrentEncounter.CameraXOffset;
 
         if (EncounterCamera.Instance.Camera.orthographicSize > EncounterCamera.DEFAULT_CAMERA_SIZE)
         {

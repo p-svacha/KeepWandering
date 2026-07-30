@@ -3,23 +3,12 @@ using UnityEngine;
 
 public class EveningEncounter : Encounter
 {
-    private SpriteRenderer TentSpotSprite;
-    private SpriteRenderer BedrollSpotSprite;
-    private SpriteRenderer FireSprite;
-    private SpriteRenderer Trap1Sprite;
-    private SpriteRenderer Trap2Sprite;
-    private SpriteRenderer Trap3Sprite;
-
     private Camp Camp => Camp.Instance;
+    private CampRenderer CampRenderer;
 
     protected override void OnInitialize()
     {
-        TentSpotSprite = GetSprite("TentSpot");
-        BedrollSpotSprite = GetSprite("BedrollSpot");
-        FireSprite = GetSprite("Fire");
-        Trap1Sprite = GetSprite("Trap1");
-        Trap2Sprite = GetSprite("Trap2");
-        Trap3Sprite = GetSprite("Trap3");
+        CampRenderer = Game.EncounterContainer.transform.Find($"{Def.DefName}/Camp").GetComponent<CampRenderer>();
     }
 
     protected override string OnStart()
@@ -29,12 +18,7 @@ public class EveningEncounter : Encounter
 
     protected override void RefreshSprites()
     {
-        SetObjectVisibility("Tent", Camp.HasTent);
-        SetObjectVisibility("Bedroll", Camp.HasBedroll);
-        SetSprite(FireSprite, Camp.HasFire ? "FireFull" : "FireSpot");
-        SetSprite(Trap1Sprite, Camp.Trap1 != null ? "Trap" : "TrapSpot");
-        SetSprite(Trap2Sprite, Camp.Trap2 != null ? "Trap" : "TrapSpot");
-        SetSprite(Trap3Sprite, Camp.Trap3 != null ? "Trap" : "TrapSpot");
+        CampRenderer.Refresh();
     }
 
     protected override bool IsMoveOnOptionAvailable() => false;
@@ -44,12 +28,12 @@ public class EveningEncounter : Encounter
         List<EncounterOption> options = new List<EncounterOption>();
 
         // Camp options (non-terminal, sprite-bound, any combination, done before the terminal choice below)
-        if (!Camp.Instance.HasTent) options.Add(GetSetUpShelterOption());
-        if (!Camp.Instance.HasBedroll) options.Add(GetSetUpSleepingSpotOption());
-        if (!Camp.Instance.HasFire) options.Add(GetMakeFireOption());
-        if (Camp.Instance.Trap1 == null) options.Add(GetSetTrapOption(1, Trap1Sprite));
-        if (Camp.Instance.Trap2 == null) options.Add(GetSetTrapOption(2, Trap2Sprite));
-        if (Camp.Instance.Trap3 == null) options.Add(GetSetTrapOption(3, Trap3Sprite));
+        if (!Camp.HasTent) options.Add(GetSetUpShelterOption());
+        if (!Camp.HasBedroll) options.Add(GetSetUpSleepingSpotOption());
+        if (!Camp.HasFire) options.Add(GetMakeFireOption());
+        if (Camp.Trap1 == null) options.Add(GetSetTrapOption(1, CampRenderer.Trap1));
+        if (Camp.Trap2 == null) options.Add(GetSetTrapOption(2, CampRenderer.Trap2));
+        if (Camp.Trap3 == null) options.Add(GetSetTrapOption(3, CampRenderer.Trap3));
 
         // Spend-the-evening options (terminal, dialogue list, exactly one ends the encounter)
         options.Add(GetRestEarlyOption());
@@ -69,7 +53,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Set up Shelter",
             Description = $"Pitch your tent. Decreases the chance of being attacked during the night and gives +{Camp.TENT_MORALE_BONUS} morale the next day.",
-            Sprite = TentSpotSprite,
+            Sprite = CampRenderer.TentSpot,
             Action = SetUpTent,
             ItemSlots = new List<ItemSlot>()
             {
@@ -94,7 +78,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Set up Sleeping Spot",
             Description = $"Lay out your bedroll. Improves how much you heal overnight and gives +{Camp.BEDROLL_MORALE_BONUS} morale for the next day.",
-            Sprite = BedrollSpotSprite,
+            Sprite = CampRenderer.BedrollSpot,
             Action = SetUpBedroll,
             ItemSlots = new List<ItemSlot>()
             {
@@ -119,7 +103,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Make Fire",
             Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
-            Sprite = FireSprite,
+            Sprite = CampRenderer.Fire,
             Difficulty = 120,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {

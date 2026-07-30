@@ -1,12 +1,6 @@
 TODOS:
 ==============================================
 
-- show camp in night encounter
- - make sprite container for camp and make it a prefab
- - then use prefab in both evening and night encounter
- - the sprite handling can then be handled seperately in the two, and for night in the base night class
- - traps need to be changed depending on defense -> night base class
-
 - cooked meat item
 - cooked beans item
 - cook action on fire

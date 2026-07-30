@@ -165,6 +165,7 @@ public class Camp
             if (triggeredOnWildlife)
             {
                 ItemDef item = LootTables.TrapLoot.Resolve();
+                Game.AddNewItemToInventory(item);
                 morningReport.AddNightEvent($"A trap was triggered during the night. You found {item.Label}. The trap is now broken.");
                 RemoveTrap(trap);
                 continue;

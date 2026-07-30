@@ -721,6 +721,7 @@ public class Game : Singleton<Game>
         EncounterDef selectedNightEncounterDef = EncounterManager.SelectNightEncounterDefFor(CurrentPosition);
 
         // Decide if there should be a night encounter
+        Debug.Log("Rolling for night encounter intensity...");
         int nightEncounterIntensity = CurrentPosition.GetEffectiveDangerLevel().NightEncounterIntensities.GetWeightedRandomElement();
 
         // Check if night encounter is negated by camp

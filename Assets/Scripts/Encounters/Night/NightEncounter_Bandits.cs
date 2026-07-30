@@ -24,6 +24,8 @@ public class NightEncounter_Bandits : NightEncounter
 
     protected override void RefreshSprites()
     {
+        base.RefreshSprites();
+
         bool showBandits = !IsEncounterDone;
 
         SetObjectVisibility("Bandit1", showBandits && Intensity >= 1);

@@ -647,6 +647,7 @@ public abstract class Encounter
 
     public virtual string Label => Def.Label; // Shown on world map
     public virtual Sprite GetWorldMapSprite() => ResourceManager.LoadSprite("EncounterMarker/" + Def.DefName);
+    public virtual float CameraXOffset => Def.CameraXOffset;
 
     #endregion
 
