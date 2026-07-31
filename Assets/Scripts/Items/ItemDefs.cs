@@ -208,6 +208,17 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("MeatCooked")
+        {
+            Label = "cooked meat",
+            Description = "A delicious, safe and very nutritious meal.",
+            Value = 4,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 5f
+            },
+        },
         new ItemDef("MeatRaw")
         {
             Label = "raw meat",
@@ -219,17 +230,7 @@ public static class ItemDefs
                 Nutrition = 2.5f
                 // todo: add a chance of food poisoning when consumed raw
             },
-        },
-        new ItemDef("MeatCooked")
-        {
-            Label = "cooked meat",
-            Description = "A delicious, safe and very nutritious meal.",
-            Value = 4,
-            ConsumptionProperties = new ConsumptionProperties()
-            {
-                ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 5f
-            },
+            CookResult = ItemDefOf.MeatCooked,
         },
 
         new ItemDef("MedicalKit")
@@ -450,6 +451,7 @@ public static class ItemDefOf
     public static ItemDef Lighter;
     public static ItemDef Lockpick;
     public static ItemDef Matchbox;
+    public static ItemDef MeatCooked;
     public static ItemDef MeatRaw;
     public static ItemDef MedicalKit;
     public static ItemDef MedicinalHerbs;

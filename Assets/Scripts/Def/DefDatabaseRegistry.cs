@@ -28,6 +28,7 @@ public static class DefDatabaseRegistry
         DefDatabase<TimeOfDayDef>.AddDefs(TimeOfDayDefs.Defs);
         DefDatabase<DangerLevelDef>.AddDefs(DangerLevelDefs.Defs);
 
+        DefDatabase<ItemTransformationMethodDef>.AddDefs(ItemTransformationMethodDefs.Defs);
         DefDatabase<QuestDef>.AddDefs(QuestDefs.Defs);
         DefDatabase<RumourDef>.AddDefs(RumourDefs.Defs);
         DefDatabase<OptionOutcomeDef>.AddDefs(OptionOutcomeDefs.Defs);

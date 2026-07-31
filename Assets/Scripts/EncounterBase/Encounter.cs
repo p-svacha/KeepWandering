@@ -19,7 +19,7 @@ public abstract class Encounter
     public List<Item> ItemsUsedInOption => Game.ItemsUsedInSelectedOption;
 
     /// <summary>
-    /// Reference to the first item that was used in the previously selected option, with durability / destruction logic already handled. So them might have IsDestroyed = true if the item was destroyed by the option, or if durability ran out.
+    /// Reference to the first item that was used in the previously selected option, with durability / destruction logic already handled. So them might have IsDestroyed = true if the item was destroyed by the option, or if durability ran out. If not destroyed, it is already shown again and back above the players cart.
     /// </summary>
     public Item ItemUsedInOption => Game.ItemUsedInSelectedOption;
 
@@ -344,6 +344,8 @@ public abstract class Encounter
 
     #region General Options
 
+    #region Item Use (Consume, Medical, etc.)
+
     /// <summary>
     /// Returns all options, that are about using items in the players inventory on the player character, like consuming items, applying medical items to wounds/fractures, etc..
     /// These options are available in the morning and at the end of other encounters.
@@ -446,7 +448,7 @@ public abstract class Encounter
             }
             else
             {
-                wound.ModifySeverity(1f);
+                Game.ModifyHealthConditionSeverity(wound, 1f);
                 return $"You fail to properly bandage the {wound.Def.Label}. By tampering with it, you make it worse!";
             }
         }
@@ -640,6 +642,66 @@ public abstract class Encounter
     /// Called when the player has finished trading and is moving on to the next step of the encounter.
     /// </summary>
     protected virtual void OnTradingDone() { }
+
+    #endregion
+
+    #region Item Transformation
+
+    protected SkillCheckOption GetCookOption()
+    {
+        return new SkillCheckOption()
+        {
+            Text = $"Cook",
+            Description = $"Try cooking something. This will usually make the item better.",
+            Difficulty = 20,
+            Action = CookItem,
+            Sprite = PlayerCharacterRenderer.Instance.RightArm.Renderer,
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = true,
+                    CustomItemSet = ItemSets.CookableItems,
+                }
+            },
+            RelevantStats =
+            {
+                { StatDefOf.Survival, 2 },
+            }
+        };
+    }
+    private string CookItem(OptionOutcomeDef outcome)
+    {
+        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
+        {
+            Game.TransformItem(ItemUsedInOption, ItemUsedInOption.Def.CookResult, ItemTransformationMethodDefOf.Cooking);
+            Game.ModifySurvival(+1);
+            return $"You successfully cook the {ItemUsedInOption.Def.Label}, turning it into {ItemUsedInOption.Def.CookResult.Label} and improving your survival skills.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Success)
+        {
+            Game.TransformItem(ItemUsedInOption, ItemUsedInOption.Def.CookResult, ItemTransformationMethodDefOf.Cooking);
+            return $"You successfully cook the {ItemUsedInOption.Def.Label}, turning it into {ItemUsedInOption.Def.CookResult.Label}.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
+        {
+            return $"You try cook the {ItemUsedInOption.Def.Label}, but realize early that it is not going well. You abort the attempt and keep the item.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            Game.DestroyOwnedItem(ItemUsedInOption);
+            return $"You fail to properly cook the {ItemUsedInOption.Def.Label}, wasting it.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
+        {
+            Game.DestroyOwnedItem(ItemUsedInOption);
+            // todo: add burn wound
+            return $"You fumble while trying to cook the {ItemUsedInOption.Def.Label}, wasting it and burning yourself in the process.";
+        }
+        throw new OutcomeNotHandledException(outcome);
+    }
+
+    #endregion
 
     #endregion
 

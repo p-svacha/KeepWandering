@@ -34,6 +34,8 @@ public class ItemDef : Def
     // Consumption
     public ConsumptionProperties ConsumptionProperties { get; init; } = null;
     public bool IsConsumable => ConsumptionProperties != null;
+    public ItemDef CookResult { get; init; } = null; // If this item can be cooked, this is the result of cooking it. If null, the item cannot be cooked.
+    public bool IsCookable => CookResult != null;
 
 
     // Medical

@@ -34,6 +34,7 @@ public class EveningEncounter : Encounter
         if (Camp.Trap1 == null) options.Add(GetSetTrapOption(1, CampRenderer.Trap1));
         if (Camp.Trap2 == null) options.Add(GetSetTrapOption(2, CampRenderer.Trap2));
         if (Camp.Trap3 == null) options.Add(GetSetTrapOption(3, CampRenderer.Trap3));
+        if (Camp.HasFire) options.Add(GetCookOption());
 
         // Spend-the-evening options (terminal, dialogue list, exactly one ends the encounter)
         options.Add(GetRestEarlyOption());

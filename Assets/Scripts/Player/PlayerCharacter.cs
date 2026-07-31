@@ -69,6 +69,8 @@ public class PlayerCharacter
             newHC.Init(this, def, initialSeverity);
             HealthConditions.Add(newHC);
             if (!string.IsNullOrEmpty(source)) newHC.Source.Add(source);
+
+            Game.HealthConditionsAddedSinceLastStep.Add(newHC);
             return newHC;
         }
 
@@ -80,7 +82,7 @@ public class PlayerCharacter
             // Get random existing instance
             List<HealthCondition> existingInstances = HealthConditions.Where(hc => hc.Def == def).ToList();
             HealthCondition chosenInstance = existingInstances.RandomElement();
-            chosenInstance.ModifySeverity(initialSeverity);
+            Game.ModifyHealthConditionSeverity(chosenInstance, initialSeverity);
             if (!string.IsNullOrEmpty(source)) chosenInstance.Source.Add(source);
             return null;
         }
@@ -92,6 +94,7 @@ public class PlayerCharacter
 
         Debug.Log($"Removing health condition {condition.Def} from player.");
         HealthConditions.Remove(condition);
+        Game.HealthConditionsRemovedSinceLastStep.Add(condition);
     }
 
     /// <summary>
@@ -118,8 +121,8 @@ public class PlayerCharacter
         }
     }
 
-    public void ModifyHunger(float value) => Hunger.ModifySeverity(value);
-    public void ModifyThirst(float value) => Thirst.ModifySeverity(value);
+    public void ModifyHunger(float value) => Game.ModifyHealthConditionSeverity(Hunger, value);
+    public void ModifyThirst(float value) => Game.ModifyHealthConditionSeverity(Thirst, value);
 
     public void ApplyBloodLoss(float severity, string source) => ApplyHealthCondition(HealthConditionDefOf.BloodLoss, source, severity);
 
@@ -138,7 +141,7 @@ public class PlayerCharacter
         {
             if (existingFracture.IsRightLeg == isRightLeg)
             {
-                existingFracture.ModifySeverity(severity);
+                Game.ModifyHealthConditionSeverity(existingFracture, severity);
                 return;
             }
         }
@@ -157,7 +160,7 @@ public class PlayerCharacter
         {
             if (existingFracture.IsRightArm == isRightArm)
             {
-                existingFracture.ModifySeverity(severity);
+                Game.ModifyHealthConditionSeverity(existingFracture, severity);
                 return;
             }
         }
@@ -202,7 +205,7 @@ public class PlayerCharacter
         if (candidates.Count == 0) return;
 
         HealthCondition hc = candidates.RandomElement();
-        hc.ModifySeverity(-amount, avoidFullHeal: true);
+        Game.ModifyHealthConditionSeverity(hc, amount, avoidFullHeal: true);
     }
 
     public void AddDog()

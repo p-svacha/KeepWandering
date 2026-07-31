@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 /// <summary>
@@ -23,4 +24,5 @@ public static class ItemSets
 
     public static ItemSet MedicalItems => new ItemSet("Medical", Items.Where(item => item.HasMedicalProperties).ToList());
     public static ItemSet ConsumableItems => new ItemSet("Consumable", Items.Where(item => item.IsConsumable).ToList());
+    public static ItemSet CookableItems => new ItemSet("Cookable", Items.Where(item => item.IsCookable).ToList());
 }

@@ -73,7 +73,8 @@ public class ItemSlot
             if (Item != null && CustomItemSet != null && CustomItemSet.Items != null) throw new System.Exception("ItemSlot cannot have both a specific item and a list of allowed items.");
             if (!IsRequired) throw new System.Exception("ItemSlot with a specific item or list of allowed items must be required, as only tag slots can have difficulty reductions for optional slots.");
             if (HasrequiredTagLevel) throw new System.Exception("ItemSlot with a specific item or list of allowed items cannot have a required tag level, as only tag slots can have difficulty reductions.");
-            if (!IsDestroyingItem) throw new System.Exception("ItemSlot with a specific item or list of allowed items must destroy the item, as the durability system is intended to work with tags.");
+
+            if (!IsDestroyingItem) Debug.LogWarning($"ItemSlot '{Label()}' in option '{Option.Text}' accepts a specific item / list (not tag!) and does not destroy the item. This is allowed, but means that the durability of the item will not be reduced, as the durability system is coupled with tags.");
 
             // Custom item set
             if (CustomItemSet != null && CustomItemSet.Items != null && string.IsNullOrEmpty(CustomItemSet.Name)) throw new System.Exception("ItemSlot with a list of allowed items must have a display label set.");

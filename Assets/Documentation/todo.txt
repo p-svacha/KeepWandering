@@ -1,5 +1,16 @@
 TODOS:
 ==============================================
+- outcome notes generalized for all health condition
+  - health condition added
+  - health condition increased
+  - health condition decreased
+  - health condition removed
+
+- handle "move on" option as general option like cook. so no IsMoveOnAvailable, and simply add it as an option in GetOptions with protected GetMoveOnOption
+
+- burn wound
+  - visuals
+  - effect
 
 - cooked meat item
 - cooked beans item
@@ -12,6 +23,9 @@ TODOS:
 - animal attack event (wolves, reusing dog toy tag)
 - attacker category human/animal
 
+- hook electrocution to fail of cutting fence
+- hook electrocution to fail cutting wires in collapsed building encounter
+
 - check "todo's" in whole project (poisoning/electrocution can be added now)
 
 VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
@@ -22,6 +36,8 @@ VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - when deciding on the color of an item slot if player has a specific item, don't count items already slotted
 - player still moves on map when opening map in afternoon after moving in morning
 - dont explicitly mention crowbar in crate encounter option
+- when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
+
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.
@@ -77,28 +93,12 @@ new item: item pinger (shows location of item)
 make encounters with more persistence across many days
 countdown locations
 
-more clearly show possible outcomes?
-
 - move morale back to stat panel
   - remove title from stat panel, use morale as sole first line
-
-- change title from health report panel to "Health Conditions"
-
-
-- Replace destruction chance with "Uses Left" on items
-- In design philosophy, try to offer 3 options per encounter step
-- Replace individual item tag offsets with item tag levels. Levels have a fixed difficulty reduction across the game (lvl1 = 20, lvl2 = 40, lvl3 = 60)
 
 - rubble encounter:
   - cutting wires should REQUIRE cutting tool
   - text should make clear that clearing rubble gives access to all items
-
-- When fortifying, state that it reduced the danger level to X
-
-- implement electrocution health condition
-  - including heart arrythmia
-  - hook it to fail of cutting fence
-  - hook it to fail cutting wires in collapsed building encounter
 
 - add one more night encounter for variety
 
@@ -108,16 +108,17 @@ more clearly show possible outcomes?
   - can be applied for rest of current day (in afternoon encounter)
   - can also be applied for following day during evening/night encounter
   - hook to failure of keep watch in city encounter.
-  - hook to failure of rubble clearning in collapsed building encounter
+  - hook to failure of rubble clearing in collapsed building encounter
 
 - somehow handle that if a lot of items fit in a slot, don't show all of them (max 5?), test with consumable custom set slot
+
+- visual representation of electrocution health condition (twitching arms)
+- visual representation of heart arrhythmia health condition
 
 - supply stash needs to have own loot table mixed with biome loot table
   - currently loot is too bad
 
 - NARRATIVE: it says "you wake up afer an uneventful night"even when there was a night encounter.  
-
-- UI: if you have an item that fits in an item slot, highlight that slot a little
 
 - in "reveal" outcome note, when exactly 1 location encounter is revealed, show the name and coordinates in the tooltip of the note.
 
@@ -132,15 +133,11 @@ more clearly show possible outcomes?
   - RumourDefs that are not repeatable can link to a specific QuestDef in the RumourDef. Availability of the rumour is then also checked against the state of that quest (e.g. only available if quest is active, or only if quest is completed, etc.)
   - The linked QuestDef is also the quest that is given to the player when they choose the rumour option (instead of generic InvestigateRumourQuest).
 
-- show biome important stats in world map
+- show biome important stats and description in world map
 
 - add some night events (things that rarely happen during the night with no player impact or visuals, communicated in morning)
   - get robbed (lose random item)
   - think of 2-3 more
-
-
-- add item with "scavenging" tag: flashlight (also introduces "light source" tag)
-  - currently, scavenging has an item slot for that tag, but no item with the tag exists.
 
 - new items: empty water bottle (trash), water bottle (untreated), water purification tablets
   - water bottle have a chance to turn into empty bottle when drinking
@@ -151,37 +148,21 @@ more clearly show possible outcomes?
 - more option icons (same as skill check icon):
   - UI: mark options that can only be done once per day with a clock icon
   - UI: mark options that can only be done once ever with a star icon
+  - UI: mark options that can be retried multiple times on failure with a retry icon
   - add tooltips to these icons explaining what they mean
-
-- add items to permanently increase stats
 
 - add "home" encounter to start position. probably just as a marker on the world map, and impassable. could later be expanded so the game actually starts in this encounter, with some basic tutorial elements and where you choose starting items.
 
-- expand and improve name generation for cities, forests and lakes
-
 - re-add longdog companion (simplify companion system, no health system for companions, they are simply a buff with no downside (except when they die))
 
-- UI: health condition description should show affected stats
-  - it should also be located below the health report instead of next to it when hovering
-
 - crate encounter: when peeking, make it clear that you are looking for ADDITIONAL items to the visible one. And improve text of outcome. Also when coming back while having succesfully peeked before, write it that you remember what's inside.
-
-- improve path history rendering (the dashed line on the world map showing your path)
-  - currently the points used for the line renderer are always the center of hexes
-  - that means if a tile is visited twice, the lines overlap perfectly, which looks weird
-  - find a solution to make it look nice and dynamic
 
 - cooking system:
   - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition
   - give raw meat chance to apply poisoning
 
-- UI: make health condition text a little bigger
-- UI: make tooltip text a little bit bigger
-
 - sound (game currently has no sound at all)
   - most impactful would probably be sound effects for encounter option outcomes
-
-- when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
 
 - render mouth differently based on morale (smile, neutral, frown)
 
@@ -203,14 +184,5 @@ more clearly show possible outcomes?
   - probably not 100% necessary for the core gameplay, so could be added later on as an interesting additional layer of depth
 
 - minor UI bug: when selecting option that ends time of day, the step text disappears while the screen fades to black.
-
-- when choosing a skill check, implement a short flashy animation showing the rolled number (on a horizontal bar, with the outcome chances (critical failure/failure/partial success/success/critical success) represented by colored segments on it).
-  - This also allows for additional gameplay mechanics that come in play AFTER a skill check is rolled (including visual feedback), which is currently not possible since the outcome is determined immediately after rolling.
-  - Would also make skill checks a little more exciting.
-  - First example of new mechanic: Add effect for "Heart arrythmia condition": 10% chance to reduce rolled number by 10 on every skillcheck.
-
-- Encounter options might be dirrectly connected to a SpriteRenderer of the encounter. Hovering/Clicking/dragging items onto that sprite should behave exactly as when doing these things on the option itself.
-- Dragging items onto SpriteRenderers on the player. I.e. I might wanna add that dragging a bandage on a wound sprite on the player tends it (as if selecting "tend" in the context menu)
-- So it should be easily doable to highlight sprite rendereds as well (potential targets) while dragging something
 
 - red circle around quest tiles and areas on world map

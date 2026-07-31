@@ -56,9 +56,14 @@ Encounter options can be **bound to sprites** in the scene (see *Encounters → 
 
 # Player
 
-The player character has skills, morale, health conditions, and an inventory.
+The player character has stats, health conditions, and an inventory.
 
-## Skills
+## Stats
+
+There are 5 stats. 4 of them are skills, and 1 is morale.
+
+All stats are tracked as full numbers starting at 0 and clamped to -30 / +30.
+Stats can either be **permanently modified** (by specific encounter outcomes or quest completions) or **temporarily modified** (by currently present health conditions).
 
 Four integer skills, default value 0, that act as direct modifiers to the difficulty of encounter options of their type:
 
@@ -67,23 +72,14 @@ Four integer skills, default value 0, that act as direct modifiers to the diffic
 - **Survival:** Field knowledge and awareness. Scavenging, medical actions, cooking, scouting, noticing things others would miss.
 - **Social:** People skills. Persuading, trading, pleading, intimidating through personality, any interaction where how you speak matters more than what you do.
 
-Skills can be modified **temporarily** (by currently present health conditions) or **permanently** (from specific encounter outcomes or quest completions). A permanent modifier simply changes the skill's base value, which starts at 0. Skills are clamped to **-30 / +30**.
-
 The base value of skills generally go up during a playthrough, either by succeeding in certain skill checks, are more focussed by training a skill directly during the evening.
 Negative pressure on skill values mostly comes from effects from health conditions, which are mostly temporary or healable.
 
 ## Morale
 
-Morale is a separate integer stat, also starting at 0 and clamped to **-30 / +30**, displayed on its own in the UI to distinguish it from skills. It applies as a **flat modifier to every skill check**, making it the one number that touches everything.
+Morale is a special stat that is applied as a **flat modifier to every skill check**, making it the one number that touches everything.
 
-Morale is intended as a **strategic trade-off lever** rather than a passive health indicator. Options that touch morale should almost always pair an immediate effect with an opposite morale shift, creating a genuine dilemma:
-
-- **Immediate gain, morale cost:** Rob the stranger (items now, harder checks for days), take the easy selfish route, cut a corner.
-- **Immediate cost, morale gain:** Help the stranger (nothing now, easier checks ahead), take the honest hard option, make a sacrifice.
-
-This means morale options often trade present-tense outcomes against future-tense skill check odds. If a morale change doesn't create that tension, it probably shouldn't touch morale (except for clear rewards or penalties). Morale also passively aggregates the run's condition (hunger, thirst, injuries, and events all feed it) so a player who's been grinding themselves down feels it on everything.
-
-Having low or high morale can also lead to various night events to happen.
+Morale is intended as a both a passive health indicator and also a strategic trade-off lever (i.e. immediate reward + morale loss vs. immediate cost + morale gain).
 
 ---
 
@@ -135,7 +131,10 @@ A special subcategory of condition sharing common bandaging/infection logic. The
 - **Treating** (item with an antiseptic tag) protects against infection.
 - An unbandaged/untreated wound's infection severity tends to worsen each night; infection progresses through stages with escalating penalties and is lethal at the top.
 
-Different wound types layer an additional effect on top of the shared logic (e.g. cut wounds drive ongoing blood loss while unbandaged; bruise wounds slow fracture healing). Exact wound types and values live in the Defs.
+The following wound types exist:
+- **Cut:** Causes bleeding while undandaged.
+- **Bruide**: Slows fracture healing while present.
+- 
 
 Bandaging and infection treatment are skill checks that are available in the morning or at the very end of encounters.
 
@@ -215,7 +214,14 @@ Consuming an item is a fixed outcome option available in the morning or at the v
 
 Items may have passive stat modifiers that are applied while the item is in the player's inventory. These can modify any stat by any value.
 
-## Loot Tables
+## Transformations
+
+Items can define transformations into another item when doing a specific action. That action is only available for an item it has transformation defined for.
+
+Current transformations are:
+- Cooking
+
+# Loot Tables
 
 Loot tables are weighted random item selections used wherever random items are generated (general biome tables, searching, containers, rewards). A table maps items (and optionally other tables as sub-entries) to a rarity tier (from extremely rare to very common, which scale by x2 on every tier), rather than arbitrary numbers, so the relative commonness between entries stays easy to read and reason about at a glance.
 
@@ -237,7 +243,7 @@ Location encounters are **persistent**: their state is saved, and revisiting a t
 
 ## Quarantine Borders
 
-The zone is enclosed by an electrified quarantine fence — an impassable border. Outside the fence is a ring of "freedom" tiles; reaching one is a win. The player starts near the centre.
+The zone is enclosed by an electrified quarantine fence, which is an impassable border, meaning tiles outside of it cannot be entered. Outside the fence is a ring of "freedom" tiles; reaching one is a win. The player starts near the centre.
 
 ## Roads
 
@@ -257,7 +263,7 @@ A toggleable danger overlay colour-codes every tile by (base) danger level for a
 
 ## Biomes
 
-A tile's biome determines which location encounters can appear there, options in the evening encounter, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately** — biome influence should be lightweight (a difficulty modifier, an availability chance), not bespoke per-biome content.
+A tile's biome determines which location encounters can appear there, options in the evening encounter, the biome's loot table, and the background sprites. Encounters that appear across multiple biomes may be tweaked by biome (added options, modified difficulty), but the design rule is to **avoid cases where every biome must be handled separately**.
 
 The following passable biomes exist:
 - **Woods:** Forested areas with trees, bushes, and undergrowth. Loot is mostly natural (plants, berries, mushrooms) and scavenged (wood, sticks, branches). Encounters are often wildlife or scavenging, sometimes abandonded or hidden objects and structures. Encountering people is very rare.
@@ -311,7 +317,7 @@ Each `QuestDef` tracks state: Inactive, Active, Completed, or Failed. Quest stat
 
 Rumours are a system that allow the player to discover a random quest from a pool, so the same events in an encounter can lead to different quests in different playthroughs, increasing variety and reducing the potential to min-max and play optimally by adding a source of randomness.
 
-A pool of `RumourDef`s each reference a `QuestDef` (which owns all quest behaviour — repeatability, placed encounter, radius, text) plus the rumour text shown when learned. Calling `LearnRumour()` (with no parameters — the randomization is the point) picks a random rumour, creates and starts its quest (triggering auto-placement if defined), and returns a standardized "you learned a rumour…" message. If no empty tile can be found for placement, the rumour gracefully fails to take and the encounter text adapts.
+A pool of `RumourDef`s each reference a `QuestDef` (which owns all quest behaviour like repeatability, placed encounter, radius, text) plus the rumour text shown when learned. Calling `LearnRumour()` (with no parameters as the randomization is the point) picks a random rumour, creates and starts its quest (triggering auto-placement if defined), and returns a standardized "you learned a rumour…" message. If no empty tile can be found for placement, the rumour gracefully fails to take and the encounter text adapts.
 
 ---
 
@@ -321,12 +327,12 @@ An encounter is any situation requiring player input. The player always faces a 
 
 In each state during the encounter, the player is confronted with a set of **encounter options**. Selecting an option is how the game progresses. Options can lock out others, require prior success, be once-only, once-per-day, repeatable-until-success, and so on. The design space is intentionally open. The current text and set of available options are referred to as the **current encounter step**.
 
-During an encounter, free item use is disabled — items can only be used through option slots. Once the encounter ends, the player can freely use items again and then choose to advance the time of day. (The morning is an exception, with free item use throughout.) An encounter always resolves within a single time of day.
+During an encounter, free item use is disabled. Items can only be used through option slots. Once the encounter ends, the player can freely use items again and then choose to advance the time of day. (The morning is an exception, with free item use throughout.) An encounter always resolves within a single time of day.
 
 ## Encounter Types
 
 ### Location encounters
-The main afternoon encounters, bound to a tile and **persistent** — they keep their state and can be returned to. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
+The main afternoon encounters. Location encounters are bound to a tile and persistent, meaning they keep their state and can be returned to another day. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
 
 ### Evening encounters
 
@@ -368,7 +374,7 @@ Threat encounters during the night, **not persistent**, overwhelmingly about *av
 The first priority of every encounter is **interesting, meaningful choices**. Fun gameplay outranks realism.
 
 - **Steps read at a glance.** Step text is short and concrete; option text is a verb (+subject) like "Persuade" or "Open Crate". The longer description (shown in the details box) should state intended effects and risks plainly, **not cryptically**.
-- **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects — not animation. Encounters may set a **camera zoom level** (orthographic size ~6–12) for a sense of scale (a crate is tight; a radio tower is wide), or a **x offset** to set the camera position, if something behind the player or very far away from the player should be visible.
+- **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects, not animation. Encounters may set a **camera zoom level** (orthographic size ~6–12) for a sense of scale (a crate is tight; a radio tower is wide), or a **x offset** to set the camera position, if something behind the player or very far away from the player should be visible.
 - **Lightweight biome influence only**, never per-biome bespoke handling.
 - **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
 - **Focussed.** Encounters should have a clear purpose and avoid unnecessary complexity.
@@ -382,13 +388,6 @@ A good step often offers:
 - **One FixedOutcome option with requirements:** A safe "good" outcome gated behind an item/level/skill requirement. If more than one, requirements and effects must be clearly distinct.
 
 This is guidance, not law. The number of options can vary a lot. Make sure to use sprite-bound options where appropriate, as those can offer more choice variety without making the option list feel cluttered. It also always possible to bind multiple options to the same sprite, so a single sprite can offer multiple distinct choices.
-
-
-### Skill Diversity across Options (rule of thumb)
-
-Within a single encounter step, the different options should draw on **different skills** where possible — a Survival skill check, a Social requirement, a FixedOutcome option shouldn't all live on the same step. This naturally creates distinct paths for different builds and makes each option feel meaningfully different in what it asks of the player. As with step composition, this is a guideline rather than a hard rule; exceptions exist, but defaulting to skill diversity keeps steps from feeling like the same option in different clothes.
-
-Skills also function as meaningful **requirements** on FixedOutcome options, giving the player clear upgrade goals ("come back when your Survival is 5") and rewarding investment in a particular skill with a safe, reliable option that others can't take.
 
 ## Steps
 
@@ -439,7 +438,7 @@ Always call the same outcome function. That function may include custom logic an
 ### SkillCheck options
 A standardized RPG-style check with a calculated difficulty and a rolled outcome.
 
-**Outcomes:** always Success or Failure; optionally Partial Success, Critical Success, Critical Failure — each calling its own outcome function.
+**Outcomes:** always Success or Failure; optionally Partial Success, Critical Success, Critical Failure.
 
 **Roll math:** roll 0–100.
 - Roll ≥ difficulty → **success**; otherwise **failure**.
@@ -447,9 +446,9 @@ A standardized RPG-style check with a calculated difficulty and a rolled outcome
 - In failure, roll < 10% of difficulty → **critical failure** instead.
 - In success, roll in the top 10% of the range above difficulty → **critical success** instead.
 
-**Roll animation:** When a skill check is chosen, a short flashy animation plays *before* the outcome resolves — a horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
+**Roll animation:** When a skill check is chosen, a short flashy animation plays *before* the outcome resolves. A horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers — morale (factor 1), the relevant player skill(s) times their factor (1-4), biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
+**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers: morale (factor 1), the relevant player skill(s) times their factor (1-4), biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
 
 ### Option Outcomes
 
@@ -474,7 +473,7 @@ Non state altering things can also happen in an outcome, like: playing a sound, 
 - Playing a sound effect
 - Changing the encounter visually
 
-## Sprite-Bound Options
+### Sprite-Bound Options
 
 Because this is a point-and-click game, options can be attached to the actual scene sprites (e.g. the player's own head, an encounter prop) rather than living only in the option list:
 
@@ -489,9 +488,19 @@ Because this is a point-and-click game, options can be attached to the actual sc
 
 Options are the primary interaction point and are drawn large; their descriptive text lives in the details box rather than the option itself.
 
----
+### Generalized options
 
-# Trading
+There are some generalized options that can be used in multiple encounters. On a technical level this means that these options live in the base Encounter class and can be used in any encounter without needing to be defined in the specific encounter. On a design level this means that these options are generic enough to be used in multiple encounters without feeling out of place.
+
+A few examples of generalized options are:
+- Trading (see below)
+- Cooking
+- Consuming items
+- Bandaging wounds & treating infections
+
+More generalized options can always be added, as they are a great way to create familiar interactions for the player and also reduce the amount of work needed to create new encounters.
+
+#### Trading
 
 Any encounter can start a trade session via `InitiateTrade`, temporarily replacing the normal options with trade options. The encounter defines what's buyable/sellable and whether information (rumours) can be bought.
 
@@ -547,7 +556,20 @@ All trap results appear in the morning report.
 
 ## Night
 
-A chance of a **night encounter** based on the tile's effective danger level (base danger level + modifiers from camp). If none occurs, the night is skipped. Separately, invisible **night events** resolve from game state (e.g. an unbandaged wound getting infected) and are reported in the morning. Each night also advances the substance spread once it has been deployed.
+A chance of a **night encounter** based on the tile's effective danger level (base danger level + modifiers from camp). If none occurs, the night is skipped.
+
+### Night Events
+During the transition between days, invisible night events can occur. These are semi-random events that occur during the night and the effect of which is reported in the morning as part of the morning report.
+
+Night events can be triggered by a variety of things. Some examples include:
+- The current tile's danger level
+- The current tile's biome
+- The player's health conditions
+- The player's stats
+- Camp state
+- Other game state
+
+They can include things like an unbandaged wound getting infected, a trap catching an animal, or the spread of the substance.
 
 ---
 

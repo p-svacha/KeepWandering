@@ -26,14 +26,20 @@ public class Game : Singleton<Game>
     public List<Item> ItemsUsedInSelectedOption {  get; private set; } // All items used in the last selected encounter option (including destroyed items)
     public Item ItemUsedInSelectedOption => ItemsUsedInSelectedOption.FirstOrDefault();
 
-    public List<Item> ItemsAddedSinceLastStep = new List<Item>();
-    public List<Item> ItemsRemovedSinceLastStep = new List<Item>();
-    public List<Wound> WoundsAddedSinceLastStep = new List<Wound>();
-    public Dictionary<StatDef, int> StatChangesSinceLastStep = new Dictionary<StatDef, int>();
-    public int NumRevealedLocationEncountersSinceLastStep = 0;
-    public int NumAddedQuestsSinceLastStep = 0;
-    public int NumCompletedQuestsSinceLastStep = 0;
-    public int NumFailedQuestsSinceLastStep = 0;
+    public List<Item> ItemsAddedSinceLastStep { get; set; } = new List<Item>();
+    public List<Item> ItemsRemovedSinceLastStep { get; set; } = new List<Item>();
+    public List<(Item OldItem, Item NewItem, ItemTransformationMethodDef method)> ItemsTransformedSinceLastStep { get; set; } = new List<(Item, Item, ItemTransformationMethodDef)>();
+
+    public List<HealthCondition> HealthConditionsAddedSinceLastStep { get; set; } = new List<HealthCondition>();
+    public List<HealthCondition> HealthConditionsRemovedSinceLastStep { get; set; } = new List<HealthCondition>();
+    public Dictionary<HealthCondition, float> HealthConditionsSeverityChangesSinceLastStep { get; set; } = new Dictionary<HealthCondition, float>();
+
+    public Dictionary<StatDef, int> StatChangesSinceLastStep { get; set; } = new Dictionary<StatDef, int>();
+
+    public int NumRevealedLocationEncountersSinceLastStep { get; set; } = 0;
+    public int NumAddedQuestsSinceLastStep { get; set; } = 0;
+    public int NumCompletedQuestsSinceLastStep { get; set; } = 0;
+    public int NumFailedQuestsSinceLastStep { get; set; } = 0;
 
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
@@ -409,7 +415,10 @@ public class Game : Singleton<Game>
         // Clear event step outcome
         ItemsAddedSinceLastStep.Clear();
         ItemsRemovedSinceLastStep.Clear();
-        WoundsAddedSinceLastStep.Clear();
+        ItemsTransformedSinceLastStep.Clear();
+        HealthConditionsAddedSinceLastStep.Clear();
+        HealthConditionsRemovedSinceLastStep.Clear();
+        HealthConditionsSeverityChangesSinceLastStep.Clear();
         StatChangesSinceLastStep.Clear();
         NumRevealedLocationEncountersSinceLastStep = 0;
         NumAddedQuestsSinceLastStep = 0;
@@ -463,7 +472,7 @@ public class Game : Singleton<Game>
             Item item = slot.FilledItem;
 
             if (slot.IsDestroyingItem) DestroyOwnedItem(item);
-            else
+            else if (slot.Tag != null) // Durability is only reduced when a specific tag of an item is used
             {
                 ReduceItemDurability(item);
                 if (!item.IsDestroyed)
@@ -471,6 +480,11 @@ public class Game : Singleton<Game>
                     item.Show();
                     DropItemIntoCart(item);
                 }
+            }
+            else // If the slot is not destroying the item and not using a specific tag, the item is returned to the cart.
+            {
+                item.Show();
+                DropItemIntoCart(item);
             }
         }
 
@@ -847,6 +861,15 @@ public class Game : Singleton<Game>
         return item;
     }
 
+    /// <summary>
+    /// Adds a copy of the given item to the player's inventory.
+    /// </summary>
+    public void AddItemCopyToInventory(Item existingItem)
+    {
+        Item item = CopyItem(existingItem);
+        AddExistingItemToInventory(item);
+    }
+
     public void AddNewItemToInventory(ItemDef itemDef)
     {
         Item item = CreateItem(itemDef);
@@ -934,6 +957,37 @@ public class Game : Singleton<Game>
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't use DestroyItem on player owned item. Use DestroyOwnedItem instead.");
         item.Destroy();
+    }
+
+    /// <summary>
+    /// Transforms an owned item into a different ItemDef in place. The old item is removed and a new item
+    /// of the given Def takes over the slot in the inventory, preserving durability (the only property currently
+    /// carried over independently of Def). Tracked separately from normal add/remove events so the outcome UI
+    /// can render a single "old -> new" transformation note instead of a separate removal and addition.
+    /// </summary>
+    public Item TransformItem(Item item, ItemDef newDef, ItemTransformationMethodDef transformationMethod)
+    {
+        if (!item.IsPlayerOwned) throw new System.Exception("Can't transform item that is not player owned.");
+        if (item.IsDestroyed) throw new System.Exception("Can't transform an already destroyed item.");
+
+        int durability = item.Durability;
+
+        // Remove old item without registering it as a plain "removed" outcome
+        Inventory.Remove(item);
+        item.SetIsPlayerOwned(false);
+        DestroyItem(item);
+
+        // Create and add the replacement, preserving durability
+        Item newItem = CreateItem(newDef, initialDurability: durability);
+        newItem.Renderer.Show();
+        newItem.SetIsPlayerOwned(true);
+        DropItemIntoCart(newItem);
+        Inventory.Add(newItem);
+
+        ItemsTransformedSinceLastStep.Add((item, newItem, transformationMethod));
+
+        OnGameStateChanged();
+        return newItem;
     }
 
     public void ConsumeItem(Item item)
@@ -1028,6 +1082,34 @@ public class Game : Singleton<Game>
         return hc;
     }
 
+    /// <summary>
+    /// Modifies the severity of a health condition on the player. All health condition severity changes of existing health conditions need to go through this method so that the game can track which health conditions increased or decreased in severity for the outcome display.
+    /// </summary>
+    public void ModifyHealthConditionSeverity(HealthCondition hc, float value, bool avoidFullHeal = false)
+    {
+        // Validate
+        if (!Player.HealthConditions.Contains(hc)) throw new System.Exception($"Trying to modify severity of health condition {hc.Label} that is not on the player.");
+        if (hc.IsSimpleBinaryCondition()) throw new System.Exception($"Trying to modify severity of simple binary health condition {hc.Label}. These conditions do not use severity.");
+        if (value == 0) return;
+        bool isIncreasing = value > 0;
+
+        // Avoid full heal if requested
+        if (!isIncreasing && avoidFullHeal && hc.SeverityValue + value <= 0f)
+        {
+            Debug.Log($"Avoiding full heal of {hc.Label} due to avoidFullHeal=true.");
+            float targetSeverity = 0.1f;
+            if (hc.SeverityValue <= targetSeverity) return; // Already at or below target severity
+            float adjustedValue = targetSeverity - hc.SeverityValue;
+            value = adjustedValue;
+        }
+
+        // Log in step outcome
+        HealthConditionsSeverityChangesSinceLastStep.Increment(hc, value);
+
+        // Apply modification
+        hc.ModifySeverity(value);
+    }
+
     public void ModifyHunger(float value)
     {
         Player.ModifyHunger(value);
@@ -1093,7 +1175,6 @@ public class Game : Singleton<Game>
 
         // Apply
         Wound newWound = Player.AddWound(woundDef, source);
-        WoundsAddedSinceLastStep.Add(newWound);
         OnGameStateChanged();
     }
 

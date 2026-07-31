@@ -217,7 +217,7 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         foreach (KeyValuePair<Item, int> item in groupedAddedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, true, item.Value, item.Key.Def.LabelCapWord, item.Key.Description);
+            outcomeNote.Init(item.Key.Sprite, true, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
         }
 
         // Removed items
@@ -230,24 +230,45 @@ public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
         foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, false, item.Value, item.Key.Def.LabelCapWord, item.Key.Description);
+            outcomeNote.Init(item.Key.Sprite, false, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
         }
 
-        // Added wounds
-        Dictionary<Wound, int> groupedWounds = new Dictionary<Wound, int>();
-        foreach (Wound wound in Game.WoundsAddedSinceLastStep)
-        {
-            if (!groupedWounds.Any(x => x.Key.Def == wound.Def)) groupedWounds.Add(wound, 1);
-            else groupedWounds[groupedWounds.First(x => x.Key.Def == wound.Def).Key]++;
-        }
-        foreach (var group in groupedWounds)
+        // Transformed items
+        foreach (var (oldItem, newItem, transformationMethod) in Game.ItemsTransformedSinceLastStep)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(group.Key.SpriteBase, true, group.Value, group.Key.Def.LabelCapWord, group.Key.Description);
+            outcomeNote.Init(oldItem, newItem, transformationMethod);
+        }
+
+        // Health condition changes
+        foreach(HealthCondition condition in Game.HealthConditionsAddedSinceLastStep)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(condition.Sprite, isAdded: true, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
+        }
+        foreach(HealthCondition condition in Game.HealthConditionsRemovedSinceLastStep)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            outcomeNote.Init(condition.Sprite, isAdded: false, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
+        }
+        foreach(var change in Game.HealthConditionsSeverityChangesSinceLastStep)
+        {
+            HealthCondition condition = change.Key;
+            float changeValue = change.Value;
+
+            if (changeValue == 0) continue;
+            bool isIncrease = changeValue > 0;
+
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+
+            string increase = isIncrease ? "Increased" : "Decreased";
+            string tooltipTitle = $"{increase} {condition.LabelCapWord}";
+
+            outcomeNote.Init(condition.Sprite, isAdded: isIncrease, amount: 1, showIncreaseIndicator: isIncrease, showDecreaseIndicator: !isIncrease, tooltipTitle: tooltipTitle, tooltipText: condition.Description);
         }
 
         // Stat changes
-        foreach(var statChange in Game.StatChangesSinceLastStep)
+        foreach (var statChange in Game.StatChangesSinceLastStep)
         {
             if(statChange.Value == 0) continue;
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);

@@ -59,7 +59,7 @@ public class HealthCondition
     {
         // End of day severity change (excluding natural healing as that is done separately in advance)
         float endOfDaySeverityChange = GetEndOfDaySeverityChange(excludeNaturalHealing: true);
-        if (endOfDaySeverityChange != 0f) ModifySeverity(endOfDaySeverityChange);
+        if (endOfDaySeverityChange != 0f) Game.ModifyHealthConditionSeverity(this, endOfDaySeverityChange);
 
         // Specific effects
         OnEndDay(morningReport);
@@ -69,14 +69,13 @@ public class HealthCondition
     /// Modifies the severity value of this condition by the given value. If the new severity value is below 0, it will be set to 0. If it is above MaxSeverity, it will be set to MaxSeverity. After modifying the severity, the active stage will be updated accordingly.
     /// <br/>If avoidFullHeal is true, the severity will not be allowed to reach 0, and will be set to 0.1 instead.
     /// </summary>
-    public void ModifySeverity(float value, bool avoidFullHeal = false)
+    public void ModifySeverity(float value)
     {
         float oldSeverity = SeverityValue;
         SeverityValue += value;
 
         // Clamp severity value to valid range
         if (SeverityValue < 0) SeverityValue = 0f;
-        if (avoidFullHeal && SeverityValue < 0.1f) SeverityValue = 0.1f;
         if (SeverityValue > MaxSeverity) SeverityValue = MaxSeverity;
 
         float newSeverity = SeverityValue;
@@ -128,7 +127,7 @@ public class HealthCondition
         if (naturalHealing > 0f)
         {
             Debug.Log($"Applying natural healing of {naturalHealing} to {Def.DefName} with a healing factor of {healingFactor}.");
-            ModifySeverity(-naturalHealing);
+            Game.ModifyHealthConditionSeverity(this, -naturalHealing);
         }
     }
 
@@ -243,12 +242,15 @@ public class HealthCondition
     }
 
     public string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
+    public string LabelCapWord => Label.CapitalizeEachWord();
     public virtual string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
     public virtual string GetInterActionsString() => Def.Interactions;
 
     public virtual string GetReportLabel() => Label;
     public virtual Color GetReportTextColor() => ActiveStage.Color;
     public virtual Color GetReportBackgroundColor() => Color.clear;
+
+    public virtual Sprite Sprite => Def.Sprite;
 
     public string GetTrendAsString()
     {

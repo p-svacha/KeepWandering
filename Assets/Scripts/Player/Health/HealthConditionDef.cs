@@ -5,7 +5,7 @@ using UnityEngine;
 public class HealthConditionDef : Def
 {
     override public string DefTypeLabel => "Health Condition";
-    public override Sprite Sprite => ResourceManager.LoadSprite($"HealthConditions/{DefName}");
+    public override Sprite Sprite => ResourceManager.LoadSprite($"HealthConditions/{DefName}"); // used for outcome notes, in wounds additionally on body
     public const float DEFAULT_INITIAL_SEVERITY = 1f;
     public const float DEFAULT_MAX_SEVERITY = 10f;
     public const string HEALS_NATURALLY = "Heals naturally";
@@ -83,6 +83,8 @@ public class HealthConditionDef : Def
     public override bool Validate()
     {
         if (Category == null) ThrowValidationError($"Health condition {DefName} does not have a category.");
+        if (Sprite == null) ThrowValidationError($"Health condition {DefName} does not have a sprite.");
+
         if (!string.IsNullOrEmpty(Description)) ThrowValidationError($"Health condition {DefName} has a description. Health conditions should not have descriptions, as the description should come from stages.");
         if (!IsVital && DefaultInitialSeverity <= 0) ThrowValidationError($"Health condition {DefName} must have a default initial severity greater than 0.");
         if (DefaultInitialSeverity > MaxSeverity) ThrowValidationError($"Health condition {DefName} has a default initial severity of {DefaultInitialSeverity} which is greater than the max severity of {MaxSeverity}.");

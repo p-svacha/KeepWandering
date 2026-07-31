@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public abstract class Wound : HealthCondition
 {
+    public override Sprite Sprite => SpriteBase;
     public Sprite SpriteBase => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Base");
     public Sprite SpriteInfectMinor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMinor");
     public Sprite SpriteInfectMajor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMajor");
@@ -108,7 +109,7 @@ public abstract class Wound : HealthCondition
         if (!IsBandaged || (IsInfected && !IsTreated))
         {
             float severityIncrease = Random.Range(0.5f, 1.5f);
-            ModifySeverity(severityIncrease);
+            Game.ModifyHealthConditionSeverity(this, severityIncrease);
         }
 
         InfectionStage afterStage = (InfectionStage)ActiveStageIndex;
