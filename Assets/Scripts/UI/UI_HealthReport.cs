@@ -10,7 +10,6 @@ public class UI_HealthReport : MonoBehaviour
 
     [Header("Elements")]
     public TextMeshProUGUI TitleText;
-    public UI_Stat MoraleInfo;
 
     [Header("Prefabs")]
     public UI_StatusEffect StatusEffectPrefab;
@@ -20,8 +19,6 @@ public class UI_HealthReport : MonoBehaviour
         HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 3);
 
         TitleText.text = "Health Conditions";
-
-        MoraleInfo.Init(player.Stats[StatDefOf.Morale], fixedColor: true);
 
         foreach (HealthCondition condition in player.HealthConditions)
         {

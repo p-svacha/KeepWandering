@@ -27,10 +27,8 @@ public class Encounter_HomeOfR : LocationEncounter
         SetObjectVisibility("Building", true);
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
         if (!IsIntroduced) options.Add(GetInitialTalkOption());
         else
         {
@@ -39,11 +37,7 @@ public class Encounter_HomeOfR : LocationEncounter
             if (Game.IsQuestActive(QuestDefOf.DeliverMedicineToR)) options.Add(GetDeliverMedicineOption());
         }
 
-        return options;
-    }
-    protected override bool IsMoveOnOptionAvailable()
-    {
-        return true;
+        options.Add(GetMoveOnOption());
     }
 
 

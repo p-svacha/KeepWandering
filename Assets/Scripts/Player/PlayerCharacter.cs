@@ -40,14 +40,14 @@ public class PlayerCharacter
         // Add instance of each need
         foreach (HealthConditionDef def in DefDatabase<HealthConditionDef>.AllDefs.Where(x => x.IsVital))
         {
-            ApplyHealthCondition(def, "");
+            ApplyHealthCondition(def, "", hideInOutcomeNotes: true);
         }
     }
 
     /// <summary>
     /// Applies a health condition to the player. If the health condition has a maximum amount of instances, and that amount has been reached, the severity will be added to a random existing instance instead of creating a new one. Optionally, an initial severity can be provided. If no severity is provided, the default initial severity from the health condition definition will be used.
     /// </summary>
-    public HealthCondition ApplyHealthCondition(HealthConditionDef def, string source, float initialSeverity = -1f)
+    public HealthCondition ApplyHealthCondition(HealthConditionDef def, string source, float initialSeverity = -1f, bool hideInOutcomeNotes = false)
     {
         // Validation
         if (initialSeverity > def.MaxSeverity)
@@ -70,7 +70,7 @@ public class PlayerCharacter
             HealthConditions.Add(newHC);
             if (!string.IsNullOrEmpty(source)) newHC.Source.Add(source);
 
-            Game.HealthConditionsAddedSinceLastStep.Add(newHC);
+            if (!hideInOutcomeNotes) Game.HealthConditionsAddedSinceLastStep.Add(newHC);
             return newHC;
         }
 
@@ -82,7 +82,7 @@ public class PlayerCharacter
             // Get random existing instance
             List<HealthCondition> existingInstances = HealthConditions.Where(hc => hc.Def == def).ToList();
             HealthCondition chosenInstance = existingInstances.RandomElement();
-            Game.ModifyHealthConditionSeverity(chosenInstance, initialSeverity);
+            Game.ModifyHealthConditionSeverity(chosenInstance, initialSeverity, hideInOutcomeNotes);
             if (!string.IsNullOrEmpty(source)) chosenInstance.Source.Add(source);
             return null;
         }
@@ -171,16 +171,21 @@ public class PlayerCharacter
     }
 
 
-    public Wound AddWound(HealthConditionDef woundDef, string source)
+    public void AddWound(HealthConditionDef woundDef, string source)
     {
+        WoundRenderer woundRenderer = Renderer.GetUnusedWoundRenderer();
+        if (woundRenderer == null)
+        {
+            Debug.LogWarning($"No unused wound renderer available. Cannot add wound {woundDef.Label}.");
+            return;
+        }
+
         Wound wound = (Wound)ApplyHealthCondition(woundDef, source);
         if (wound != null)
         {
-            WoundRenderer renderer = Renderer.GetUnusedWoundRenderer(woundDef);
-            renderer.SetWound(wound);
-            wound.SetRenderer(renderer);
+            woundRenderer.SetWound(wound);
+            wound.SetRenderer(woundRenderer);
         }
-        return wound;
     }
 
     public void BandageWound(Wound wound)

@@ -80,14 +80,25 @@ public static class ResourceManager
     private static Dictionary<string, Sprite> CachedSprites = new Dictionary<string, Sprite>();
     public static Sprite LoadSprite(string resourcePath)
     {
-        // cached
         if (CachedSprites.TryGetValue(resourcePath, out Sprite obj)) return obj;
 
-        // not yet cached
         Sprite loadedSprite = Resources.Load<Sprite>(resourcePath);
         if (loadedSprite == null) throw new System.Exception($"Failed to load Sprite {resourcePath}.");
         CachedSprites.Add(resourcePath, loadedSprite);
         return loadedSprite;
+    }
+
+    public static Sprite LoadSpriteFromSheet(string sheetPath, string spriteName)
+    {
+        string cacheKey = $"{sheetPath}::{spriteName}";
+        if (CachedSprites.TryGetValue(cacheKey, out Sprite obj)) return obj;
+
+        Sprite[] allSprites = Resources.LoadAll<Sprite>(sheetPath);
+        Sprite found = allSprites.FirstOrDefault(s => s.name == spriteName);
+        if (found == null) throw new System.Exception($"Failed to load Sprite '{spriteName}' from sheet {sheetPath}.");
+
+        CachedSprites.Add(cacheKey, found);
+        return found;
     }
 
     private static Dictionary<string, Sprite[]> CachedSpriteSheets = new Dictionary<string, Sprite[]>();

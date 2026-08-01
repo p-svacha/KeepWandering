@@ -21,12 +21,8 @@ public class EveningEncounter : Encounter
         CampRenderer.Refresh();
     }
 
-    protected override bool IsMoveOnOptionAvailable() => false;
-
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
         // Camp options (non-terminal, sprite-bound, any combination, done before the terminal choice below)
         if (!Camp.HasTent) options.Add(GetSetUpShelterOption());
         if (!Camp.HasBedroll) options.Add(GetSetUpSleepingSpotOption());
@@ -42,8 +38,6 @@ public class EveningEncounter : Encounter
 
         // Biome-specific options
         options.AddRange(GetBiomeSpecificOptions());
-
-        return options;
     }
 
     #region Camp Options

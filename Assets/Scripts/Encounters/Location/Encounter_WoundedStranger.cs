@@ -55,32 +55,23 @@ public class Encounter_WoundedStranger : LocationEncounter
         if (state != StrangerState.Gone) SetSprite("Stranger", $"{state}");
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
         if (state == StrangerState.Weary)
         {
-            return new List<EncounterOption>()
-            {
-                GetHelpOption(),
-                GetTalkOption(),
-                GetRobOption()
-            };
+            options.Add(GetHelpOption());
+            options.Add(GetTalkOption());
+            options.Add(GetRobOption());
         }
         else if (state == StrangerState.Grateful)
         {
-            var options = new List<EncounterOption>();
             if (!isKnowledgeExtracted) options.Add(GetAskForInformationOption());
             options.Add(GetAskForItemsOption());
             if (items.Count > 0) options.Add(GetTradeOption());
-            return options;
         }
-        else
-        {
-            return new List<EncounterOption>();
-        }
-    }
-    protected override bool IsMoveOnOptionAvailable() => true;
 
+        options.Add(GetMoveOnOption());
+    }
 
     private string GainStrangerKnowledge()
     {

@@ -27,6 +27,12 @@ Color choice is free.
 When done, Image > Trim > Transparent Pixels, then export as png. place in Assets/Sprites/Items and add to ItemDef in code. Name must match the DefName in ItemDef.
 
 
+# Health Condition Sprites
+
+6px black outline, 100% hardness, opacity, flow, pressure for size. Fill with any color, but keep it simple and readable. No gradients or shading.
+Basically default
+
+
 # Characters
 Outline full black, 10px without pressure (or 14px with pressure), 100% hardness,opacity,flow
 

@@ -1,24 +1,17 @@
 TODOS:
 ==============================================
-- outcome notes generalized for all health condition
-  - health condition added
-  - health condition increased
-  - health condition decreased
-  - health condition removed
-
 - handle "move on" option as general option like cook. so no IsMoveOnAvailable, and simply add it as an option in GetOptions with protected GetMoveOnOption
 
 - burn wound
   - visuals
   - effect
 
-- cooked meat item
-- cooked beans item
-- cook action on fire
+- cooked beans item (full of beans health conditions)
+- test cook action on fire
 - poisoning health condition
 - apply from raw meat consumption (chance)
 
-- repair mechanic: available skill check option to spend an evening, dexterity stat. chance to increase durability of an item.
+
 
 - animal attack event (wolves, reusing dog toy tag)
 - attacker category human/animal
@@ -117,6 +110,9 @@ countdown locations
 
 - supply stash needs to have own loot table mixed with biome loot table
   - currently loot is too bad
+
+- repair mechanic: available skill check option to spend an evening, dexterity stat. chance to increase durability of an item.
+  - maybe unlockable?
 
 - NARRATIVE: it says "you wake up afer an uneventful night"even when there was a night encounter.  
 

@@ -1085,7 +1085,7 @@ public class Game : Singleton<Game>
     /// <summary>
     /// Modifies the severity of a health condition on the player. All health condition severity changes of existing health conditions need to go through this method so that the game can track which health conditions increased or decreased in severity for the outcome display.
     /// </summary>
-    public void ModifyHealthConditionSeverity(HealthCondition hc, float value, bool avoidFullHeal = false)
+    public void ModifyHealthConditionSeverity(HealthCondition hc, float value, bool avoidFullHeal = false, bool hideInOutcomeNotes = false)
     {
         // Validate
         if (!Player.HealthConditions.Contains(hc)) throw new System.Exception($"Trying to modify severity of health condition {hc.Label} that is not on the player.");
@@ -1104,7 +1104,7 @@ public class Game : Singleton<Game>
         }
 
         // Log in step outcome
-        HealthConditionsSeverityChangesSinceLastStep.Increment(hc, value);
+        if (!hideInOutcomeNotes) HealthConditionsSeverityChangesSinceLastStep.Increment(hc, value);
 
         // Apply modification
         hc.ModifySeverity(value);
@@ -1174,7 +1174,7 @@ public class Game : Singleton<Game>
         if (!woundDef.HealthConditionClass.IsSubclassOf(typeof(Wound))) throw new System.Exception("Trying to add wound with health condition def that is not a wound! " + woundDef.Label);
 
         // Apply
-        Wound newWound = Player.AddWound(woundDef, source);
+        Player.AddWound(woundDef, source);
         OnGameStateChanged();
     }
 

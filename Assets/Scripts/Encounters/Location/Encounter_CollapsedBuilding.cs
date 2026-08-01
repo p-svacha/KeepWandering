@@ -101,11 +101,13 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         SetSprite("Rubble", rubbleState == RubbleState.GapRevealed ? "RubbleGap" : "Rubble");
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
-        if (isCollapsed) return options;
+        if (isCollapsed)
+        {
+            options.Add(GetMoveOnOption());
+            return;
+        }
 
         if (wireState == WireState.Active) options.Add(GetCutWiresOption());
         if (visibleItems.Count > 0) options.Add(GetGrabItemsOption());
@@ -114,9 +116,8 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         if (survivorState == SurvivorState.Stuck) options.Add(GetCallOutOption());
         if (survivorState == SurvivorState.Freed) options.Add(GetTalkOption());
 
-        return options;
+        options.Add(GetMoveOnOption());
     }
-    protected override bool IsMoveOnOptionAvailable() => true;
 
     private void TriggerCollapse()
     {

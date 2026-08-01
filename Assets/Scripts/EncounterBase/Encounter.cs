@@ -196,18 +196,9 @@ public abstract class Encounter
         // Otherwise, show the encounter's options
         else
         {
-            List<EncounterOption> options = GetOptions();
+            List<EncounterOption> options = new List<EncounterOption>();
+            GetOptions(options);
             options.RemoveAll(o => (o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text)) || (o.OnceEver && UsedOnceEverOptions.Contains(o.Text)));
-
-            // Move on
-            if (IsMoveOnOptionAvailable())
-            {
-                options.Add(new FixedOutcomeOption()
-                {
-                    Text = "Move on",
-                    Action = MoveOn
-                });
-            }
 
             return options;
         }
@@ -247,14 +238,9 @@ public abstract class Encounter
     protected abstract void RefreshSprites();
 
     /// <summary>
-    /// Returns the options that the player can choose from at the current step of the encounter based on the encounters current state. This is called every time the encounter step changes, so it can be used to change the options based on the player's previous choices.
+    /// Appends all options that the player can choose from at the current step of the encounter based on the encounters current state to the <paramref name="options"/> list. This is called every time the encounter step changes, so it can be used to change the options based on the player's previous choices.
     /// </summary>
-    protected abstract List<EncounterOption> GetOptions();
-
-    /// <summary>
-    /// If true, there is a "Move On" option available to end the encounter.
-    /// </summary>
-    protected abstract bool IsMoveOnOptionAvailable();
+    protected abstract void GetOptions(List<EncounterOption> options);
 
     /// <summary>
     /// Called when the player chooses the "Move On" option, before the encounter is ended. Usually used to clean up visuals.
@@ -335,13 +321,6 @@ public abstract class Encounter
         OnEnd();
     }
 
-    private string MoveOn()
-    {
-        OnMoveOn();
-        IsEncounterDone = true;
-        return "You move on. You can now freely use items again before continuing your journey.";
-    }
-
     #region General Options
 
     #region Item Use (Consume, Medical, etc.)
@@ -401,7 +380,7 @@ public abstract class Encounter
             options.Add(new SkillCheckOption()
             {
                 Text = $"Bandage {wound.Def.LabelCap}",
-                Description = $"Use an item to tend the {wound.Def.Label}.",
+                Description = $"Use an item to bandage the {wound.Def.Label}.",
                 Difficulty = 100,
                 Action = (outcome) => TryBandageWound(outcome, wound),
                 CanPartiallySucceed = false,
@@ -699,6 +678,25 @@ public abstract class Encounter
             return $"You fumble while trying to cook the {ItemUsedInOption.Def.Label}, wasting it and burning yourself in the process.";
         }
         throw new OutcomeNotHandledException(outcome);
+    }
+
+    #endregion
+
+    #region Encounter State
+
+    protected EncounterOption GetMoveOnOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Move on",
+            Action = MoveOn,
+        };
+    }
+    private string MoveOn()
+    {
+        OnMoveOn();
+        IsEncounterDone = true;
+        return "You move on. You can now freely use items again before continuing your journey.";
     }
 
     #endregion

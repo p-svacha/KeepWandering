@@ -47,12 +47,10 @@ public class Encounter_RadioTower : LocationEncounter
         return text;
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
         // Note has to be taken and read before anything else for narrative clarity
-        if (HasNoteOnDoor && !IsNoteTaken) return new List<EncounterOption>() { GetTakeNoteOption() };
-
-        List<EncounterOption> options = new List<EncounterOption>();
+        if (HasNoteOnDoor && !IsNoteTaken) options.Add(GetTakeNoteOption());
 
         switch (CurrentPlayerPosition)
         {
@@ -60,6 +58,7 @@ public class Encounter_RadioTower : LocationEncounter
                 if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) options.Add(GetListenOption());
                 if (!IsDoorOpen) options.Add(GetForceDoorOption());
                 if (!HasBeenOnTop) options.Add(GetClimbTowerOption());
+                if (IsNoteTaken) options.Add(GetMoveOnOption());
                 break;
             case PlayerPosition.Inside:
                 // Player can't be permanently inside atm
@@ -68,10 +67,7 @@ public class Encounter_RadioTower : LocationEncounter
                 options.Add(GetClimbDownOption());
                 break;
         }
-
-        return options;
     }
-    protected override bool IsMoveOnOptionAvailable() => CurrentPlayerPosition == PlayerPosition.Outside && IsNoteTaken;
 
     protected override void RefreshSprites()
     {

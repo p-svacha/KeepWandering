@@ -764,6 +764,16 @@
         },
     };
 
+--- ItemTransformationMethod.cs ---
+    public static List<ItemTransformationMethodDef> Defs => new List<ItemTransformationMethodDef>()
+    {
+        new ItemTransformationMethodDef("Cooking")
+        {
+            Label = "cooking",
+            Sprite = Resources.Load<Sprite>("Camp/Camp_Fire"),
+        }
+    }; 
+
 --- HealthConditionCategory.cs ---
     public static List<HealthConditionCategoryDef> Defs => new List<HealthConditionCategoryDef>()
     {
@@ -994,6 +1004,7 @@
         new HealthConditionDef("LegFracture")
         {
             Label = "Leg Fracture",
+            BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_LegFracture),
             Category = HealthConditionCategoryDefOf.Negative,
@@ -1043,6 +1054,7 @@
         new HealthConditionDef("ArmFracture")
         {
             Label = "Arm Fracture",
+            BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_ArmFracture),
             Category = HealthConditionCategoryDefOf.Negative,

@@ -28,7 +28,5 @@ public abstract class NightEncounter : Encounter
         CampRenderer.gameObject.SetActive(false);
     }
 
-    protected override bool IsMoveOnOptionAvailable() => false;
-
     public override float CameraXOffset => -2f; // so camp is visible
 }

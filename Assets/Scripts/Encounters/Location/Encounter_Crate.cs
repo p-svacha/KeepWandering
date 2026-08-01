@@ -62,9 +62,8 @@ public class Encounter_Crate : LocationEncounter
         return text;
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
         if (!AllItemsGone)
         {
             if (!IsVisibleItemGone) options.Add(CreateTakeItemOption()); // Take item
@@ -72,9 +71,9 @@ public class Encounter_Crate : LocationEncounter
             options.Add(CreateSmashCrateOption()); // Smash crate
             if (!AreItemsInsideKnown) options.Add(CreatePeekOption()); // Peek inside
         }
-        return options;
+
+        options.Add(GetMoveOnOption());
     }
-    protected override bool IsMoveOnOptionAvailable() => true;
 
     protected override void RefreshSprites()
     {

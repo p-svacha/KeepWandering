@@ -7,6 +7,7 @@ public class UI_StatPanel : MonoBehaviour
     private const int STATS_PER_ROW = 2;
 
     [Header("Elements")]
+    public UI_Stat Morale;
     public GameObject StatContainer;
 
     [Header("Prefabs")]
@@ -16,9 +17,16 @@ public class UI_StatPanel : MonoBehaviour
 
     public void Init(Game game)
     {
+        StatDisplays = new Dictionary<StatDef, UI_Stat>();
+
+        // Morale
+        Morale.Init(game.Player.Stats[StatDefOf.Morale], fixedColor: true);
+        StatDisplays.Add(StatDefOf.Morale, Morale);
+
+        // Skills
         HelperFunctions.DestroyAllChildredImmediately(StatContainer, skipElements: 1);
 
-        StatDisplays = new Dictionary<StatDef, UI_Stat>();
+        
         UI_StatRow currentRow = null;
         List<Stat> playerStats = game.Player.Stats.Values.Where(stat => stat.Def != StatDefOf.Morale).ToList();
         for (int i = 0; i < playerStats.Count; i += STATS_PER_ROW)
@@ -43,18 +51,15 @@ public class UI_StatPanel : MonoBehaviour
 
     public void HightlightStat(StatDef stat, Color color)
     {
-        if (stat == StatDefOf.Morale) GameUI.Instance.HealthReport.MoraleInfo.Highlight(color);
-        else StatDisplays[stat].Highlight(color);
+        StatDisplays[stat].Highlight(color);
     }
     public void UnhighlightStat(StatDef stat)
     {
-        if (stat == StatDefOf.Morale) GameUI.Instance.HealthReport.MoraleInfo.Unhighlight();
-        else StatDisplays[stat].Unhighlight();
+        StatDisplays[stat].Unhighlight();
     }
 
     public void UnhighlightAll()
     {
-        GameUI.Instance.HealthReport.MoraleInfo.Unhighlight();
         foreach (UI_Stat stat in StatDisplays.Values) stat.Unhighlight();
     }
 }

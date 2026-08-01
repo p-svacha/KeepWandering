@@ -19,10 +19,8 @@ public class MorningEncounter : Encounter
         return text;
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
         if (Game.Day == 1)
         {
             options.Add(new FixedOutcomeOption()
@@ -58,8 +56,6 @@ public class MorningEncounter : Encounter
 
         // Always add general item use options
         options.AddRange(GetGeneralItemUseOptions());
-
-        return options;
     }
     private string Stay()
     {
@@ -84,5 +80,4 @@ public class MorningEncounter : Encounter
     protected override void OnInitialize() { }
     protected override string OnStart() => GetMorningText();
     protected override void RefreshSprites() { }
-    protected override bool IsMoveOnOptionAvailable() => false;
 }

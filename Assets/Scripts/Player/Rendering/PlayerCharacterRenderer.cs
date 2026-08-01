@@ -18,9 +18,8 @@ public class PlayerCharacterRenderer : MonoBehaviour
     public LimbRenderer RightArm;
 
     [Header("Wounds")]
-    public GameObject BruiseWoundsContainer;
-    public GameObject CutWoundsContainer;
-    private Dictionary<HealthConditionDef, List<WoundRenderer>> WoundRenderers;
+    public GameObject WoundsContainer;
+    private List<WoundRenderer> WoundRenderers;
 
     private void Awake()
     {
@@ -29,15 +28,9 @@ public class PlayerCharacterRenderer : MonoBehaviour
 
     public void Init()
     {
-        WoundRenderers = new Dictionary<HealthConditionDef, List<WoundRenderer>>();
-        InitWoundRenderers(HealthConditionDefOf.Bruise, BruiseWoundsContainer);
-        InitWoundRenderers(HealthConditionDefOf.Cut, CutWoundsContainer);
-    }
-
-    private void InitWoundRenderers(HealthConditionDef woundDef, GameObject container)
-    {
-        List<WoundRenderer> renderers = container.GetComponentsInChildren<WoundRenderer>(true).ToList();
-        WoundRenderers.Add(woundDef, renderers);
+        WoundRenderers = new List<WoundRenderer>();
+        List<WoundRenderer> renderers = WoundsContainer.GetComponentsInChildren<WoundRenderer>(true).ToList();
+        WoundRenderers.AddRange(renderers);
     }
 
     /// <summary>
@@ -52,9 +45,9 @@ public class PlayerCharacterRenderer : MonoBehaviour
         }
     }
 
-    public WoundRenderer GetUnusedWoundRenderer(HealthConditionDef woundDef)
+    public WoundRenderer GetUnusedWoundRenderer()
     {
-        return WoundRenderers[woundDef].Where(wr => wr.Wound == null).ToList().RandomElement();
+        return WoundRenderers.Where(wr => wr.Wound == null).ToList().RandomElement();
     }
 
 

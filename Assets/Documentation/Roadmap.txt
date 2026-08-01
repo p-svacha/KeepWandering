@@ -251,7 +251,6 @@ Items:
   - Like exact calories, chance of food poisoning, etc.
 - Clean up loot tables so they are smaller and more varied between encounters / biomes
 - Individual items should all have their own identity and use cases.
-- Allow drag on drop from items that can tend wounds to tendable wounds.
 - Allow cooking food (maybe add this option to new generic evening encounter)
 
 Rumour / Quest system:

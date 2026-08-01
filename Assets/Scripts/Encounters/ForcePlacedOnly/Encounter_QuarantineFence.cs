@@ -27,17 +27,13 @@ public class Encounter_QuarantineFence : LocationEncounter
         SetObjectVisibility("BackFence_Hole", HasHole);
         SetObjectVisibility("SideFence", true);
     }
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
         if (!HasHole) options.Add(GetCutFenceOption());
         if (HasHole) options.Add(GetGoThroughHoleOption());
 
-        return options;
+        options.Add(GetMoveOnOption());
     }
-
-    protected override bool IsMoveOnOptionAvailable() => true;
 
     protected override void OnEnd() { }
 

@@ -33,10 +33,8 @@ public class NightEncounter_Bandits : NightEncounter
         SetObjectVisibility("Bandit3", showBandits && Intensity >= 3);
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        List<EncounterOption> options = new List<EncounterOption>();
-
         if (IsPlayerCaughtHiding)
         {
             options.Add(GetFightOption());
@@ -51,8 +49,6 @@ public class NightEncounter_Bandits : NightEncounter
 
             if (Intensity <= 2) options.Add(GetHideOption());
         }
-
-        return options;
     }
 
     #region Options

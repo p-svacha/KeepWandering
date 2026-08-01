@@ -7,11 +7,15 @@ public class WoundRenderer : MonoBehaviour
 
     [Header("SpriteRenderers")]
     public SpriteRenderer WoundSpriteRenderer;
-    public SpriteRenderer TendOverlaySpriteRenderer;
+    public SpriteRenderer BandageOverlaySpriteRenderer;
 
     public void SetWound(Wound wound)
     {
         Wound = wound;
+
+        // Randomize rotation
+        transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+
         Refresh();
     }
 
@@ -26,19 +30,8 @@ public class WoundRenderer : MonoBehaviour
         // Wound is present
         gameObject.SetActive(true);
         WoundSpriteRenderer.gameObject.SetActive(true);
-        WoundSpriteRenderer.sprite = GetWoundSprite();
-        TendOverlaySpriteRenderer.gameObject.SetActive(Wound.IsBandaged);
-        TendOverlaySpriteRenderer.sprite = Wound.SpriteTended;
-    }
-
-    private Sprite GetWoundSprite()
-    {
-        return Wound.InfectionStage switch
-        {
-            InfectionStage.None => Wound.SpriteBase,
-            InfectionStage.Minor => Wound.SpriteInfectMinor,
-            InfectionStage.Major => Wound.SpriteInfectMajor,
-            _ => throw new System.Exception("Infection stage " + Wound.InfectionStage.ToString() + " not handled.")
-        };
+        WoundSpriteRenderer.sprite = Wound.GetCurrentSprite();
+        BandageOverlaySpriteRenderer.gameObject.SetActive(Wound.IsBandaged);
+        BandageOverlaySpriteRenderer.sprite = Wound.SpriteBandaged;
     }
 }

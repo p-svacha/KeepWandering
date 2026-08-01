@@ -9,6 +9,7 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
     private HealthCondition HealthCondition;
 
     [Header("Elements")]
+    public Image Icon;
     public TextMeshProUGUI TitleText;
     public TextMeshProUGUI SubtitleText;
 
@@ -48,6 +49,7 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
         HealthCondition = healthCondition;
 
         // Header
+        Icon.sprite = healthCondition.Sprite;
         TitleText.text = healthCondition.Label;
         TitleText.color = healthCondition.GetReportTextColor();
         SubtitleText.text = healthCondition.Description;

@@ -5,7 +5,7 @@ using UnityEngine;
 public class HealthConditionDef : Def
 {
     override public string DefTypeLabel => "Health Condition";
-    public override Sprite Sprite => ResourceManager.LoadSprite($"HealthConditions/{DefName}"); // used for outcome notes, in wounds additionally on body
+    public override Sprite Sprite => ResourceManager.LoadSpriteFromSheet("HealthConditions", BaseSpriteName ?? DefName); // used for outcome notes, in wounds additionally on body
     public const float DEFAULT_INITIAL_SEVERITY = 1f;
     public const float DEFAULT_MAX_SEVERITY = 10f;
     public const string HEALS_NATURALLY = "Heals naturally";
@@ -16,6 +16,11 @@ public class HealthConditionDef : Def
     /// </summary>
     public System.Type HealthConditionClass { get; init; } = typeof(HealthCondition);
     public bool IsVital => Category == HealthConditionCategoryDefOf.Vital;
+
+    /// <summary>
+    /// Can be set to override the default sprite for this health condition.
+    /// </summary>
+    public string BaseSpriteName { get; init; } = null;
 
     /// <summary>
     /// Describes what the player can do to affect this health condition.

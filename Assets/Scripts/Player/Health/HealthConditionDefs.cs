@@ -207,6 +207,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("LegFracture")
         {
             Label = "Leg Fracture",
+            BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_LegFracture),
             Category = HealthConditionCategoryDefOf.Negative,
@@ -256,6 +257,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("ArmFracture")
         {
             Label = "Arm Fracture",
+            BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
             HealthConditionClass = typeof(HC_ArmFracture),
             Category = HealthConditionCategoryDefOf.Negative,

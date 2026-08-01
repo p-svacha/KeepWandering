@@ -5,14 +5,14 @@ using UnityEngine.UI;
 
 public abstract class Wound : HealthCondition
 {
-    public override Sprite Sprite => SpriteBase;
-    public Sprite SpriteBase => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Base");
-    public Sprite SpriteInfectMinor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMinor");
-    public Sprite SpriteInfectMajor => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_InfectedMajor");
-    public Sprite SpriteTended => ResourceManager.LoadSprite($"Character/Wounds/{Def.DefName}/{Def.DefName}_Tended");
+    public override Sprite Sprite => GetCurrentSprite();
+    public Sprite SpriteBase => ResourceManager.LoadSpriteFromSheet("HealthConditions", $"{Def.DefName}");
+    public Sprite SpriteInfectMinor => ResourceManager.LoadSpriteFromSheet("HealthConditions", $"{Def.DefName}_InfectedMinor");
+    public Sprite SpriteInfectMajor => ResourceManager.LoadSpriteFromSheet("HealthConditions", $"{Def.DefName}_InfectedMajor");
+    public Sprite SpriteBandaged => ResourceManager.LoadSpriteFromSheet("HealthConditions", $"{Def.DefName}_Bandaged");
 
-    public const float NATURAL_HEALING_UNTENDED = 0.2f;
-    public const float NATURAL_HEALING_TENDED = 1f;
+    public const float NATURAL_HEALING_UNBANDAGED = 0.2f;
+    public const float NATURAL_HEALING_BANDAGED = 1f;
 
 
     public bool IsBandaged { get; private set; }
@@ -92,8 +92,8 @@ public abstract class Wound : HealthCondition
 
     public override float GetNaturalHealing()
     {
-        if (IsBandaged) return NATURAL_HEALING_TENDED;
-        else return NATURAL_HEALING_UNTENDED;
+        if (IsBandaged) return NATURAL_HEALING_BANDAGED;
+        else return NATURAL_HEALING_UNBANDAGED;
     }
 
     protected override void OnActiveStageChanged()
@@ -105,7 +105,7 @@ public abstract class Wound : HealthCondition
     {
         InfectionStage beforeStage = (InfectionStage)ActiveStageIndex;
 
-        // If the wound is untended or infected and untreated, increase severity random amount between 0.5 and 1.5.
+        // If the wound is unbandaged or infected and untreated, increase severity random amount between 0.5 and 1.5.
         if (!IsBandaged || (IsInfected && !IsTreated))
         {
             float severityIncrease = Random.Range(0.5f, 1.5f);
@@ -167,8 +167,8 @@ public abstract class Wound : HealthCondition
     public override string GetReportLabel()
     {
         // Name
-        string tendName = IsBandaged ? "Tended" : "Untended";
-        string label = $"{tendName} {Def.LabelCap}";
+        string bandageName = IsBandaged ? "Bandaged" : "Unbandaged";
+        string label = $"{bandageName} {Def.LabelCap}";
         if (IsInfected)
         {
             label += $" ({ActiveStage.Label}";
@@ -188,7 +188,18 @@ public abstract class Wound : HealthCondition
         return s.Trim();
     }
 
-    protected abstract string GetUnbandagedEffectString();      
+    protected abstract string GetUnbandagedEffectString();
+
+    public Sprite GetCurrentSprite()
+    {
+        return InfectionStage switch
+        {
+            InfectionStage.None => SpriteBase,
+            InfectionStage.Minor => SpriteInfectMinor,
+            InfectionStage.Major => SpriteInfectMajor,
+            _ => throw new System.Exception("Infection stage " + InfectionStage.ToString() + " not handled.")
+        };
+    }
 }
 
 public enum InfectionStage

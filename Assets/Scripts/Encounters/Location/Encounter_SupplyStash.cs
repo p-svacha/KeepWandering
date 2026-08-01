@@ -87,12 +87,15 @@ public class Encounter_SupplyStash : LocationEncounter
         SetSprite(containerType.ToString(), $"{containerType}_{state}");
     }
 
-    protected override List<EncounterOption> GetOptions()
+    protected override void GetOptions(List<EncounterOption> options)
     {
-        if (state == ContainerState.Gone || state == ContainerState.Open) return new List<EncounterOption>();
+        if (state == ContainerState.Gone || state == ContainerState.Open)
+        {
+            options.Add(GetMoveOnOption());
+            return;
+        }
 
         // still lootable
-        List<EncounterOption> options = new List<EncounterOption>();
 
         if (containerType == ContainerType.Backpack)
         {
@@ -108,10 +111,8 @@ public class Encounter_SupplyStash : LocationEncounter
             options.Add(GetDigUpCrateOption());
         }
 
-        return options;
+        options.Add(GetMoveOnOption());
     }
-
-    protected override bool IsMoveOnOptionAvailable() => true;
 
     #region Options
 
