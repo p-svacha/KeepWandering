@@ -47,10 +47,13 @@ public class PlayerCharacterRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets called whenever a health condition is added, removed, or has its active stage changed.
+    /// Refreshes the visual representation of the player character based on their current health conditions, wounds, and other relevant factors.
     /// </summary>
-    public void OnHealthConditionChanged()
+    public void Refresh()
     {
+        if (Game.Instance.State == GameState.Initializing) return;
+        Debug.Log("Refreshing player character renderer.");
+
         // Thirst overlay
         SetActiveSprite(DehydrationOverlay, Character.Thirst.ActiveStageIndex - 2);
 
@@ -63,12 +66,12 @@ public class PlayerCharacterRenderer : MonoBehaviour
         else SetActiveSprite(PoisonOverlay, poison.ActiveStageIndex);
 
         // Arms
-        RightArm.Render(Character.RightArmFracture?.ActiveStageIndex ?? 0);
-        LeftArm.Render(Character.LeftArmFracture?.ActiveStageIndex ?? 0);
+        RightArm.Render(Character.RightArmFracture?.ActiveStageIndex + 1 ?? 0);
+        LeftArm.Render(Character.LeftArmFracture?.ActiveStageIndex + 1 ?? 0);
 
         // Legs
-        LegFront.Render(Character.RightLegFracture?.ActiveStageIndex ?? 0);
-        LegBack.Render(Character.LeftLegFracture?.ActiveStageIndex ?? 0);
+        LegFront.Render(Character.RightLegFracture?.ActiveStageIndex + 1 ?? 0);
+        LegBack.Render(Character.LeftLegFracture?.ActiveStageIndex + 1 ?? 0);
 
         // Blood loss
         SetCharacterColor(BloodLossColors[Character.Bloodloss.ActiveStageIndex]);

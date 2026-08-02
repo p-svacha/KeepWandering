@@ -16,7 +16,7 @@ public class UI_HealthReport : MonoBehaviour
 
     public void Init(PlayerCharacter player)
     {
-        HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 3);
+        HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 1);
 
         TitleText.text = "Status Effects";
 

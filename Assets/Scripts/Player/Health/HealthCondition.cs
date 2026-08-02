@@ -94,7 +94,6 @@ public class HealthCondition
         if (SeverityValue <= 0f && !Def.IsVital)
         {
             OnRemoved();
-            Player.Renderer.OnHealthConditionChanged();
             Player.RemoveHealthCondition(this);
             return;
         }
@@ -113,7 +112,6 @@ public class HealthCondition
 
         Debug.Log($"Updated active stage of {Def.DefName} to {ActiveStage.Label} based on severity value of {SeverityValue}. ActiveStageIndex is now {ActiveStageIndex}.");
         OnActiveStageChanged();
-        Player.Renderer.OnHealthConditionChanged();
     }
 
     /// <summary>

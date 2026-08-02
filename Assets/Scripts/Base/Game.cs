@@ -409,6 +409,9 @@ public class Game : Singleton<Game>
             UI.EventStepDisplay.Init(step, prevOutcome);
         }
 
+        // Refresh player renderer
+        PlayerCharacterRenderer.Instance.Refresh();
+
         // Update world map encounter sprites
         WorldMapRenderer.MarkRedrawEncounterSprites();
 
@@ -1168,6 +1171,8 @@ public class Game : Singleton<Game>
     }
     public void ApplyBruiseWound(string source) => AddWound(HealthConditionDefOf.Bruise, source);
     public void ApplyCutWound(string source) => AddWound(HealthConditionDefOf.Cut, source);
+    public void ApplyBurnWound(string source) => AddWound(HealthConditionDefOf.Burn, source);
+
     private void AddWound(HealthConditionDef woundDef, string source)
     {
         // Validate

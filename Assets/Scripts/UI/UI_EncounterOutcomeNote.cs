@@ -33,8 +33,10 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
         ItemIcon.sprite = sprite;
         PlusText.gameObject.SetActive(isAdded);
         MinusText.gameObject.SetActive(!isAdded);
+
         IncreaseIndicator.SetActive(showIncreaseIndicator);
         DecreaseIndicator.SetActive(showDecreaseIndicator);
+        if (showIncreaseIndicator || showDecreaseIndicator) MinusText.gameObject.SetActive(false); // Hide removed indicator if showing increase/decrease indicator
 
         AmountText.text = "x" + amount.ToString();
         AmountText.gameObject.SetActive(amount > 1);

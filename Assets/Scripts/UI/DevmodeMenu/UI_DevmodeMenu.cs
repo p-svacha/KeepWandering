@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ public class UI_DevmodeMenu : MonoBehaviour
     public Button ApplyLegFractureButton;
     public Button ApplyCutWoundButton;
     public Button ApplyBruiseWoundButton;
-
+    public Button ApplyBurnWoundButton;
     public void Init(Game game)
     {
         Game = game;
@@ -62,15 +63,23 @@ public class UI_DevmodeMenu : MonoBehaviour
         gameObject.SetActive(false);
 
         // Health condition buttons
-        ApplyArmFractureButton.onClick.AddListener(() => Game.ApplyArmFracture(1f, "Devmode Menu"));
-        ApplyLegFractureButton.onClick.AddListener(() => Game.ApplyLegFracture(1f, "Devmode Menu"));
-        ApplyCutWoundButton.onClick.AddListener(() => Game.ApplyCutWound("Devmode Menu"));
-        ApplyBruiseWoundButton.onClick.AddListener(() => Game.ApplyBruiseWound("Devmode Menu"));
+        ApplyArmFractureButton.onClick.AddListener(ApplyArmFracture);
+        ApplyLegFractureButton.onClick.AddListener(ApplyLegFracture);
+        ApplyCutWoundButton.onClick.AddListener(ApplyCutWound);
+        ApplyBruiseWoundButton.onClick.AddListener(ApplyBruiseWound);
+        ApplyBurnWoundButton.onClick.AddListener(ApplyBurnWound);
+    }
+
+    private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsVital && !hc.IsWound && !hc.IsFracture).ToList();
+    private void RefreshStep(string text)
+    {
+        Game.DisplayEncounterStep(new EncounterStep(text, Game.CurrentEncounterStep.Options, Game.CurrentEncounterStep.IsFinalStep));
     }
 
     private void AddItem()
     {
         Game.AddNewItemToInventory(DefDatabase<ItemDef>.AllDefs[AddItemDropdown.value]);
+        RefreshStep($"Added {DefDatabase<ItemDef>.AllDefs[AddItemDropdown.value].DefName} to inventory");
     }
 
     private void ForceEncounter(int value)
@@ -78,9 +87,38 @@ public class UI_DevmodeMenu : MonoBehaviour
         Game.EncounterManager.ForceEncounter(value == 0 ? null : DefDatabase<EncounterDef>.AllDefs[value - 1]);
     }
 
-    private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsVital && !hc.IsWound && !hc.IsFracture).ToList();
     private void ApplyHealthCondition()
     {
         Game.ApplyHealthCondition(ApplicableHealthConditions[HealthConditionDropwdown.value], "Devmode Menu");
+        RefreshStep($"Applied {ApplicableHealthConditions[HealthConditionDropwdown.value].DefName}");
     }
+    private void ApplyArmFracture()
+    {
+        Game.ApplyArmFracture(1f, "Devmode Menu");
+        RefreshStep("Applied Arm Fracture");
+    }
+    private void ApplyLegFracture()
+    {
+        Game.ApplyLegFracture(1f, "Devmode Menu");
+        RefreshStep("Applied Leg Fracture");
+    }
+    
+    private void ApplyCutWound()
+    {
+        Game.ApplyCutWound("Devmode Menu");
+        RefreshStep("Applied Cut Wound");
+    }
+    private void ApplyBruiseWound()
+    {
+        Game.ApplyBruiseWound("Devmode Menu");
+        RefreshStep("Applied Bruise Wound");
+    }
+    private void ApplyBurnWound()
+    {
+        Game.ApplyBurnWound("Devmode Menu");
+        RefreshStep("Applied Burn Wound");
+    }
+
+
+
 }

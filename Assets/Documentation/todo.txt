@@ -1,14 +1,9 @@
 TODOS:
 ==============================================
 
-- def architecture
-
-- poisoning health condition
-  - effect
-  - visual rep
-
 - poison treatment (clarify design)
-- make sure end of day vital changes appears in health condition tooltip
+ - finalize antidote item (use or remove)
+ - finalize poison treatment tag (use or remove)
 
 - cooked beans item
 - full of beans condition
@@ -32,7 +27,7 @@ VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - dont explicitly mention crowbar in crate encounter option
 - when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
 - add health condition icon in skill check roll sequence
-
+- redraw oil lamp
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.

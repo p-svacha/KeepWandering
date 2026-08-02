@@ -34,7 +34,9 @@ public class ItemDef : Def
     // Consumption
     public ConsumptionProperties ConsumptionProperties { get; init; } = null;
     public bool IsConsumable => ConsumptionProperties != null;
-    public ItemDef CookResult { get; init; } = null; // If this item can be cooked, this is the result of cooking it. If null, the item cannot be cooked.
+
+    public string _CookResult { get; init; } = null; // If this item can be cooked, this is the result of cooking it. If null, the item cannot be cooked.
+    public ItemDef CookResult { get; private set; } // Resolved reference
     public bool IsCookable => CookResult != null;
 
 
@@ -69,5 +71,10 @@ public class ItemDef : Def
         if (ConsumptionProperties != null) ConsumptionProperties.Validate(this);
 
         return base.Validate();
+    }
+
+    public override void ResolveReferences()
+    {
+        if (_CookResult != null) CookResult = DefDatabase<ItemDef>.GetNamed(_CookResult);
     }
 }

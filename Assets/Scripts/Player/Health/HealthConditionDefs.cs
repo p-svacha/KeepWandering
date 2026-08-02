@@ -3,6 +3,7 @@ using static HealthConditionDef;
 
 public static class HealthConditionDefs
 {
+
     public static List<HealthConditionDef> Defs => new List<HealthConditionDef>()
     {
 
@@ -396,9 +397,9 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Dexterity, -5 },
                     },
-                    AppliedHealthConditions =
+                    _AppliedHealthConditions =
                     {
-                        (HealthConditionDefOf.HeartArrhythmia, 0.2f),
+                        ("HeartArrhythmia", 0.2f),
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -411,9 +412,9 @@ public static class HealthConditionDefs
                     {
                         { StatDefOf.Dexterity, -8 },
                     },
-                    AppliedHealthConditions =
+                    _AppliedHealthConditions =
                     {
-                        (HealthConditionDefOf.HeartArrhythmia, 0.4f),
+                        ("HeartArrhythmia", 0.4f),
                     },
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
@@ -457,10 +458,10 @@ public static class HealthConditionDefs
                         { StatDefOf.Survival, -2 },
                         { StatDefOf.Dexterity, -2 },
                     },
-                    EndOfDayVitalChanges = new Dictionary<HealthConditionDef, float>()
+                    _EndOfDayVitalChanges = new Dictionary<string, float>()
                     {
-                        { HealthConditionDefOf.Hunger, +1 },
-                        { HealthConditionDefOf.Thirst, +1 },
+                        { "Hunger", +1 },
+                        { "Thirst", +1 },
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -476,10 +477,10 @@ public static class HealthConditionDefs
                         { StatDefOf.Dexterity, -3 },
                         { StatDefOf.Social, -2 },
                     },
-                    EndOfDayVitalChanges = new Dictionary<HealthConditionDef, float>()
+                    _EndOfDayVitalChanges = new Dictionary<string, float>()
                     {
-                        { HealthConditionDefOf.Hunger, +1 },
-                        { HealthConditionDefOf.Thirst, +1 },
+                        { "Hunger", +1 },
+                        { "Thirst", +1 },
                     },
                     SkillCheckModifier = (-15, 0.4f),
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
@@ -614,6 +615,7 @@ public static class HealthConditionDefOf
     // Wounds
     public static HealthConditionDef Bruise;
     public static HealthConditionDef Cut;
+    public static HealthConditionDef Burn;
 
     // Misc Negative
     public static HealthConditionDef HeartArrhythmia;

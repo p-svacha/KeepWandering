@@ -219,6 +219,7 @@ public static class ItemDefs
                 Nutrition = 5f
             },
         },
+
         new ItemDef("MeatRaw")
         {
             Label = "raw meat",
@@ -231,7 +232,7 @@ public static class ItemDefs
                 AppliedHealthCondition = HealthConditionDefOf.Poisoning,
                 AppliedHealthConditionChance = 0.5f,
             },
-            CookResult = ItemDefOf.MeatCooked,
+            _CookResult = "MeatCooked",
         },
 
         new ItemDef("MedicalKit")

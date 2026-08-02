@@ -476,6 +476,7 @@
                 Nutrition = 5f
             },
         },
+
         new ItemDef("MeatRaw")
         {
             Label = "raw meat",
@@ -484,10 +485,11 @@
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 2.5f
-                // todo: add a chance of food poisoning when consumed raw
+                Nutrition = 2.5f,
+                AppliedHealthCondition = HealthConditionDefOf.Poisoning,
+                AppliedHealthConditionChance = 0.5f,
             },
-            CookResult = ItemDefOf.MeatCooked,
+            _CookResult = "MeatCooked",
         },
 
         new ItemDef("MedicalKit")
@@ -809,7 +811,6 @@
         {
             Label = "Hunger",
             Interactions = "Eat food to reduce hunger.",
-            HealthConditionClass = typeof(HC_Hunger),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
             MaxSeverity = 17,
@@ -880,7 +881,6 @@
         {
             Label = "Thirst",
             Interactions = "Drink water to reduce thirst.",
-            HealthConditionClass = typeof(HC_Thirst),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
             MaxSeverity = 13,
@@ -944,7 +944,6 @@
         {
             Label = "Blood Loss",
             Interactions = $"{HEALS_NATURALLY}\nIncreased by bleeding (unbandaged) cut wounds.",
-            HealthConditionClass = typeof(HC_BloodLoss),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 0,
             MaxSeverity = 10,
@@ -1006,7 +1005,7 @@
             Label = "Leg Fracture",
             BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
-            HealthConditionClass = typeof(HC_LegFracture),
+            HealthConditionClass = typeof(HC_Fracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -1056,7 +1055,7 @@
             Label = "Arm Fracture",
             BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
-            HealthConditionClass = typeof(HC_ArmFracture),
+            HealthConditionClass = typeof(HC_Fracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -1196,9 +1195,9 @@
                     {
                         { StatDefOf.Dexterity, -5 },
                     },
-                    AppliedHealthConditions =
+                    _AppliedHealthConditions =
                     {
-                        (HealthConditionDefOf.HeartArrhythmia, 0.2f),
+                        ("HeartArrhythmia", 0.2f),
                     },
                     Color = ResourceManager.Color_Text_VeryNegative,
                 },
@@ -1211,10 +1210,77 @@
                     {
                         { StatDefOf.Dexterity, -8 },
                     },
-                    AppliedHealthConditions =
+                    _AppliedHealthConditions =
                     {
-                        (HealthConditionDefOf.HeartArrhythmia, 0.4f),
+                        ("HeartArrhythmia", 0.4f),
                     },
+                    Color = ResourceManager.Color_Text_ExtremelyNegative,
+                }
+            }
+        },
+
+        new HealthConditionDef("Poisoning")
+        {
+            Label = "Poisoning",
+            Interactions = $"todo",
+            Category = HealthConditionCategoryDefOf.Negative,
+            NaturalHealing = 0.2f,
+            NaturalSeverityChange = 0.4f,
+            MaxInstances = 1,
+            MaxSeverity = 12,
+            DefaultInitialSeverity = 2,
+            IsLethal = true,
+            LethalityMessage = "The poison killed you.",
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Queasy",
+                    Description = "I feel a bit sick.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -2 },
+                        { StatDefOf.Survival, -1 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Nauseous",
+                    Description = "I'm feeling sick and can't keep anything down.",
+                    SeverityThreshold = 4,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -4 },
+                        { StatDefOf.Survival, -2 },
+                        { StatDefOf.Dexterity, -2 },
+                    },
+                    _EndOfDayVitalChanges = new Dictionary<string, float>()
+                    {
+                        { "Hunger", +1 },
+                        { "Thirst", +1 },
+                    },
+                    Color = ResourceManager.Color_Text_VeryNegative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Critically Poisoned",
+                    Description = "If I can't find an antidote, this poison will kill me!",
+                    SeverityThreshold = 8,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -6 },
+                        { StatDefOf.Survival, -4 },
+                        { StatDefOf.Dexterity, -3 },
+                        { StatDefOf.Social, -2 },
+                    },
+                    _EndOfDayVitalChanges = new Dictionary<string, float>()
+                    {
+                        { "Hunger", +1 },
+                        { "Thirst", +1 },
+                    },
+                    SkillCheckModifier = (-15, 0.4f),
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
             }

@@ -36,15 +36,37 @@ public class HealthConditionStage
     /// <summary>
     /// The vitals that are affected by this stage at the end of the day, and how much their severity changes.
     /// </summary>
-    public Dictionary<HealthConditionDef, float> EndOfDayVitalChanges { get; init; } = new Dictionary<HealthConditionDef, float>();
+    public Dictionary<string, float> _EndOfDayVitalChanges { get; init; } = new Dictionary<string, float>();
+    public Dictionary<HealthConditionDef, float> EndOfDayVitalChanges { get; private set; } // Resolved references
 
     /// <summary>
     /// The health conditions that can be applied to the player when this stage is active, and the chance of each being applied.
     /// </summary>
-    public List<(HealthConditionDef Condition, float Chance)> AppliedHealthConditions { get; init; } = new List<(HealthConditionDef, float)>();
+    public List<(string Condition, float Chance)> _AppliedHealthConditions { get; init; } = new List<(string, float)>();
+    public List<(HealthConditionDef Condition, float Chance)> AppliedHealthConditions { get; private set; } // Resolved references
 
     /// <summary>
     /// The modifier to the rolled value of skillchecks that is applied when this stage is active. The first value is the modifier, and the second value is the chance of the modifier being applied.
     /// </summary>
     public (int Modifier, float Chance)? SkillCheckModifier { get; init; } = null;
+
+
+    public void ResolveReferences(HealthConditionDef def)
+    {
+        // Resolve end of day vital changes
+        EndOfDayVitalChanges = new Dictionary<HealthConditionDef, float>();
+        foreach (var vitalChange in _EndOfDayVitalChanges)
+        {
+            HealthConditionDef vitalDef = DefDatabase<HealthConditionDef>.GetNamed(vitalChange.Key);
+            if (!vitalDef.IsVital) def.ThrowValidationError($"HealthConditionStage has an end of day vital change for '{vitalChange.Key}' which is not a vital health condition.");
+            EndOfDayVitalChanges.Add(vitalDef, vitalChange.Value);
+        }
+        // Resolve applied health conditions
+        AppliedHealthConditions = new List<(HealthConditionDef Condition, float Chance)>();
+        foreach (var appliedCondition in _AppliedHealthConditions)
+        {
+            HealthConditionDef conditionDef = DefDatabase<HealthConditionDef>.GetNamed(appliedCondition.Condition);
+            AppliedHealthConditions.Add((conditionDef, appliedCondition.Chance));
+        }
+    }
 }

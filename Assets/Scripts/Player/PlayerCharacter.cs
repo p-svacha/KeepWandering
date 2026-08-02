@@ -269,7 +269,5 @@ public class PlayerCharacter
     public List<HC_BruiseWound> BruiseWounds => Wounds.Where(w => w is HC_BruiseWound).Select(w => (HC_BruiseWound)w).ToList();
     public List<HC_BruiseWound> UnbandagedBruiseWounds => BruiseWounds.Where(w => !w.IsBandaged).ToList();
 
-    public List<HC_CutWound> CutWounds => Wounds.Where(w => w is HC_CutWound).Select(w => (HC_CutWound)w).ToList();
-
     #endregion
 }

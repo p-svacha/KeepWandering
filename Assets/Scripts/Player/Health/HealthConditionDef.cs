@@ -110,13 +110,22 @@ public class HealthConditionDef : Def
         float prevThreshold = float.NegativeInfinity;
         foreach (HealthConditionStage stage in Stages)
         {
-            if (stage.StatModifiers.Count > 0 && !stage.IsVisible) ThrowValidationError("Health condition stages with stat modifiers must be visible.");
+            if (stage == null) ThrowValidationError($"Health condition {DefName} has a null stage.");
+            if (stage.StatModifiers == null) ThrowValidationError($"Health condition {DefName} stage {stage.Label} has null stat modifiers.");
+
+            if (stage.StatModifiers.Count > 0 && !stage.IsVisible) ThrowValidationError($"Health condition {DefName} stage {stage.Label} has stat modifiers and must be visible.");
 
             // Vital changes
-            foreach (var vitalChange in stage.EndOfDayVitalChanges)
+            foreach (var vitalChange in stage._EndOfDayVitalChanges)
             {
-                if (!vitalChange.Key.IsVital) ThrowValidationError($"Health condition {DefName} has a stage with an end of day vital change for {vitalChange.Key.DefName}, which is not a vital.");
-                if (vitalChange.Value == 0) ThrowValidationError($"Health condition {DefName} has a stage with an end of day vital change for {vitalChange.Key.DefName}, which is 0. This is not allowed, as it has no effect.");
+                if (vitalChange.Value == 0) ThrowValidationError($"Health condition {DefName} has a stage with an end of day vital change for {vitalChange.Key}, which is 0. This is not allowed, as it has no effect.");
+            }
+
+            // End of day health conditions
+            foreach (var appliedCondition in stage._AppliedHealthConditions)
+            {
+                if (appliedCondition.Chance == 0) ThrowValidationError($"Health condition {DefName} has a stage with an applied health condition {appliedCondition.Condition}, which has a chance of 0. This is not allowed, as it has no effect.");
+                if (appliedCondition.Chance > 1) ThrowValidationError($"Health condition {DefName} has a stage with an applied health condition {appliedCondition.Condition}, which has a chance of {appliedCondition.Chance}. This is not allowed, as it must be between 0 and 1.");
             }
 
             // Disallow same threshold as other stage
@@ -146,5 +155,13 @@ public class HealthConditionDef : Def
         
 
         return base.Validate();
+    }
+
+    public override void ResolveReferences()
+    {
+        foreach(var stage in Stages)
+        {
+            stage.ResolveReferences(this);
+        }
     }
 }
