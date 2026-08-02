@@ -21,7 +21,9 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
     public GameObject RelatedConditionRow;
     public TextMeshProUGUI RelatedConditionText;
     public TextMeshProUGUI SeverityText;
+    public GameObject NaturalChangeRow;
     public TextMeshProUGUI NaturalChangeText;
+    public GameObject NaturalHealingRow;
     public TextMeshProUGUI NaturalHealingText;
 
     public GameObject ProgressionDivider;
@@ -72,11 +74,16 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
 
             RelatedConditionRow.SetActive(healthCondition.Def.Stages.Count > 1);
             RelatedConditionText.text = healthCondition.Def.Label;
+
             SeverityText.text = $"{healthCondition.SeverityValue.ToString(severityFormat)} / {healthCondition.Def.MaxSeverity.ToString(severityFormat)}";
-            float naturalChange = healthCondition.GetEndOfDaySeverityChange();
+
+            float naturalChange = healthCondition.GetEndOfDaySeverityChange(excludeNaturalHealing: true);
             NaturalChangeText.text = $"{naturalChange.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")} per day";
+            NaturalChangeRow.SetActive(naturalChange != 0);
+
             float naturalHealing = healthCondition.GetNaturalHealing();
-            NaturalHealingText.text = $"{naturalHealing.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")} per day";
+            NaturalHealingText.text = $"-{naturalHealing.ToString(severityFormat)}";
+            NaturalHealingRow.SetActive(naturalHealing != 0);
         }
 
         // Current Effects

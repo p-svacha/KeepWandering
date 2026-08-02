@@ -9,6 +9,7 @@ public abstract class Encounter
 {
     public Game Game { get; private set; }
     public WorldMap WorldMap => WorldMap.Instance;
+    public PlayerCharacter Player => Game.Player;
     public EncounterDef Def { get; private set; }
     public Quest Mission { get; private set; }
     public WorldMapTile Tile { get; private set; }
@@ -337,14 +338,14 @@ public abstract class Encounter
         return options;
     }
 
-    private FixedOutcomeOption GetConsumeItemOption(bool torso = false)
+    private FixedOutcomeOption GetConsumeItemOption()
     {
         return new FixedOutcomeOption()
         {
             Text = "Consume Item",
             Description = "Use items from your inventory.",
             Action = ConsumeItem,
-            Sprite = torso ? PlayerCharacterRenderer.Instance.RightArm.Renderer : PlayerCharacterRenderer.Instance.Head,
+            Sprite = PlayerCharacterRenderer.Instance.Head,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
@@ -369,6 +370,7 @@ public abstract class Encounter
         List<EncounterOption> options = new List<EncounterOption>();
         options.AddRange(GetBandageWoundOptions());
         options.AddRange(GetTreatInfectionOptions());
+        if (Player.Poison != null) options.Add(GetTreatPoisonOption());
         return options;
     }
 
@@ -400,7 +402,6 @@ public abstract class Encounter
         }
         return options;
     }
-
     private string TryBandageWound(OptionOutcomeDef outcome, Wound wound)
     {
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
@@ -462,7 +463,6 @@ public abstract class Encounter
         }
         return options;
     }
-
     private string TryTreatInfection(OptionOutcomeDef outcome, Wound wound)
     {
         if (outcome.SuccessLevel == SuccessLevel.Success)
@@ -475,6 +475,35 @@ public abstract class Encounter
             return $"You fail to properly treat the infected {wound.Def.Label}.";
         }
         throw new OutcomeNotHandledException(outcome);
+    }
+
+    private EncounterOption GetTreatPoisonOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Treat Poison",
+            Description = "Use an item to treat poison.",
+            Action = TreatPoison,
+            Sprite = PlayerCharacterRenderer.Instance.Head,
+            ItemSlots = new List<ItemSlot>()
+            {
+                new ItemSlot()
+                {
+                    IsRequired = true,
+                    Tag = ItemTagDefOf.PoisonTreatment,
+                }
+            }
+        };
+    }
+    private string TreatPoison()
+    {
+        int severityReduction = 2 * ItemUsedInOption.GetTagLevel(ItemTagDefOf.PoisonTreatment);
+        Game.ModifyHealthConditionSeverity(Player.Poison, -severityReduction);
+        bool stillPoisoned = Player.Poison != null;
+
+        return stillPoisoned
+            ? $"You treat the poison, reducing its severity by {severityReduction}."
+            : $"You treat the poison, curing it completely.";
     }
 
     #endregion
@@ -682,7 +711,7 @@ public abstract class Encounter
 
     #endregion
 
-    #region Encounter State
+    #region Encounter State (Move on)
 
     protected EncounterOption GetMoveOnOption()
     {

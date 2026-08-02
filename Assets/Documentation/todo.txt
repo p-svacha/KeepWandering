@@ -1,10 +1,6 @@
 TODOS:
 ==============================================
 
-- poison treatment (clarify design)
- - finalize antidote item (use or remove)
- - finalize poison treatment tag (use or remove)
-
 - cooked beans item
 - full of beans condition
 

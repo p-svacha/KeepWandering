@@ -62,6 +62,7 @@ public class Item
     public Sprite Sprite => Def.Sprite;
     public bool HasTag(ItemTagDef tag) => Def.HasTag(tag);
     public bool HasAnyTag => Def.Tags.Count > 0;
+    public int GetTagLevel(ItemTagDef tag) => Def.Tags.TryGetValue(tag, out int level) ? level : 0;
     public bool IsConsumable => Def.IsConsumable;
     public bool IsCampComponent => Def.IsCampComponent;
     public bool HasMedicalProperties => Def.HasMedicalProperties;

@@ -239,7 +239,7 @@ public static class ItemDefs
         {
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
-            Value = 4,
+            Value = 5,
             MaxInitialDurability = 2,
             Tags =
             {

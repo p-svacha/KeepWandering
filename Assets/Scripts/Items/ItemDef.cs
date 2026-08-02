@@ -4,7 +4,7 @@ using UnityEngine;
 public class ItemDef : Def
 {
     public override string DefTypeLabel => "Item";
-    public override Sprite Sprite => Resources.Load<Sprite>("Items/" + DefName);
+    public override Sprite Sprite => ResourceManager.LoadSpriteFromSheet("Items", DefName);
 
     public static int MIN_TAG_LEVEL = 1;
     public static int MAX_TAG_LEVEL = 5;
@@ -53,7 +53,7 @@ public class ItemDef : Def
 
     public override bool Validate()
     {
-        if (Sprite == null) ThrowValidationError($"ItemDef '{DefName}' has no sprite assigned. Make sure there is a sprite in Resources/Items/{DefName}.png");
+        if (Sprite == null) ThrowValidationError($"ItemDef '{DefName}' has no sprite assigned. Make sure there is a sprite in the Items sprite sheet with the name '{DefName}'.");
 
         foreach (var tag in Tags)
         {

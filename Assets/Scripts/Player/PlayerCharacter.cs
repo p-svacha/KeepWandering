@@ -249,6 +249,7 @@ public class PlayerCharacter
     // Health conditions
     public int GetHealthConditionAmount(HealthConditionDef def) => HealthConditions.Count(hc => hc.Def == def);
 
+    // Vitals
     public HealthCondition Hunger => HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Hunger);
     public bool IsWellFed => Hunger.ActiveStageIndex == 0;
     public bool IsVeryHungry => Hunger.ActiveStageIndex >= 3;
@@ -256,6 +257,7 @@ public class PlayerCharacter
     public HealthCondition Thirst => HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Thirst);
     public HealthCondition Bloodloss => HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.BloodLoss);
 
+    // Fractures
     public HC_Fracture RightArmFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.ArmFracture && ((HC_Fracture)hc).IsRightSide);
     public HC_Fracture LeftArmFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.ArmFracture && !((HC_Fracture)hc).IsRightSide);
     public HC_Fracture RightLegFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.LegFracture && ((HC_Fracture)hc).IsRightSide);
@@ -268,6 +270,9 @@ public class PlayerCharacter
 
     public List<HC_BruiseWound> BruiseWounds => Wounds.Where(w => w is HC_BruiseWound).Select(w => (HC_BruiseWound)w).ToList();
     public List<HC_BruiseWound> UnbandagedBruiseWounds => BruiseWounds.Where(w => !w.IsBandaged).ToList();
+
+    // Other
+    public HealthCondition Poison => HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.Poisoning);
 
     #endregion
 }
