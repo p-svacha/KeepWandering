@@ -1113,7 +1113,6 @@
             Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
-            MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
         },
@@ -1123,7 +1122,15 @@
             HealthConditionClass = typeof(HC_BruiseWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
-            MaxInstances = 5,
+            IsWound = true,
+            // Everything else handled by Wound class
+        },
+
+        new HealthConditionDef("Burn")
+        {
+            HealthConditionClass = typeof(HC_BurnWound),
+            Category = HealthConditionCategoryDefOf.Negative,
+            Label = "burn",
             IsWound = true,
             // Everything else handled by Wound class
         },

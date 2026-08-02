@@ -61,9 +61,11 @@ public class PlayerCharacter
 
         // Check if we can apply this health condition (max instances)
         int currentAmount = GetHealthConditionAmount(def);
+        bool maxInstancesReached = currentAmount >= def.MaxInstances;
+        if (def.IsWound) maxInstancesReached = Renderer.GetUnusedWoundRenderer() == null; // If it's a wound, check if we have an unused renderer instead of checking max instances§
 
         // Haven't reached max amount => new instance
-        if (currentAmount < def.MaxInstances)
+        if (!maxInstancesReached)
         {
             HealthCondition newHC = (HealthCondition)System.Activator.CreateInstance(def.HealthConditionClass);
             newHC.Init(this, def, initialSeverity);
@@ -81,6 +83,12 @@ public class PlayerCharacter
 
             // Get random existing instance
             List<HealthCondition> existingInstances = HealthConditions.Where(hc => hc.Def == def).ToList();
+            if (existingInstances.Count == 0)
+            {
+                Debug.LogWarning($"Max instances reached for health condition {def}, but no existing instances found, aborting. (This can happen for wounds, if all wound spots are occupied by wounds with another type.");
+                return null;
+            }
+
             HealthCondition chosenInstance = existingInstances.RandomElement();
             Game.ModifyHealthConditionSeverity(chosenInstance, initialSeverity, hideInOutcomeNotes);
             if (!string.IsNullOrEmpty(source)) chosenInstance.Source.Add(source);
@@ -137,9 +145,9 @@ public class PlayerCharacter
 
         // If that side already has a fracture, add severity to it instead of applying a new one
         List<HealthCondition> existingFractures = HealthConditions.Where(hc => hc.Def == HealthConditionDefOf.LegFracture).ToList();
-        foreach (HC_LegFracture existingFracture in existingFractures)
+        foreach (HC_Fracture existingFracture in existingFractures)
         {
-            if (existingFracture.IsRightLeg == isRightLeg)
+            if (existingFracture.IsRightSide == isRightLeg)
             {
                 Game.ModifyHealthConditionSeverity(existingFracture, severity);
                 return;
@@ -147,7 +155,7 @@ public class PlayerCharacter
         }
 
         // If no existing fracture on that side, apply new fracture
-        HC_LegFracture newFracture = (HC_LegFracture)ApplyHealthCondition(HealthConditionDefOf.LegFracture, source, severity);
+        HC_Fracture newFracture = (HC_Fracture)ApplyHealthCondition(HealthConditionDefOf.LegFracture, source, severity);
         newFracture.SetSide(isRightLeg);
     }
     public void ApplyArmFracture(float severity, string source)
@@ -156,9 +164,9 @@ public class PlayerCharacter
 
         // If that side already has a fracture, add severity to it instead of applying a new one
         List<HealthCondition> existingFractures = HealthConditions.Where(hc => hc.Def == HealthConditionDefOf.ArmFracture).ToList();
-        foreach (HC_ArmFracture existingFracture in existingFractures)
+        foreach (HC_Fracture existingFracture in existingFractures)
         {
-            if (existingFracture.IsRightArm == isRightArm)
+            if (existingFracture.IsRightSide == isRightArm)
             {
                 Game.ModifyHealthConditionSeverity(existingFracture, severity);
                 return;
@@ -166,7 +174,7 @@ public class PlayerCharacter
         }
 
         // If no existing fracture on that side, apply new fracture
-        HC_ArmFracture newFracture = (HC_ArmFracture)ApplyHealthCondition(HealthConditionDefOf.ArmFracture, source, severity);
+        HC_Fracture newFracture = (HC_Fracture)ApplyHealthCondition(HealthConditionDefOf.ArmFracture, source, severity);
         newFracture.SetSide(isRightArm);
     }
 
@@ -241,11 +249,17 @@ public class PlayerCharacter
     // Health conditions
     public int GetHealthConditionAmount(HealthConditionDef def) => HealthConditions.Count(hc => hc.Def == def);
 
-    public HC_Hunger Hunger => (HC_Hunger)HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Hunger);
+    public HealthCondition Hunger => HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Hunger);
     public bool IsWellFed => Hunger.ActiveStageIndex == 0;
     public bool IsVeryHungry => Hunger.ActiveStageIndex >= 3;
 
-    public HC_Thirst Thirst => (HC_Thirst)HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Thirst);
+    public HealthCondition Thirst => HealthConditions.First(hc => hc.Def == HealthConditionDefOf.Thirst);
+    public HealthCondition Bloodloss => HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.BloodLoss);
+
+    public HC_Fracture RightArmFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.ArmFracture && ((HC_Fracture)hc).IsRightSide);
+    public HC_Fracture LeftArmFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.ArmFracture && !((HC_Fracture)hc).IsRightSide);
+    public HC_Fracture RightLegFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.LegFracture && ((HC_Fracture)hc).IsRightSide);
+    public HC_Fracture LeftLegFracture => (HC_Fracture)HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.LegFracture && !((HC_Fracture)hc).IsRightSide);
 
     // Wounds
     public List<Wound> Wounds => HealthConditions.Where(hc => hc is Wound w).Select(hc => (Wound)hc).ToList();

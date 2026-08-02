@@ -1,25 +1,26 @@
 TODOS:
 ==============================================
-- handle "move on" option as general option like cook. so no IsMoveOnAvailable, and simply add it as an option in GetOptions with protected GetMoveOnOption
 
-- burn wound
-  - visuals
-  - effect
+- def architecture
 
-- cooked beans item (full of beans health conditions)
-- test cook action on fire
 - poisoning health condition
-- apply from raw meat consumption (chance)
+  - effect
+  - visual rep
+
+- poison treatment (clarify design)
+- make sure end of day vital changes appears in health condition tooltip
+
+- cooked beans item
+- full of beans condition
+
+- test cook action on fire
 
 
-
-- animal attack event (wolves, reusing dog toy tag)
-- attacker category human/animal
-
+- add electrocution visual representation (twitching arms)
 - hook electrocution to fail of cutting fence
 - hook electrocution to fail cutting wires in collapsed building encounter
 
-- check "todo's" in whole project (poisoning/electrocution can be added now)
+- check "todo's" in whole project (poisoning/electrocution hooks can be added now)
 
 VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - don't show stars in item slots that are not a skillcheck
@@ -30,6 +31,7 @@ VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - player still moves on map when opening map in afternoon after moving in morning
 - dont explicitly mention crowbar in crate encounter option
 - when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
+- add health condition icon in skill check roll sequence
 
 
 ADD PROPER DAY 0:
@@ -45,10 +47,9 @@ add deployment marker to world map on day 20
 add spreading markers to world map
 add game over when hit
 
-ITEM TAG ADDITION:
-keep current 5 star system, works very nice
-add a new 6th category, for the best of the best items in a category, represented by a purple star or something. Using an item that has a purple star in the tag associated with the skill check will GUARANTEE the best possible outcome. Should play a special animation that replaces the skill check sequence when option is selected.
-Could be an interesting mechanic and generally it feels good to have guaranteed success in some cases. Could also work very well for quest items/options, like cutting the fence in the fence gate encounter.
+WOLF ATTACK NIGHT EVENT
+- animal attack event (wolves, reusing dog toy tag)
+- attacker category human/animal
 
 FENCE GATE ENCOUNTER
 

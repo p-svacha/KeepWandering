@@ -94,6 +94,7 @@ public class HealthCondition
         if (SeverityValue <= 0f && !Def.IsVital)
         {
             OnRemoved();
+            Player.Renderer.OnHealthConditionChanged();
             Player.RemoveHealthCondition(this);
             return;
         }
@@ -112,6 +113,7 @@ public class HealthCondition
 
         Debug.Log($"Updated active stage of {Def.DefName} to {ActiveStage.Label} based on severity value of {SeverityValue}. ActiveStageIndex is now {ActiveStageIndex}.");
         OnActiveStageChanged();
+        Player.Renderer.OnHealthConditionChanged();
     }
 
     /// <summary>
@@ -257,8 +259,8 @@ public class HealthCondition
         float delta = GetEndOfDaySeverityChange();
 
         // Special cases
-        if (this is HC_Hunger hunger && ActiveStageIndex == 0) return "Fading"; // Well fed
-        if (this is HC_Thirst thirst && ActiveStageIndex == 0) return "Fading"; // Well hydrated
+        if (Def == HealthConditionDefOf.Hunger && ActiveStageIndex == 0) return "Fading"; // Well fed
+        if (Def == HealthConditionDefOf.Thirst && ActiveStageIndex == 0) return "Fading"; // Well hydrated
 
         if (delta > 0f) return IsNegative ? "Worsening" : "Intensifying";
         else if (delta < 0f) return IsNegative ? "Improving" : "Fading";

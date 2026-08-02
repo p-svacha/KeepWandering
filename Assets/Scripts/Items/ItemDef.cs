@@ -66,7 +66,7 @@ public class ItemDef : Def
             if (statChange.Value == 0) ThrowValidationError($"ItemDef '{DefName}' has a passive stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
         }
 
-        if (ConsumptionProperties != null) ConsumptionProperties.Validate();
+        if (ConsumptionProperties != null) ConsumptionProperties.Validate(this);
 
         return base.Validate();
     }

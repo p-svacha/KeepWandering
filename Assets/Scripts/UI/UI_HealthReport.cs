@@ -18,7 +18,7 @@ public class UI_HealthReport : MonoBehaviour
     {
         HelperFunctions.DestroyAllChildredImmediately(gameObject, skipElements: 3);
 
-        TitleText.text = "Health Conditions";
+        TitleText.text = "Status Effects";
 
         foreach (HealthCondition condition in player.HealthConditions)
         {

@@ -12,7 +12,6 @@ public static class HealthConditionDefs
         {
             Label = "Hunger",
             Interactions = "Eat food to reduce hunger.",
-            HealthConditionClass = typeof(HC_Hunger),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
             MaxSeverity = 17,
@@ -83,7 +82,6 @@ public static class HealthConditionDefs
         {
             Label = "Thirst",
             Interactions = "Drink water to reduce thirst.",
-            HealthConditionClass = typeof(HC_Thirst),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 5,
             MaxSeverity = 13,
@@ -147,7 +145,6 @@ public static class HealthConditionDefs
         {
             Label = "Blood Loss",
             Interactions = $"{HEALS_NATURALLY}\nIncreased by bleeding (unbandaged) cut wounds.",
-            HealthConditionClass = typeof(HC_BloodLoss),
             Category = HealthConditionCategoryDefOf.Vital,
             DefaultInitialSeverity = 0,
             MaxSeverity = 10,
@@ -209,7 +206,7 @@ public static class HealthConditionDefs
             Label = "Leg Fracture",
             BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
-            HealthConditionClass = typeof(HC_LegFracture),
+            HealthConditionClass = typeof(HC_Fracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -259,7 +256,7 @@ public static class HealthConditionDefs
             Label = "Arm Fracture",
             BaseSpriteName = "Fracture",
             Interactions = $"{HEALS_NATURALLY}",
-            HealthConditionClass = typeof(HC_ArmFracture),
+            HealthConditionClass = typeof(HC_Fracture),
             Category = HealthConditionCategoryDefOf.Negative,
             MaxInstances = 2,
             MaxSeverity = 10,
@@ -316,7 +313,6 @@ public static class HealthConditionDefs
             Label = "cut",
             HealthConditionClass = typeof(HC_CutWound),
             Category = HealthConditionCategoryDefOf.Negative,
-            MaxInstances = 5,
             IsWound = true,
             // Everything else handled by Wound class
         },
@@ -326,7 +322,15 @@ public static class HealthConditionDefs
             HealthConditionClass = typeof(HC_BruiseWound),
             Category = HealthConditionCategoryDefOf.Negative,
             Label = "bruise",
-            MaxInstances = 5,
+            IsWound = true,
+            // Everything else handled by Wound class
+        },
+
+        new HealthConditionDef("Burn")
+        {
+            HealthConditionClass = typeof(HC_BurnWound),
+            Category = HealthConditionCategoryDefOf.Negative,
+            Label = "burn",
             IsWound = true,
             // Everything else handled by Wound class
         },
@@ -411,6 +415,73 @@ public static class HealthConditionDefs
                     {
                         (HealthConditionDefOf.HeartArrhythmia, 0.4f),
                     },
+                    Color = ResourceManager.Color_Text_ExtremelyNegative,
+                }
+            }
+        },
+
+        new HealthConditionDef("Poisoning")
+        {
+            Label = "Poisoning",
+            Interactions = $"todo",
+            Category = HealthConditionCategoryDefOf.Negative,
+            NaturalHealing = 0.2f,
+            NaturalSeverityChange = 0.4f,
+            MaxInstances = 1,
+            MaxSeverity = 12,
+            DefaultInitialSeverity = 2,
+            IsLethal = true,
+            LethalityMessage = "The poison killed you.",
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Queasy",
+                    Description = "I feel a bit sick.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -2 },
+                        { StatDefOf.Survival, -1 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Nauseous",
+                    Description = "I'm feeling sick and can't keep anything down.",
+                    SeverityThreshold = 4,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -4 },
+                        { StatDefOf.Survival, -2 },
+                        { StatDefOf.Dexterity, -2 },
+                    },
+                    EndOfDayVitalChanges = new Dictionary<HealthConditionDef, float>()
+                    {
+                        { HealthConditionDefOf.Hunger, +1 },
+                        { HealthConditionDefOf.Thirst, +1 },
+                    },
+                    Color = ResourceManager.Color_Text_VeryNegative,
+                },
+                new HealthConditionStage()
+                {
+                    Label = "Critically Poisoned",
+                    Description = "If I can't find an antidote, this poison will kill me!",
+                    SeverityThreshold = 8,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -6 },
+                        { StatDefOf.Survival, -4 },
+                        { StatDefOf.Dexterity, -3 },
+                        { StatDefOf.Social, -2 },
+                    },
+                    EndOfDayVitalChanges = new Dictionary<HealthConditionDef, float>()
+                    {
+                        { HealthConditionDefOf.Hunger, +1 },
+                        { HealthConditionDefOf.Thirst, +1 },
+                    },
+                    SkillCheckModifier = (-15, 0.4f),
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
             }
@@ -547,6 +618,7 @@ public static class HealthConditionDefOf
     // Misc Negative
     public static HealthConditionDef HeartArrhythmia;
     public static HealthConditionDef Electrocution;
+    public static HealthConditionDef Poisoning;
 
     // Positive
     public static HealthConditionDef ChocolateHigh;

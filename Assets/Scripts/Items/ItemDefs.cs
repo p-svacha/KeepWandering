@@ -227,8 +227,9 @@ public static class ItemDefs
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 2.5f
-                // todo: add a chance of food poisoning when consumed raw
+                Nutrition = 2.5f,
+                AppliedHealthCondition = HealthConditionDefOf.Poisoning,
+                AppliedHealthConditionChance = 0.5f,
             },
             CookResult = ItemDefOf.MeatCooked,
         },

@@ -37,20 +37,33 @@ public class ConsumptionProperties
     public HealthConditionDef AppliedHealthCondition { get; init; }
 
     /// <summary>
+    /// The chance that the applied health condition will be applied when the item is consumed. A value of 1 means it will always be applied, while a value of 0 means it will never be applied.
+    /// </summary>
+    public float AppliedHealthConditionChance { get; init; } = 1f;
+
+    /// <summary>
     /// Can be used to apply a health condition with a specific severity when the item is consumed. If <= 0, the default initial severity from the health condition definition will be used. If > 0, this value will be used as the initial severity when applying the condition.
     /// </summary>
     public float AppliedHealthConditionSeverity { get; init; } = -1;
 
-    public void Validate()
+    public void Validate(ItemDef def)
     {
         foreach (var statChange in StatChanges)
         {
-            if (statChange.Value == 0) throw new System.Exception($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
+            if (statChange.Value == 0) def.ThrowValidationError($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
         }
 
         if (AppliedHealthCondition == null && AppliedHealthConditionSeverity != -1)
         {
-            throw new System.Exception($"ConsumptionProperties has a positive applied health condition severity of {AppliedHealthConditionSeverity} but no applied health condition. An applied health condition must be specified if the severity is greater than 0.");
+            def.ThrowValidationError($"ConsumptionProperties has a positive applied health condition severity of {AppliedHealthConditionSeverity} but no applied health condition. An applied health condition must be specified if the severity is greater than 0.");
+        }
+        if (AppliedHealthCondition == null && AppliedHealthConditionChance != 1)
+        {
+            def.ThrowValidationError($"ConsumptionProperties has an applied health condition chance of {AppliedHealthConditionChance} but no applied health condition. An applied health condition must be specified if the chance is not 1.");
+        }
+        if (AppliedHealthCondition != null && (AppliedHealthConditionChance <= 0 || AppliedHealthConditionChance > 1))
+        {
+            def.ThrowValidationError($"ConsumptionProperties has an applied health condition chance of {AppliedHealthConditionChance}. This value must be between 0 (exclusive) and 1 (inclusive).");
         }
     }
 }

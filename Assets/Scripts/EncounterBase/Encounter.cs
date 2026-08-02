@@ -626,7 +626,7 @@ public abstract class Encounter
 
     #region Item Transformation
 
-    protected SkillCheckOption GetCookOption()
+    protected SkillCheckOption GetCookOption(SpriteRenderer sprite)
     {
         return new SkillCheckOption()
         {
@@ -634,7 +634,7 @@ public abstract class Encounter
             Description = $"Try cooking something. This will usually make the item better.",
             Difficulty = 20,
             Action = CookItem,
-            Sprite = PlayerCharacterRenderer.Instance.RightArm.Renderer,
+            Sprite = sprite,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()

@@ -103,7 +103,9 @@ public class UI_ItemTooltip : UI_TooltipBase
             // Health condition
             if (consumptionProps.AppliedHealthCondition != null)
             {
-                additionalEffectsText += $"\n- Applies {consumptionProps.AppliedHealthCondition.LabelCap}";
+                float chance = consumptionProps.AppliedHealthConditionChance * 100f;
+                if (chance == 100f) additionalEffectsText += $"\n- Applies {consumptionProps.AppliedHealthCondition.LabelCap}";
+                else additionalEffectsText += $"\n- {chance.ToString("0.#")}% chance to apply {consumptionProps.AppliedHealthCondition.LabelCap}";
             }
 
             // Severity reduction

@@ -132,9 +132,9 @@ A special subcategory of condition sharing common bandaging/infection logic. The
 - An unbandaged/untreated wound's infection severity tends to worsen each night; infection progresses through stages with escalating penalties and is lethal at the top.
 
 The following wound types exist:
-- **Cut:** Causes bleeding while undandaged.
-- **Bruide**: Slows fracture healing while present.
-- 
+- **Cut:** Causes bleeding while unbandaged.
+- **Bruise**: Slows fracture healing while unbandaged.
+- **Burn**: Increases thirst while unbandaged.
 
 Bandaging and infection treatment are skill checks that are available in the morning or at the very end of encounters.
 
@@ -227,7 +227,7 @@ Loot tables are weighted random item selections used wherever random items are g
 
 When an encounter's loot table is used in a specific biome, it can be combined with that biome's loot table. When using this, items or categories present in both are averaged toward a shared rarity, while items unique to either side are carried over unchanged. This lets a biome introduce its own flavor items into an encounter's loot without needing bespoke per-biome logic, and keeps a biome's overall tendency from silently overpowering an encounter's own identity.
 
-Loot tables should be kept small and varied between encounters and biomes so individual items retain distinct identity and use cases.
+Loot tables should be kept SMALL and FOCUSSED, and varied between encounters and biomes. This  is to ensure that individual items retain distinct identity and use cases and that the player can reasonably plan around them, rather than being lost in a sea of similar items.
 
 ---
 

@@ -16,6 +16,14 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
     public GameObject CurrentEffectsDivider;
     public TextMeshProUGUI CurrentEffectsText;
 
+    public GameObject DetailsDivider;
+    public GameObject DetailsContainer;
+    public GameObject RelatedConditionRow;
+    public TextMeshProUGUI RelatedConditionText;
+    public TextMeshProUGUI SeverityText;
+    public TextMeshProUGUI NaturalChangeText;
+    public TextMeshProUGUI NaturalHealingText;
+
     public GameObject ProgressionDivider;
     public GameObject ProgressionTrendRow;
     public TextMeshProUGUI ProgressionTrendText;
@@ -53,6 +61,23 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
         TitleText.text = healthCondition.Label;
         TitleText.color = healthCondition.GetReportTextColor();
         SubtitleText.text = healthCondition.Description;
+
+        // Details
+        bool showDetails = !healthCondition.IsSimpleBinaryCondition();
+        DetailsDivider.SetActive(showDetails);
+        DetailsContainer.SetActive(showDetails);
+        if (showDetails)
+        {
+            string severityFormat = "0.0";
+
+            RelatedConditionRow.SetActive(healthCondition.Def.Stages.Count > 1);
+            RelatedConditionText.text = healthCondition.Def.Label;
+            SeverityText.text = $"{healthCondition.SeverityValue.ToString(severityFormat)} / {healthCondition.Def.MaxSeverity.ToString(severityFormat)}";
+            float naturalChange = healthCondition.GetEndOfDaySeverityChange();
+            NaturalChangeText.text = $"{naturalChange.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")} per day";
+            float naturalHealing = healthCondition.GetNaturalHealing();
+            NaturalHealingText.text = $"{naturalHealing.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")} per day";
+        }
 
         // Current Effects
         Dictionary<StatDef, int> statModifiers = healthCondition.GetStatCurrentModifiers();
