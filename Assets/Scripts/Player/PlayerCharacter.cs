@@ -247,6 +247,7 @@ public class PlayerCharacter
 
 
     // Health conditions
+    public bool HasHealthCondition(HealthConditionDef def) => HealthConditions.Any(hc => hc.Def == def);
     public int GetHealthConditionAmount(HealthConditionDef def) => HealthConditions.Count(hc => hc.Def == def);
 
     // Vitals
@@ -273,6 +274,7 @@ public class PlayerCharacter
 
     // Other
     public HealthCondition Poison => HealthConditions.FirstOrDefault(hc => hc.Def == HealthConditionDefOf.Poisoning);
+    public bool IsExhausted => HasHealthCondition(HealthConditionDefOf.Exhaustion);
 
     #endregion
 }

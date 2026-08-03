@@ -1238,7 +1238,7 @@
         new HealthConditionDef("Poisoning")
         {
             Label = "Poisoning",
-            Interactions = $"todo",
+            Interactions = $"Can be reduced with poison treatment items, with higher star items having a greater effect.",
             Category = HealthConditionCategoryDefOf.Negative,
             NaturalHealing = 0.2f,
             NaturalSeverityChange = 0.4f,
@@ -1299,6 +1299,34 @@
                     SkillCheckModifier = (-15, 0.4f),
                     Color = ResourceManager.Color_Text_ExtremelyNegative,
                 }
+            }
+        },
+
+        new HealthConditionDef("Exhaustion")
+        {
+            Label = "Exhaustion",
+            Interactions = "Wears off after a night's rest.",
+            Category = HealthConditionCategoryDefOf.Negative,
+            DefaultInitialSeverity = 1,
+            MaxSeverity = 1,
+            NaturalHealing = 0,
+            NaturalSeverityChange = -1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Exhausted",
+                    Description = "I've pushed myself too hard. I need to rest.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -4 },
+                        { StatDefOf.Dexterity, -3 },
+                        { StatDefOf.Survival, -1 },
+                        { StatDefOf.Morale, -2 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
             }
         },
 

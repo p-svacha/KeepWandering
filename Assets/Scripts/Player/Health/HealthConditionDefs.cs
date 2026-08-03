@@ -488,6 +488,34 @@ public static class HealthConditionDefs
             }
         },
 
+        new HealthConditionDef("Exhaustion")
+        {
+            Label = "Exhaustion",
+            Interactions = "Wears off after a night's rest.",
+            Category = HealthConditionCategoryDefOf.Negative,
+            DefaultInitialSeverity = 1,
+            MaxSeverity = 1,
+            NaturalHealing = 0,
+            NaturalSeverityChange = -1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Exhausted",
+                    Description = "I've pushed myself too hard. I need to rest.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Strength, -4 },
+                        { StatDefOf.Dexterity, -3 },
+                        { StatDefOf.Survival, -1 },
+                        { StatDefOf.Morale, -2 },
+                    },
+                    Color = ResourceManager.Color_Text_Negative,
+                },
+            }
+        },
+
         #endregion
 
         #region Buffs
@@ -646,6 +674,7 @@ public static class HealthConditionDefOf
     public static HealthConditionDef HeartArrhythmia;
     public static HealthConditionDef Electrocution;
     public static HealthConditionDef Poisoning;
+    public static HealthConditionDef Exhaustion;
 
     // Positive
     public static HealthConditionDef ChocolateHigh;

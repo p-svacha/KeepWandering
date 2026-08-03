@@ -323,7 +323,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         {
             Game.ModifyMorale(-1);
             Game.ApplyBruiseWound(source: "Failed attempt to clear rubble");
-            // todo: apply exhaustion
+            Game.ApplyHealthCondition(HealthConditionDefOf.Exhaustion, source: "Clearing rubble");
 
             return "The rubble is too heavy and unstable. You exhaust yourself.";
         }
