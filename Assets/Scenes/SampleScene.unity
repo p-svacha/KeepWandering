@@ -7702,6 +7702,10 @@ MonoBehaviour:
   LeftArm: {fileID: 1079969668}
   PoisonOverlay: {fileID: 32285600}
   WoundsContainer: {fileID: 2068039398}
+  ElectrocutionTwitchAngle: 8
+  ElectrocutionJerkDuration: 0.04
+  IntoxicationBobAngle: 4
+  IntoxicationBobSpeed: 1.2
 --- !u!1001 &325649824
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19014,9 +19018,9 @@ MonoBehaviour:
   RelatedConditionRow: {fileID: 594694413}
   RelatedConditionText: {fileID: 594694412}
   SeverityText: {fileID: 316261532}
-  NaturalChangeRow: {fileID: 0}
+  NaturalChangeRow: {fileID: 1337685895}
   NaturalChangeText: {fileID: 9431576}
-  NaturalHealingRow: {fileID: 0}
+  NaturalHealingRow: {fileID: 1580206466}
   NaturalHealingText: {fileID: 2006333562}
   ProgressionDivider: {fileID: 1306160690}
   ProgressionTrendRow: {fileID: 178757973}
@@ -28222,6 +28226,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1337685895 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3546443494778643714, guid: bf89c997400460b48b49530bfb91eccf, type: 3}
+  m_PrefabInstance: {fileID: 9431574}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1340724332
 GameObject:
   m_ObjectHideFlags: 0
@@ -34656,6 +34665,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1388861901}
   m_SourcePrefab: {fileID: 100100000, guid: b36572d312915ab419809018c9c9c69c, type: 3}
+--- !u!1 &1580206466 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3546443494778643714, guid: bf89c997400460b48b49530bfb91eccf, type: 3}
+  m_PrefabInstance: {fileID: 2006333560}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1584870978
 GameObject:
   m_ObjectHideFlags: 0
@@ -41483,7 +41497,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cd90b9875c135e34db0399e3442bec3a, type: 3}
+  m_Sprite: {fileID: 1435556356, guid: 05060ff40db89df409f9d1feb57caac9, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

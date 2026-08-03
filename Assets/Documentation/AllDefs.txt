@@ -318,8 +318,8 @@
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
-                Nutrition = 3.5f,
-                Hydration = 1.5f,
+                Nutrition = 2.5f,
+                Hydration = 1f,
                 AppliedHealthCondition = HealthConditionDefOf.FullOfBeans,
             },
         },
@@ -1193,8 +1193,8 @@
             {
                 new HealthConditionStage()
                 {
-                    Label = "Sunned",
-                    Description = "I've been electrocuted!",
+                    Label = "Buzzed",
+                    Description = "I've been electrically shocked, this feels weird.",
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
@@ -1205,7 +1205,7 @@
                 new HealthConditionStage()
                 {
                     Label = "Shocked",
-                    Description = "I'm severely electrocuted!",
+                    Description = "My whole body is tingling from the electric shock.",
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
@@ -1220,7 +1220,7 @@
                 new HealthConditionStage()
                 {
                     Label = "Electrocuted",
-                    Description = "I'm critically electrocuted!",
+                    Description = "I can't move my body properly from the electric shock, everything feels numb and twitchy.",
                     SeverityThreshold = 7,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {

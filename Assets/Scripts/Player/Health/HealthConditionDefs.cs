@@ -379,8 +379,8 @@ public static class HealthConditionDefs
             {
                 new HealthConditionStage()
                 {
-                    Label = "Sunned",
-                    Description = "I've been electrocuted!",
+                    Label = "Buzzed",
+                    Description = "I've been electrically shocked, this feels weird.",
                     SeverityThreshold = 0,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
@@ -391,7 +391,7 @@ public static class HealthConditionDefs
                 new HealthConditionStage()
                 {
                     Label = "Shocked",
-                    Description = "I'm severely electrocuted!",
+                    Description = "My whole body is tingling from the electric shock.",
                     SeverityThreshold = 4,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
@@ -406,7 +406,7 @@ public static class HealthConditionDefs
                 new HealthConditionStage()
                 {
                     Label = "Electrocuted",
-                    Description = "I'm critically electrocuted!",
+                    Description = "I can't move my body properly from the electric shock, everything feels numb and twitchy.",
                     SeverityThreshold = 7,
                     StatModifiers = new Dictionary<StatDef, int>()
                     {
@@ -424,7 +424,7 @@ public static class HealthConditionDefs
         new HealthConditionDef("Poisoning")
         {
             Label = "Poisoning",
-            Interactions = $"todo",
+            Interactions = $"Can be reduced with poison treatment items, with higher star items having a greater effect.",
             Category = HealthConditionCategoryDefOf.Negative,
             NaturalHealing = 0.2f,
             NaturalSeverityChange = 0.4f,

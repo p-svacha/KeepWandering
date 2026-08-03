@@ -173,12 +173,12 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
-            // todo: electrocute (severity = 4)
+            Game.ApplyHealthCondition(HealthConditionDefOf.Electrocution, source: "Sparking wires in collapsed building", initialSeverity: 4f);
             return "You grab the wrong wire.";
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
-            // todo: electrocute (severity = 8)
+            Game.ApplyHealthCondition(HealthConditionDefOf.Electrocution, source: "Sparking wires in collapsed building", initialSeverity: 8f);
             return "The wire whips into you with full current.";
         }
         throw new InvalidOutcomeException(outcome);
@@ -364,11 +364,16 @@ public class Encounter_CollapsedBuilding : LocationEncounter
     }
     private string CrawlIn(OptionOutcomeDef outcome)
     {
-        if (wireState == WireState.Active && Random.value < 0.5f) { } // todo: electrocute
+        string textAppend = "";
+        if (wireState == WireState.Active && Random.value < 0.5f)
+        {
+            Game.ApplyHealthCondition(HealthConditionDefOf.Electrocution, source: "Sparking wires in collapsed building", initialSeverity: 2f);
+            textAppend += " You get a shock from the sparking wires.";
+        }
 
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
-            string text = "You squeeze through and find supplies in a small pocket of space.";
+            string text = "You squeeze through and find supplies in a small pocket of space." + textAppend;
             TakeAllItems(invisibleItems);
             if (hasSurvivor) text += FreeSurvivor();
             return text;
@@ -376,12 +381,12 @@ public class Encounter_CollapsedBuilding : LocationEncounter
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
             Game.ApplyCutWound(source: "Failed attempt to crawl in");
-            return "You get stuck and have to wriggle back out, scraping yourself up.";
+            return "You get stuck and have to wriggle back out, scraping yourself up." + textAppend;
         }
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             TriggerCollapse();
-            return "The gap collapses around you as you crawl in, and with it the whole structure.";
+            return "The gap collapses around you as you crawl in, and with it the whole structure. " + textAppend;
         }
         throw new InvalidOutcomeException(outcome);
     }

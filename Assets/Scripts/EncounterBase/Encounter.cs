@@ -703,7 +703,7 @@ public abstract class Encounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             Game.DestroyOwnedItem(ItemUsedInOption);
-            // todo: add burn wound
+            Game.ApplyBurnWound(source: $"Cooking over campfire");
             return $"You fumble while trying to cook the {ItemUsedInOption.Def.Label}, wasting it and burning yourself in the process.";
         }
         throw new OutcomeNotHandledException(outcome);

@@ -1,11 +1,13 @@
 TODOS:
 ==============================================
 
-- add electrocution visual representation (twitching arms)
+- add electrocution visual representation (twitching arms. stronger twitches on higher stages)
+- add intoxication visual representation (slight bobbing of head, more bobbing on higher stages)
+
 - hook electrocution to fail of cutting fence
 - hook electrocution to fail cutting wires in collapsed building encounter
 
-- check "todo's" in whole project (poisoning/electrocution hooks can be added now)
+- check "todo's" and to-do and to do in whole project (poisoning/electrocution hooks can be added now)
 
 VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - don't show stars in item slots that are not a skillcheck
@@ -147,6 +149,8 @@ countdown locations
  - for health condition tooltips, spawn related tooltip for
    - natural healing
    - health condition def of health condition def that can be applied by this condition
+
+- change full of beans condition icon to a bean
 
 - cooking system:
   - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition

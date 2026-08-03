@@ -77,7 +77,7 @@ public class Encounter_QuarantineFence : LocationEncounter
         {
             if (IsElectrified)
             {
-                // todo: get electrocuted
+                Game.ApplyHealthCondition(HealthConditionDefOf.Electrocution, source: "Quarantine fence", initialSeverity: 2f);
                 return "You fail to cut through the fence and get electrocuted in the process.";
 
             }
