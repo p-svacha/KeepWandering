@@ -301,10 +301,26 @@
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties() {
+            ConsumptionProperties = new ConsumptionProperties()
+            {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
                 Nutrition = 2.5f,
                 Hydration = 1f
+            },
+            _CookResult = "BeansCooked"
+        },
+
+        new ItemDef("BeansCooked")
+        {
+            Label = "cooked beans",
+            Description = "A meal that is not only nutritious but also satisfying.",
+            Value = 3,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 3.5f,
+                Hydration = 1.5f,
+                AppliedHealthCondition = HealthConditionDefOf.FullOfBeans,
             },
         },
 
@@ -1349,6 +1365,31 @@
                     Label = "Well Rested",
                     Description = "I feel well rested from having a nice camp last night.",
                     SeverityThreshold = 0,
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        new HealthConditionDef("FullOfBeans")
+        {
+            Label = "Full of Beans",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Full of Beans",
+                    Description = "I feel full of energy and enthusiasm.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Survival, +2 },
+                        { StatDefOf.Strength, +2 },
+                        { StatDefOf.Dexterity, +2 },
+                        { StatDefOf.Social, +2 },
+                    },
                     Color = ResourceManager.Color_Text_Positive,
                 }
             }

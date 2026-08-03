@@ -1,12 +1,6 @@
 TODOS:
 ==============================================
 
-- cooked beans item
-- full of beans condition
-
-- test cook action on fire
-
-
 - add electrocution visual representation (twitching arms)
 - hook electrocution to fail of cutting fence
 - hook electrocution to fail cutting wires in collapsed building encounter
@@ -24,6 +18,7 @@ VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
 - when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
 - add health condition icon in skill check roll sequence
 - redraw oil lamp
+- letting go of an item anywhere puts into a slot, even when not hovering the slot
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.
@@ -144,6 +139,14 @@ countdown locations
 - re-add longdog companion (simplify companion system, no health system for companions, they are simply a buff with no downside (except when they die))
 
 - crate encounter: when peeking, make it clear that you are looking for ADDITIONAL items to the visible one. And improve text of outcome. Also when coming back while having succesfully peeked before, write it that you remember what's inside.
+
+- multi-tooltip:
+ - a very short timeframe after the item tooltip appears, related tooltips should show up beside it.
+ - spawn related tooltip for cook result item def, if item is cookable
+ - spawn related tooltip for health condition def, if consuming item applies a health condition
+ - for health condition tooltips, spawn related tooltip for
+   - natural healing
+   - health condition def of health condition def that can be applied by this condition
 
 - cooking system:
   - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition

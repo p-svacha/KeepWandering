@@ -19014,7 +19014,9 @@ MonoBehaviour:
   RelatedConditionRow: {fileID: 594694413}
   RelatedConditionText: {fileID: 594694412}
   SeverityText: {fileID: 316261532}
+  NaturalChangeRow: {fileID: 0}
   NaturalChangeText: {fileID: 9431576}
+  NaturalHealingRow: {fileID: 0}
   NaturalHealingText: {fileID: 2006333562}
   ProgressionDivider: {fileID: 1306160690}
   ProgressionTrendRow: {fileID: 178757973}

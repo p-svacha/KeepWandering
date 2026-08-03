@@ -44,10 +44,26 @@ public static class ItemDefs
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Value = 2,
-            ConsumptionProperties = new ConsumptionProperties() {
+            ConsumptionProperties = new ConsumptionProperties()
+            {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
                 Nutrition = 2.5f,
                 Hydration = 1f
+            },
+            _CookResult = "BeansCooked"
+        },
+
+        new ItemDef("BeansCooked")
+        {
+            Label = "cooked beans",
+            Description = "A meal that is not only nutritious but also satisfying.",
+            Value = 3,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Food,
+                Nutrition = 2.5f,
+                Hydration = 1f,
+                AppliedHealthCondition = HealthConditionDefOf.FullOfBeans,
             },
         },
 
@@ -442,6 +458,7 @@ public static class ItemDefOf
     public static ItemDef Antidote;
     public static ItemDef Bandage;
     public static ItemDef Beans;
+    public static ItemDef BeansCooked;
     public static ItemDef Bedroll;
     public static ItemDef Berries;
     public static ItemDef Bone;

@@ -556,6 +556,31 @@ public static class HealthConditionDefs
             }
         },
 
+        new HealthConditionDef("FullOfBeans")
+        {
+            Label = "Full of Beans",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 2,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Full of Beans",
+                    Description = "I feel full of energy and enthusiasm.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Survival, +2 },
+                        { StatDefOf.Strength, +2 },
+                        { StatDefOf.Dexterity, +2 },
+                        { StatDefOf.Social, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
         #endregion
 
         #region Misc / Neutral
@@ -624,6 +649,7 @@ public static class HealthConditionDefOf
 
     // Positive
     public static HealthConditionDef ChocolateHigh;
+    public static HealthConditionDef FullOfBeans;
     public static HealthConditionDef SteadyHands;
     public static HealthConditionDef WellRested;
 
