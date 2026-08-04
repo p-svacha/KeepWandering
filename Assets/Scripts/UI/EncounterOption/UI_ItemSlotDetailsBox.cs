@@ -47,7 +47,7 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
         foreach (ItemDef itemDef in Slot.GetSlottableItemDefs())
         {
             UI_SlotAcceptedItemInfo itemInfo = Instantiate(AcceptedItemPrefab, AcceptedItemsContainer.transform);
-            if(Slot.Tag != null) itemInfo.Init(itemDef, Slot.Tag);
+            if (Slot.Tag != null && (Slot.Option is SkillCheckOption || Slot.IsTagLevelRelevant)) itemInfo.Init(itemDef, Slot.Tag);
             else itemInfo.Init(itemDef);
         }
 

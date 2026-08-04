@@ -119,6 +119,15 @@ public class WorldMapRenderer : MonoBehaviour
         IsMarkerMoving = false;
     }
 
+    private void OnEnable()
+    {
+        if (Game == null) return; // not yet initialized on first activation
+
+        // Reset player position marker to current position, in case it was mid-animation when the world map was closed
+        IsMarkerMoving = false;
+        PlayerPositionMarker.transform.position = Game.CurrentPosition.WorldPosition;
+    }
+
     public void ResetCamera()
     {
         RenderCamera.SetZoom(WorldMapCameraHandler.DEFAULT_CAMERA_SIZE);

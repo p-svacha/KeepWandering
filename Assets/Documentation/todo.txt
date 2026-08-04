@@ -2,17 +2,20 @@ TODOS:
 ==============================================
 
 VARIOUS INTERMEDIARY CHANGES/FIXES BEFORE NEXT FEATURE:
-- don't show stars in item slots that are not a skillcheck
+(/) - don't show stars in item slots that are not a skillcheck
 - camp items shouldn't be displayed as "item will be destroyed", need extra handling. handling should be on SLOT not on item. it should instead say something "item will be removed until morning". UI CHANGE ONLY
-- fuel needs to be required for fire
-- fire should be animated
-- when deciding on the color of an item slot if player has a specific item, don't count items already slotted
-- player still moves on map when opening map in afternoon after moving in morning
-- dont explicitly mention crowbar in crate encounter option
+(/) - fuel needs to be required for fire
+(/) - fire should be animated
+(/) - when deciding on the color of an item slot if player has a specific item, don't count items already slotted
+(/) - player still moves on map when opening map in afternoon after moving in morning
+(/) - dont explicitly mention crowbar in crate encounter option
 - when adding multiple items to inventory at once (i.e. at start of game), ensure they do not spawn on top of each other.
-- add health condition icon in skill check roll sequence
+(/) - add health condition icon in skill check roll sequence
 - redraw oil lamp
 - letting go of an item anywhere puts into a slot, even when not hovering the slot
+- cooking doesnt show outcome not
+- remove partial success of cooking
+- items should be highlighted orange while being dragged
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.
@@ -111,6 +114,8 @@ countdown locations
   - The linked QuestDef is also the quest that is given to the player when they choose the rumour option (instead of generic InvestigateRumourQuest).
 
 - show biome important stats and description in world map
+
+- desaturate worlp map except for player and marked tiles
 
 - add some night events (things that rarely happen during the night with no player impact or visuals, communicated in morning)
   - get robbed (lose random item)

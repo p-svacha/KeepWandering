@@ -167,12 +167,12 @@ This chapter covers different systems items can have (tags, consumption, passive
 
 ## Item Tags
 
-Each item can have any number of **tags**. Tags are the mechanism by which item slots decide which items they accept.
+Each item can have any number of **tags**, each with a level. Tags are the mechanism by which item slots decide which items they accept.
 
 **Tag Design Philosophy:**
 Tags are used in a way to describe what an item is good for, rather than what it is, since mechanically they are used to reduce the difficulty of skill checks. Tags should generally be designed in a way, so that it makes sense to describe it as "Item can be used as [tag]". Since tags are tightly coupled to the durability system, they should also be designed so it makes sense that items with a tag can be used multiple, but a limited number of times, for that purpose.
 
-There can be exceptions where tags can do additional things, such as acting as modifiers in certain outcomes (even FixedOutcome), but this should be used sparingly and only when it makes sense for the tag to have that effect. One example is poison treatment, where the tag level acts as a modifier to the amount of severity reduction when treating a poison condition. 
+There can be exceptions where the tag level of an item in an item slot can affect the outcome of the associated option directly rather than just influencing the selection of the type of outcome through difficulty reduction. This can be the case for both SkillCheckOption and FixedOutcomeOption. One example is poison treatment, which is a FixedOutcome, where the tag level acts as a modifier to the amount of severity reduction when treating a poison condition.
 
 ### Tag Levels
 

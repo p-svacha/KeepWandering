@@ -30,7 +30,7 @@ public class EveningEncounter : Encounter
         if (Camp.Trap1 == null) options.Add(GetSetTrapOption(1, CampRenderer.Trap1));
         if (Camp.Trap2 == null) options.Add(GetSetTrapOption(2, CampRenderer.Trap2));
         if (Camp.Trap3 == null) options.Add(GetSetTrapOption(3, CampRenderer.Trap3));
-        if (Camp.HasFire) options.Add(GetCookOption(CampRenderer.Fire));
+        if (Camp.HasFire) options.Add(GetCookOption(CampRenderer.FireFlame));
 
         // Spend-the-evening options (terminal, dialogue list, exactly one ends the encounter)
         options.Add(GetRestEarlyOption());
@@ -98,7 +98,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Make Fire",
             Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
-            Sprite = CampRenderer.Fire,
+            Sprite = CampRenderer.FireSpot,
             Difficulty = 120,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {
@@ -121,6 +121,7 @@ public class EveningEncounter : Encounter
                 },
                 new ItemSlot()
                 {
+                    IsRequired = true,
                     Tag = ItemTagDefOf.FireStarter,
                 }
             }

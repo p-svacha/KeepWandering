@@ -41,6 +41,10 @@ public class Game : Singleton<Game>
     public int NumCompletedQuestsSinceLastStep { get; set; } = 0;
     public int NumFailedQuestsSinceLastStep { get; set; } = 0;
 
+    // Item drops
+    private const float ITEM_DROP_MIN_DISTANCE = 2f;
+    private const int ITEM_DROP_MAX_ATTEMPTS = 20;
+
     // Position
     public DayAction DayAction { get; private set; } // The type of action the player is doing on the current day.
     public bool IsEarlyResting { get; set; } // If true, some extra natural healing is applied when going to sleep.
@@ -897,10 +901,37 @@ public class Game : Singleton<Game>
     public void DropItemIntoCart(Item item)
     {
         if (item.Renderer.IsRenderingAboveUI) item.Renderer.SetRenderAboveUI(false);
-        item.Renderer.SetPosition(Random.Range(-8f, -3f), Random.Range(2f, 4f));
+
+        Vector2 dropPos = GetNonOverlappingDropPosition(item);
+        item.Renderer.SetPosition(dropPos.x, dropPos.y);
         item.Renderer.SetRandomRotation();
         item.Renderer.Unfreeze();
         item.Renderer.ResetVelocity();
+    }
+
+    /// <summary>
+    /// Picks a random position within the item spawn zone, retrying if it would overlap another item
+    /// currently in the inventory (whether settled or still mid-fall). This is what stops Unity's physics
+    /// from having to violently resolve two overlapping colliders the moment both become active, which is
+    /// what causes items to jitter or get launched when several are added at once.
+    /// </summary>
+    private Vector2 GetNonOverlappingDropPosition(Item excludeItem)
+    {
+        for (int attempt = 0; attempt < ITEM_DROP_MAX_ATTEMPTS; attempt++)
+        {
+            Vector2 candidate = new Vector2(Random.Range(-8f, -3f), Random.Range(2f, 4f));
+
+            bool overlaps = Inventory.Any(existing =>
+                existing != excludeItem &&
+                !existing.Renderer.IsRenderingAboveUI && // being dragged / shown in UI space - not a meaningful world-position comparison
+                ((Vector2)existing.Renderer.transform.position - candidate).sqrMagnitude < ITEM_DROP_MIN_DISTANCE * ITEM_DROP_MIN_DISTANCE);
+
+            if (!overlaps) return candidate;
+        }
+
+        // All attempts landed on an overlap (cart very full) - fall back to a plain random position
+        // rather than blocking the drop; physics will resolve the rare remaining overlap as before.
+        return new Vector2(Random.Range(-8f, -3f), Random.Range(2f, 4f));
     }
 
     /// <summary>

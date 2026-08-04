@@ -59,6 +59,11 @@ public class ItemSlot
     public int RequiredTagLevel { get; init; } = -1;
     public bool HasrequiredTagLevel => RequiredTagLevel != -1;
 
+    /// <summary>
+    /// With this flag the tag level can be marked as relevant in the option, even if the option is not a skill check. For example in rare cases in FixedOutcome option the tag level may scale an effect. This flag can only be marked true if the slot has a tag set and the opion is not a skill check (because then the tag level is always relevant).
+    /// </summary>
+    public bool IsTagLevelRelevant { get; init; } = false;
+
     public void Validate()
     {
         // Make sure slot has exactly 1 option configured
@@ -90,6 +95,13 @@ public class ItemSlot
 
         // Must have set a tag if not required (because then the slot is to reduce difficulty, which is only possible with a tag)
         if (!IsRequired && Tag == null) throw new System.Exception("ItemSlot that is not required must have a tag set, as only tag slots can have difficulty reductions for optional slots.");
+
+        // Validation for tag level relevance
+        if (IsTagLevelRelevant)
+        {
+            if (Option is SkillCheckOption) throw new System.Exception("ItemSlot cannot have IsTagLevelRelevant set to true if the option is a skill check, as the tag level is always relevant for skill checks. The flag is intended for use with non-skill check options.");
+            if (Tag == null) throw new System.Exception("ItemSlot cannot have IsTagLevelRelevant set to true if the slot does not have a tag set, as the tag level can only be relevant for slots with a tag.");
+        }
     }
 
     public void SetOption(EncounterOption option)
@@ -187,11 +199,38 @@ public class ItemSlot
 
     public bool PlayerHasSlottableItem()
     {
+        HashSet<Item> itemsFilledElsewhere = GetItemsFilledInOtherSlots();
+
         foreach (Item item in Game.Instance.Inventory)
         {
+            if (itemsFilledElsewhere.Contains(item)) continue;
             if (CanAcceptItem(item)) return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Returns all items currently filled into any item slot of the current encounter step, other than
+    /// this slot itself. Used so slot availability checks don't count an item as "available" if it's
+    /// already committed to filling a different slot.
+    /// </summary>
+    private HashSet<Item> GetItemsFilledInOtherSlots()
+    {
+        HashSet<Item> items = new HashSet<Item>();
+
+        EncounterStep step = Game.Instance.CurrentEncounterStep;
+        if (step == null) return items;
+
+        foreach (EncounterOption option in step.Options)
+        {
+            foreach (ItemSlot slot in option.ItemSlots)
+            {
+                if (slot == this) continue;
+                if (slot.IsFilled) items.Add(slot.FilledItem);
+            }
+        }
+
+        return items;
     }
 
     public override string ToString()

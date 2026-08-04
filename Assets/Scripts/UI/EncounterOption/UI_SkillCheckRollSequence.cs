@@ -30,6 +30,9 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
     public GameObject UsedItemsContainer;
     public GameObject OutcomeBarContainer;
     public RectTransform Marker;
+
+    public GameObject RollModifierInfo;
+    public Image RollModifierIcon;
     public TextMeshProUGUI RollModifierText;
 
     [Header("Prefabs")]
@@ -62,8 +65,8 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
 
         if (RollCoroutine != null) StopCoroutine(RollCoroutine);
         RollCoroutine = StartCoroutine(PlayRollSequence(option));
-
-        RollModifierText.gameObject.SetActive(false);
+        
+        RollModifierInfo.SetActive(false);
         if (PunchCoroutine != null) StopCoroutine(PunchCoroutine); PunchCoroutine = null;
     }
 
@@ -167,16 +170,17 @@ public class UI_SkillCheckRollSequence : MonoBehaviour
                 SetMarkerPosition(Mathf.Clamp01(newRollValue / 100f));
                 AudioManager.PlaySound("Bonk");
 
-                RollModifierText.gameObject.SetActive(true);
+                RollModifierInfo.SetActive(true);
                 RollModifierText.text = condition.GetReportLabel();
                 RollModifierText.color = condition.GetReportTextColor();
+                RollModifierIcon.sprite = condition.Sprite;
 
                 if (PunchCoroutine != null) StopCoroutine(PunchCoroutine);
-                PunchCoroutine = StartCoroutine(PunchScale(RollModifierText.rectTransform));
+                PunchCoroutine = StartCoroutine(PunchScale(RollModifierInfo.GetComponent<RectTransform>()));
             }
         }
 
-        RollModifierText.gameObject.SetActive(false);
+        RollModifierInfo.SetActive(false);
         SetMarkerPosition(Mathf.Clamp01(finalRollValue / 100f)); // guaranteed-correct final position, even if skipped
 
         AudioManager.PlaySound($"Outcome_{option.PendingOutcome.DefName}", pitchVariance: 0.05f);

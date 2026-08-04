@@ -491,6 +491,7 @@ public abstract class Encounter
                 {
                     IsRequired = true,
                     Tag = ItemTagDefOf.PoisonTreatment,
+                    IsTagLevelRelevant = true,
                 }
             }
         };

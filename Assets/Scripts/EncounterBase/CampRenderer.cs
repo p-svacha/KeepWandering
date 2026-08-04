@@ -6,7 +6,8 @@ public class CampRenderer : MonoBehaviour
     public SpriteRenderer TentSpot;
     public SpriteRenderer Bedroll;
     public SpriteRenderer BedrollSpot;
-    public SpriteRenderer Fire;
+    public SpriteRenderer FireSpot;
+    public SpriteRenderer FireFlame;
     public SpriteRenderer Trap1;
     public SpriteRenderer Trap2;
     public SpriteRenderer Trap3;
@@ -27,9 +28,11 @@ public class CampRenderer : MonoBehaviour
         BedrollSpot.gameObject.SetActive(true);
 
         // Fire
-        Fire.gameObject.SetActive(true);
-        if (Camp.HasFire) Fire.sprite = ResourceManager.LoadSprite("Camp/Camp_FireFull");
-        else Fire.sprite = ResourceManager.LoadSprite("Camp/Camp_FireSpot");
+        FireSpot.gameObject.SetActive(true);
+        FireFlame.gameObject.SetActive(Camp.HasFire);
+
+        if (Camp.HasFire) FireSpot.sprite = ResourceManager.LoadSprite("Camp/Camp_FireSpotWithWood");
+        else FireSpot.sprite = ResourceManager.LoadSprite("Camp/Camp_FireSpot");
 
         // Traps
         RefreshTrap(Trap1, Camp.Trap1 != null);

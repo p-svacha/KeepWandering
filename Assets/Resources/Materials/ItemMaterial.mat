@@ -73,7 +73,7 @@ Material:
     - _EnableExternalAlpha: 0
     - _GlowFalloff: 1
     - _GlowWidth: 8
-    - _IsGlowing: 1
+    - _IsGlowing: 0
     - _OutlineWidth: 12.7
     - _PixelsPerUnit: 100
     - _PulseDepth: 0.5

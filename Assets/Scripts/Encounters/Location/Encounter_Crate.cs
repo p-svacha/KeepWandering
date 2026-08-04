@@ -242,7 +242,7 @@ public class Encounter_Crate : LocationEncounter
         return new SkillCheckOption()
         {
             Text = "Pry Open",
-            Description = "Pry open the crate using a crowbar.",
+            Description = "Try to pry open the top of the crate.",
             Difficulty = 20,
             OncePerDay = true,
             CanCriticallySucceed = false,
