@@ -136,32 +136,61 @@ public static class ItemDragDropManager
     private static bool TryDropOnTarget(Item item)
     {
         // Priority 1: Specific hovered slot
-        if (HoveredItemSlot != null && HoveredItemSlot.ItemSlot.CanAcceptItem(item))
+        if (HoveredItemSlot != null)
         {
-            HoveredItemSlot.ItemSlot.Fill(item);
-            return true;
-        }
-
-        // Priority 2: Hovered option - auto-slot into first valid unfilled slot
-        if (HoveredOptionDisplay != null)
-        {
-            foreach (UI_ItemSlot slot in HoveredOptionDisplay.ItemSlotDisplays)
+            if (IsMouseOverRectTransform((RectTransform)HoveredItemSlot.transform) && HoveredItemSlot.ItemSlot.CanAcceptItem(item))
             {
-                if (!slot.ItemSlot.IsFilled && slot.ItemSlot.CanAcceptItem(item))
-                {
-                    slot.ItemSlot.Fill(item);
-                    return true;
-                }
+                HoveredItemSlot.ItemSlot.Fill(item);
+                return true;
+            }
+            else
+            {
+                HoveredItemSlot = null; // stale - clear so it doesn't linger into later frames
             }
         }
 
-        // Priority 3: Sprite-bound option under the cursor - auto-slot into first valid unfilled slot and lock the sprite
+        // Priority 2: Hovered option
+        if (HoveredOptionDisplay != null)
+        {
+            if (IsMouseOverRectTransform((RectTransform)HoveredOptionDisplay.transform))
+            {
+                foreach (UI_ItemSlot slot in HoveredOptionDisplay.ItemSlotDisplays)
+                {
+                    if (!slot.ItemSlot.IsFilled && slot.ItemSlot.CanAcceptItem(item))
+                    {
+                        slot.ItemSlot.Fill(item);
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                HoveredOptionDisplay = null;
+            }
+        }
+
+        // Priority 3: Sprite-bound option under the cursor
         if (SpriteOptionInteractionManager.TryDropItemOnSprite(item))
         {
             return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Checks whether the current mouse position is actually within the given RectTransform's screen bounds.
+    /// Handles both Screen Space - Overlay and Screen Space - Camera / World Space canvases.
+    /// </summary>
+    private static bool IsMouseOverRectTransform(RectTransform rect)
+    {
+        if (rect == null) return false;
+
+        Canvas canvas = rect.GetComponentInParent<Canvas>();
+        if (canvas == null) return false;
+
+        Camera cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        return RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, cam);
     }
 
     #region Deferred Layer Restore

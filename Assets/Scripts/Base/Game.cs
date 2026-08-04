@@ -42,7 +42,7 @@ public class Game : Singleton<Game>
     public int NumFailedQuestsSinceLastStep { get; set; } = 0;
 
     // Item drops
-    private const float ITEM_DROP_MIN_DISTANCE = 2f;
+    private const float ITEM_DROP_MIN_DISTANCE = 2.5f;
     private const int ITEM_DROP_MAX_ATTEMPTS = 20;
 
     // Position

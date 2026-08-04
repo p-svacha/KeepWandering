@@ -27,40 +27,46 @@ public static class ItemHighlightManager
 
     private static List<Item> ComputeItemsToHighlight()
     {
+        List<Item> items;
         EncounterStep step = Game.Instance.CurrentEncounterStep;
 
         // 1. Alt held - everything slottable anywhere in the current step
         if (Input.GetKey(HIGHLIGHT_ALL_KEY))
         {
-            return GetSlottableItemsForOptions(step.Options);
+            items = GetSlottableItemsForOptions(step.Options);
         }
-
         // 2. A specific item is hovered
-        if (Game.Instance.CurrentHoverItem != null)
+        else if (Game.Instance.CurrentHoverItem != null)
         {
-            return new List<Item> { Game.Instance.CurrentHoverItem };
+            items = new List<Item> { Game.Instance.CurrentHoverItem };
         }
-
         // 3. A specific item slot is hovered
-        if (ItemDragDropManager.HoveredItemSlot != null)
+        else if (ItemDragDropManager.HoveredItemSlot != null)
         {
-            return ItemDragDropManager.HoveredItemSlot.ItemSlot.GetSlottableItems();
+            items = ItemDragDropManager.HoveredItemSlot.ItemSlot.GetSlottableItems();
         }
-
         // 4. An encounter option is hovered
-        if (ItemDragDropManager.HoveredOptionDisplay != null)
+        else if (ItemDragDropManager.HoveredOptionDisplay != null)
         {
-            return GetSlottableItemsForOptions(new List<EncounterOption> { ItemDragDropManager.HoveredOptionDisplay.Option });
+            items = GetSlottableItemsForOptions(new List<EncounterOption> { ItemDragDropManager.HoveredOptionDisplay.Option });
         }
-
         // 5. A sprite-bound indicator is hovered
-        SpriteOptionIndicator hoveredIndicator = SpriteOptionInteractionManager.HoveredIndicator;
-        if (hoveredIndicator != null)
+        else if (SpriteOptionInteractionManager.HoveredIndicator != null)
         {
-            return GetSlottableItemsForOptions(hoveredIndicator.Options);
+            items = GetSlottableItemsForOptions(SpriteOptionInteractionManager.HoveredIndicator.Options);
+        }
+        else
+        {
+            items = new List<Item>();
         }
 
-        return new List<Item>();
+        // Always keep the actively dragged item highlighted
+        if (ItemDragDropManager.IsDragging && ItemDragDropManager.DraggedItem != null && !items.Contains(ItemDragDropManager.DraggedItem))
+        {
+            items.Add(ItemDragDropManager.DraggedItem);
+        }
+
+        return items;
     }
 
     private static List<Item> GetSlottableItemsForOptions(List<EncounterOption> options)

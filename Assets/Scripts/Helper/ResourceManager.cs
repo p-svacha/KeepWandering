@@ -35,7 +35,6 @@ public static class ResourceManager
     public static readonly Color Color_Text_Warning = new Color(0.8f, 0.2f, 0.2f);
 
     public static readonly Color ItemHighlight_UsableColor = new Color(0.90f, 0.61f, 0f);
-    public static readonly Color ItemHighlight_HoverColor = new Color(1f, 1f, 1f);
     public static string WarningText(string text) => $"<color=#{ColorUtility.ToHtmlStringRGB(Color_Text_Warning)}>{text}</color>";
 
     private static Dictionary<string, Material> CachedMaterials = new Dictionary<string, Material>();

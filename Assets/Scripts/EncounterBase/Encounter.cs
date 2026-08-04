@@ -665,6 +665,7 @@ public abstract class Encounter
             Difficulty = 20,
             Action = CookItem,
             Sprite = sprite,
+            CanPartiallySucceed = false,
             ItemSlots = new List<ItemSlot>()
             {
                 new ItemSlot()
@@ -691,10 +692,6 @@ public abstract class Encounter
         {
             Game.TransformItem(ItemUsedInOption, ItemUsedInOption.Def.CookResult, ItemTransformationMethodDefOf.Cooking);
             return $"You successfully cook the {ItemUsedInOption.Def.Label}, turning it into {ItemUsedInOption.Def.CookResult.Label}.";
-        }
-        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
-        {
-            return $"You try cook the {ItemUsedInOption.Def.Label}, but realize early that it is not going well. You abort the attempt and keep the item.";
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {
