@@ -13,12 +13,24 @@ public static class ItemDragDropManager
     // Drag state
     public static bool IsDragging { get; private set; }
     public static Item DraggedItem { get; private set; }
+    private static Vector2 LastMouseWorldPos;
+    private static float CurrentDragIntensity;
 
     // Drop target tracking
     public static UI_ItemSlot HoveredItemSlot;
     public static UI_EncounterStepOption HoveredOptionDisplay;
     private static List<UI_EncounterStepOption> GreyedOutOptions = new List<UI_EncounterStepOption>();
     private static List<UI_ItemSlot> HighlightedSlots = new List<UI_ItemSlot>();
+
+    // Audio
+    private const string DRAG_SOUND_CLIP = "WindContinuous";
+    private const float DRAG_SOUND_FADE_IN = 0.1f;
+    private const float DRAG_SOUND_FADE_OUT = 0.1f;
+    private const float DRAG_SOUND_BASE_VOLUME = 1f;  // subtler than the camera-transition whoosh
+    private const float DRAG_SOUND_MIN_SPEED = 1f;      // world units/sec - below this, inaudible
+    private const float DRAG_SOUND_MAX_SPEED = 12f;     // world units/sec - at/above this, full intensity
+    private const float DRAG_SOUND_SMOOTHING = 10f;     // higher = intensity reacts to speed changes faster
+
 
     public static void Update()
     {
@@ -60,6 +72,12 @@ public static class ItemDragDropManager
         // Start pendulum physics - item becomes dynamic with a hinge at the grab point
         item.Renderer.StartDragPhysics(mouseWorldPos);
 
+        // Wind sound for dragging: starts silent, UpdateDrag ramps its intensity based on movement speed
+        LastMouseWorldPos = mouseWorldPos;
+        CurrentDragIntensity = 0f;
+        AudioManager.StartContinuousSound(DRAG_SOUND_CLIP, DRAG_SOUND_FADE_IN, DRAG_SOUND_BASE_VOLUME);
+        AudioManager.SetContinuousSoundIntensity(DRAG_SOUND_CLIP, 0f);
+
         // Hide tooltip and context menu
         Game.Instance.UI.HideAllTooltips();
         UI_ContextMenu.Instance.Hide();
@@ -80,6 +98,9 @@ public static class ItemDragDropManager
             DraggedItem.Unfreeze();
         }
 
+        // Stop the wind sound
+        AudioManager.StopContinuousSound(DRAG_SOUND_CLIP, DRAG_SOUND_FADE_OUT);
+
         RestoreAllTargets();
         IsDragging = false;
         DraggedItem = null;
@@ -96,6 +117,16 @@ public static class ItemDragDropManager
         // Move the hinge anchor to the mouse position - the item swings naturally around the grab point
         Vector2 mouseWorldPos = Game.Instance.MainCamera.ScreenToWorldPoint(Input.mousePosition);
         DraggedItem.Renderer.UpdateDragAnchor(mouseWorldPos);
+
+        // Drive the wind sound's intensity from how fast the item is currently being dragged, so slow,
+        // careful movements stay silent and fast flicks/swings are audible. Smoothed so per-frame mouse
+        // jitter doesn't make the volume flicker.
+        float speed = (mouseWorldPos - LastMouseWorldPos).magnitude / Mathf.Max(Time.deltaTime, 0.0001f);
+        LastMouseWorldPos = mouseWorldPos;
+
+        float targetIntensity = Mathf.InverseLerp(DRAG_SOUND_MIN_SPEED, DRAG_SOUND_MAX_SPEED, speed);
+        CurrentDragIntensity = Mathf.Lerp(CurrentDragIntensity, targetIntensity, Time.deltaTime * DRAG_SOUND_SMOOTHING);
+        AudioManager.SetContinuousSoundIntensity(DRAG_SOUND_CLIP, CurrentDragIntensity);
     }
 
     private static void EndDrag()
@@ -114,6 +145,9 @@ public static class ItemDragDropManager
 
         // Re-enable collider
         item.Renderer.SetColliderEnabled(true);
+
+        // Stop the wind sound
+        AudioManager.StopContinuousSound(DRAG_SOUND_CLIP, DRAG_SOUND_FADE_OUT);
 
         // Try to drop on a valid target
         if (TryDropOnTarget(item))

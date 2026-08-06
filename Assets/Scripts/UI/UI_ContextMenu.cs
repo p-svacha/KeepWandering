@@ -7,7 +7,7 @@ using TMPro;
 /// <summary>
 /// Currently unused.
 /// </summary>
-public class UI_ContextMenu : Singleton<UI_ContextMenu>
+public class UI_ContextMenu : MonoBehaviourSingleton<UI_ContextMenu>
 {
     private Game Game => Game.Instance;
     private List<UI_ContextMenuOption> Options = new List<UI_ContextMenuOption>();

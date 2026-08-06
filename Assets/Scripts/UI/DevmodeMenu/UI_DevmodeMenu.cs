@@ -68,6 +68,9 @@ public class UI_DevmodeMenu : MonoBehaviour
         ApplyCutWoundButton.onClick.AddListener(ApplyCutWound);
         ApplyBruiseWoundButton.onClick.AddListener(ApplyBruiseWound);
         ApplyBurnWoundButton.onClick.AddListener(ApplyBurnWound);
+
+        // Button click sounds
+        foreach(Button button in GetComponentsInChildren<Button>()) button.onClick.AddListener(AudioManager.PlayStandardButtonClick);
     }
 
     private List<HealthConditionDef> ApplicableHealthConditions => DefDatabase<HealthConditionDef>.AllDefs.Where(hc => !hc.IsVital && !hc.IsWound && !hc.IsFracture).ToList();

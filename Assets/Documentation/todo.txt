@@ -1,6 +1,35 @@
 TODOS:
 ==============================================
 
+AUDIO TO ALL EXISTING CONTENT
+
+(/) ui buttons click sounds
+item add to inventory sounds (by material maybe)
+item collision sounds (by material maybe)
+item slot sounds
+ - fill
+ - empty
+item destroyed sounds (by material maybe, or generic)
+sprite bound option locking and unlocking sound
+keep wandering sounds
+ambient sounds by biome
+health conditions sounds
+ - when applied / increased (same sound, different per condition)
+quest sounds (incl romours)
+ - added
+ - completed
+ - failed
+ - updated
+permanent stat increase/decrease sounds
+location reveal sounds
+(/) dragging items around (more swoosh with higher speed)
+(/) camera transition swooshs
+danger level increase/decrease sounds
+sound for every outcome in every option in every encounter, go through them by def
+night encounter happening sound
+
+ambient tracks based on mood [normal / tense / hopeful]
+
 ADD PROPER DAY 0:
 - game starts at home in the morning.
 - At very first morning, show house behind character
@@ -101,7 +130,8 @@ countdown locations
 
 - show biome important stats and description in world map
 
-- desaturate worlp map except for player and marked tiles
+- desaturate world map except for player and marked tiles
+ - make outline of trees/fields/buildings gray at base maybe (increase lightness on all base images)
 
 - add some night events (things that rarely happen during the night with no player impact or visuals, communicated in morning)
   - get robbed (lose random item)
@@ -143,6 +173,16 @@ countdown locations
   - most impactful would probably be sound effects for encounter option outcomes
 
 - render mouth differently based on morale (smile, neutral, frown)
+
+- pause menu
+ - navigable from gear icon in game
+ - simple button list with continue, settings, main menu
+ - if writting "dev" in the pause menu (without input field), add button for the dev menu (permanent)
+
+- Settings page
+ - navigable from main menu
+ - navigable from pause menu
+ - audio sliders for master, music, sfx
 
 - implement poisoning health condition
   - design condition

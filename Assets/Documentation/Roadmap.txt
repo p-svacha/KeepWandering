@@ -1,18 +1,6 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-World map rework
-make outline of trees gray at base (increase lightness on all base images)
-
-performance of sprites!
-
-Bigger hex tiles with textures/sprites
-Encounter assigned to every tile at generation (hidden unless landmark/special)
-Road system (city-to-city, start-to-fence-gate, 2-tile movement bonus)
-Danger level overlay toggle
-feature labels toggle	
-
-
 Stub audio hooks
 
 Add AmbientMood enum to the encounter framework
@@ -26,17 +14,6 @@ add SFX to items
 	- removing item from a slot
 	- item breaks (if durability reaches 0)
 	- item is consumed (if consumable)
-
-Evening Rework
-- single encounter class
-- set of available actions
-- biome can affect available actions (availability, difficulty, success/failure effects)
-- scavenging has own loot table per biome
-- option to improve skills
-- possibility to make camp
-  - option make fire (moral boost) and cook food (better food)
-  - option to use shelter items (sleeping bag, tent) for better rest (item slots for sleep action)
-  - show shelter items/fire in night encounter
 
 Substance end Game
 - random deployment tile

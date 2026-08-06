@@ -4,7 +4,7 @@ using UnityEngine;
 /// The encounter camera is the main camera showing the game screen.
 /// It cannot be controlled by the player, but depending on the encounter it has a different zoom level.
 /// </summary>
-public class EncounterCamera : Singleton<EncounterCamera>
+public class EncounterCamera : MonoBehaviourSingleton<EncounterCamera>
 {
     public const float DEFAULT_CAMERA_SIZE = 6f;
     public const float DEFAULT_X_OFFSET = 0f;
@@ -24,6 +24,17 @@ public class EncounterCamera : Singleton<EncounterCamera>
     private float TransitionTargetXOffset;
     public event System.Action OnTransitionComplete;
 
+    // Audio
+    private const string TRANSITION_SOUND_CLIP = "WindContinuous";
+    private const float TRANSITION_SOUND_FADE_IN = 1f;
+    private const float TRANSITION_SOUND_END_FADE = 0.15f;
+    private const float TRANSITION_SOUND_MIN_SPEED = 0.5f;
+    private const float TRANSITION_SOUND_MAX_SPEED = 8f;   // speed at/above which the sound is at full intensity
+    private const float TRANSITION_SOUND_SMOOTHING = 15f;  // higher = intensity reacts to speed changes faster
+    private Vector3 LastTransitionPosition;
+    private float LastTransitionZoom;
+    private float CurrentTransitionSoundIntensity;
+
     private void Awake()
     {
         Camera = GetComponent<Camera>();
@@ -37,6 +48,13 @@ public class EncounterCamera : Singleton<EncounterCamera>
         if (TransitionCurrentTime >= TransitionDuration)
         {
             SetCameraPosition(TransitionTargetZoom, TransitionTargetXOffset);
+
+            // Intensity should already be at/near 0 by now since camera speed approaches 0 as the ease-out
+            // curve flattens near the end - this is just a safety-net fade to catch any smoothing lag, not
+            // the primary mechanism for silencing the sound.
+            AudioManager.SetContinuousSoundIntensity(TRANSITION_SOUND_CLIP, 0f);
+            AudioManager.StopContinuousSound(TRANSITION_SOUND_CLIP, TRANSITION_SOUND_END_FADE);
+
             OnTransitionComplete?.Invoke();
         }
         else
@@ -44,8 +62,25 @@ public class EncounterCamera : Singleton<EncounterCamera>
             float t = TransitionCurrentTime / TransitionDuration;
             float easedT = 1f - (1f - t) * (1f - t);
 
-            Camera.orthographicSize = Mathf.Lerp(TransitionStartZoom, TransitionTargetZoom, easedT);
-            Camera.transform.position = Vector3.Lerp(TransitionStartPosition, TransitionTargetPosition, easedT);
+            float newZoom = Mathf.Lerp(TransitionStartZoom, TransitionTargetZoom, easedT);
+            Vector3 newPosition = Vector3.Lerp(TransitionStartPosition, TransitionTargetPosition, easedT);
+
+            // Derive how fast the camera is actually moving this frame (position + zoom combined into one
+            // rough speed figure) and drive the wind sound's intensity from it directly, so the sound's
+            // volume tracks the camera's real motion instead of a fixed, independent fade timer.
+            float posDelta = (newPosition - LastTransitionPosition).magnitude;
+            float zoomDelta = Mathf.Abs(newZoom - LastTransitionZoom);
+            float speed = (posDelta + zoomDelta) / Mathf.Max(Time.deltaTime, 0.0001f);
+
+            Camera.orthographicSize = newZoom;
+            Camera.transform.position = newPosition;
+
+            LastTransitionPosition = newPosition;
+            LastTransitionZoom = newZoom;
+
+            float targetIntensity = Mathf.InverseLerp(TRANSITION_SOUND_MIN_SPEED, TRANSITION_SOUND_MAX_SPEED, speed);
+            CurrentTransitionSoundIntensity = Mathf.Lerp(CurrentTransitionSoundIntensity, targetIntensity, Time.deltaTime * TRANSITION_SOUND_SMOOTHING);
+            AudioManager.SetContinuousSoundIntensity(TRANSITION_SOUND_CLIP, CurrentTransitionSoundIntensity);
         }
     }
 
@@ -85,6 +120,12 @@ public class EncounterCamera : Singleton<EncounterCamera>
         TransitionCurrentTime = 0f;
         TransitionDuration = duration;
         IsTransitioning = true;
+
+        LastTransitionPosition = TransitionStartPosition;
+        LastTransitionZoom = TransitionStartZoom;
+        CurrentTransitionSoundIntensity = 0f;
+        AudioManager.StartContinuousSound(TRANSITION_SOUND_CLIP, TRANSITION_SOUND_FADE_IN);
+        AudioManager.SetContinuousSoundIntensity(TRANSITION_SOUND_CLIP, 0f);
     }
 
     public void SetBackgroundColor(Color color)
@@ -128,5 +169,11 @@ public class EncounterCamera : Singleton<EncounterCamera>
         TransitionCurrentTime = 0f;
         TransitionDuration = duration;
         IsTransitioning = true;
+
+        LastTransitionPosition = TransitionStartPosition;
+        LastTransitionZoom = TransitionStartZoom;
+        CurrentTransitionSoundIntensity = 0f;
+        AudioManager.StartContinuousSound(TRANSITION_SOUND_CLIP, TRANSITION_SOUND_FADE_IN);
+        AudioManager.SetContinuousSoundIntensity(TRANSITION_SOUND_CLIP, 0f);
     }
 }

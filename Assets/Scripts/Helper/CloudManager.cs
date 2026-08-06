@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Manages dynamic spawning, movement, and lifecycle of background clouds in the scene.
 /// </summary>
-public class CloudManager : Singleton<CloudManager>
+public class CloudManager : MonoBehaviourSingleton<CloudManager>
 {
     [Header("Base Settings (with Sliders)")]
     [Tooltip("Base scale of the spawned clouds. A slight random variation will always be applied.")]

@@ -1,4 +1,3 @@
-using ElectionTactics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -6,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Game : Singleton<Game>
+public class Game : MonoBehaviourSingleton<Game>
 {
     public EncounterManager EncounterManager { get; private set; }
 
@@ -42,7 +41,7 @@ public class Game : Singleton<Game>
     public int NumFailedQuestsSinceLastStep { get; set; } = 0;
 
     // Item drops
-    private const float ITEM_DROP_MIN_DISTANCE = 2.5f;
+    private const float ITEM_DROP_MIN_DISTANCE = 1.5f;
     private const int ITEM_DROP_MAX_ATTEMPTS = 20;
 
     // Position
@@ -360,7 +359,7 @@ public class Game : Singleton<Game>
                 break;
 
             case GameState.EndMorningTransitionOut:
-                UI.CloseWorldMap(); // safe to hide now - screen is fully black at this point
+                UI.CloseWorldMap(playSound: false); // No sound in black screen
                 if (DayAction == DayAction.Rest) StartEveningEncounter(); // Resting skips afternoon
                 else StartAfternoonEncounter();
                 EncounterCamera.Instance.StartZoomTransition(new Vector2(-1.5f, 0f), CurrentEncounter.Def.CameraZoomLevel, CurrentEncounter.Def.CameraXOffset, GameUI.TRANSITION_FADE_TIME);
@@ -927,6 +926,11 @@ public class Game : Singleton<Game>
                 ((Vector2)existing.Renderer.transform.position - candidate).sqrMagnitude < ITEM_DROP_MIN_DISTANCE * ITEM_DROP_MIN_DISTANCE);
 
             if (!overlaps) return candidate;
+
+            if (attempt == ITEM_DROP_MAX_ATTEMPTS - 1)
+            {
+                Debug.LogWarning($"All {ITEM_DROP_MAX_ATTEMPTS} attempts to find a non-overlapping drop position failed. Dropping item at random position anyway.");
+            }
         }
 
         // All attempts landed on an overlap (cart very full) - fall back to a plain random position

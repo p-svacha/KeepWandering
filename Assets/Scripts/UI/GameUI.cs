@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
-using ElectionTactics;
 
-public class GameUI : Singleton<GameUI>
+public class GameUI : MonoBehaviourSingleton<GameUI>
 {
     public Game Game { get; private set; }
 
@@ -66,6 +65,11 @@ public class GameUI : Singleton<GameUI>
         // Buttons
         SettingsButton.onClick.AddListener(ToggleEscapeMenu);
         MapButton.onClick.AddListener(ToggleWorldMap);
+
+        MapButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
+        SettingsButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
+        DiaryButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
+        CraftingButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
     }
 
     private void Update()
@@ -221,15 +225,15 @@ public class GameUI : Singleton<GameUI>
         SetWorldMapVisible(!WorldMapMenu.gameObject.activeSelf);
     }
 
+    public bool IsWorldMapOpen => WorldMapMenu.gameObject.activeSelf;
     public void SetWorldMapVisible(bool visible)
     {
         if (Game.State != GameState.InGame) return;
-        if (WorldMapMenu.gameObject.activeSelf == visible) return;
+        if (IsWorldMapOpen == visible) return;
 
+        if (visible) OpenWorldMap();
+        else CloseWorldMap();
         AudioManager.PlaySound(visible ? "PaperRustle1" : "PaperRustle2", pitchVariance: 0.1f);
-
-        WorldMapMenu.gameObject.SetActive(visible);
-        Game.WorldMapRenderer.gameObject.SetActive(visible);
 
         UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
@@ -238,7 +242,9 @@ public class GameUI : Singleton<GameUI>
     public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
     {
         if (Game.State != GameState.InGame) return;
+        if (IsWorldMapOpen) return;
 
+        AudioManager.PlaySound("PaperRustle1", pitchVariance: 0.1f);
         WorldMapMenu.gameObject.SetActive(true);
         Game.WorldMapRenderer.gameObject.SetActive(true);
         if (focusTile != null) Game.WorldMapRenderer.FocusTile(focusTile);
@@ -247,8 +253,11 @@ public class GameUI : Singleton<GameUI>
         UI_ContextMenu.Instance.Hide();
         HideAllTooltips();
     }
-    public void CloseWorldMap()
+    public void CloseWorldMap(bool playSound = true)
     {
+        if (!IsWorldMapOpen) return;
+
+        if (playSound) AudioManager.PlaySound("PaperRustle2", pitchVariance: 0.1f);
         WorldMapMenu.gameObject.SetActive(false);
         Game.WorldMapRenderer.gameObject.SetActive(false);
         UI_ContextMenu.Instance.Hide();

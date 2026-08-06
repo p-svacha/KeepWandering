@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Program : Singleton<Program>
+public class Program : MonoBehaviourSingleton<Program>
 {
     public ProgramState State { get; private set; }
 

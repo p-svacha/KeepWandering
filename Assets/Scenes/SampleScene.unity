@@ -3518,8 +3518,8 @@ MonoBehaviour:
   UsedItemsContainer: {fileID: 381769420}
   OutcomeBarContainer: {fileID: 2028598750}
   Marker: {fileID: 186305438}
-  RollModifierInfo: {fileID: 0}
-  RollModifierIcon: {fileID: 0}
+  RollModifierInfo: {fileID: 1675665349}
+  RollModifierIcon: {fileID: 392075235}
   RollModifierText: {fileID: 1523753845}
   UsedItemPrefab: {fileID: 8746962973448832295, guid: 103ffe22611a0e540ac16c09e259f940, type: 3}
   BarSegmentPrefab: {fileID: 1072458304145003250, guid: 31fe1718da4985945b73c383ccb6db4b, type: 3}

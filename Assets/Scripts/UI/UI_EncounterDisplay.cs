@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_EncounterDisplay : Singleton<UI_EncounterDisplay>
+public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
 {
     public Game Game;
 

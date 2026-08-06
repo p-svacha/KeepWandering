@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class IntroSequenceManager : Singleton<IntroSequenceManager>
+public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
 {
     public const float INITIAL_PAUSE = 2.0f;
     public const float FADE_IN_DURATION = 1.0f;

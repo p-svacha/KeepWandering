@@ -1,8 +1,7 @@
-using ElectionTactics;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_MainMenu : Singleton<UI_MainMenu>
+public class UI_MainMenu : MonoBehaviourSingleton<UI_MainMenu>
 {
     public Button PlayButton;
     public Button SettingsButton;
@@ -28,11 +27,12 @@ public class UI_MainMenu : Singleton<UI_MainMenu>
 
     private void Play_OnClick()
     {
+        AudioManager.PlayStandardButtonClick();
         IntroSequenceManager.Instance.StartIntroSequence();
     }
 
     private void Settings_OnClick()
     {
-
+        AudioManager.PlayStandardButtonClick();
     }
 }
