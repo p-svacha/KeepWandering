@@ -4,10 +4,9 @@ using UnityEngine;
 public class ItemDef : Def
 {
     public override string DefTypeLabel => "Item";
-    public override Sprite Sprite => ResourceManager.LoadSpriteFromSheet("Items", DefName);
 
-    public static int MIN_TAG_LEVEL = 1;
-    public static int MAX_TAG_LEVEL = 5;
+    public static int DEFAULT_MIN_TAG_LEVEL = 1;
+    public static int DEFAULT_MAX_TAG_LEVEL = 5;
 
     /// <summary>
     /// If true, this item will not appear in random selections.
@@ -43,6 +42,10 @@ public class ItemDef : Def
     // Medical
     public bool HasMedicalProperties => HasTag(ItemTagDefOf.WoundBandaging) || HasTag(ItemTagDefOf.InfectionTreatment) || (ConsumptionProperties != null && ConsumptionProperties.SeverityReduction > 0f);
 
+    // Assets
+    public override Sprite Sprite => ResourceManager.LoadSpriteFromSheet("Items", DefName);
+    public AudioClip AudioClip => ResourceManager.LoadAudioClip($"Audio/SFX/Item/{DefName}");
+
     public ItemDef(string defName) : base(defName) { }
 
     public bool HasTag(ItemTagDef tag)
@@ -54,12 +57,13 @@ public class ItemDef : Def
     public override bool Validate()
     {
         if (Sprite == null) ThrowValidationError($"ItemDef '{DefName}' has no sprite assigned. Make sure there is a sprite in the Items sprite sheet with the name '{DefName}'.");
+        if (AudioClip == null) ThrowValidationError($"ItemDef '{DefName}' has no audio clip assigned. Make sure there is an audio clip with the name '{DefName}'.");
 
         foreach (var tag in Tags)
         {
-            if (tag.Value < MIN_TAG_LEVEL || tag.Value > MAX_TAG_LEVEL)
+            if (tag.Value < DEFAULT_MIN_TAG_LEVEL || tag.Value > DEFAULT_MAX_TAG_LEVEL)
             {
-                ThrowValidationError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {MIN_TAG_LEVEL} and {MAX_TAG_LEVEL}.");
+                ThrowValidationError($"ItemDef '{DefName}' has tag '{tag.Key.DefName}' with invalid level {tag.Value}. Level must be between {DEFAULT_MIN_TAG_LEVEL} and {DEFAULT_MAX_TAG_LEVEL}.");
             }
         }
 

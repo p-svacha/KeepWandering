@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviourSingleton<AudioManager>
@@ -100,15 +101,13 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         PlaySound("Click_04", volume: 0.5f, pitch: 1f, pitchVariance: 0.1f);
     }
 
+    public static void PlaySound(string name, float volume = 1f, float pitch = 1f, float pitchVariance = 0f) => PlaySound(ResourceManager.LoadAudioClip($"Audio/SFX/{name}"), volume, pitch, pitchVariance);
+
     /// <summary>
     /// Play a sound effect once. Supports overlapping.
     /// </summary>
-    public static void PlaySound(string name, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
+    public static void PlaySound(AudioClip clip, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
     {
-        // Load AudioClip
-        AudioClip clip = ResourceManager.LoadAudioClip($"Audio/SFX/{name}");
-
-        // Debug.Log($"PlaySound: {clip?.name} (vol={volume}, pitch={pitch})");
         if (Instance == null || clip == null || IsMuted) return;
 
         AudioSource source = Instance.GetNextOneShotSource();
@@ -117,6 +116,7 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         source.pitch = pitch + Random.Range(-pitchVariance, pitchVariance);
         source.Play();
     }
+
 
     private AudioSource GetNextOneShotSource()
     {

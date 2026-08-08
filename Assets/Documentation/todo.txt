@@ -4,7 +4,10 @@ TODOS:
 AUDIO TO ALL EXISTING CONTENT
 
 (/) ui buttons click sounds
+item collision sounds
 item add to inventory sounds (by material maybe)
+   --> downloaded up to medicinal herbs (bush rattle)
+   -- files need cutting
 item collision sounds (by material maybe)
 item slot sounds
  - fill
@@ -27,8 +30,14 @@ location reveal sounds
 danger level increase/decrease sounds
 sound for every outcome in every option in every encounter, go through them by def
 night encounter happening sound
+drum roll during skill check sequence
+  - drumroll final on stop
+
 
 ambient tracks based on mood [normal / tense / hopeful]
+
+INTERMIDARY
+- in option details, add gap between descriptions and other panels
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.

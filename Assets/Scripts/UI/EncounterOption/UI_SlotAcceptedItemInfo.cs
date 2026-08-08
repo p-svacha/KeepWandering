@@ -14,7 +14,7 @@ public class UI_SlotAcceptedItemInfo : MonoBehaviour
     {
         ItemIcon.sprite = item.Sprite;
         TierContainer.SetActive(true);
-        for(int i = 0; i < ItemDef.MAX_TAG_LEVEL; i++)
+        for(int i = 0; i < ItemDef.DEFAULT_MAX_TAG_LEVEL; i++)
         {
             TierContainer.transform.GetChild(i).gameObject.SetActive(i < item.Tags[tag]);
         }

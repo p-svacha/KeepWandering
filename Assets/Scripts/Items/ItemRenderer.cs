@@ -4,6 +4,8 @@ public class ItemRenderer : MonoBehaviour
 {
     public Item Item { get; private set; }
 
+    public const string DEFAULT_LAYER_NAME = "Default";
+
     // Components
     public SpriteRenderer SpriteRenderer { get; private set; }
     private Rigidbody2D Rigidbody;
@@ -88,7 +90,7 @@ public class ItemRenderer : MonoBehaviour
         }
         else
         {
-            SpriteRenderer.sortingLayerName = "Default";
+            SpriteRenderer.sortingLayerName = DEFAULT_LAYER_NAME;
             SpriteRenderer.sortingOrder = SortingOrder;
             IsRenderingAboveUI = false;
         }

@@ -89,8 +89,8 @@ public class ItemSlot
         // Validation for tag
         if (Tag != null)
         {
-            if (HasrequiredTagLevel && RequiredTagLevel < ItemDef.MIN_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is below the minimum allowed level of {ItemDef.MIN_TAG_LEVEL}.");
-            if (HasrequiredTagLevel && RequiredTagLevel > ItemDef.MAX_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is above the maximum allowed level of {ItemDef.MAX_TAG_LEVEL}.");
+            if (HasrequiredTagLevel && RequiredTagLevel < ItemDef.DEFAULT_MIN_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is below the minimum allowed level of {ItemDef.DEFAULT_MIN_TAG_LEVEL}.");
+            if (HasrequiredTagLevel && RequiredTagLevel > ItemDef.DEFAULT_MAX_TAG_LEVEL) throw new System.Exception($"ItemSlot has a required tag level of {RequiredTagLevel}, which is above the maximum allowed level of {ItemDef.DEFAULT_MAX_TAG_LEVEL}.");
         }
 
         // Must have set a tag if not required (because then the slot is to reduce difficulty, which is only possible with a tag)
