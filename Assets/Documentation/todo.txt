@@ -4,7 +4,7 @@ TODOS:
 AUDIO TO ALL EXISTING CONTENT
 
 (/) ui buttons click sounds
-item collision sounds
+(/) item collision sounds
 item add to inventory sounds (by material maybe)
    --> downloaded up to medicinal herbs (bush rattle)
    -- files need cutting

@@ -262,7 +262,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
 
             string increase = isIncrease ? "Increased" : "Decreased";
-            string tooltipTitle = $"{increase} {condition.LabelCapWord}";
+            string tooltipTitle = $"{increase} {condition.Def.LabelCapWord}";
 
             outcomeNote.Init(condition.Sprite, isAdded: isIncrease, amount: 1, showIncreaseIndicator: isIncrease, showDecreaseIndicator: !isIncrease, tooltipTitle: tooltipTitle, tooltipText: condition.Description);
         }

@@ -882,7 +882,7 @@ public class Game : MonoBehaviourSingleton<Game>
         AddExistingItemToInventory(item);
     }
 
-    public void AddExistingItemToInventory(Item item, bool playSound = true)
+    public void AddExistingItemToInventory(Item item)
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't add item to inventory that is already player owned.");
 
@@ -891,7 +891,8 @@ public class Game : MonoBehaviourSingleton<Game>
         item.SetIsPlayerOwned(true);
 
         DropItemIntoCart(item);
-        if (playSound) AudioManager.PlaySound(item.Def.AudioClip);
+
+        AudioManager.PlayItemSound(item);
 
         ItemsAddedSinceLastStep.Add(item);
         Inventory.Add(item);

@@ -133,6 +133,10 @@ public class ItemSlot
             }
         }
 
+        // Audio
+        AudioManager.PlayItemSound(item);
+
+        // Refresh
         UI_EncounterDisplay.Instance.RefreshOption(Option);
     }
 
@@ -141,6 +145,8 @@ public class ItemSlot
         FilledItem.Show();
         Game.Instance.DropItemIntoCart(FilledItem);
         FilledItem = null;
+
+        AudioManager.PlaySound("Pop");
 
         UI_EncounterDisplay.Instance.RefreshOption(Option);
     }

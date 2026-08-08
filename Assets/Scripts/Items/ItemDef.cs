@@ -82,3 +82,18 @@ public class ItemDef : Def
         if (_CookResult != null) CookResult = DefDatabase<ItemDef>.GetNamed(_CookResult);
     }
 }
+
+public enum CollisionSoundType
+{
+    Cloth,
+    Flesh,
+    Glass,
+    MetalThick,
+    MetalThin,
+    PillContainer,
+    Plant,
+    PlasticWrapped,
+    PlasticHard,
+    Textile,
+    Wood,
+}

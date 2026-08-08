@@ -21,6 +21,13 @@ public class ItemRenderer : MonoBehaviour
     // Cached sorting order for drag and drop
     private int SortingOrder;
 
+    // Collisions
+    private const float COLLISION_MIN_SPEED = 0.6f;   // relative velocity below which no sound plays (settling/resting contact)
+    private const float COLLISION_MAX_SPEED = 7f;      // relative velocity at/above which the sound is at full volume
+    private const float COLLISION_SOUND_COOLDOWN = 0.08f; // minimum time between two collision sounds from the same item
+
+    private float LastCollisionSoundTime = -999f;
+
     public void Init(Item item)
     {
         Item = item;
@@ -161,6 +168,35 @@ public class ItemRenderer : MonoBehaviour
             DragAnchorObj = null;
             DragAnchorBody = null;
         }
+    }
+
+    #endregion
+
+    #region Collision Sound
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        float impactSpeed = collision.relativeVelocity.magnitude;
+        if (impactSpeed < COLLISION_MIN_SPEED) return;
+        if (Time.time - LastCollisionSoundTime < COLLISION_SOUND_COOLDOWN) return;
+
+        ItemRenderer other = collision.collider.GetComponent<ItemRenderer>();
+
+        // Both sides of an item-item collision fire this callback for the same event - only let one of
+        // them actually play a sound, picked deterministically so both sides agree on which one "wins".
+        if (other != null && other.GetEntityId() < GetEntityId()) return;
+
+        LastCollisionSoundTime = Time.time;
+
+        float t = Mathf.InverseLerp(COLLISION_MIN_SPEED, COLLISION_MAX_SPEED, impactSpeed);
+        float volume = Mathf.Lerp(0.15f, 1f, t);
+        float pitch = Mathf.Lerp(1.05f, 0.85f, t); // harder hits read as slightly lower-pitched/heavier
+
+        // Reuses each item's existing unique clip. Picks whichever of the two items is heavier-sounding
+        // by simply alternating/random choice between the two - either item's own clack is a fine stand-in
+        // for "two things hit each other."
+        Item soundSource = (other != null && Random.value < 0.5f) ? other.Item : Item;
+        AudioManager.PlayItemSound(soundSource, volume, pitch, pitchVariance: 0.1f);
     }
 
     #endregion

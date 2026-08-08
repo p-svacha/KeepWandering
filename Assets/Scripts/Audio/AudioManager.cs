@@ -112,9 +112,20 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
 
         AudioSource source = Instance.GetNextOneShotSource();
         source.clip = clip;
-        source.volume = volume * Instance.SfxVolume * Instance.MasterVolume;
+
+        AudioClipAnalyzer.Apply(source, clip, volume * Instance.SfxVolume * Instance.MasterVolume, out float adjustedVolume);
+        source.volume = adjustedVolume;
+
         source.pitch = pitch + Random.Range(-pitchVariance, pitchVariance);
         source.Play();
+    }
+
+    public static void PlayItemSound(Item item, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
+    {
+        bool doPlaySound = Game.Instance.State == GameState.InGame && !IntroSequenceManager.Instance.IsIntroRunning;
+        if (!doPlaySound) return;
+
+        PlaySound(item.Def.AudioClip, volume, pitch, pitchVariance);
     }
 
 
