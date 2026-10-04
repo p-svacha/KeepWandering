@@ -480,7 +480,7 @@ public class Game : MonoBehaviourSingleton<Game>
 
             Item item = slot.FilledItem;
 
-            if (slot.IsDestroyingItem) DestroyOwnedItem(item);
+            if (slot.IsDestroyingItem) DestroyOwnedItem(item, playBreakSound: false);
             else if (slot.Tag != null) // Durability is only reduced when a specific tag of an item is used
             {
                 ReduceItemDurability(item);
@@ -968,12 +968,12 @@ public class Game : MonoBehaviourSingleton<Game>
         foreach (var itemDef in itemDefs) AddNewItemToInventory(itemDef);
     }
 
-    public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
+    public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true, bool playBreakSound = true)
     {
         if (item.IsDestroyed) return; // Item already destroyed
 
         // Audio
-        AudioManager.PlayItemSound(item, pitch: 0.5f);
+        if (playBreakSound) AudioManager.PlaySound("ItemBreak", pitch: 0.5f);
 
         if (showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);
@@ -1062,6 +1062,9 @@ public class Game : MonoBehaviourSingleton<Game>
             if (consumptionProps.AppliedHealthConditionSeverity > 0f) Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource, consumptionProps.AppliedHealthConditionSeverity);
             else Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource); // Apply with default severity if not specified
         }
+
+        // Audio
+        AudioManager.PlayRandomSound(consumptionProps.ConsumptionType.SoundEffectName);
 
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
 

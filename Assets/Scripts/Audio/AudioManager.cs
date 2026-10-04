@@ -106,6 +106,22 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     public static void PlaySound(string name, float volume = 1f, float pitch = 1f, float pitchVariance = 0f) => PlaySound(ResourceManager.LoadAudioClip($"Audio/SFX/{name}"), volume, pitch, pitchVariance);
 
     /// <summary>
+    /// Plays a random sound that starts with the given name. For example, if you have Click_01, Click_02, Click_03, calling PlayRandomSound("Click") will randomly pick one of those three.
+    /// </summary>
+    public static void PlayRandomSound(string namePrefix, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
+    {
+        AudioClip[] clips = ResourceManager.LoadAudioClipsInFolder("Audio/SFX");
+        List<AudioClip> matchingClips = new List<AudioClip>();
+        foreach (AudioClip clip in clips)
+        {
+            if (clip.name.StartsWith(namePrefix)) matchingClips.Add(clip);
+        }
+        if (matchingClips.Count == 0) return;
+        AudioClip chosen = matchingClips[Random.Range(0, matchingClips.Count)];
+        PlaySound(chosen, volume, pitch, pitchVariance);
+    }
+
+    /// <summary>
     /// Play a sound effect once. Supports overlapping.
     /// </summary>
     public static void PlaySound(AudioClip clip, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
@@ -120,6 +136,8 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
 
         source.pitch = pitch + Random.Range(-pitchVariance, pitchVariance);
         source.Play();
+
+        Debug.Log($"[AudioManager] Playing sound '{clip.name}' (volume {source.volume:F2}, pitch {source.pitch:F2}).");
     }
 
     public static void PlayItemSound(Item item, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)

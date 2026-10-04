@@ -73,6 +73,7 @@ public class ConsumptionTypeDef : Def
     public override string DefTypeLabel => "Consumption Type";
     public ConsumptionTypeDef(string defName) : base(defName) { }
     public string Verb { get; init; }
+    public string SoundEffectName { get; init; } = "Eat"; // Must be like Audio/SFX/Eat_01, Eat_02 etc.
 }
 
 public static class ConsumptionTypeDefs
@@ -83,16 +84,19 @@ public static class ConsumptionTypeDefs
         {
             Label = "Food",
             Verb = "eat",
+            SoundEffectName = "Eat",
         },
         new ConsumptionTypeDef("Drink")
         {
             Label = "Drink",
             Verb = "drink",
+            SoundEffectName = "Drink",
         },
         new ConsumptionTypeDef("Drug")
         {
             Label = "Drug",
             Verb = "consume",
+            SoundEffectName = "Eat",
         }
     };
 }

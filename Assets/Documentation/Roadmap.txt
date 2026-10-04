@@ -1,34 +1,44 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-Add SFX trigger points to encounter outcomes and the option framework
-  - Outcome functions of options should generally trigger SFX (like bandaging sound, crate breaking, climbing tower etc.)
-add SFX to items
-  - either general category for the item material (i.e. "metal" or "wood") or specific SFX per item, or combination
-  - use item sfx when:
-    - colliding with other items
-	- putting item into a slot
-	- removing item from a slot
-	- item breaks (if durability reaches 0)
-	- item is consumed (if consumable)
+World Map:
+- Make player marker same size as encounter icons
+- Make path history follow roads
+- Don't show divider if no tile hovered
+- Add toggle for path history
+- Add toggle for map details (tile scatter elements)
+- Add toggle for map labels
+- Add UI sound for toggling toggles
+- Check if open and close sound fires double, and if so, remove one of them
 
+Go through all encounters and do:
+- SFX for all option outcomes
+- Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)
 
-minimap more desaturated
-selectable tiles need other color than player marker
-labels of lakes should disappear earlier when zooming out than cities
-area labels can appear outside of the areas
-
-- show difficulty of encounter options on the encounter options before hovering over them
+Encounter Option UI improvements:
+- show difficulty of encounter options on the encounter options before hovering over them, together (or instead of?) with skillcheck option as they are related
+- add tooltip to skill check indicator (generic explanation)
+- add hint in details when there is no usable item in the inventory (red color)
+- in option details, add gap between descriptions and other panels
+- hide label in outcome bar for very low numbers
 - When holding alt (which highlights sprite encounter option sprites), also show the option UI component (UI_EncounterStepOption) while holding
 
+Outcome notes improvements:
 - don't show "+" in outcome note when increasing vital health condition
 - don't show outcome note when decreasing vital health condition that is already at 0
 
-lighter too small
-water bottle wrong sound
-can of beans wrong sound
-
+item improvements:
+- lighter too small
+- water bottle wrong sound
+- can of beans wrong sound
+- disallow items (in validate) that are both fuel and fire starter), because it's confusing when starting a fire. change oil lamp
 - item names need a "countable label" that can be used in encoutner texts, i.e. in crate encounter: "you find a wood" doesn't make sense, should be "you find a piece of wood", but the main label of the item is still "wood" (for inventory and handbook), but the countable label is "piece of wood". default is just the main label, but can be overridden in the item def.
+
+
+
+
+
+
 
 Substance end Game
 - random deployment tile

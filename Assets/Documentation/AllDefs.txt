@@ -246,16 +246,19 @@
         {
             Label = "Food",
             Verb = "eat",
+            SoundEffectName = "Eat",
         },
         new ConsumptionTypeDef("Drink")
         {
             Label = "Drink",
             Verb = "drink",
+            SoundEffectName = "Drink",
         },
         new ConsumptionTypeDef("Drug")
         {
             Label = "Drug",
             Verb = "consume",
+            SoundEffectName = "Eat",
         }
     };
 
