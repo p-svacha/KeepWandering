@@ -279,7 +279,37 @@ public class WorldMapTile
         return tilesInRadius;
     }
 
-    public override string ToString() => $"{Coordinates} {Biome.LabelCapWord}";
+    /// <summary>
+    /// Returns the city, forest or lake that this tile is on.
+    /// </summary>
+    /// <returns></returns>
+    public Area GetBiomeArea()
+    {
+        switch(Biome)
+        {
+            case BiomeDef b when b == BiomeDefOf.City:
+                return City;
+            case BiomeDef b when b == BiomeDefOf.Woods:
+                return Forest;
+            case BiomeDef b when b == BiomeDefOf.Lake:
+                return Lake;
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>
+    /// Returns the name of the biome, with the biome-specific area label in brackets, if applicable (e.g. "City (Nicetown)").
+    /// </summary>
+    /// <returns></returns>
+    public string GetBiomeAreaLabel()
+    {
+        Area biomeArea = GetBiomeArea();
+        if (biomeArea != null) return $"{Biome.LabelCapWord} ({biomeArea.Name})";
+        return Biome.LabelCapWord;
+    }
+
+    public override string ToString() => $"{Coordinates} {GetBiomeAreaLabel()}";
 
     #endregion
 }

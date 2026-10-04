@@ -26,7 +26,8 @@ public abstract class Wound : HealthCondition
     // Def override
     public override float InitialSeverity => 1.5f;
     public override float MaxSeverity => 13;
-    public override List<HealthConditionStage> Stages => WoundStages;
+    private List<HealthConditionStage> stages;
+    public override List<HealthConditionStage> Stages => stages;
 
     // Base effects
     private Dictionary<StatDef, int> BaseUnbandagedStatModifiers => new Dictionary<StatDef, int>()
@@ -89,6 +90,13 @@ public abstract class Wound : HealthCondition
             Color = ResourceManager.Color_Text_ExtremelyNegative
         },
     };
+
+    protected override void OnInit()
+    {
+        // Init stages (usually done in Def, but we need to do it here because we are using a base class for all wounds)
+        stages = WoundStages;
+        foreach (var stage in stages) stage.ResolveReferences(Def);
+    }
 
     public override float GetNaturalHealing()
     {

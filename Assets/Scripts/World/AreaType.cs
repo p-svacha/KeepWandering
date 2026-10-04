@@ -20,6 +20,12 @@ public class AreaTypeDef : Def
     /// The color of the area label on the world map.
     /// </summary>
     public Color LabelColor { get; init; }
+
+    /// <summary>
+    /// The label is only shown when the camera's orthographic size is at least this value, i.e. when zoomed
+    /// out far enough. A lower value keeps the label visible while zooming further in.
+    /// </summary>
+    public float LabelMinCameraSize { get; init; } = 3.5f;
 }
 
 public static class AreaTypeDefs
@@ -35,22 +41,25 @@ public static class AreaTypeDefs
         {
             Label = "City",
             ShowLabel = true,
-            LabelFontSize = 2.2f,
-            LabelColor = new Color(0.77f, 0.67f, 0.57f)
+            LabelFontSize = 4f,
+            LabelColor = new Color(0.77f, 0.67f, 0.57f),
+            LabelMinCameraSize = 2f,
         },
         new AreaTypeDef("Forest")
         {
             Label = "Forest",
             ShowLabel = true,
-            LabelFontSize = 1.5f,
-            LabelColor = new Color(0.65f, 0.94f, 0.65f)
+            LabelFontSize = 3f,
+            LabelColor = new Color(0.65f, 0.94f, 0.65f),
+            LabelMinCameraSize = 3.5f,
         },
         new AreaTypeDef("Lake")
         {
             Label = "Lake",
             ShowLabel = true,
-            LabelFontSize = 1.5f,
-            LabelColor = new Color(0.65f, 0.65f, 0.94f)
+            LabelFontSize = 3f,
+            LabelColor = new Color(0.65f, 0.65f, 0.94f),
+            LabelMinCameraSize = 3.5f,
         }
     };
 }

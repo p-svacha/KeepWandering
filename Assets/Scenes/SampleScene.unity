@@ -40585,8 +40585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d25bb89870c4f5846809dd6cfa2d7429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ElectionTactics.AudioManager
-  AmbientTracks:
-  - {fileID: 8300000, guid: 45dac173ebd4a2541af6fba507fe9953, type: 3}
   MusicCrossfadeDuration: 2
 --- !u!4 &1972600090
 Transform:
@@ -45247,6 +45245,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1484600243}
     m_Modifications:
+    - target: {fileID: 3622063883217643935, guid: ce088880aea33514dac14bb7929254e6, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 85257ff069452f14180ffbe35db3692b, type: 2}
+    - target: {fileID: 3622063883217643935, guid: ce088880aea33514dac14bb7929254e6, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -4232462152377411330, guid: 85257ff069452f14180ffbe35db3692b, type: 2}
+    - target: {fileID: 3622063883217643935, guid: ce088880aea33514dac14bb7929254e6, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5151064958889835699, guid: ce088880aea33514dac14bb7929254e6, type: 3}
       propertyPath: m_Name
       value: IntroTextLineA1
@@ -45285,7 +45295,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8240549002757848045, guid: ce088880aea33514dac14bb7929254e6, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 346.54593
+      value: 863.6144
       objectReference: {fileID: 0}
     - target: {fileID: 8240549002757848045, guid: ce088880aea33514dac14bb7929254e6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -45321,7 +45331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8240549002757848045, guid: ce088880aea33514dac14bb7929254e6, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -173.27295
+      value: -431.8072
       objectReference: {fileID: 0}
     - target: {fileID: 8240549002757848045, guid: ce088880aea33514dac14bb7929254e6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

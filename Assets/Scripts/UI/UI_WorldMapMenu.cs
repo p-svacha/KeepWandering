@@ -39,7 +39,7 @@ public class UI_WorldMapMenu : MonoBehaviour
             return;
         }
 
-        Biome.Init("Biome", tile.Biome.LabelCapWord);
+        Biome.Init("Biome", tile.GetBiomeAreaLabel());
         Encounter.Init("Location", tile.HasEncounter ? tile.Encounter.Label : "Undiscovered");
         DangerLevel.Init("Danger Level", tile.BaseDangerLevel.LabelCapWord);
         DangerLevel.ValueText.color = tile.BaseDangerLevel.Color;

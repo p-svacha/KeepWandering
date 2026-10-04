@@ -84,7 +84,7 @@ public class WorldMapRenderer : MonoBehaviour
     public Color RoadColor;
 
     private const int ROAD_SORTING_ORDER = 20000;
-    private const float ROAD_WIDTH = 0.05f;
+    private const float ROAD_WIDTH = 0.10f;
 
     private Color PathVisualizationColor = new Color(0.8f, 0f, 0f, 1f);
 
@@ -93,7 +93,6 @@ public class WorldMapRenderer : MonoBehaviour
     public TextMeshPro AreaLabelPrefab;
 
     private const int AREA_LABEL_SORTING_ORDER = 20500;
-    public static float HIDE_AREA_LABELS_BELOW_CAMERA_SIZE = 3.5f;
 
     private static Dictionary<Area, TextMeshPro> AreaLabels = new Dictionary<Area, TextMeshPro>();
 
@@ -115,6 +114,7 @@ public class WorldMapRenderer : MonoBehaviour
         Instance = this;
         Game = game;
         LastRenderedPathHistoryCount = -1;
+        SetAreaLabelsVisible(true);
         AreaLabels = new Dictionary<Area, TextMeshPro>();
         IsMarkerMoving = false;
     }
@@ -218,7 +218,7 @@ public class WorldMapRenderer : MonoBehaviour
         // If old tile was a selectable tile, reset to default
         if (Game.WorldMap.CanSelectDestination && Game.GetNextPositionTiles().Contains(oldTile))
         {
-            SetTile(HighlightTilemap, oldTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick"));
+            SetTile(HighlightTilemap, oldTile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick_ThinOutline"));
         }
 
         // If new tile is a selectable tile, highlight
@@ -229,23 +229,24 @@ public class WorldMapRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates visibility of area labels based on camera zoom level.
+    /// Updates visibility and font size of each area label individually, based on camera zoom level and
+    /// the label's area type (AreaTypeDef.LabelMaxZoom), so e.g. cities stay visible further zoomed out than forests.
     /// </summary>
     private void UpdateAreaLabels()
     {
-        bool showAreaLabels = RenderCamera.Camera.orthographicSize >= HIDE_AREA_LABELS_BELOW_CAMERA_SIZE;
-        SetAreaLabelsVisible(showAreaLabels);
+        float cameraSize = RenderCamera.Camera.orthographicSize;
+        float scaleFactor = cameraSize / WorldMapCameraHandler.DEFAULT_CAMERA_SIZE;
 
-        // Scale label font size based on camera zoom level
-        if (showAreaLabels)
+        foreach (var kvp in AreaLabels)
         {
-            foreach (var kvp in AreaLabels)
-            {
-                Area area = kvp.Key;
-                TextMeshPro label = kvp.Value;
-                float scaleFactor = RenderCamera.Camera.orthographicSize / WorldMapCameraHandler.DEFAULT_CAMERA_SIZE;
-                label.fontSize = area.Type.LabelFontSize * scaleFactor;
-            }
+            Area area = kvp.Key;
+            TextMeshPro label = kvp.Value;
+
+            bool visible = area.Type.ShowLabel && cameraSize >= area.Type.LabelMinCameraSize;
+            if (label.gameObject.activeSelf != visible) label.gameObject.SetActive(visible);
+
+            // Scale label font size based on camera zoom level
+            if (visible) label.fontSize = area.Type.LabelFontSize * scaleFactor;
         }
     }
 
@@ -451,7 +452,7 @@ public class WorldMapRenderer : MonoBehaviour
 
     public void HighlightTile(WorldMapTile tile)
     {
-        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick"));
+        SetTile(HighlightTilemap, tile.Coordinates, ResourceManager.LoadTile("WorldMap/Tilemaps/TileFrame_Dashed_Thick_ThinOutline"));
         HighlightedTiles.Add(tile);
     }
 
@@ -943,7 +944,8 @@ public class WorldMapRenderer : MonoBehaviour
 
         label.color = area.Type.LabelColor;
         label.name = area.Name + " Label";
-        label.transform.position = new Vector3(area.Center.x, area.Center.y, 0f);
+        Vector2 labelPosition = GetLabelPosition(area);
+        label.transform.position = new Vector3(labelPosition.x, labelPosition.y, 0f);
         label.transform.rotation = Quaternion.Euler(0f, 0f, angle);
         label.sortingLayerID = SortingLayer.NameToID(WORLD_MAP_SORTING_LAYER);
         label.sortingOrder = AREA_LABEL_SORTING_ORDER;
@@ -953,6 +955,61 @@ public class WorldMapRenderer : MonoBehaviour
         tmp.fontSize = fontSize;
 
         AreaLabels[area] = label;
+    }
+
+    /// <summary>
+    /// Returns the world position where an area's label should be placed: the point inside the area that is
+    /// furthest from its border. Unlike the plain centroid (area.Center), this is always inside the area, even
+    /// for concave shapes like crescents. Ties are broken toward the centroid so the label stays visually centered.
+    /// </summary>
+    private Vector2 GetLabelPosition(Area area)
+    {
+        HashSet<WorldMapTile> members = new HashSet<WorldMapTile>(area.Tiles);
+        Dictionary<WorldMapTile, int> depth = new Dictionary<WorldMapTile, int>();
+        Queue<WorldMapTile> queue = new Queue<WorldMapTile>();
+
+        // Border tiles: any tile with fewer than 6 neighbours inside the area. Counting neighbours inside
+        // (rather than looking for outside ones) also treats the edge of the map as a border.
+        foreach (WorldMapTile tile in area.Tiles)
+        {
+            int neighboursInside = tile.GetAdjacentTiles().Count(t => members.Contains(t));
+            if (neighboursInside < 6)
+            {
+                depth[tile] = 0;
+                queue.Enqueue(tile);
+            }
+        }
+
+        // Flood inward: depth = steps to the nearest border tile
+        while (queue.Count > 0)
+        {
+            WorldMapTile current = queue.Dequeue();
+            foreach (WorldMapTile neighbour in current.GetAdjacentTiles())
+            {
+                if (!members.Contains(neighbour) || depth.ContainsKey(neighbour)) continue;
+                depth[neighbour] = depth[current] + 1;
+                queue.Enqueue(neighbour);
+            }
+        }
+
+        if (depth.Count == 0) return area.Center; // shouldn't happen, but never fail label placement
+
+        // Deepest tiles; among those, the one closest to the centroid
+        int maxDepth = depth.Values.Max();
+        WorldMapTile best = null;
+        float bestDistance = float.MaxValue;
+        foreach (var kvp in depth)
+        {
+            if (kvp.Value != maxDepth) continue;
+            float distance = ((Vector2)kvp.Key.WorldPosition - (Vector2)area.Center).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = kvp.Key;
+            }
+        }
+
+        return best.WorldPosition;
     }
 
     #endregion

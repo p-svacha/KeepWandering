@@ -104,6 +104,7 @@ public class ItemRenderer : MonoBehaviour
     }
 
     public void SetColliderEnabled(bool enabled) => Collider.enabled = enabled;
+    public void SetColliderTrigger(bool isTrigger) => Collider.isTrigger = isTrigger;
 
     #endregion
 

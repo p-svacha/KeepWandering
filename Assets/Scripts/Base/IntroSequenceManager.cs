@@ -87,15 +87,14 @@ public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
 
         yield return StartCoroutine(SkippableWait(INITIAL_PAUSE));
 
-        SkipText.gameObject.SetActive(false);
-
         yield return StartCoroutine(PlaySection(sectionALines));
+        SkipText.gameObject.SetActive(false);
         yield return StartCoroutine(SkippableWait(AFTER_SECTION_PAUSE));
 
         yield return StartCoroutine(PlaySection(sectionBLines));
         yield return StartCoroutine(SkippableWait(AFTER_SECTION_PAUSE));
 
-        yield return StartCoroutine(PlaySection(sectionCLines));
+        yield return StartCoroutine(PlaySection(sectionCLines, additionalAfterRevealPause: 1f));
         yield return StartCoroutine(SkippableWait(AFTER_SECTION_PAUSE));
 
         foreach (GameObject child in allTextBoxChildren) child.SetActive(false);
@@ -114,7 +113,7 @@ public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
         AudioManager.SetAmbientGenre(Game.Instance.CurrentEncounter.GetAmbientMusicGenre());
     }
 
-    private System.Collections.IEnumerator PlaySection(List<TextMeshProUGUI> lines)
+    private System.Collections.IEnumerator PlaySection(List<TextMeshProUGUI> lines, float additionalAfterRevealPause = 0f)
     {
         if (lines.Count == 0) yield break;
 
@@ -145,7 +144,7 @@ public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
                 yield return StartCoroutine(SkippableWait(LINE_DELAY));
         }
 
-        yield return StartCoroutine(SkippableWait(AFTER_REVEAL_PAUSE));
+        yield return StartCoroutine(SkippableWait(AFTER_REVEAL_PAUSE + additionalAfterRevealPause));
 
         float fadeOutElapsed = 0f;
         while (fadeOutElapsed < FADE_OUT_DURATION)

@@ -893,6 +893,7 @@ public class Game : MonoBehaviourSingleton<Game>
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't add item to inventory that is already player owned.");
 
+        item.Renderer.SetColliderTrigger(false);
         item.Renderer.gameObject.layer = LayerMask.NameToLayer("Default");
         item.Renderer.Show();
         item.SetIsPlayerOwned(true);

@@ -15,9 +15,9 @@ public class WorldMapCameraHandler : MonoBehaviourSingleton<WorldMapCameraHandle
 
     private const float ZOOM_SPEED = 0.45f;
     private const float PAN_SPEED = 20f; // WASD Speed
-    private const float MIN_CAMERA_SIZE = 1f;
-    private const float MAX_CAMERA_SIZE = 6f;
-    public const float DEFAULT_CAMERA_SIZE = 2f;
+    private const float MIN_CAMERA_SIZE = 1.5f;
+    private const float MAX_CAMERA_SIZE = 8f;
+    public const float DEFAULT_CAMERA_SIZE = 5f;
     private const float EDGE_PADDING = 10f; // Padding from the edge of the map when zooming/panning
     private bool IsLeftMouseDown;
     private bool IsRightMouseDown;

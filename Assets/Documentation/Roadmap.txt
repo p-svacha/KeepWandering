@@ -13,11 +13,6 @@ add SFX to items
 	- item is consumed (if consumable)
 
 
-
-Change bg music during intro, something more sininster
-show "skip" during whole intro
-different font for intro
-
 minimap more desaturated
 selectable tiles need other color than player marker
 labels of lakes should disappear earlier when zooming out than cities
@@ -26,9 +21,14 @@ area labels can appear outside of the areas
 - show difficulty of encounter options on the encounter options before hovering over them
 - When holding alt (which highlights sprite encounter option sprites), also show the option UI component (UI_EncounterStepOption) while holding
 
+- don't show "+" in outcome note when increasing vital health condition
+- don't show outcome note when decreasing vital health condition that is already at 0
+
 lighter too small
 water bottle wrong sound
 can of beans wrong sound
+
+- item names need a "countable label" that can be used in encoutner texts, i.e. in crate encounter: "you find a wood" doesn't make sense, should be "you find a piece of wood", but the main label of the item is still "wood" (for inventory and handbook), but the countable label is "piece of wood". default is just the main label, but can be overridden in the item def.
 
 Substance end Game
 - random deployment tile
@@ -84,6 +84,10 @@ UI polish — tooltip differentiation, option sizing, anything deferred from Pha
 Save/Load — full implementation if the Phase 0 feasibility spike passed; skip entirely if it failed
 
 Phase 4 - Tutorial + Settings Page (Audio only)
+
+final volume adjustment pass
+- set headphone volume to a high, FIXED level
+- go through each audio file and adjust volume to be appropriate for the game, so that no SFX is too loud or too quiet
 
 Phase 5 — Final wrap
 
