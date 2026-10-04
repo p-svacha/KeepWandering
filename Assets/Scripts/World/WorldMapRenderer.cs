@@ -31,7 +31,7 @@ public class WorldMapRenderer : MonoBehaviour
     public GameObject PlayerPositionMarker;
 
     public const int PLAYER_POSITION_MARKER_SORTING_ORDER = 24500;
-    public const float PLAYER_POSITION_MARKER_SIZE = 0.1f;
+    public const float PLAYER_POSITION_MARKER_SIZE = 0.12f;
 
     private bool IsMarkerMoving;
     private Vector2 MarkerMoveStartPos;
@@ -343,6 +343,11 @@ public class WorldMapRenderer : MonoBehaviour
 
     #region Path History
 
+    public void SetPathHistoryVisible(bool visible)
+    {
+        PathHistoryContainer.SetActive(visible);
+    }
+
     private void UpdatePathHistory()
     {
         if (Game.PathHistory.Count == LastRenderedPathHistoryCount) return;
@@ -384,7 +389,7 @@ public class WorldMapRenderer : MonoBehaviour
             int age = lastIndex - (i + 1);
             float alpha = GetPathHistoryAlpha(age);
 
-            DrawPathHistorySegment(tileA.WorldPosition + offset, tileB.WorldPosition + offset, alpha);
+            DrawPathHistorySegment(tileA.RoadPosition + offset, tileB.RoadPosition + offset, alpha);
         }
     }
 
@@ -522,6 +527,11 @@ public class WorldMapRenderer : MonoBehaviour
     #endregion
 
     #region Scattered Tile Sprites
+
+    public void SetScatteredTileSpritesVisible(bool visible)
+    {
+        TileElementContainer.SetActive(visible);
+    }
 
     private struct ScatteredElement
     {

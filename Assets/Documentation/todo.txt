@@ -38,7 +38,7 @@ drum roll during skill check sequence
 ambient tracks based on mood [normal / tense / hopeful]
 
 INTERMIDARY
-- in option details, add gap between descriptions and other panels
+
 
 ADD PROPER DAY 0:
 - game starts at home in the morning.

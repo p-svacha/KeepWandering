@@ -100,7 +100,12 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
 
     public static void PlayStandardButtonClick()
     {
-        PlaySound("Click_04", volume: 0.5f, pitch: 1f, pitchVariance: 0.1f);
+        PlaySound("Click_04", volume: 0.5f, pitch: 1.0f, pitchVariance: 0.1f);
+    }
+
+    public static void PlayStandardToggleClick(bool value)
+    {
+        PlaySound("Click_04", volume: 0.5f, pitch: value ? 1.2f : 0.8f, pitchVariance: 0.1f);
     }
 
     public static void PlaySound(string name, float volume = 1f, float pitch = 1f, float pitchVariance = 0f) => PlaySound(ResourceManager.LoadAudioClip($"Audio/SFX/{name}"), volume, pitch, pitchVariance);

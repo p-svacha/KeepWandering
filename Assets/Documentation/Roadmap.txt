@@ -1,16 +1,6 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-World Map:
-- Make player marker same size as encounter icons
-- Make path history follow roads
-- Don't show divider if no tile hovered
-- Add toggle for path history
-- Add toggle for map details (tile scatter elements)
-- Add toggle for map labels
-- Add UI sound for toggling toggles
-- Check if open and close sound fires double, and if so, remove one of them
-
 Go through all encounters and do:
 - SFX for all option outcomes
 - Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)

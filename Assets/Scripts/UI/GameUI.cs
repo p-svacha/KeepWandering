@@ -66,7 +66,6 @@ public class GameUI : MonoBehaviourSingleton<GameUI>
         SettingsButton.onClick.AddListener(ToggleEscapeMenu);
         MapButton.onClick.AddListener(ToggleWorldMap);
 
-        MapButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
         SettingsButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
         DiaryButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
         CraftingButton.onClick.AddListener(AudioManager.PlayStandardButtonClick);
@@ -222,22 +221,11 @@ public class GameUI : MonoBehaviourSingleton<GameUI>
     public void ToggleWorldMap()
     {
         if (Game.State != GameState.InGame) return;
-        SetWorldMapVisible(!WorldMapMenu.gameObject.activeSelf);
+        if (IsWorldMapOpen) CloseWorldMap();
+        else OpenWorldMap();
     }
 
     public bool IsWorldMapOpen => WorldMapMenu.gameObject.activeSelf;
-    public void SetWorldMapVisible(bool visible)
-    {
-        if (Game.State != GameState.InGame) return;
-        if (IsWorldMapOpen == visible) return;
-
-        if (visible) OpenWorldMap();
-        else CloseWorldMap();
-        AudioManager.PlaySound(visible ? "PaperRustle1" : "PaperRustle2", pitchVariance: 0.1f);
-
-        UI_ContextMenu.Instance.Hide();
-        HideAllTooltips();
-    }
 
     public void OpenWorldMap(WorldMapTile focusTile = null, Area focusArea = null)
     {
