@@ -222,6 +222,10 @@ public abstract class Encounter
         return "";
     }
 
+    /// <summary>
+    /// Returns the ambient music genre that should be played currently. Can contain logic to change the music based on the current state of the encounter. By default, returns AmbientMusicGenre.Neutral.
+    /// </summary>
+    public virtual AmbientMusicGenre GetAmbientMusicGenre() => AmbientMusicGenre.Neutral;
 
     /// <summary>
     /// Called exactly once when the encounter is first created, regardless if the player is there or the encounter is starting or not. Used to set up all initial randomized values (like items, etc.).

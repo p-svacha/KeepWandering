@@ -126,6 +126,20 @@ public static class ResourceManager
         return loadedAudioClip;
     }
 
+    private static Dictionary<string, AudioClip[]> CachedAudioClipFolders = new Dictionary<string, AudioClip[]>();
+
+    /// <summary>
+    /// Loads and caches every AudioClip found directly inside the given Resources folder.
+    /// </summary>
+    public static AudioClip[] LoadAudioClipsInFolder(string resourcePath)
+    {
+        if (CachedAudioClipFolders.TryGetValue(resourcePath, out AudioClip[] clips)) return clips;
+
+        clips = Resources.LoadAll<AudioClip>(resourcePath);
+        CachedAudioClipFolders.Add(resourcePath, clips);
+        return clips;
+    }
+
     private static Dictionary<string, UnityEngine.Video.VideoClip> CachedVideoClips = new Dictionary<string, UnityEngine.Video.VideoClip>();
     public static UnityEngine.Video.VideoClip LoadVideoClip(string resourcePath)
     {
@@ -160,6 +174,7 @@ public static class ResourceManager
         CachedSprites.Clear();
         CachedSpriteSheets.Clear();
         CachedAudioClips.Clear();
+        CachedAudioClipFolders.Clear();
         CachedVideoClips.Clear();
         CachedTiles.Clear();
     }

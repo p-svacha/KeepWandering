@@ -134,7 +134,7 @@ public class ItemSlot
         }
 
         // Audio
-        AudioManager.PlayItemSound(item);
+        AudioManager.PlaySound("ItemPickUp", pitchVariance: 0.1f);
 
         // Refresh
         UI_EncounterDisplay.Instance.RefreshOption(Option);

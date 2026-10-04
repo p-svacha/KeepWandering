@@ -45,6 +45,8 @@ public class ItemDef : Def
     // Assets
     public override Sprite Sprite => ResourceManager.LoadSpriteFromSheet("Items", DefName);
     public AudioClip AudioClip => ResourceManager.LoadAudioClip($"Audio/SFX/Item/{DefName}");
+    public ItemMaterialDef Material { get; init; } = null; // Used for collision impact sounds.
+    public bool UsesOwnSoundAsCollisionImpactSound { get; init; } = false; // If true, the item's own sound will be used as the collision impact sound instead of the material's impact sound.
 
     public ItemDef(string defName) : base(defName) { }
 
@@ -58,6 +60,7 @@ public class ItemDef : Def
     {
         if (Sprite == null) ThrowValidationError($"ItemDef '{DefName}' has no sprite assigned. Make sure there is a sprite in the Items sprite sheet with the name '{DefName}'.");
         if (AudioClip == null) ThrowValidationError($"ItemDef '{DefName}' has no audio clip assigned. Make sure there is an audio clip with the name '{DefName}'.");
+        if (Material == null) ThrowValidationError($"ItemDef '{DefName}' has no material assigned. Make sure there is an ItemMaterialDef with the name '{DefName}'.");
 
         foreach (var tag in Tags)
         {
@@ -81,19 +84,10 @@ public class ItemDef : Def
     {
         if (_CookResult != null) CookResult = DefDatabase<ItemDef>.GetNamed(_CookResult);
     }
-}
 
-public enum CollisionSoundType
-{
-    Cloth,
-    Flesh,
-    Glass,
-    MetalThick,
-    MetalThin,
-    PillContainer,
-    Plant,
-    PlasticWrapped,
-    PlasticHard,
-    Textile,
-    Wood,
+    public AudioClip GetCollisionImpactSound()
+    {
+        if (UsesOwnSoundAsCollisionImpactSound) return AudioClip;
+        return Material.GetRandomImpactClip();
+    }
 }

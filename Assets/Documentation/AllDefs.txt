@@ -267,6 +267,7 @@
         {
             Label = "antibiotics",
             Description = "Pills that are very effective at treating infections.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 3,
             Tags =
             {
@@ -278,6 +279,7 @@
         {
             Label = "antidote",
             Description = "An injectable solution that counteracts poisoning.",
+            Material = ItemMaterialDefOf.Glass,
             Value = 3,
             Tags =
             {
@@ -289,6 +291,7 @@
         {
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 2,
             Tags =
             {
@@ -300,6 +303,7 @@
         {
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -314,6 +318,7 @@
         {
             Label = "cooked beans",
             Description = "A meal that is not only nutritious but also satisfying.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -328,6 +333,7 @@
         {
             Label = "bedroll",
             Description = "Can be set up at your camp in the evening to provide a place to sleep, increasing healing during the night.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             IsCampComponent = true,
             MinInitialDurability = 2,
@@ -338,6 +344,7 @@
         {
             Label = "beer",
             Description = "A refreshing alcoholic beverage.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -353,6 +360,7 @@
         {
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties() {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
@@ -365,6 +373,7 @@
         {
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             Tags =
             {
@@ -377,6 +386,7 @@
         {
             Label = "charcoal",
             Description = "The remains of burned wood, useful as fuel or for starting fires.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             MaxInitialDurability = 2,
             Tags =
@@ -389,6 +399,7 @@
         {
             Label = "chocolate",
             Description = "A sweet treat that can boost morale.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -402,6 +413,7 @@
         {
             Label = "coin",
             Description = "Commonly accepted as currency.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 1,
         },
 
@@ -409,6 +421,7 @@
         {
             Label = "crowbar",
             Description = "Very useful for opening things that were not meant to be opened.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             Tags =
             {
@@ -422,6 +435,7 @@
         {
             Label = "fence cutter",
             Description = "There's a specific type of fence this could be very useful for.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 5,
             Tags =
             {
@@ -435,6 +449,7 @@
         {
             Label = "knife",
             Description = "Very useful multi-purpose tool.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -449,6 +464,7 @@
         {
             Label = "lighter",
             Description = "A small device that can be used to start fires.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
             Tags =
             {
@@ -461,6 +477,7 @@
         {
             Label = "lockpick",
             Description = "Useful for opening locked containers.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
             Tags =
             {
@@ -472,6 +489,7 @@
         {
             Label = "matchbox",
             Description = "A small carton box containing a few matches and a surface to strike them on.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
             Tags =
             {
@@ -485,6 +503,7 @@
         {
             Label = "cooked meat",
             Description = "A delicious, safe and very nutritious meal.",
+            Material = ItemMaterialDefOf.Meat,
             Value = 4,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -497,6 +516,7 @@
         {
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Material = ItemMaterialDefOf.Meat,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -512,6 +532,7 @@
         {
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             MaxInitialDurability = 2,
             Tags =
@@ -526,6 +547,7 @@
         {
             Label = "medicinal herbs",
             Description = "A natural remedy that may help with ailments, but is not very effective.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             Tags =
             {
@@ -545,6 +567,7 @@
         {
             Label = "nimble root",
             Description = "Chewing this numbs your fingertips into perfect stillness.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -558,6 +581,7 @@
         {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -570,6 +594,7 @@
         {
             Label = "oil lamp",
             Description = "An old fashioned light source consisting out of a small container of flammable oil and a wick, and a mechanism to control the flame.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
             Tags =
             {
@@ -583,6 +608,7 @@
         {
             Label = "postcard",
             Description = "A postcard from the area and a reminder of a better time and place.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
             PassiveStatChanges =
             {
@@ -598,6 +624,7 @@
         {
             Label = "protein shake",
             Description = "A drink that provides some nutrition and hydration, as well as increasing strength.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -615,6 +642,7 @@
         {
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 2,
             Tags =
             {
@@ -626,6 +654,7 @@
         {
             Label = "screwdriver",
             Description = "Useful for opening things big and small.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -639,6 +668,7 @@
         {
             Label = "shovel",
             Description = "Particularly useful for digging.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -651,6 +681,7 @@
         {
             Label = "bush craft 101",
             Description = "A book that provides useful information about survival.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 3,
             PassiveStatChanges =
             {
@@ -666,6 +697,7 @@
         {
             Label = "packed tent",
             Description = "Can be set up at your camp in the evening to provide protection during the night.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             MinInitialDurability = 2,
             MaxInitialDurability = 10,
@@ -676,6 +708,7 @@
         {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             MinInitialDurability = 1,
             MaxInitialDurability = 5,
@@ -686,6 +719,7 @@
         {
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -698,12 +732,68 @@
         {
             Label = "wood",
             Description = "Just an ordinary, dry piece of wood.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             Tags =
             {
                 { ItemTagDefOf.Fuel, 3 },
                 { ItemTagDefOf.Weapon, 1 },
             },
+        },
+    };
+
+--- ItemMaterial.cs ---
+    public static List<ItemMaterialDef> Defs => new List<ItemMaterialDef>()
+    {
+        new ItemMaterialDef("MetalSolid")
+        {
+            Label = "solid metal",
+            Dominance = 10,
+        },
+        new ItemMaterialDef("Glass")
+        {
+            Label = "glass",
+            Dominance = 9,
+        },
+        new ItemMaterialDef("MetalThin")
+        {
+            Label = "thin metal",
+            Dominance = 8,
+        },
+        new ItemMaterialDef("Wood")
+        {
+            Label = "wood",
+            Dominance = 7,
+        },
+        new ItemMaterialDef("PlasticHard")
+        {
+            Label = "hard plastic",
+            Dominance = 5,
+        },
+        new ItemMaterialDef("PaperHard")
+        {
+            Label = "hard paper",
+            Dominance = 4,
+        },
+        new ItemMaterialDef("PlasticWrapped")
+        {
+            Label = "wrapped plastic",
+            Dominance = 3,
+        },
+        new ItemMaterialDef("Textile")
+        {
+            Label = "textile",
+            Dominance = 2,
+        },
+        new ItemMaterialDef("Plant")
+        {
+            Label = "plant",
+            Dominance = 2,
+        },
+        new ItemMaterialDef("Meat")
+        {
+            Label = "meat",
+            Dominance = 1,
         },
     };
 

@@ -76,6 +76,7 @@ public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
         Game.Instance.StartNewGame();
         EncounterCamera.Instance.SetMainMenu();
         GameUI.Instance.gameObject.SetActive(false);
+        AudioManager.SetAmbientGenre(AmbientMusicGenre.Tense);
 
         StartCoroutine(RunIntroSequenceCoroutine());
     }
@@ -102,9 +103,15 @@ public class IntroSequenceManager : MonoBehaviourSingleton<IntroSequenceManager>
         EncounterCamera.Instance.StartIntroCameraTransition(CAMERA_MOVE_DURATION);
         while (EncounterCamera.Instance.IsTransitioning) yield return null;
 
+        EndIntroSequence();
+    }
+
+    private void EndIntroSequence()
+    {
         gameObject.SetActive(false);
         GameUI.Instance.gameObject.SetActive(true);
         IsIntroRunning = false;
+        AudioManager.SetAmbientGenre(Game.Instance.CurrentEncounter.GetAmbientMusicGenre());
     }
 
     private System.Collections.IEnumerator PlaySection(List<TextMeshProUGUI> lines)

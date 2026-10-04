@@ -439,6 +439,9 @@ public class Game : MonoBehaviourSingleton<Game>
     {
         SelectedOption = selectedOption;
 
+        // Audio
+        AudioManager.PlayStandardButtonClick();
+
         // Captured what items were used in this option
         ItemsUsedInSelectedOption = SelectedOption.ItemSlots.Where(slot => slot.IsFilled).Select(slot => slot.FilledItem).ToList();
 
@@ -500,6 +503,10 @@ public class Game : MonoBehaviourSingleton<Game>
 
         CurrentEncounter.OnOptionChosen(selectedOption);
 
+        // Update ambient audio
+        AudioManager.SetAmbientGenre(CurrentEncounter.GetAmbientMusicGenre());
+
+        // Display next step
         EncounterStep nextEncounterStep = CurrentEncounter.GetNextEncounterStep(nextEncounterStepText);
         if (nextEncounterStepText != null) DisplayEncounterStep(nextEncounterStep, outcome);
     }
@@ -886,7 +893,7 @@ public class Game : MonoBehaviourSingleton<Game>
     {
         if (item.IsPlayerOwned) throw new System.Exception("Can't add item to inventory that is already player owned.");
 
-        item.Renderer.SpriteRenderer.sortingLayerName = ItemRenderer.DEFAULT_LAYER_NAME;
+        item.Renderer.gameObject.layer = LayerMask.NameToLayer("Default");
         item.Renderer.Show();
         item.SetIsPlayerOwned(true);
 
@@ -963,6 +970,9 @@ public class Game : MonoBehaviourSingleton<Game>
     public void DestroyOwnedItem(Item item, bool showOnEventStepDisplay = true)
     {
         if (item.IsDestroyed) return; // Item already destroyed
+
+        // Audio
+        AudioManager.PlayItemSound(item, pitch: 0.5f);
 
         if (showOnEventStepDisplay) ItemsRemovedSinceLastStep.Add(item);
         Inventory.Remove(item);

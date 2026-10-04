@@ -22,7 +22,7 @@ public class UI_MainMenu : MonoBehaviourSingleton<UI_MainMenu>
         gameObject.SetActive(true);
         CloudManager.Instance.SetDefaultCloudSettings();
         EncounterCamera.Instance.SetMainMenu();
-        AudioManager.StartMusic();
+        AudioManager.SetAmbientGenre(AmbientMusicGenre.MainMenu);
     }
 
     private void Play_OnClick()

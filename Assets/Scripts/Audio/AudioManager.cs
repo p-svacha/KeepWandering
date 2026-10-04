@@ -12,7 +12,6 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     public float SfxVolume { get; private set; } // 0-1
 
     [Header("Music")]
-    public AudioClip[] AmbientTracks;
     public float MusicCrossfadeDuration = 2f;
     public const float MUSIC_VOLUME_MODIFIER = 0.7f;
 
@@ -22,6 +21,9 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     private bool musicSourceAActive = true;
     private int currentTrackIndex = -1;
     private Coroutine crossfadeCoroutine;
+    private const string AMBIENT_TRACKS_PATH = "Audio/AmbientTracks";
+    private AmbientMusicGenre? currentGenre;  // null only until the first genre is set
+    private AmbientMusicGenre? pendingGenre;  // requested while a crossfade was still running
 
     // One-shot pool
     private AudioSource[] oneShotPool;
@@ -94,7 +96,7 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         }
     }
 
-    // ==================== ONE-SHOT SOUNDS ====================
+    #region One-Shot Sounds
 
     public static void PlayStandardButtonClick()
     {
@@ -122,10 +124,14 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
 
     public static void PlayItemSound(Item item, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
     {
-        bool doPlaySound = Game.Instance.State == GameState.InGame && !IntroSequenceManager.Instance.IsIntroRunning;
-        if (!doPlaySound) return;
+        if (!ShouldPlayItemSounds()) return;
 
         PlaySound(item.Def.AudioClip, volume, pitch, pitchVariance);
+    }
+
+    public static bool ShouldPlayItemSounds()
+    {
+        return Game.Instance.State == GameState.InGame && !IntroSequenceManager.Instance.IsIntroRunning;
     }
 
 
@@ -149,46 +155,9 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         return stolen;
     }
 
-    #region Music
+    #endregion
 
-    /// <summary>
-    /// Start playing ambient music, cycling through AmbientTracks.
-    /// </summary>
-    public static void StartMusic()
-    {
-        if (Instance == null || Instance.AmbientTracks.Length == 0) return;
-
-        Instance.PlayNextTrack();
-    }
-
-    /// <summary>
-    /// Stop music with a fade out.
-    /// </summary>
-    public static void StopMusic(float fadeTime = 1f)
-    {
-        if (Instance == null) return;
-        if (Instance.crossfadeCoroutine != null) Instance.StopCoroutine(Instance.crossfadeCoroutine);
-        Instance.crossfadeCoroutine = Instance.StartCoroutine(Instance.FadeOut(fadeTime));
-    }
-
-    private void PlayNextTrack()
-    {
-        if (AmbientTracks.Length == 0) return;
-
-        currentTrackIndex = (currentTrackIndex + 1) % AmbientTracks.Length;
-        AudioClip nextClip = AmbientTracks[currentTrackIndex];
-
-        AudioSource fadeIn = musicSourceAActive ? musicSourceB : musicSourceA;
-        AudioSource fadeOut = musicSourceAActive ? musicSourceA : musicSourceB;
-        musicSourceAActive = !musicSourceAActive;
-
-        fadeIn.clip = nextClip;
-        fadeIn.loop = false;
-        fadeIn.Play();
-
-        if (crossfadeCoroutine != null) StopCoroutine(crossfadeCoroutine);
-        crossfadeCoroutine = StartCoroutine(Crossfade(fadeOut, fadeIn, MusicCrossfadeDuration));
-    }
+    #region Ambient Music
 
     /// <summary>
     /// Standard crossfade: stops the outgoing source when done.
@@ -222,6 +191,7 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         crossfadeCoroutine = null;
 
         RefreshMusicVolume();
+        ApplyPendingGenre();
     }
 
     private float GetTargetMusicVolume()
@@ -229,77 +199,107 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         return MusicVolume * MasterVolume * MUSIC_VOLUME_MODIFIER;
     }
 
-    /// <summary>
-    /// Crossfade that pauses the outgoing source instead of stopping it.
-    /// Used when switching TO a special track so ambient can be resumed.
-    /// </summary>
-    private IEnumerator CrossfadeWithPause(AudioSource fadeOut, AudioSource fadeIn, float duration)
-    {
-        float timer = 0f;
-        float startVolumeOut = fadeOut.volume;
-        float targetVolume = GetTargetMusicVolume();
+    public static AmbientMusicGenre? CurrentAmbientGenre => Instance != null ? Instance.currentGenre : null;
 
-        while (timer < duration)
+    /// <summary>
+    /// Switches the active ambient genre. A random track of that genre starts from the beginning with the
+    /// standard crossfade, and afterwards the music keeps cycling through that genre's tracks.
+    /// Does nothing if the genre is already active.
+    /// </summary>
+    public static void SetAmbientGenre(AmbientMusicGenre genre)
+    {
+        if (Instance == null) return;
+        Instance.RequestGenre(genre);
+    }
+
+    private void RequestGenre(AmbientMusicGenre genre)
+    {
+        // Already active: nothing to do. Also cancels a queued switch away from it.
+        if (genre == currentGenre)
         {
-            timer += Time.deltaTime;
-            float t = timer / duration;
-            fadeOut.volume = Mathf.Lerp(startVolumeOut, 0f, t);
-            fadeIn.volume = Mathf.Lerp(0f, targetVolume, t);
-            yield return null;
+            pendingGenre = null;
+            return;
         }
 
-        fadeOut.Pause(); // Pause, not stop: preserves playback position
-        fadeOut.volume = 0f;
-        fadeIn.volume = targetVolume;
-        crossfadeCoroutine = null;
+        // A crossfade is still running. Starting another one now would hard-cut the outgoing track,
+        // so remember the request (latest wins) and apply it when the crossfade finishes.
+        if (crossfadeCoroutine != null)
+        {
+            pendingGenre = genre;
+            return;
+        }
+
+        ApplyGenre(genre);
+    }
+
+    private void ApplyGenre(AmbientMusicGenre genre)
+    {
+        Debug.Log($"Switching ambient music to genre '{genre}'.");
+
+        AudioClip first = PickRandomTrack(genre, exclude: null);
+        if (first == null) return; // empty folder: warning logged, previous genre keeps playing
+
+        currentGenre = genre;
+        StartTrack(first);
+    }
+
+    private void ApplyPendingGenre()
+    {
+        if (pendingGenre == null) return;
+
+        AmbientMusicGenre genre = pendingGenre.Value;
+        pendingGenre = null;
+        if (genre != currentGenre) ApplyGenre(genre);
     }
 
     /// <summary>
-    /// Crossfade that fully stops the outgoing source.
-    /// Used when switching FROM a special track back to ambient.
+    /// Auto-advance within the current genre. Called from Update when the active track has finished.
     /// </summary>
-    private IEnumerator CrossfadeAndStop(AudioSource fadeOut, AudioSource fadeIn, float duration)
+    private void PlayNextTrack()
     {
-        float timer = 0f;
-        float startVolumeOut = fadeOut.volume;
-        float targetVolume = GetTargetMusicVolume();
+        if (currentGenre == null) return;
 
-        while (timer < duration)
-        {
-            timer += Time.deltaTime;
-            float t = timer / duration;
-            fadeOut.volume = Mathf.Lerp(startVolumeOut, 0f, t);
-            fadeIn.volume = Mathf.Lerp(0f, targetVolume, t);
-            yield return null;
-        }
-
-        fadeOut.Stop();
-        fadeOut.volume = 0f;
-        fadeIn.volume = targetVolume;
-        crossfadeCoroutine = null;
-    }
-
-    private IEnumerator FadeOut(float duration)
-    {
         AudioSource active = musicSourceAActive ? musicSourceA : musicSourceB;
-        float startVolume = active.volume;
-        float timer = 0f;
+        AudioClip next = PickRandomTrack(currentGenre.Value, exclude: active.clip);
+        if (next != null) StartTrack(next);
+    }
 
-        while (timer < duration)
+    private AudioClip PickRandomTrack(AmbientMusicGenre genre, AudioClip exclude)
+    {
+        AudioClip[] tracks = ResourceManager.LoadAudioClipsInFolder($"{AMBIENT_TRACKS_PATH}/{genre}");
+        if (tracks.Length == 0)
         {
-            timer += Time.deltaTime;
-            active.volume = Mathf.Lerp(startVolume, 0f, timer / duration);
-            yield return null;
+            Debug.LogWarning($"No ambient tracks found for genre '{genre}' in Resources/{AMBIENT_TRACKS_PATH}/{genre}/.");
+            return null;
         }
+        if (tracks.Length == 1) return tracks[0];
 
-        active.Stop();
-        active.volume = 0f;
-        crossfadeCoroutine = null;
+        AudioClip pick;
+        do { pick = tracks[Random.Range(0, tracks.Length)]; }
+        while (pick == exclude);
+        return pick;
+    }
+
+    private void StartTrack(AudioClip clip)
+    {
+        AudioSource fadeIn = musicSourceAActive ? musicSourceB : musicSourceA;
+        AudioSource fadeOut = musicSourceAActive ? musicSourceA : musicSourceB;
+        musicSourceAActive = !musicSourceAActive;
+
+        // Stop() before assigning guarantees the track starts from the very beginning,
+        // even if this source was still playing the tail of an older track.
+        fadeIn.Stop();
+        fadeIn.clip = clip;
+        fadeIn.loop = false;
+        fadeIn.Play();
+
+        if (crossfadeCoroutine != null) StopCoroutine(crossfadeCoroutine);
+        crossfadeCoroutine = StartCoroutine(Crossfade(fadeOut, fadeIn, MusicCrossfadeDuration));
     }
 
     #endregion
 
-    // ==================== GLOBAL CONTROLS ====================
+    #region Global Controls
 
     public static void SetMasterVolume(float volume)
     {
@@ -327,6 +327,8 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
             active.volume = targetVolume;
         }
     }
+
+    #endregion
 
     #region Continuous SFX
 

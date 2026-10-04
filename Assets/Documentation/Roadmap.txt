@@ -1,9 +1,6 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-Stub audio hooks
-
-Add AmbientMood enum to the encounter framework
 Add SFX trigger points to encounter outcomes and the option framework
   - Outcome functions of options should generally trigger SFX (like bandaging sound, crate breaking, climbing tower etc.)
 add SFX to items
@@ -14,6 +11,24 @@ add SFX to items
 	- removing item from a slot
 	- item breaks (if durability reaches 0)
 	- item is consumed (if consumable)
+
+
+
+Change bg music during intro, something more sininster
+show "skip" during whole intro
+different font for intro
+
+minimap more desaturated
+selectable tiles need other color than player marker
+labels of lakes should disappear earlier when zooming out than cities
+area labels can appear outside of the areas
+
+- show difficulty of encounter options on the encounter options before hovering over them
+- When holding alt (which highlights sprite encounter option sprites), also show the option UI component (UI_EncounterStepOption) while holding
+
+lighter too small
+water bottle wrong sound
+can of beans wrong sound
 
 Substance end Game
 - random deployment tile
@@ -68,8 +83,9 @@ Settings page — audio sliders, hooked to main menu and in-game button, debug b
 UI polish — tooltip differentiation, option sizing, anything deferred from Phase 0's framework work
 Save/Load — full implementation if the Phase 0 feasibility spike passed; skip entirely if it failed
 
+Phase 4 - Tutorial + Settings Page (Audio only)
 
-Phase 4 — Final wrap
+Phase 5 — Final wrap
 
 Tutorial — minimal popup system, triggered on first-time events; deliberately last because it needs a stable game to point at
 Personal playtests — full runs, balance pass, encounter difficulty tuning

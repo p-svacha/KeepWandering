@@ -8,7 +8,7 @@ public class HC_CutWound : Wound
 
     public override Dictionary<HealthConditionDef, float> GetCurrentEndOfDayVitalChanges()
     {
-        Dictionary<HealthConditionDef, float> vitalChanges = new(ActiveStage.EndOfDayVitalChanges); // Copy to avoid modifying the original
+        Dictionary<HealthConditionDef, float> vitalChanges = new Dictionary<HealthConditionDef, float>();
         if (!IsBandaged) vitalChanges.Increment(HealthConditionDefOf.BloodLoss, UNBANDAGED_BLOOD_LOSS);
         return vitalChanges;
     }

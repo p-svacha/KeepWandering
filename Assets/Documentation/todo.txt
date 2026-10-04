@@ -1,17 +1,20 @@
 TODOS:
 ==============================================
 
+- default click sound on all encounter options (or maybe just fixed outcome)
+
+- make item collision sounds material based (follow suggestion with prios)
+
+- change bedroll item sound
+  - use zipper sound when setting it up
+- outcome notes
+  - when increasing health condition, currently it still shwos the +
+  - dont show decrease blood loss in morning when it was already 0
+  - change icon from well rested away from zzz, is confusing, or add a simley
+
+
 AUDIO TO ALL EXISTING CONTENT
 
-(/) ui buttons click sounds
-(/) item collision sounds
-item add to inventory sounds (by material maybe)
-   --> downloaded up to medicinal herbs (bush rattle)
-   -- files need cutting
-item collision sounds (by material maybe)
-item slot sounds
- - fill
- - empty
 item destroyed sounds (by material maybe, or generic)
 sprite bound option locking and unlocking sound
 keep wandering sounds
@@ -25,8 +28,6 @@ quest sounds (incl romours)
  - updated
 permanent stat increase/decrease sounds
 location reveal sounds
-(/) dragging items around (more swoosh with higher speed)
-(/) camera transition swooshs
 danger level increase/decrease sounds
 sound for every outcome in every option in every encounter, go through them by def
 night encounter happening sound
@@ -121,6 +122,8 @@ countdown locations
 
 - repair mechanic: available skill check option to spend an evening, dexterity stat. chance to increase durability of an item.
   - maybe unlockable?
+
+- add very low chance that infection leads to poisoning
 
 - NARRATIVE: it says "you wake up afer an uneventful night"even when there was a night encounter.  
 

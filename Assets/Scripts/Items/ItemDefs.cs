@@ -10,6 +10,7 @@ public static class ItemDefs
         {
             Label = "antibiotics",
             Description = "Pills that are very effective at treating infections.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 3,
             Tags =
             {
@@ -21,6 +22,7 @@ public static class ItemDefs
         {
             Label = "antidote",
             Description = "An injectable solution that counteracts poisoning.",
+            Material = ItemMaterialDefOf.Glass,
             Value = 3,
             Tags =
             {
@@ -32,6 +34,7 @@ public static class ItemDefs
         {
             Label = "bandage",
             Description = "An effective way to tend all kinds of wounds.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 2,
             Tags =
             {
@@ -43,6 +46,7 @@ public static class ItemDefs
         {
             Label = "can of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -57,6 +61,7 @@ public static class ItemDefs
         {
             Label = "cooked beans",
             Description = "A meal that is not only nutritious but also satisfying.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -71,6 +76,7 @@ public static class ItemDefs
         {
             Label = "bedroll",
             Description = "Can be set up at your camp in the evening to provide a place to sleep, increasing healing during the night.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             IsCampComponent = true,
             MinInitialDurability = 2,
@@ -81,6 +87,7 @@ public static class ItemDefs
         {
             Label = "beer",
             Description = "A refreshing alcoholic beverage.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -96,6 +103,7 @@ public static class ItemDefs
         {
             Label = "berries",
             Description = "Provides a small amount of nutrition and hydration.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties() {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
@@ -108,6 +116,7 @@ public static class ItemDefs
         {
             Label = "bone",
             Description = "A bone that can be used as a weapon or tool.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             Tags =
             {
@@ -120,6 +129,7 @@ public static class ItemDefs
         {
             Label = "charcoal",
             Description = "The remains of burned wood, useful as fuel or for starting fires.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             MaxInitialDurability = 2,
             Tags =
@@ -132,6 +142,7 @@ public static class ItemDefs
         {
             Label = "chocolate",
             Description = "A sweet treat that can boost morale.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -145,6 +156,7 @@ public static class ItemDefs
         {
             Label = "coin",
             Description = "Commonly accepted as currency.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 1,
         },
 
@@ -152,6 +164,7 @@ public static class ItemDefs
         {
             Label = "crowbar",
             Description = "Very useful for opening things that were not meant to be opened.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             Tags =
             {
@@ -165,6 +178,7 @@ public static class ItemDefs
         {
             Label = "fence cutter",
             Description = "There's a specific type of fence this could be very useful for.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 5,
             Tags =
             {
@@ -178,6 +192,7 @@ public static class ItemDefs
         {
             Label = "knife",
             Description = "Very useful multi-purpose tool.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -192,6 +207,7 @@ public static class ItemDefs
         {
             Label = "lighter",
             Description = "A small device that can be used to start fires.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
             Tags =
             {
@@ -204,6 +220,7 @@ public static class ItemDefs
         {
             Label = "lockpick",
             Description = "Useful for opening locked containers.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
             Tags =
             {
@@ -215,6 +232,7 @@ public static class ItemDefs
         {
             Label = "matchbox",
             Description = "A small carton box containing a few matches and a surface to strike them on.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
             Tags =
             {
@@ -228,6 +246,7 @@ public static class ItemDefs
         {
             Label = "cooked meat",
             Description = "A delicious, safe and very nutritious meal.",
+            Material = ItemMaterialDefOf.Meat,
             Value = 4,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -240,6 +259,7 @@ public static class ItemDefs
         {
             Label = "raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
+            Material = ItemMaterialDefOf.Meat,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -255,6 +275,7 @@ public static class ItemDefs
         {
             Label = "medical kit",
             Description = "Can be used to tend or heal a variety of medical issues.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             MaxInitialDurability = 2,
             Tags =
@@ -269,6 +290,7 @@ public static class ItemDefs
         {
             Label = "medicinal herbs",
             Description = "A natural remedy that may help with ailments, but is not very effective.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             Tags =
             {
@@ -288,6 +310,7 @@ public static class ItemDefs
         {
             Label = "nimble root",
             Description = "Chewing this numbs your fingertips into perfect stillness.",
+            Material = ItemMaterialDefOf.Plant,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -301,6 +324,7 @@ public static class ItemDefs
         {
             Label = "nut snack",
             Description = "Provides a good amount of nutrition.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -313,6 +337,7 @@ public static class ItemDefs
         {
             Label = "oil lamp",
             Description = "An old fashioned light source consisting out of a small container of flammable oil and a wick, and a mechanism to control the flame.",
+            Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
             Tags =
             {
@@ -326,6 +351,7 @@ public static class ItemDefs
         {
             Label = "postcard",
             Description = "A postcard from the area and a reminder of a better time and place.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
             PassiveStatChanges =
             {
@@ -341,6 +367,7 @@ public static class ItemDefs
         {
             Label = "protein shake",
             Description = "A drink that provides some nutrition and hydration, as well as increasing strength.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -358,6 +385,7 @@ public static class ItemDefs
         {
             Label = "rope",
             Description = "Useful to tie things together or climbing.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 2,
             Tags =
             {
@@ -369,6 +397,7 @@ public static class ItemDefs
         {
             Label = "screwdriver",
             Description = "Useful for opening things big and small.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -382,6 +411,7 @@ public static class ItemDefs
         {
             Label = "shovel",
             Description = "Particularly useful for digging.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
             Tags =
             {
@@ -394,6 +424,7 @@ public static class ItemDefs
         {
             Label = "bush craft 101",
             Description = "A book that provides useful information about survival.",
+            Material = ItemMaterialDefOf.PaperHard,
             Value = 3,
             PassiveStatChanges =
             {
@@ -409,6 +440,7 @@ public static class ItemDefs
         {
             Label = "packed tent",
             Description = "Can be set up at your camp in the evening to provide protection during the night.",
+            Material = ItemMaterialDefOf.Textile,
             Value = 5,
             MinInitialDurability = 2,
             MaxInitialDurability = 10,
@@ -419,6 +451,7 @@ public static class ItemDefs
         {
             Label = "trap",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
+            Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
             MinInitialDurability = 1,
             MaxInitialDurability = 5,
@@ -429,6 +462,7 @@ public static class ItemDefs
         {
             Label = "bottle of water",
             Description = "Provides water for about 3 days.",
+            Material = ItemMaterialDefOf.PlasticHard,
             Value = 1,
             ConsumptionProperties = new ConsumptionProperties()
             {
@@ -441,6 +475,7 @@ public static class ItemDefs
         {
             Label = "wood",
             Description = "Just an ordinary, dry piece of wood.",
+            Material = ItemMaterialDefOf.Wood,
             Value = 1,
             Tags =
             {

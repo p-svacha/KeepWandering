@@ -97,7 +97,7 @@ public class ItemRenderer : MonoBehaviour
         }
         else
         {
-            SpriteRenderer.sortingLayerName = DEFAULT_LAYER_NAME;
+            SpriteRenderer.sortingLayerName = "Default";
             SpriteRenderer.sortingOrder = SortingOrder;
             IsRenderingAboveUI = false;
         }
@@ -176,6 +176,8 @@ public class ItemRenderer : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!AudioManager.ShouldPlayItemSounds()) return;
+
         float impactSpeed = collision.relativeVelocity.magnitude;
         if (impactSpeed < COLLISION_MIN_SPEED) return;
         if (Time.time - LastCollisionSoundTime < COLLISION_SOUND_COOLDOWN) return;
@@ -187,16 +189,32 @@ public class ItemRenderer : MonoBehaviour
         if (other != null && other.GetEntityId() < GetEntityId()) return;
 
         LastCollisionSoundTime = Time.time;
+        if (other != null) other.LastCollisionSoundTime = Time.time; // keep both sides' cooldowns in sync
 
         float t = Mathf.InverseLerp(COLLISION_MIN_SPEED, COLLISION_MAX_SPEED, impactSpeed);
         float volume = Mathf.Lerp(0.15f, 1f, t);
         float pitch = Mathf.Lerp(1.05f, 0.85f, t); // harder hits read as slightly lower-pitched/heavier
 
-        // Reuses each item's existing unique clip. Picks whichever of the two items is heavier-sounding
-        // by simply alternating/random choice between the two - either item's own clack is a fine stand-in
-        // for "two things hit each other."
-        Item soundSource = (other != null && Random.value < 0.5f) ? other.Item : Item;
-        AudioManager.PlayItemSound(soundSource, volume, pitch, pitchVariance: 0.1f);
+        AudioClip clip = GetCollisionClip(other);
+        AudioManager.PlaySound(clip, volume, pitch, pitchVariance: 0.1f);
+    }
+
+    /// <summary>
+    /// Picks the impact sound for this collision: the higher-Dominance material of the two items involved
+    /// (e.g. metal over cloth), or the other item's material if this item has none set, or this item's own
+    /// pickup clip as a last-resort fallback for items that haven't been assigned a material yet.
+    /// </summary>
+    private AudioClip GetCollisionClip(ItemRenderer other)
+    {
+        ItemMaterialDef myMaterial = Item.Def.Material;
+        ItemMaterialDef otherMaterial = other != null ? other.Item.Def.Material : null;
+
+        ItemDef dominant;
+        if (myMaterial == null) dominant = other.Item.Def;
+        else if (otherMaterial == null) dominant = Item.Def;
+        else dominant = otherMaterial.Dominance > myMaterial.Dominance ? other.Item.Def : Item.Def;
+
+        return dominant.GetCollisionImpactSound();
     }
 
     #endregion
