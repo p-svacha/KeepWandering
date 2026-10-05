@@ -150,7 +150,16 @@ public static class EncounterDefs
             Type = EncounterType.ForcePlacedOnly,
             CameraZoomLevel = 6f,
             DevNotes = "The player meets an NPC named R whose partner is sick. After an initial conversation, the player can ask about a note found at the radio tower (completing a \"Find R\" quest) and learn about R's partner needing infection medicine. Delivering the right medicine rewards the player with a fence cutter and map coordinates for an unpowered fence segment, advancing the main storyline. It's essentially a quest hub that ties together the radio tower and fence-cutting objectives.",
-        }
+        },
+
+        new EncounterDef("QuarantineFenceGate")
+        {
+            Label = "Quarantine Fence Gate",
+            EncounterClass = typeof(Encounter_QuarantineFenceGate),
+            Type = EncounterType.ForcePlacedOnly,
+            CameraZoomLevel = 12f,
+            DevNotes = "Single instance encounter where the road and quarantine fence meet. The guard can be bribed to open the gate by bringing certain items, making this a multi-visit quest location and end goal location.",
+        },
 
         #endregion
     };
@@ -172,4 +181,5 @@ public class EncounterDefOf : MonoBehaviour
     // Special
     public static EncounterDef QuarantineFence;
     public static EncounterDef HomeOfR;
+    public static EncounterDef QuarantineFenceGate; 
 }

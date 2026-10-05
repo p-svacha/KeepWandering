@@ -14,12 +14,16 @@ public abstract class Wound : HealthCondition
     public const float NATURAL_HEALING_UNBANDAGED = 0.2f;
     public const float NATURAL_HEALING_BANDAGED = 1f;
 
+    private const float MIN_NATURAL_SEVERITY_CHANGE = 0.7f;
+    private const float MAX_NATURAL_SEVERITY_CHANGE = 1.3f;
+    private float naturalSeverityChange; // Randomized per wound, applied if the wound is unbandaged or infected and untreated
 
     public bool IsBandaged { get; private set; }
     public bool IsTreated { get; private set; }
 
     public InfectionStage InfectionStage => (InfectionStage)ActiveStageIndex;
     public bool IsInfected => InfectionStage != InfectionStage.None;
+    private InfectionStage preChangeInfectionStage; // Temp value used to track is infection stage changes at the end of the day, used to determine if a message should be displayed to the player
 
     public WoundRenderer Renderer { get; private set; }
 
@@ -96,6 +100,9 @@ public abstract class Wound : HealthCondition
         // Init stages (usually done in Def, but we need to do it here because we are using a base class for all wounds)
         stages = WoundStages;
         foreach (var stage in stages) stage.ResolveReferences(Def);
+
+        // Natural severity change
+        naturalSeverityChange = Random.Range(MIN_NATURAL_SEVERITY_CHANGE, MAX_NATURAL_SEVERITY_CHANGE);
     }
 
     public override float GetNaturalHealing()
@@ -109,32 +116,34 @@ public abstract class Wound : HealthCondition
         if (Renderer != null) Renderer.Refresh();
     }
 
-    protected override void OnEndDay(MorningReport morningReport)
+    public override float GetNaturalSeverityChange()
     {
-        InfectionStage beforeStage = (InfectionStage)ActiveStageIndex;
+        if (!IsBandaged || (IsInfected && !IsTreated)) return naturalSeverityChange;
+        else return 0;
+    }
 
-        // If the wound is unbandaged or infected and untreated, increase severity random amount between 0.5 and 1.5.
-        if (!IsBandaged || (IsInfected && !IsTreated))
-        {
-            float severityIncrease = Random.Range(0.5f, 1.5f);
-            Game.ModifyHealthConditionSeverity(this, severityIncrease);
-        }
+    protected override void OnEndDay_PreSeverityChange()
+    {
+        preChangeInfectionStage = InfectionStage;
+    }
 
-        InfectionStage afterStage = (InfectionStage)ActiveStageIndex;
+    protected override void OnEndDay_PostSeverityChange(MorningReport morningReport)
+    {
+        InfectionStage postChangeInfectionStage = (InfectionStage)ActiveStageIndex;
 
-        if (beforeStage == InfectionStage.None && afterStage != InfectionStage.None)
+        if (preChangeInfectionStage == InfectionStage.None && postChangeInfectionStage != InfectionStage.None)
         {
             morningReport.NightEvents.Add($"Your {Def.Label} got infected.");
         }
-        else if (beforeStage >= InfectionStage.Minor && afterStage > beforeStage)
+        else if (preChangeInfectionStage >= InfectionStage.Minor && postChangeInfectionStage > preChangeInfectionStage)
         {
             morningReport.NightEvents.Add($"The infection of your {Def.Label} got worse and needs be dealt with immediately.");
         }
-        else if (beforeStage >= InfectionStage.Minor && afterStage == InfectionStage.None && SeverityValue > 0)
+        else if (preChangeInfectionStage >= InfectionStage.Minor && postChangeInfectionStage == InfectionStage.None && SeverityValue > 0)
         {
             morningReport.NightEvents.Add($"Your {Def.Label} has healed from the infection.");
         }
-        else if (beforeStage >= InfectionStage.Minor && afterStage < beforeStage)
+        else if (preChangeInfectionStage >= InfectionStage.Minor && postChangeInfectionStage < preChangeInfectionStage)
         {
             morningReport.NightEvents.Add($"The infection of your {Def.Label} has improved.");
         }
@@ -208,6 +217,9 @@ public abstract class Wound : HealthCondition
             _ => throw new System.Exception("Infection stage " + InfectionStage.ToString() + " not handled.")
         };
     }
+
+    public override string Label => GetReportLabel();
+    public override string Description => ActiveStageIndex == 0 ? $"A {Def.Label} wound." : base.Description;
 }
 
 public enum InfectionStage

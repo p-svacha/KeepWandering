@@ -35,6 +35,8 @@ Basically default
 
 # Characters
 Outline full black, 10px without pressure (or 14px with pressure), 100% hardness,opacity,flow
+Clothes are not a thing in this world, except accessories like hats, glasses, masks, backpacks, etc.
+Head and Torso have volumetric shapes with black outline and white fill.
 
 
 
@@ -61,10 +63,20 @@ no black outlines, use more desaturated colors. flowy brush strokes, make use of
 
 # Encounter Sprites
 
+## Technical Workflow
+
+Use the Resources/Encounter/ReferenceBasePicture_Zoom12.png as a template for size and draw into that for consistent size of stuff relative to the player.
+
 Outline full black, 8-16px (usually 12px), 100% hardness,opacity,flow, pressure for size
 
-Keep it strictly 2D, no shading or gradients. A "dirty brush" with slightly randomized color, shape, scatter can be used for details like moss/dirt.
-Else just use flat color with slightly different color than base for details. Avoid gradients, shading, or lighting effects. Keep it simple and readable.
+Keep it strictly 2D, no elaborate shading or gradients. A "dirty brush" with slightly randomized color, shape, scatter can be used for details like moss/dirt.
+Else just use flat color with slightly different color than base for details. Avoid gradients, complex shading, or lighting effects. Keep it simple and readable. Minimal shading can be used for rough details (but shouldn't exceed 1 additional tone)
+
+
+Export the individual elements and put them back into Unity as single pieces for easy placement.
+--> Exporting is easiest done by putting the relevant layers together in 1 folder in Photoshop, then rightclicking the folder and selecting "Export As" and choosing PNG. This will export the selected layers as a single, already cropped PNG with the name of the folder.
+
+In Unity, use a PPU (pixels per unit) of *45* for all encounter sprites done this way, as like this the default scale 1 can be used for it to be the same size as in Photoshop. The PPU should be automatically applied through the `EncounterSpriteImporter` script.
 
 ## Encounter Sprite Art Guide
  
@@ -81,21 +93,23 @@ Every encounter sprite should look like it belongs in the same sketchbook, regar
 - **Thick, black, hand-drawn outlines** on every silhouette edge. The line has visible pressure variation (thicker in places, thinner in others) as if drawn with a marker or brush pen — never a uniform vector stroke.
 - Outlines are **slightly imperfect and wobbly** — not geometrically straight, even on man-made objects like walls or towers. Corners are rounded off rather than sharp.
 - **Interior detail lines are thinner** than the outer silhouette outline, but still hand-drawn and slightly uneven (wood grain, brick lines, cracks, chain-link mesh, individual planks).
-- Line color is always near-black/dark brown-black, never pure vector black, never colored outlines.
+- Line color is always black, never a vector-perfect line, never colored outlines.
+- Outlines are uneven with pressure variation, but not so much that they read as a sketchy scribble. The goal is to communicate a hand-drawn, slightly rough style without looking like a doodle.
 - No outlines are used for soft shading blobs (see below) — only for hard object edges and structural detail lines.
  
 ### Shading & Fill
  
-This is **not** flat single-tone fill, and **not** cel-shaded/gradient rendering. It's a middle ground:
+This is at core a flat single-tone fill, but can have some additional detailing.
  
 - Each shape gets a **base flat color fill**.
-- On top of that, **1–2 soft, loosely-painted shadow/tone patches** are added in a darker or lighter shade of the same hue — irregular cloud-like blobs, not hard-edged geometric shading. They suggest volume and grime rather than accurate lighting.
+- At most 1 additional flat tone may be added for shading or wear, but it must be a **slightly darker or lighter shade of the same hue** — no gradients, no cel-shading, no specular highlights.
+- Loosely-painted, irregular, color-varied patches can additionally be used to suggest dirt, grime, or shadowed recesses, but they should not be used to create a realistic lighting effect. The goal is to communicate texture and age rather than accurate light and shadow.
 - These tone patches often follow the object's dirt, wear, or shadowed recesses — e.g. the underside of a rock, the shaded half of a roof, the interior of a broken window.
-- No gradients, no specular highlights, no rim lighting. Everything reads as **2–3 flat tones per shape**, blended only by the soft edge of the painted blob, not by digital gradient tools.
+- No gradients, no specular highlights, no rim lighting. Everything reads as **1-2 flat tones per shape**, blended only by the soft edge of the painted blob, not by digital gradient tools.
  
 ### Color Palette
  
-- **Desaturated, muted, and earthy.** Browns, grays, mossy greens, faded rust-oranges, dull stone tones. Nothing neon or highly saturated — this is a decaying, overgrown, abandoned world.
+- **Desaturated, muted, and earthy.** Browns, grays, mossy greens, faded rust-oranges, dull stone tones as the base accent. Brighter, more saturated colors can still be used for elements where it fits. The world is not supposed to be abandonded/dead, just to represent a lived-in, weathered, and slightly grimy environment in a poorer region outside of public attention.
 - Man-made structures (sheds, towers, buildings, fences) lean gray/brown/weathered-wood.
 - Natural terrain features (rocks, fallen trees, rubble) lean brown/gray/green with moss accents.
 - Small accent colors (a rusty stain, a hint of teal broken glass, a dab of moss) are allowed but should stay desaturated and used sparingly — they exist to sell wear and storytelling detail, not to add vibrancy.
@@ -130,15 +144,6 @@ Every object should tell a small story of decay or history through these marks �
 - No drop shadows, ground contact shadows, or background elements baked into the sprite.
 - No outlines around the internal soft-shading blobs — only around hard structural edges/details.
 - No cutesy/rounded "mobile game" style — the wobble and roughness should read as hand-sketched, not stylized-cute.
- 
-### Prompt Template
- 
-When generating a new encounter sprite, describe:
- 
-1. **The object** and its current state (intact / damaged / open / closed / etc.)
-2. **Category cues** — is it man-made (wood/metal/stone marks) or natural (moss/rock/wood-grain marks)?
-3. **The style block below**, appended to every prompt:
-> Hand-drawn illustration in a rough marker-and-wash style: thick uneven black outlines with pressure variation, flat muted/desaturated color fill with 1–2 soft irregular painted shadow blobs for volume (no gradients, no cel-shading), hand-drawn interior detail lines (wood grain, brick lines, cross-hatched mesh) thinner than the outer outline, small moss/crack/wear details for a weathered look, strictly flat 2D front-facing clip-art perspective with no 3D depth or cast ground shadow, isolated single object tightly cropped on a transparent/white background.
  
 ### Reference Notes by Category
  

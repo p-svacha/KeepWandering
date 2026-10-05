@@ -97,16 +97,6 @@ GDD and Defs sync — whenever a system decision is made mid-implementation, upd
 ===============================================================================================================
 
 
-Rework World Map:
-- Make hexes bigger and add actual texture / sprites to them
-- Make encounter icons bigger
-- Already add an encounter to every tile upon world generation, but only landmarks and special encounters are visible from the start. (Gives more control)
-- Add a road system
-  - Connects cities
-  - Conntects starting tile with fence gate
-  - If starting on road and ending on road, player can move 2 tiles
-- Add a toggle to show a danger level overlay, with simple color coded hexes showing the danger level everywhere.
-
 Completely implement 4 ways to win the game:
 1. Fence Gate: Bribe the Guard with 10 coins:
   - Coins can be found or acquired through many means in standard encounters.

@@ -78,7 +78,7 @@ public class UI_HealthConditionTooltip : UI_TooltipBase
             SeverityText.text = $"{healthCondition.SeverityValue.ToString(severityFormat)} / {healthCondition.Def.MaxSeverity.ToString(severityFormat)}";
 
             float naturalChange = healthCondition.GetEndOfDaySeverityChange(excludeNaturalHealing: true);
-            NaturalChangeText.text = $"{naturalChange.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")} per day";
+            NaturalChangeText.text = $"{naturalChange.ToString($"+{severityFormat};-{severityFormat};{severityFormat}")}";
             NaturalChangeRow.SetActive(naturalChange != 0);
 
             float naturalHealing = healthCondition.GetNaturalHealing();

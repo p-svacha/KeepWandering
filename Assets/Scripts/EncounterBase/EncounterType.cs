@@ -18,12 +18,12 @@ public enum EncounterType
     Location,
 
     /// <summary>
-    /// A special kind of location encounter that is created during world generation and is visible on the world map from the start.
+    /// A special kind of location encounter that is created during world generation at a randomized location (within certain constraints) and is visible on the world map from the start.
     /// </summary>
     Landmark,
 
     /// <summary>
-    /// A special kind of location encounter that is created during world generation or the game on specific conditions. Location encounters of these do never appear naturally and only when they are specifically set on a tile.
+    /// A special kind of location encounter that is created during world generation or during the game on specific conditions. Location encounters of this type do never appear naturally and only when they are specifically set on a tile. Unlike landmarks, hey are not by default visible. 
     /// </summary>
     ForcePlacedOnly,
 

@@ -1,15 +1,17 @@
 TODOS:
 ==============================================
 
-- default click sound on all encounter options (or maybe just fixed outcome)
+- fence gate encounter
 
-- make item collision sounds material based (follow suggestion with prios)
+- more option icons (same as skill check icon):
+  - UI: mark options that can only be done once per day with a clock icon
+  - UI: mark options that can only be done once ever with a star icon
+  - UI: mark options that can be retried multiple times on failure with a retry icon
+  - add tooltips to these icons explaining what they mean
 
 - change bedroll item sound
   - use zipper sound when setting it up
 - outcome notes
-  - when increasing health condition, currently it still shwos the +
-  - dont show decrease blood loss in morning when it was already 0
   - change icon from well rested away from zzz, is confusing, or add a simley
 
 
@@ -33,11 +35,6 @@ sound for every outcome in every option in every encounter, go through them by d
 night encounter happening sound
 drum roll during skill check sequence
   - drumroll final on stop
-
-
-ambient tracks based on mood [normal / tense / hopeful]
-
-INTERMIDARY
 
 
 ADD PROPER DAY 0:
@@ -144,6 +141,8 @@ countdown locations
 
 - add toggle for location icons in world map
 
+- can move outside quarantine zone on a road
+
 - in difficulty calculation, show minimum and maximum as separate entries
 - in difficulty calculation, show remaining uses of items if using item
 
@@ -166,12 +165,6 @@ countdown locations
   - empty bottles can be filled at water sources or rain -> turn into untreated water bottle
 
 - diary: basic in-game readonly UI element that basically acts as a flavourful log of everything that happened during the game.
-
-- more option icons (same as skill check icon):
-  - UI: mark options that can only be done once per day with a clock icon
-  - UI: mark options that can only be done once ever with a star icon
-  - UI: mark options that can be retried multiple times on failure with a retry icon
-  - add tooltips to these icons explaining what they mean
 
 - add "home" encounter to start position. probably just as a marker on the world map, and impassable. could later be expanded so the game actually starts in this encounter, with some basic tutorial elements and where you choose starting items.
 

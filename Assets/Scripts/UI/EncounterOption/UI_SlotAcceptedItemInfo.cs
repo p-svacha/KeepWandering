@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class UI_SlotAcceptedItemInfo : MonoBehaviour
 {
@@ -12,17 +13,11 @@ public class UI_SlotAcceptedItemInfo : MonoBehaviour
     /// </summary>
     public void Init(ItemDef item, ItemTagDef tag)
     {
-        ItemIcon.sprite = item.Sprite;
+        BaseInit(item);
         TierContainer.SetActive(true);
         for(int i = 0; i < ItemDef.DEFAULT_MAX_TAG_LEVEL; i++)
         {
             TierContainer.transform.GetChild(i).gameObject.SetActive(i < item.Tags[tag]);
-        }
-
-        // If the player doesn't have the item, black out the icon.
-        if (!Game.Instance.PlayerHasItem(item))
-        {
-            ItemIcon.color = Color.black;
         }
     }
 
@@ -31,8 +26,19 @@ public class UI_SlotAcceptedItemInfo : MonoBehaviour
     /// </summary>
     public void Init(ItemDef item)
     {
-        ItemIcon.sprite = item.Sprite;
+        BaseInit(item);
         TierContainer.SetActive(false);
         GetComponent<LayoutElement>().preferredHeight = 50;
+    }
+
+    private void BaseInit(ItemDef item)
+    {
+        ItemIcon.sprite = item.Sprite;
+
+        // If the player doesn't have the item, black out the icon.
+        if (!Game.Instance.PlayerHasItem(item))
+        {
+            ItemIcon.color = Color.black;
+        }
     }
 }

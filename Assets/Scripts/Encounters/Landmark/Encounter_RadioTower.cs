@@ -178,7 +178,7 @@ public class Encounter_RadioTower : LocationEncounter
             {
                 new ItemSlot()
                 {
-                    Item = ItemDefOf.Crowbar,
+                    Tag = ItemTagDefOf.PryingTool,
                 }
             }
         };

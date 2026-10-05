@@ -71,7 +71,7 @@ public class WorldMap
         return GetTile(new Vector2Int(x, y));
     }
 
-    public WorldMapTile GetRandomTile(BiomeDef biome = null, bool empty = true, bool mustBorderFence = false, EncounterDef encounter = null)
+    public WorldMapTile GetRandomTile(BiomeDef biome = null, bool empty = true, bool mustBorderFence = false, EncounterDef encounter = null, List<WorldMapTile> excludeTiles = null)
     {
         List<WorldMapTile> candidateTiles = new List<WorldMapTile>(QuarantineZone.Tiles);
         if (encounter != null) empty = false;
@@ -91,6 +91,10 @@ public class WorldMap
         if (encounter != null)
         {
             candidateTiles = candidateTiles.Where(t => t.Encounter != null && t.Encounter.Def == encounter).ToList();
+        }
+        if (excludeTiles != null && excludeTiles.Count > 0)
+        {
+            candidateTiles = candidateTiles.Where(t => !excludeTiles.Contains(t)).ToList();
         }
 
         if (candidateTiles.Count == 0) throw new System.Exception($"No tiles found that match the filter criteria.");

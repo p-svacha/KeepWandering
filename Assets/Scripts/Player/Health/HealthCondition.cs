@@ -17,6 +17,11 @@ public class HealthCondition
 
     // Def overrides
     public virtual float GetNaturalHealing() => Def.NaturalHealing;
+
+    /// <summary>
+    /// How much the severity of this health condition naturally changes per day, unaffected by any other factors.
+    /// </summary>
+    public virtual float GetNaturalSeverityChange() => Def.NaturalSeverityChange;
     public virtual float InitialSeverity => Def.DefaultInitialSeverity;
     public virtual float MaxSeverity => Def.MaxSeverity;
     public virtual bool IsLethal => Def.IsLethal;
@@ -57,12 +62,15 @@ public class HealthCondition
     /// </summary>
     public void ExecuteEndDayEffect(MorningReport morningReport)
     {
+        // Pre hook
+        OnEndDay_PreSeverityChange();
+
         // End of day severity change (excluding natural healing as that is done separately in advance)
         float endOfDaySeverityChange = GetEndOfDaySeverityChange(excludeNaturalHealing: true);
         if (endOfDaySeverityChange != 0f) Game.ModifyHealthConditionSeverity(this, endOfDaySeverityChange);
 
-        // Specific effects
-        OnEndDay(morningReport);
+        // Post hook
+        OnEndDay_PostSeverityChange(morningReport);
     }
 
     /// <summary>
@@ -134,7 +142,7 @@ public class HealthCondition
     public float GetEndOfDaySeverityChange(bool excludeNaturalHealing = false)
     {
         // Natural severity change defined in the health condition definition
-        float endOfDaySeverityChange = Def.NaturalSeverityChange;
+        float endOfDaySeverityChange = GetNaturalSeverityChange();
 
         // Natural Healing
         if (!excludeNaturalHealing) endOfDaySeverityChange -= GetNaturalHealing();
@@ -162,9 +170,14 @@ public class HealthCondition
     protected virtual void OnActiveStageChanged() { }
 
     /// <summary>
-    /// Gets called at the end of each day. Performs all events that happen during the night and returns a list of them for the morning report.
+    /// Gets called at the end of each day, before the severity is changed by default logic.
     /// </summary>
-    protected virtual void OnEndDay(MorningReport morningReport) { }
+    protected virtual void OnEndDay_PreSeverityChange() { }
+
+    /// <summary>
+    /// Gets called at the very end of each day, after the severity has been changed by default logic. Performs all events that happen during the night and returns a list of them for the morning report.
+    /// </summary>
+    protected virtual void OnEndDay_PostSeverityChange(MorningReport morningReport) { }
 
     /// <summary>
     /// Called when this health condition is removed from the player. Should be used to clean up or reset any visual elements or other things related to this condition.
@@ -241,7 +254,7 @@ public class HealthCondition
         return Mathf.CeilToInt(severityUntilDeath / severityChangePerDay);
     }
 
-    public string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
+    public virtual string Label => (ActiveStage != null && ActiveStage.Label != "") ? ActiveStage.Label : Def.Label;
     public string LabelCapWord => Label.CapitalizeEachWord();
     public virtual string Description => (ActiveStage != null && ActiveStage.Description != "") ? ActiveStage.Description : Def.Description;
     public virtual string GetInterActionsString() => Def.Interactions;

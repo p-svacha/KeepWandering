@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -25,14 +27,27 @@ public static class StoryManager
     /// </summary>
     public static void OnGameStarted()
     {
+        WorldMapTile fenceGateTile = GetFenceGateTile();
+        Game.SetLocationEncounter(fenceGateTile, EncounterDefOf.QuarantineFenceGate, hidden: false);
+
         RadioTowerWithNote = WorldMap.GetRandomTile(encounter: EncounterDefOf.RadioTower).Encounter as Encounter_RadioTower;
         RadioTowerWithNote.HasNoteOnDoor = true;
 
         HomeOfR = WorldMap.GetRandomTile(biome: BiomeDefOf.City);
         Game.SetLocationEncounter(HomeOfR, EncounterDefOf.HomeOfR, hidden: true);
 
-        CuttableFenceTile = WorldMap.GetRandomTile(encounter: EncounterDefOf.QuarantineFence);
+        CuttableFenceTile = WorldMap.GetRandomTile(encounter: EncounterDefOf.QuarantineFence, excludeTiles: new List<WorldMapTile> { fenceGateTile });
         (CuttableFenceTile.Encounter as Encounter_QuarantineFence).IsElectrified = false;
         ClosestAreaOfCuttableFence = CuttableFenceTile.GetClosestArea();
+
+
+    }
+
+    /// <summary>
+    /// Returns the single tile that has both a road and a fence.
+    /// </summary>
+    private static WorldMapTile GetFenceGateTile()
+    {
+        return WorldMap.Tiles.Values.First(t => t.HasRoad && t.IsQuarantineFence);
     }
 }

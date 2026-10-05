@@ -16,6 +16,7 @@ public class WorldMapTile
     public Dictionary<Direction, Vector2> SideMidpointWorldPositions { get; private set; }
     public BiomeDef Biome { get; private set; }
     public bool HasRoad { get; private set; }
+    public bool IsQuarantineFence => WorldMap.Instance.QuarantineZone.IsOnPerimeter(this);
     public LocationEncounter Encounter { get; private set; }
     public Quest Mission { get; private set; }
     public DangerLevelDef BaseDangerLevel { get; private set; } // Base danger level of the tile
