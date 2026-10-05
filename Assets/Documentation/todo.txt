@@ -144,8 +144,18 @@ countdown locations
 
 - add toggle for location icons in world map
 
+- in difficulty calculation, show minimum and maximum as separate entries
+- in difficulty calculation, show remaining uses of items if using item
+
 - desaturate world map except for player and marked tiles
  - make outline of trees/fields/buildings gray at base maybe (increase lightness on all base images)
+
+- when failing on robbing stranger, the resulting light blood loss shows "not infeced" as source.
+- Unbandaged cut wound shows "not infected" as tooltip title
+- wounds don't have description in tooltip
+- unbandaged cut doesn't show natural downwards trend in tooltip, only natural healing. also trend shows as improving which is wrong.
+
+- When resting in morning, or resting early in evening, clearly describe it option description that "natural healing" is applied
 
 - add some night events (things that rarely happen during the night with no player impact or visuals, communicated in morning)
   - get robbed (lose random item)

@@ -46,6 +46,7 @@ public class UI_OptionDetails : MonoBehaviour
     {
         DescriptionText.text = CurrentOption.Description;
         DescriptionPanel.SetActive(!string.IsNullOrEmpty(CurrentOption.Description));
+        LayoutRebuilder.ForceRebuildLayoutImmediate(DescriptionPanel.GetComponent<RectTransform>());
 
         ShowSkillCheckProperties();
         ShowRequirements();

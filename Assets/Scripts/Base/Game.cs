@@ -1145,8 +1145,11 @@ public class Game : MonoBehaviourSingleton<Game>
         // Validate
         if (!Player.HealthConditions.Contains(hc)) throw new System.Exception($"Trying to modify severity of health condition {hc.Label} that is not on the player.");
         if (hc.IsSimpleBinaryCondition()) throw new System.Exception($"Trying to modify severity of simple binary health condition {hc.Label}. These conditions do not use severity.");
-        if (value == 0) return;
+
         bool isIncreasing = value > 0;
+        if (value == 0) return;
+        if (!isIncreasing && hc.SeverityValue <= 0f) return; // Already at or below 0 severity, no need to reduce further
+        if (isIncreasing && hc.SeverityValue >= hc.MaxSeverity) return; // Already at or above max severity, no need to increase further
 
         // Avoid full heal if requested
         if (!isIncreasing && avoidFullHeal && hc.SeverityValue + value <= 0f)

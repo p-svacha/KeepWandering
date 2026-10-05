@@ -24,8 +24,6 @@ Top-of-screen UI:
 - **Centre:** the current encounter step's text and options.
 - **Right:** day counter, world-map button, handbook button, settings button, and below that the "Notes" panel (active quests / learned information).
 
-Encounter texts are strictly written in the present tense, when describing what is happening and what has happened as the outcome of the previously selected option.
-
 ## Art Direction
 
 Strictly **2D side-view comic style with no 3D depth or perspective**. Everything is sprite-based and hand-drawn, with no frame-based animations. State changes are communicated by swapping sprites, playing a sound, and simple effects rather than motion.
@@ -382,6 +380,7 @@ The first priority of every encounter is **interesting, meaningful choices**. Fu
 - **Lightweight biome influence only**, never per-biome bespoke handling.
 - **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
 - **Focussed.** Encounters should have a clear purpose and avoid unnecessary complexity. This also means that rather than having an encounter with multiple, distinct variants, it is often better to have multiple encounters with a single variant each. This allows for more focused and clear design, and also to flesh out the individual encounters more, and giving each one an own identity. Encounters can and should still have per-instance variation (e.g. a random loot table, elements that are either present or absent), just not multiple initial states that are completely distinct from each other.
+- **Clear Language**. The encounter step text should be written in the present tense, describing clearly, concretely, concisely and uncryptically the current state of the encounter. If an option has been selected, the result of that also needs be part of the next step's text, with the same clarity. The player should always be able to understand what is happening and what the consequences of their actions are.
 
 ### Step Composition (rule of thumb)
 

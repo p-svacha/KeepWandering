@@ -13,7 +13,7 @@ public abstract class NightEncounter : Encounter
     public void Init(Game game, EncounterDef def, WorldMapTile tile, int intensity)
     {
         Intensity = intensity;
-        CampRenderer = Game.EncounterContainer.transform.Find($"NightCamp").GetChild(0).GetComponent<CampRenderer>();
+        CampRenderer = Game.EncounterContainer.transform.Find($"NightCamp").GetComponent<CampRenderer>();
         CampRenderer.gameObject.SetActive(true);
         base.Init(game, def, tile);
     }

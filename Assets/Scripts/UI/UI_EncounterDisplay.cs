@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -37,7 +36,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
     private Coroutine OutcomeAnimCoroutine;
     private Material OutcomeFlashMaterial;
 
-    public void Init(EncounterStep step, OptionOutcomeDef prevOutcome = null) 
+    public void Init(EncounterStep step, OptionOutcomeDef prevOutcome = null)
     {
         Clear();
 
@@ -102,7 +101,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
             optionDisplay.Init(option);
             OptionDisplays.Add(option, optionDisplay);
         }
-        
+
 
         // Option details
         HideOptionDetails();
@@ -218,7 +217,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         foreach (KeyValuePair<Item, int> item in groupedAddedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, true, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
+            outcomeNote.Init(item.Key.Sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
         }
 
         // Removed items
@@ -231,7 +230,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         foreach (KeyValuePair<Item, int> item in groupedRemovedItems)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(item.Key.Sprite, false, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
+            outcomeNote.Init(item.Key.Sprite, UI_EncounterOutcomeNote.ValueChangeType.Removed, item.Value, tooltipTitle: item.Key.Def.LabelCapWord, tooltipText: item.Key.Description);
         }
 
         // Transformed items
@@ -242,17 +241,17 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         }
 
         // Health condition changes
-        foreach(HealthCondition condition in Game.HealthConditionsAddedSinceLastStep)
+        foreach (HealthCondition condition in Game.HealthConditionsAddedSinceLastStep)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(condition.Sprite, isAdded: true, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
+            outcomeNote.Init(condition.Sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
         }
-        foreach(HealthCondition condition in Game.HealthConditionsRemovedSinceLastStep)
+        foreach (HealthCondition condition in Game.HealthConditionsRemovedSinceLastStep)
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
-            outcomeNote.Init(condition.Sprite, isAdded: false, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
+            outcomeNote.Init(condition.Sprite, UI_EncounterOutcomeNote.ValueChangeType.Removed, amount: 1, tooltipTitle: condition.Def.LabelCapWord, tooltipText: condition.Description);
         }
-        foreach(var change in Game.HealthConditionsSeverityChangesSinceLastStep)
+        foreach (var change in Game.HealthConditionsSeverityChangesSinceLastStep)
         {
             HealthCondition condition = change.Key;
             float changeValue = change.Value;
@@ -265,13 +264,13 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
             string increase = isIncrease ? "Increased" : "Decreased";
             string tooltipTitle = $"{increase} {condition.Def.LabelCapWord}";
 
-            outcomeNote.Init(condition.Sprite, isAdded: isIncrease, amount: 1, showIncreaseIndicator: isIncrease, showDecreaseIndicator: !isIncrease, tooltipTitle: tooltipTitle, tooltipText: condition.Description);
+            outcomeNote.Init(condition.Sprite, isIncrease ? UI_EncounterOutcomeNote.ValueChangeType.Increased : UI_EncounterOutcomeNote.ValueChangeType.Decreased, amount: 1, tooltipTitle: tooltipTitle, tooltipText: condition.Description);
         }
 
         // Stat changes
         foreach (var statChange in Game.StatChangesSinceLastStep)
         {
-            if(statChange.Value == 0) continue;
+            if (statChange.Value == 0) continue;
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             outcomeNote.Init(statChange.Key, statChange.Value);
         }
@@ -281,7 +280,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             Sprite sprite = ResourceManager.LoadSprite("UiSprites/RevealEye");
-            outcomeNote.Init(sprite, isAdded: true, Game.NumRevealedLocationEncountersSinceLastStep, tooltipText: $"Revealed {Game.NumRevealedLocationEncountersSinceLastStep} location{(Game.NumRevealedLocationEncountersSinceLastStep > 1 ? "s" : "")} on the world map.");
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, Game.NumRevealedLocationEncountersSinceLastStep, tooltipText: $"Revealed {Game.NumRevealedLocationEncountersSinceLastStep} location{(Game.NumRevealedLocationEncountersSinceLastStep > 1 ? "s" : "")} on the world map.");
         }
 
         // New quests
@@ -289,7 +288,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             Sprite sprite = ResourceManager.LoadSprite("UiSprites/NewNote");
-            outcomeNote.Init(sprite, isAdded: true, Game.NumAddedQuestsSinceLastStep, tooltipText: $"Gained {Game.NumAddedQuestsSinceLastStep} new quest{(Game.NumAddedQuestsSinceLastStep > 1 ? "s" : "")}.");
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, Game.NumAddedQuestsSinceLastStep, tooltipText: $"Gained {Game.NumAddedQuestsSinceLastStep} new quest{(Game.NumAddedQuestsSinceLastStep > 1 ? "s" : "")}.");
         }
 
         // Completed quests
@@ -297,7 +296,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             Sprite sprite = ResourceManager.LoadSprite("UiSprites/QuestCompleted");
-            outcomeNote.Init(sprite, isAdded: true, Game.NumCompletedQuestsSinceLastStep, tooltipText: $"Completed {Game.NumCompletedQuestsSinceLastStep} quest{(Game.NumCompletedQuestsSinceLastStep > 1 ? "s" : "")}.");
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, Game.NumCompletedQuestsSinceLastStep, tooltipText: $"Completed {Game.NumCompletedQuestsSinceLastStep} quest{(Game.NumCompletedQuestsSinceLastStep > 1 ? "s" : "")}.");
         }
 
         // Failed quests
@@ -305,7 +304,7 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
         {
             UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
             Sprite sprite = ResourceManager.LoadSprite("UiSprites/QuestFailed");
-            outcomeNote.Init(sprite, isAdded: false, Game.NumFailedQuestsSinceLastStep, tooltipText: $"Failed {Game.NumFailedQuestsSinceLastStep} quest{(Game.NumFailedQuestsSinceLastStep > 1 ? "s" : "")}.");
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Removed, Game.NumFailedQuestsSinceLastStep, tooltipText: $"Failed {Game.NumFailedQuestsSinceLastStep} quest{(Game.NumFailedQuestsSinceLastStep > 1 ? "s" : "")}.");
         }
 
         // Add slight rotation to all notes

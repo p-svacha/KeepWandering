@@ -5,10 +5,6 @@ Go through all encounters and do:
 - SFX for all option outcomes
 - Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)
 
-Outcome notes improvements:
-- don't show "+" in outcome note when increasing vital health condition
-- don't show outcome note when decreasing vital health condition that is already at 0
-
 item improvements:
 - lighter too small
 - water bottle wrong sound

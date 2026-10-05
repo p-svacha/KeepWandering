@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class UI_EncounterOutcomeNote : MonoBehaviour
 {
+    public enum ValueChangeType { Added, Removed, Increased, Decreased }
     public UI_TooltipTarget TooltipTarget;
 
     public GameObject ItemContainer;
@@ -24,23 +25,22 @@ public class UI_EncounterOutcomeNote : MonoBehaviour
     public Image TransformationMethodIcon;
     public Image TransformationArrowIcon;
 
-    public void Init(Sprite sprite, bool isAdded, int amount = 1, bool showIncreaseIndicator = false, bool showDecreaseIndicator = false, string tooltipTitle = "", string tooltipText = "")
+    public void Init(Sprite sprite, ValueChangeType valueChangeType, int amount = 1, string tooltipTitle = "", string tooltipText = "")
     {
         ItemContainer.SetActive(true);
         StatChangeContainer.SetActive(false);
         TransformContainer.SetActive(false);
 
         ItemIcon.sprite = sprite;
-        PlusText.gameObject.SetActive(isAdded);
-        MinusText.gameObject.SetActive(!isAdded);
 
-        IncreaseIndicator.SetActive(showIncreaseIndicator);
-        DecreaseIndicator.SetActive(showDecreaseIndicator);
-        if (showIncreaseIndicator || showDecreaseIndicator) MinusText.gameObject.SetActive(false); // Hide removed indicator if showing increase/decrease indicator
+        PlusText.gameObject.SetActive(valueChangeType == ValueChangeType.Added);
+        MinusText.gameObject.SetActive(valueChangeType == ValueChangeType.Removed);
+        IncreaseIndicator.SetActive(valueChangeType == ValueChangeType.Increased);
+        DecreaseIndicator.gameObject.SetActive(valueChangeType == ValueChangeType.Decreased);
 
         AmountText.text = "x" + amount.ToString();
         AmountText.gameObject.SetActive(amount > 1);
-        AmountText.color = isAdded ? PlusText.color : MinusText.color;
+        AmountText.color = valueChangeType == ValueChangeType.Added ? PlusText.color : MinusText.color;
 
         TooltipTarget.Init(tooltipTitle, tooltipText);
     }
