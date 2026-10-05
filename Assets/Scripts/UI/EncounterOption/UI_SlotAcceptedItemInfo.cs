@@ -18,6 +18,12 @@ public class UI_SlotAcceptedItemInfo : MonoBehaviour
         {
             TierContainer.transform.GetChild(i).gameObject.SetActive(i < item.Tags[tag]);
         }
+
+        // If the player doesn't have the item, black out the icon.
+        if (!Game.Instance.PlayerHasItem(item))
+        {
+            ItemIcon.color = Color.black;
+        }
     }
 
     /// <summary>

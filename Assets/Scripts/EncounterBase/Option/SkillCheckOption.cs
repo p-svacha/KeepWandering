@@ -13,7 +13,7 @@ public class SkillCheckOption : EncounterOption
     /// <summary>
     /// Base difficulty of the encounter step option, before any modifiers apply.
     /// </summary>
-    public int Difficulty { get; init; }
+    public int BaseDifficulty { get; init; }
 
     /// <summary>
     /// The stats that are relevant for performing this encounter step option, along with the modifier of how much it affects the difficulty of the encounter step option.
@@ -61,7 +61,7 @@ public class SkillCheckOption : EncounterOption
 
         // Validate
         if (Action == null) throw new Exception($"Actions function cannot be null for SkillCheckOption '{Text}'.");
-        if (Difficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
+        if (BaseDifficulty <= MIN_DIFFICULTY) throw new Exception($"Base difficulty must be greater than {MIN_DIFFICULTY} for SkillCheckOption '{Text}'.");
         foreach(var statEntry in RelevantStats)
         {
             if (statEntry.Value < 0) throw new Exception($"Relevant stat modifier for '{statEntry.Key.LabelCapWord}' must be non-negative for SkillCheckOption '{Text}'.");
@@ -84,7 +84,7 @@ public class SkillCheckOption : EncounterOption
     /// </summary>
     public int GetDifficultyValue()
     {
-        int difficulty = Difficulty;
+        int difficulty = BaseDifficulty;
 
         foreach (DifficultyModifier modifier in GetDifficultyModifiers()) difficulty += modifier.Value;
 

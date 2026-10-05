@@ -46,9 +46,9 @@ public class UI_ItemSlotDetailsBox : MonoBehaviour
         HelperFunctions.DestroyAllChildredImmediately(AcceptedItemsContainer);
         foreach (ItemDef itemDef in Slot.GetSlottableItemDefs())
         {
-            UI_SlotAcceptedItemInfo itemInfo = Instantiate(AcceptedItemPrefab, AcceptedItemsContainer.transform);
-            if (Slot.Tag != null && (Slot.Option is SkillCheckOption || Slot.IsTagLevelRelevant)) itemInfo.Init(itemDef, Slot.Tag);
-            else itemInfo.Init(itemDef);
+            UI_SlotAcceptedItemInfo acceptedItemElement = Instantiate(AcceptedItemPrefab, AcceptedItemsContainer.transform);
+            if (Slot.Tag != null && (Slot.Option is SkillCheckOption || Slot.IsTagLevelRelevant)) acceptedItemElement.Init(itemDef, Slot.Tag);
+            else acceptedItemElement.Init(itemDef);
         }
 
         // Destruction / Durability loss

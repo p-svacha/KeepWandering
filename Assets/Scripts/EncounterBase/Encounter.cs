@@ -387,7 +387,7 @@ public abstract class Encounter
             {
                 Text = $"Bandage {wound.Def.LabelCap}",
                 Description = $"Use an item to bandage the {wound.Def.Label}.",
-                Difficulty = 100,
+                BaseDifficulty = 100,
                 Action = (outcome) => TryBandageWound(outcome, wound),
                 CanPartiallySucceed = false,
                 CanCriticallySucceed = true,
@@ -449,7 +449,7 @@ public abstract class Encounter
             {
                 Text = $"Treat Infected {wound.Def.LabelCap}",
                 Description = $"Use an item to treat the {wound.Def.Label}.",
-                Difficulty = 100,
+                BaseDifficulty = 100,
                 Action = (outcome) => TryTreatInfection(outcome, wound),
                 CanCriticallyFail = false,
                 CanPartiallySucceed = false,
@@ -666,7 +666,7 @@ public abstract class Encounter
         {
             Text = $"Cook",
             Description = $"Try cooking something. This will usually make the item better.",
-            Difficulty = 20,
+            BaseDifficulty = 20,
             Action = CookItem,
             Sprite = sprite,
             CanPartiallySucceed = false,

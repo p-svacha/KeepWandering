@@ -134,7 +134,7 @@ public class Encounter_WoundedStranger : LocationEncounter
             Text = "Talk",
             Description = "Try to get them talking. See what they know.",
             Action = Talk,
-            Difficulty = 45,
+            BaseDifficulty = 45,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Social, 3 },
@@ -176,7 +176,7 @@ public class Encounter_WoundedStranger : LocationEncounter
             Text = "Rob",
             Description = "They're in no position to stop you. Take what they have.",
             Action = Rob,
-            Difficulty = 25,
+            BaseDifficulty = 25,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Strength, 2 },
@@ -238,7 +238,7 @@ public class Encounter_WoundedStranger : LocationEncounter
             Text = "Ask for supplies",
             Description = "See if they can spare anything.",
             Action = AskForItems,
-            Difficulty = 35,
+            BaseDifficulty = 35,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Social, 3 }

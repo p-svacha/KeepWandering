@@ -142,6 +142,8 @@ countdown locations
 
 - show biome important stats and description in world map
 
+- add toggle for location icons in world map
+
 - desaturate world map except for player and marked tiles
  - make outline of trees/fields/buildings gray at base maybe (increase lightness on all base images)
 

@@ -146,7 +146,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Text = "Cut wires",
             Description = "Try to safely disconnect the sparking wires.",
             Action = CutWires,
-            Difficulty = 55,
+            BaseDifficulty = 55,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Dexterity, 2 },
@@ -197,7 +197,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Text = "Grab items",
             Description = "Carefully reach in and grab the visible supplies.",
             Action = GrabItems,
-            Difficulty = 40,
+            BaseDifficulty = 40,
             FixedDifficultyModifiers = difficultyModifiers,
             RelevantStats = new Dictionary<StatDef, int>()
             {
@@ -270,7 +270,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Text = "Clear rubble",
             Description = description,
             Action = ClearRubble,
-            Difficulty = 65,
+            BaseDifficulty = 65,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Strength, 2 },
@@ -351,7 +351,7 @@ public class Encounter_CollapsedBuilding : LocationEncounter
             Text = "Crawl in",
             Description = "Squeeze through the narrow gap into the interior. Risky.",
             Action = CrawlIn,
-            Difficulty = 55,
+            BaseDifficulty = 55,
             FixedDifficultyModifiers = difficultyModifiers,
             RelevantStats = new Dictionary<StatDef, int>()
             {

@@ -13,6 +13,9 @@ using UnityEngine.UI;
 /// </summary>
 public class SpriteOptionIndicator : MonoBehaviour
 {
+    public enum DisplayMode { Hidden, Hovered, Revealed, Locked }
+    private DisplayMode CurrentMode = DisplayMode.Hidden;
+
     // Tunable constants
     private const float OUTLINE_WIDTH = 0.2f;
     private const float TEXTURE_SCALE_X = 0.2f;
@@ -20,6 +23,8 @@ public class SpriteOptionIndicator : MonoBehaviour
 
     private const float UI_OFFSET_X = 0f;
     private const float UI_OFFSET_Y = 30f;
+
+    private const float UI_SCREEN_MARGIN = 4f; // distance kept from the canvas edge, in canvas units
 
     // Cached references
     private SpriteRenderer SpriteRenderer;
@@ -222,27 +227,56 @@ public class SpriteOptionIndicator : MonoBehaviour
 
 
     /// <summary>
-    /// Shows/hides the label and options container based on current hover/lock state.
-    /// Called every frame for every registered indicator, so display state is always
-    /// fully recomputed rather than relying on edge-triggered show/hide calls.
+    /// Applies the given display mode to the label and options container. Called every frame for every
+    /// registered indicator, so the visuals are always fully reapplied (the calls are cheap and guarded)
+    /// rather than relying on edge-triggered show/hide. Only the repositioning is edge-triggered.
     /// </summary>
-    public void SetDisplayState(bool isHovered, bool isLocked)
+    public void SetDisplayMode(DisplayMode mode)
     {
-        if (isLocked)
+        bool modeChanged = mode != CurrentMode;
+        CurrentMode = mode;
+
+        switch (mode)
         {
-            LabelElement.Hide();
-            OptionsContainer.Show();
+            case DisplayMode.Locked:
+                LabelElement.Hide();
+                OptionsContainer.Show(showCancelButton: true);
+                BringContainerToFront();
+                break;
+
+            case DisplayMode.Revealed:
+                LabelElement.Hide();
+                OptionsContainer.Show(showCancelButton: false);
+                break;
+
+            case DisplayMode.Hovered:
+                // LabelElement.Show(); // Currently disabled, looks better without
+                OptionsContainer.Hide();
+                break;
+
+            case DisplayMode.Hidden:
+                LabelElement.Hide();
+                OptionsContainer.Hide();
+                break;
         }
-        else if (isHovered)
+
+        // The card's size differs between modes (cancel button) and is only accurate while active,
+        // so clamp against the real size whenever it is (re)shown or changes.
+        if (modeChanged && (mode == DisplayMode.Revealed || mode == DisplayMode.Locked))
         {
-            // LabelElement.Show(); // Currently disabled, looks better without
-            OptionsContainer.Hide();
+            RefreshOptionsContainerPosition();
         }
-        else
-        {
-            LabelElement.Hide();
-            OptionsContainer.Hide();
-        }
+    }
+
+    private void RefreshOptionsContainerPosition()
+    {
+        OptionsContainer.SetAnchoredPosition(ComputeUiAnchorPosition(OptionsContainer.GetComponent<RectTransform>()));
+    }
+
+    private void BringContainerToFront()
+    {
+        Transform t = OptionsContainer.transform;
+        if (t.parent != null && t.GetSiblingIndex() != t.parent.childCount - 1) t.SetAsLastSibling();
     }
 
     /// <summary>
@@ -251,7 +285,7 @@ public class SpriteOptionIndicator : MonoBehaviour
     /// </summary>
     public void RefreshUiPosition()
     {
-        OptionsContainer.SetAnchoredPosition(ComputeUiAnchorPosition(OptionsContainer.GetComponent<RectTransform>()));
+        RefreshOptionsContainerPosition();
         LabelElement.SetAnchoredPosition(ComputeUiAnchorPosition(LabelElement.GetComponent<RectTransform>()));
     }
 
@@ -285,11 +319,12 @@ public class SpriteOptionIndicator : MonoBehaviour
 
         Vector2 canvasSize = canvasRect.rect.size;
         Vector2 targetSize = target.rect.size;
+        Vector2 pivot = target.pivot;
 
-        float minX = -canvasSize.x * 0.5f;
-        float maxX = canvasSize.x * 0.5f - targetSize.x;
-        float minY = -canvasSize.y * 0.5f;
-        float maxY = canvasSize.y * 0.5f - targetSize.y;
+        float minX = -canvasSize.x * 0.5f + pivot.x * targetSize.x + UI_SCREEN_MARGIN;
+        float maxX = canvasSize.x * 0.5f - (1f - pivot.x) * targetSize.x - UI_SCREEN_MARGIN;
+        float minY = -canvasSize.y * 0.5f + pivot.y * targetSize.y + UI_SCREEN_MARGIN;
+        float maxY = canvasSize.y * 0.5f - (1f - pivot.y) * targetSize.y - UI_SCREEN_MARGIN;
 
         localPoint.x = Mathf.Clamp(localPoint.x, minX, maxX);
         localPoint.y = Mathf.Clamp(localPoint.y, minY, maxY);

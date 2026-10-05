@@ -26,6 +26,13 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private int PreviewIndex;
     private List<ItemDef> SlottableItemDefs;
 
+    // Colors
+    public static readonly Color SlotBackground_Filled = new Color(0.59f, 1f, 0.47f);
+    public static readonly Color SlotBackground_Empty_Available = new Color(1f, 0.98f, 0.78f);
+
+    public static readonly Color SlotBackground_NotReq_Empty_Unavailable = new Color(0.79f, 0.61f, 0.60f);
+    public static readonly Color SlotBackground_Req_Empty_Unavailable = new Color(0.96f, 0.58f, 0.54f);
+
     public void Init(ItemSlot itemSlot)
     {
         ItemSlot = itemSlot;
@@ -59,33 +66,33 @@ public class UI_ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetFilledDisplay()
     {
-        Background.color = ResourceManager.Color_Option_Slot_Req_Met; // Green
+        Background.color = SlotBackground_Filled;
         ItemIcon.sprite = ItemSlot.FilledItem.Def.Sprite;
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Filled");
         ItemIcon.color = Color.white;
         DestroyedIndicator.color = new Color(0.78f, 0.37f, 0.32f);
-
-        if (ItemSlot.IsRequired) IsRequiredIndicator.color = ResourceManager.Color_Option_Slot_Req_Met;
 
         UpdatePreviewDisplay(ItemSlot.FilledItem.Def);
     }
 
     private void SetUnfilledDisplay()
     {
-        bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
-        Color targetColor = playerHasSlottableItems ? ResourceManager.Color_Option_Slot : ResourceManager.Color_Option_Slot_Req_Unmet;
-
         // Background color
-        Background.color = targetColor;
+        Color backgroundColor;
+
+        bool playerHasSlottableItems = ItemSlot.PlayerHasSlottableItem();
+        if (playerHasSlottableItems) backgroundColor = SlotBackground_Empty_Available;
+        else if (ItemSlot.IsRequired) backgroundColor = SlotBackground_Req_Empty_Unavailable;
+        else backgroundColor = SlotBackground_NotReq_Empty_Unavailable;
+        Background.color = backgroundColor;
+
+        if (ItemSlot.IsRequired) IsRequiredIndicator.color = backgroundColor;
 
         // Sprite handled in Update (cycling through possible items that can be dragged into this slot)
         ItemIcon.material = ResourceManager.LoadMaterial("Materials/UI/ItemSlotIconMaterial_Unfilled");
         ItemIcon.color = new Color(1f, 1f, 1f, 0.3f);
         Color greyedOutIndicatorColor = new Color(0.5f, 0.5f, 0.5f);
         DestroyedIndicator.color = greyedOutIndicatorColor;
-
-        // REQ indicator
-        if (ItemSlot.IsRequired) IsRequiredIndicator.color = targetColor;
     }
 
     private void Update()

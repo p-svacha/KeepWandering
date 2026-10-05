@@ -5,14 +5,6 @@ Go through all encounters and do:
 - SFX for all option outcomes
 - Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)
 
-Encounter Option UI improvements:
-- show difficulty of encounter options on the encounter options before hovering over them, together (or instead of?) with skillcheck option as they are related
-- add tooltip to skill check indicator (generic explanation)
-- add hint in details when there is no usable item in the inventory (red color)
-- in option details, add gap between descriptions and other panels
-- hide label in outcome bar for very low numbers
-- When holding alt (which highlights sprite encounter option sprites), also show the option UI component (UI_EncounterStepOption) while holding
-
 Outcome notes improvements:
 - don't show "+" in outcome note when increasing vital health condition
 - don't show outcome note when decreasing vital health condition that is already at 0

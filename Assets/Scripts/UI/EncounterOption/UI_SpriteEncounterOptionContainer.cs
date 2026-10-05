@@ -12,6 +12,7 @@ public class UI_SpriteEncounterOptionContainer : MonoBehaviour
     public Button CancelLockButtonPrefab;
 
     // Tracked state
+    private Button CancelButton;
     public Dictionary<EncounterOption, UI_EncounterStepOption> OptionDisplays { get; private set; }
 
     public void Init(List<EncounterOption> options)
@@ -28,8 +29,8 @@ public class UI_SpriteEncounterOptionContainer : MonoBehaviour
         }
 
         // Add cancel button
-        Button cancelButton = Instantiate(CancelLockButtonPrefab, transform);
-        cancelButton.onClick.AddListener(() => SpriteOptionInteractionManager.ClearLock());
+        CancelButton = Instantiate(CancelLockButtonPrefab, transform);
+        CancelButton.onClick.AddListener(() => SpriteOptionInteractionManager.ClearLock());
 
         // Rebuild while active
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
@@ -38,9 +39,22 @@ public class UI_SpriteEncounterOptionContainer : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Show()
+    /// <summary>
+    /// Shows the container. The cancel-lock button is only meaningful while the sprite is actually locked,
+    /// so callers say whether it should be visible (it's hidden when the options are only revealed via Alt).
+    /// </summary>
+    public void Show(bool showCancelButton)
     {
         gameObject.SetActive(true);
+        SetCancelButtonVisible(showCancelButton);
+    }
+
+    private void SetCancelButtonVisible(bool visible)
+    {
+        if (CancelButton == null || CancelButton.gameObject.activeSelf == visible) return;
+
+        CancelButton.gameObject.SetActive(visible);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>()); // card size changes with the button
     }
 
     public void Hide()

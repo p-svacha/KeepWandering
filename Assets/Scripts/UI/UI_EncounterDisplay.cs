@@ -191,12 +191,13 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
 
     public void RefreshOption(EncounterOption option)
     {
+        // Option display
         OptionDisplays[option].Refresh();
 
         // Option details
         if (OptionDetailsPanel.gameObject.activeSelf) OptionDetailsPanel.Refresh();
 
-        // Item slot
+        // Item slot details
         if (ItemSlotDetailsBox.gameObject.activeSelf) ItemSlotDetailsBox.Refresh();
 
         // Sprite-bound option availability color

@@ -26,9 +26,9 @@ public class UI_StatRequirementSlot : MonoBehaviour
         bool isMet = Game.Instance.Player.GetStatValue(StatRequirement.Key) >= StatRequirement.Value;
 
         // Green for met, red for unmet
-        Color targetColor = isMet ? ResourceManager.Color_Option_Slot_Req_Met : ResourceManager.Color_Option_Slot_Req_Unmet;
+        Color backgroundColor = isMet ? UI_ItemSlot.SlotBackground_Filled : UI_ItemSlot.SlotBackground_Req_Empty_Unavailable;
 
-        Background.color = targetColor;
-        IsRequiredIndicator.color = targetColor;
+        Background.color = backgroundColor;
+        IsRequiredIndicator.color = backgroundColor;
     }
 }

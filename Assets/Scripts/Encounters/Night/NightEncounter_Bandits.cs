@@ -73,7 +73,7 @@ public class NightEncounter_Bandits : NightEncounter
             Text = "Fight",
             Description = description,
             Action = Fight,
-            Difficulty = difficulty,
+            BaseDifficulty = difficulty,
             FixedDifficultyModifiers =
             {
                 new ("Caught hiding", IsPlayerCaughtHiding ? +15 : 0),
@@ -148,7 +148,7 @@ public class NightEncounter_Bandits : NightEncounter
             Text = "Sneak away",
             Description = "Try to slip past them in the dark to save your skin. They seem focused on the loot.",
             Action = SneakAway,
-            Difficulty = difficulty,
+            BaseDifficulty = difficulty,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {
                 { BiomeDefOf.Woods, -15 },
@@ -224,7 +224,7 @@ public class NightEncounter_Bandits : NightEncounter
             Text = "Intimidate",
             Description = description,
             Action = Intimidate,
-            Difficulty = difficulty,
+            BaseDifficulty = difficulty,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Social, 2 },
@@ -286,7 +286,7 @@ public class NightEncounter_Bandits : NightEncounter
             Text = "Hide",
             Description = "Hold your breath and don't move. Maybe they'll take what they want and leave.",
             Action = Hide,
-            Difficulty = difficulty,
+            BaseDifficulty = difficulty,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {
                 { BiomeDefOf.Woods, -15 }
@@ -341,7 +341,7 @@ public class NightEncounter_Bandits : NightEncounter
             Text = "Beg",
             Description = "Plead with them to leave you something.",
             Action = Beg,
-            Difficulty = difficulty,
+            BaseDifficulty = difficulty,
             RelevantStats = new Dictionary<StatDef, int>()
             {
                 { StatDefOf.Social, 3 },

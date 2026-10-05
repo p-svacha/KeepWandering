@@ -14,7 +14,10 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
     public TextMeshProUGUI EventOptionText;
     public Button OptionButton;
     public GameObject SkillCheckIndicator;
+    public UI_TooltipTarget SkillCheckIndicator_TooltipTarget;
+    public TextMeshProUGUI SkillCheckIndicator_DifficultyText;
     public GameObject ItemSlotContainer;
+    
 
     [Header("Prefabs")]
     public UI_ItemSlot ItemSlotPrefab;
@@ -30,7 +33,12 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
         EventOptionText.text = option.Text;
         OptionButton.onClick.AddListener(() => ChoseOption(Game, option));
-        SkillCheckIndicator.SetActive(option is SkillCheckOption);
+        if (option is SkillCheckOption skillCheckOption)
+        {
+            SkillCheckIndicator.SetActive(true);
+            SkillCheckIndicator_TooltipTarget.Init("Skill Check", $"This option is a skill check, meaning it requires a roll against a difficulty to determine the outcome.");
+        }
+        else SkillCheckIndicator.SetActive(false);
 
         HelperFunctions.DestroyAllChildredImmediately(ItemSlotContainer);
 
@@ -66,12 +74,27 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         OptionButton.interactable = canSelect;
         OptionButton.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled;
         SkillCheckIndicator.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled;
+
+        // Difficulty
+        UpdateDifficulty();
+    }
+
+    public void UpdateDifficulty()
+    {
+        if (Option is SkillCheckOption skillCheckOption)
+        {
+            SkillCheckIndicator_DifficultyText.text = skillCheckOption.GetDifficultyValue().ToString();
+        }
     }
 
     private void ChoseOption(Game game, EncounterOption option)
     {
         if (game.State == GameState.InGame)
         {
+            // Sprite-bound option chosen without being locked (e.g. via the Alt reveal): lock it now,
+            // so the card stays visible after Alt is released while the option resolves.
+            SpriteOptionInteractionManager.EnsureLockedForOption(option);
+
             game.SelectEncounterOption(option);
         }
     }
@@ -95,5 +118,17 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         OptionButton.GetComponent<Image>().color = greyedOut ? ResourceManager.Color_Button_Disabled : (canSelect ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled);
         SkillCheckIndicator.GetComponent<Image>().color = greyedOut ? ResourceManager.Color_Button_Disabled : (canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled);
         OptionButton.interactable = !greyedOut && canSelect;
+    }
+
+    private void OnDisable()
+    {
+        // Deactivated while hovered (e.g. the Alt-revealed card hiding on release): OnPointerExit never fires,
+        // so clear the hover state and everything it triggered by hand.
+        if (ItemDragDropManager.HoveredOptionDisplay != this) return;
+
+        ItemDragDropManager.HoveredOptionDisplay = null;
+
+        if (UI_EncounterDisplay.Instance != null) UI_EncounterDisplay.Instance.OnOptionUnhovered();
+        SkillCheckIndicator_TooltipTarget.HideTooltip();
     }
 }

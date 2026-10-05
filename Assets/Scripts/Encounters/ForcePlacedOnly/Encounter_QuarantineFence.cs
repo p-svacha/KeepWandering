@@ -46,7 +46,7 @@ public class Encounter_QuarantineFence : LocationEncounter
             Text = "Cut fence",
             Description = "Use fence cutters to cut through the fence and get to the other side.",
             Action = CutFence,
-            Difficulty = 10,
+            BaseDifficulty = 10,
             OncePerDay = true,
             CanCriticallyFail = false,
             CanCriticallySucceed = false,

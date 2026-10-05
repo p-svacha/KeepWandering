@@ -74,7 +74,7 @@ public class UI_OptionDetails : MonoBehaviour
             HelperFunctions.DestroyAllChildredImmediately(OutcomeLabelContainer);
             foreach (SkillCheckOutcomeChance outcome in outcomes)
             {
-                if(outcome.Chance < 0.02f) continue; // Skip labels for very small chances to avoid cluttering the UI
+                if(outcome.Chance < 0.03f) continue; // Skip labels for very small chances to avoid cluttering the UI
 
                 UI_LabelValueRow label = Instantiate(BarLabelPrefab, OutcomeLabelContainer.transform);
                 label.Init(outcome.Label, $"{outcome.Chance * 100f:0}%");
@@ -90,7 +90,7 @@ public class UI_OptionDetails : MonoBehaviour
 
             // Base difficulty
             UI_LabelValueRow baseValueLabel = Instantiate(DifficultyModifierPrefab, DifficultyModifiersContainer.transform);
-            baseValueLabel.Init("Base Difficulty", skillCheckOption.Difficulty.ToString());
+            baseValueLabel.Init("Base Difficulty", skillCheckOption.BaseDifficulty.ToString());
             baseValueLabel.SetBold(true);
 
             // Modifiers

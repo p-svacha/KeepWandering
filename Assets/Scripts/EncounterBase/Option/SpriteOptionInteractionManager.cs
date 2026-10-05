@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public static class SpriteOptionInteractionManager
 {
     // Tunable constants
-    private const float DRAG_HOLD_TO_LOCK_TIME = 1.5f;
+    private const float DRAG_HOLD_TO_LOCK_TIME = 1.0f;
 
     private const float OUTLINE_OFFSET = 0.15f;
     private const float MIN_OPACITY = 0f;
@@ -55,7 +55,7 @@ public static class SpriteOptionInteractionManager
         // Bind it with the container and options
         indicator.Bind(container, label, options);
         indicator.RefreshUiPosition();
-        indicator.SetDisplayState(false, false);
+        indicator.SetDisplayMode(SpriteOptionIndicator.DisplayMode.Hidden);
 
         // Track it
         if (!ActiveIndicators.ContainsKey(sprite))
@@ -210,8 +210,15 @@ public static class SpriteOptionInteractionManager
                     targetOpacity = 0f;
                 }
 
+                // Determine the display mode for this indicator based on its state
+                SpriteOptionIndicator.DisplayMode mode;
+                if (indicator == LockedIndicator) mode = SpriteOptionIndicator.DisplayMode.Locked;
+                else if (revealHotspots) mode = SpriteOptionIndicator.DisplayMode.Revealed;
+                else if (indicator == effectiveHoveredIndicator) mode = SpriteOptionIndicator.DisplayMode.Hovered;
+                else mode = SpriteOptionIndicator.DisplayMode.Hidden;
+
                 indicator.SetOutlineOpacity(targetOpacity);
-                indicator.SetDisplayState(indicator == effectiveHoveredIndicator, indicator == LockedIndicator);
+                indicator.SetDisplayMode(mode);
             }
 
             HoveredIndicator = hoveredIndicator;
@@ -274,6 +281,7 @@ public static class SpriteOptionInteractionManager
     {
         if (LockedIndicator == null) return;
 
+        AudioManager.PlaySound("IphoneUnlock");
 
         LockedIndicator.SetLockedLineMaterial(false);
 
@@ -294,6 +302,7 @@ public static class SpriteOptionInteractionManager
 
     private static void LockIndicator(SpriteOptionIndicator indicator)
     {
+        AudioManager.PlaySound("IphoneLock");
         LockedIndicator = indicator;
         LockedIndicator.SetLockedLineMaterial(true);
     }
@@ -308,6 +317,17 @@ public static class SpriteOptionInteractionManager
             if (LockedIndicator != null) ClearLock();
             LockIndicator(indicator);
         }
+    }
+
+    /// <summary>
+    /// If the given option is bound to a sprite, makes sure that sprite's indicator is locked. Used when an option
+    /// is chosen without having been locked first (e.g. while only revealed via Alt), so its card stays visible
+    /// while the option resolves, such as during a skill check roll.
+    /// </summary>
+    public static void EnsureLockedForOption(EncounterOption option)
+    {
+        if (option.Sprite == null) return;
+        if (ActiveIndicators.TryGetValue(option.Sprite, out SpriteOptionIndicator indicator)) EnsureLocked(indicator);
     }
 
     private static void HandleDragHold()

@@ -334,6 +334,7 @@ During an encounter, free item use is disabled. Items can only be used through o
 ## Encounter Types
 
 ### Location encounters
+
 The main afternoon encounters. Location encounters are bound to a tile and persistent, meaning they keep their state and can be returned to another day. Usually generated when the tile is first entered, based on biome and game state; some are **predetermined** (quest, landmark, or temporary rumour markers) and visible on the map beforehand, giving the player direction and goals.
 
 ### Evening encounters
@@ -367,11 +368,12 @@ Setting up a camp grants a temporary morale-boosting health condition the follow
 **Train Skill:** Skill check, one option per biome, training a specific skill (see Skills). Difficulty self-scales against the player's current value in that skill so it tapers off as the skill grows. Each has an associated item tag for difficulty reduction. Woods trains Survival, Outskirts trains Dexterity, City trains Social.
 
 ### Night encounters
+
 Threat encounters during the night, **not persistent**, overwhelmingly about *avoiding* bad outcomes rather than gaining good ones (though critical success can still help). Usually an attack on the camp.
 
 **Intensity** (1–3) is rolled from the tile's danger level. Each trap set in the evening reduces intensity by 1 (reducing it below 1 nullifies the encounter). Intensity typically scales the number/strength of attackers and the severity of outcomes.
 
-## Design Philosophy
+## Encounter Design Philosophy
 
 The first priority of every encounter is **interesting, meaningful choices**. Fun gameplay outranks realism.
 
@@ -379,7 +381,7 @@ The first priority of every encounter is **interesting, meaningful choices**. Fu
 - **Everything fits one fixed screen.** No camera control; the player never moves. Outcomes are shown by swapping sprites, a sound, and simple effects, not animation. Encounters may set a **camera zoom level** (orthographic size ~6–12) for a sense of scale (a crate is tight; a radio tower is wide), or a **x offset** to set the camera position, if something behind the player or very far away from the player should be visible.
 - **Lightweight biome influence only**, never per-biome bespoke handling.
 - **Mini-quests and interconnection.** Lean on the persistent location-encounter system: encounters should frequently imply a simple next goal (a buried cache that needs a shovel, a flare that promises a drop in 10 days, a persistent trader to return to). These needn't be real quest-log entries, just clear, inherent reasons to route and backtrack. Landmarks visible from the start should telegraph what they offer (a pharmacy → medical, a fuel station → fuel).
-- **Focussed.** Encounters should have a clear purpose and avoid unnecessary complexity.
+- **Focussed.** Encounters should have a clear purpose and avoid unnecessary complexity. This also means that rather than having an encounter with multiple, distinct variants, it is often better to have multiple encounters with a single variant each. This allows for more focused and clear design, and also to flesh out the individual encounters more, and giving each one an own identity. Encounters can and should still have per-instance variation (e.g. a random loot table, elements that are either present or absent), just not multiple initial states that are completely distinct from each other.
 
 ### Step Composition (rule of thumb)
 

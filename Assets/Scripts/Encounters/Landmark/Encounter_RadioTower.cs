@@ -128,7 +128,7 @@ public class Encounter_RadioTower : LocationEncounter
             Description = "You think to hear a faint voice in the static. Try understanding it.",
             Action = Listen,
             OncePerDay = true,
-            Difficulty = 90,
+            BaseDifficulty = 90,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
         };
@@ -166,7 +166,7 @@ public class Encounter_RadioTower : LocationEncounter
             Description = "Try to force the door open.",
             Action = ForceDoor,
             OncePerDay = true,
-            Difficulty = 80,
+            BaseDifficulty = 80,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,
             CanCriticallyFail = false,
@@ -209,7 +209,7 @@ public class Encounter_RadioTower : LocationEncounter
             Description = "Climb the radio tower to get a better view of the surroundings.",
             Action = ClimbTower,
             OncePerDay = true,
-            Difficulty = 70,
+            BaseDifficulty = 70,
             CanPartiallySucceed = false,
             RelevantStats = new Dictionary<StatDef, int>()
             {

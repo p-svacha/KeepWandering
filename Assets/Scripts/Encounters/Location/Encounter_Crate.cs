@@ -111,7 +111,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = $"Take {VisibleCrateItem.Label}",
             Description = $"Try to squeeze the {VisibleCrateItem.Label} through the hole.",
-            Difficulty = 50,
+            BaseDifficulty = 50,
             CanCriticallyFail = false,
             OncePerDay = true,
             RelevantStats = new Dictionary<StatDef, int>()
@@ -173,7 +173,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Smash",
             Description = "Try to destroy the crate to get its content. This might destroy some items inside.",
-            Difficulty = 70,
+            BaseDifficulty = 70,
             OncePerDay = true,
             RelevantStats = new Dictionary<StatDef, int>()
             {
@@ -243,7 +243,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Pry Open",
             Description = "Try to pry open the top of the crate.",
-            Difficulty = 20,
+            BaseDifficulty = 20,
             OncePerDay = true,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
@@ -293,7 +293,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Peek inside",
             Description = "Try to peek inside the crate to see if there are more items hidden within.",
-            Difficulty = 40,
+            BaseDifficulty = 40,
             OncePerDay = true,
             CanCriticallySucceed = false,
             CanPartiallySucceed = false,

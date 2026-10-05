@@ -99,7 +99,7 @@ public class EveningEncounter : Encounter
             Text = "Make Fire",
             Description = $"Get a fire going. Enables cooking, keeps wildlife away for the night, and gives +{Camp.FIRE_MORALE_BONUS} morale for the next day.",
             Sprite = CampRenderer.FireSpot,
-            Difficulty = 120,
+            BaseDifficulty = 120,
             BiomeDifficultyModifiers = new Dictionary<BiomeDef, int>()
             {
                 { BiomeDefOf.Woods, -10 },
@@ -204,7 +204,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Scavenge",
             Description = "Search the area for anything useful.",
-            Difficulty = GetScavengeDifficulty(),
+            BaseDifficulty = GetScavengeDifficulty(),
             Action = Scavenge,
             RelevantStats = new Dictionary<StatDef, int>()
             {
@@ -278,7 +278,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Train Survival Skill",
             Description = "Try studying the wilderness and your bushcraft skills.",
-            Difficulty = 50,
+            BaseDifficulty = 50,
             CanCriticallyFail = false,
             CanPartiallySucceed = false,
             FixedDifficultyModifiers =
@@ -342,7 +342,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Train Social Skill",
             Description = "Try to meet and talk to people to improve your social skills.",
-            Difficulty = 50,
+            BaseDifficulty = 50,
             CanCriticallyFail = false,
             CanPartiallySucceed = false,
             FixedDifficultyModifiers =
@@ -393,7 +393,7 @@ public class EveningEncounter : Encounter
         {
             Text = "Find Trader",
             Description = "Seek out someone willing to trade.",
-            Difficulty = 55,
+            BaseDifficulty = 55,
             CanPartiallySucceed = false,
             Action = FindTrader,
             RelevantStats = new Dictionary<StatDef, int>()
