@@ -57,8 +57,7 @@ public class Game : MonoBehaviourSingleton<Game>
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
     // Quests
-    public Dictionary<QuestDef, QuestState> QuestStates;
-    public List<Quest> ActiveQuests;
+    public List<Quest> Quests;
     public string WinGameReason { get; private set; }
 
     // Elements
@@ -117,12 +116,7 @@ public class Game : MonoBehaviourSingleton<Game>
         new Camp();
 
         // Init quests
-        QuestStates = new Dictionary<QuestDef, QuestState>();
-        foreach (QuestDef questDef in DefDatabase<QuestDef>.AllDefs)
-        {
-            QuestStates.Add(questDef, global::QuestState.Inactive);
-        }
-        ActiveQuests = new List<Quest>();
+        Quests = new List<Quest>();
 
         // Init world
         WorldMapGenerator.GenerateWorld(zoneRadius: 9, numAdditionalTiles: 60, numCities: 3);
@@ -1390,25 +1384,40 @@ public class Game : MonoBehaviourSingleton<Game>
         OnGameStateChanged();
     }
 
-    public bool HasQuestStarted(QuestDef quest) => QuestStates[quest] != QuestState.Inactive;
-    public bool IsQuestActive(QuestDef quest) => QuestStates[quest] == QuestState.Active;
-    public bool IsQuestCompleted(QuestDef quest) => QuestStates[quest] == QuestState.Completed || QuestStates[quest] == QuestState.Failed;
+    private Quest GetQuestInstance(QuestDef questDef)
+    {
+        if (questDef.CanHaveMultipleInstances) throw new System.Exception("GetQuestInstance() cannot be used for quests that can have multiple instances. Use IsQuestActive or IsQuestCompleted instead.");
+
+        return Quests.FirstOrDefault(q => q.Def == questDef);
+    }
+    private bool HasQuest(QuestDef questDef) => Quests.Any(q => q.Def == questDef);
+
+    public bool IsQuestActive(QuestDef questDef)
+    {
+        Quest quest = GetQuestInstance(questDef);
+        return quest != null && quest.State == QuestState.Active;
+    }
+    public bool IsQuestCompleted(QuestDef questDef)
+    {
+        Quest quest = GetQuestInstance(questDef);
+        return quest != null && (quest.State == QuestState.Completed || quest.State == QuestState.Failed);
+    }
 
     /// <summary>
     /// Starts a new quest from the given QuestDef. The quest text is taken from QuestDef.QuestText (or PartialQuestText if partial is true).
     /// <br/>If the QuestDef has a PlacedEncounterDef and no location is provided, an encounter is automatically placed on a nearby empty tile.
     /// <br/>Returns the created Quest instance, or null if the quest could not be started (e.g. no empty tile for auto-placement).
     /// </summary>
-    public Quest StartQuest(QuestDef questDef, WorldMapTile location = null, Area area = null, bool partial = false)
+    public Quest StartQuest(QuestDef questDef, WorldMapTile location = null, Area area = null, ItemDef relatedItem = null)
     {
-        if (!questDef.IsRepeatable && IsQuestCompleted(questDef))
+        if (!questDef.CanHaveMultipleInstances && HasQuest(questDef))
         {
-            throw new System.Exception("Trying to add quest that is already completed! " + questDef.Label);
+            throw new System.Exception("Trying to add quest that is already active! " + questDef.Label);
         }
 
         // Create quest with text from the QuestDef
-        string questText = partial ? questDef.PartialQuestText : questDef.QuestText;
-        Quest quest = new Quest(questDef, questText, location, area);
+        string questText = questDef.QuestText;
+        Quest quest = new Quest(questDef, questText, location, area, relatedItem);
 
         // Auto-place encounter if QuestDef requires it and no location is specified
         if (questDef.PlacedEncounterDef != null && quest.Location == null)
@@ -1429,39 +1438,16 @@ public class Game : MonoBehaviourSingleton<Game>
         else if (quest.Area != null)
             quest.FormatText(quest.Area.Name);
 
-        if (!questDef.IsRepeatable)
-        {
-            // For non-repeatable quests, replace any existing active instance
-            ActiveQuests.RemoveAll(q => q.QuestDef == questDef);
-        }
-
-        ActiveQuests.Add(quest);
-        QuestStates[questDef] = QuestState.Active;
+        Quests.Add(quest);
         NumAddedQuestsSinceLastStep++;
 
         OnGameStateChanged();
         return quest;
     }
-    public void CompleteQuest(QuestDef questDef)
-    {
-        Quest quest = ActiveQuests.Find(q => q.QuestDef == questDef);
-        if (quest != null) CompleteQuest(quest);
-    }
+
     public void CompleteQuest(Quest quest)
     {
-        ActiveQuests.Remove(quest);
-
-        if (quest.QuestDef.IsRepeatable)
-        {
-            // Repeatable quests go back to Inactive when no instances remain
-            if (!ActiveQuests.Exists(q => q.QuestDef == quest.QuestDef))
-                QuestStates[quest.QuestDef] = QuestState.Inactive;
-        }
-        else
-        {
-            QuestStates[quest.QuestDef] = QuestState.Completed;
-        }
-
+        quest.SetState(QuestState.Completed);
         NumCompletedQuestsSinceLastStep++;
         OnGameStateChanged();
     }
@@ -1473,21 +1459,6 @@ public class Game : MonoBehaviourSingleton<Game>
     /// </summary>
     public string LearnRumour()
     {
-        return LearnRumourInternal(partial: false);
-    }
-
-    /// <summary>
-    /// Learns a rumour partially. The encounter location is still revealed and a quest is created,
-    /// but the player does not know what to expect at the location.
-    /// Returns null if no rumour could be learned (e.g. no empty tiles nearby).
-    /// </summary>
-    public string LearnPartialRumour()
-    {
-        return LearnRumourInternal(partial: true);
-    }
-
-    private string LearnRumourInternal(bool partial)
-    {
         // Pick a random rumour
         List<RumourDef> candidates = DefDatabase<RumourDef>.AllDefs;
         if (candidates.Count == 0)
@@ -1498,12 +1469,12 @@ public class Game : MonoBehaviourSingleton<Game>
         RumourDef rumourDef = candidates.RandomElement();
 
         // Start quest (auto-placement and text formatting handled by StartQuest)
-        Quest quest = StartQuest(rumourDef.QuestDef, partial: partial);
+        Quest quest = StartQuest(rumourDef.QuestDef);
         if (quest == null) return null;
 
         // Format and return rumour text
         string coordinates = quest.Location?.Coordinates.ToString() ?? "";
-        string rumourText = string.Format(partial ? rumourDef.PartialRumourText : rumourDef.RumourText, coordinates);
+        string rumourText = string.Format(rumourDef.RumourText, coordinates);
         return $"\n\nYou learned a rumour: {rumourText} A new quest has been added to your quest log.";
     }
 

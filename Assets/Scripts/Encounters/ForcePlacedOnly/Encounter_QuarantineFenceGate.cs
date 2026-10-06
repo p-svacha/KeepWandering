@@ -51,7 +51,8 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
     {
         if (Phase == EncounterPhase.Initial) options.Add(GetAskToLeaveOption());
         if (Phase == EncounterPhase.AskedToOpen) options.Add(GetSweekTalkOption());
-        if (Phase == EncounterPhase.AskedToOpen) options.Add(GetBribeOption());)
+        if (Phase == EncounterPhase.AskedToOpen) options.Add(GetBribeOption());
+        if (Phase == EncounterPhase.BribeDemanded) options.AddRange(GetDeliverBribeOptions());
     }
 
     protected override void RefreshSprites()
@@ -70,9 +71,9 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
         for (int i = 0; i < numDemands; i++) Demands.Add(ItemDefOf.Coin);
         for (int i = 0; i < numDemands; i++) Demands.Add(DEMAND_TABLE.Resolve());
 
-        foreach(ItemDef item in Demands)
+        foreach (ItemDef item in Demands)
         {
-            Game.AddItemToWorld(item, Game.CurrentPosition);
+            Game.StartQuest(QuestDefOf.DeliverGuardBribe, location: Tile, relatedItem: item);
         }
 
         Phase = EncounterPhase.BribeDemanded;
@@ -196,7 +197,34 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
 
     private List<FixedOutcomeOption> GetDeliverBribeOptions()
     {
-        
+        List<FixedOutcomeOption> options = new List<FixedOutcomeOption>();
+        foreach(ItemDef demandedItem in Demands)
+        {
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = $"Deliver {demandedItem.Label}",
+                Description = $"Put the {demandedItem.Label} in the bucket for the guard.",
+                Sprite = GetSprite("Bucket"),
+                Action = DeliverDemandedItem,
+                ItemSlots =
+                {
+                    new ItemSlot()
+                    {
+                        Item = demandedItem,
+                        IsRequired = true,
+                        IsDestroyingItem = true,
+                    }
+                }
+            });
+        }
+        return options;
+    }
+    private string DeliverDemandedItem()
+    {
+        Item deliveredItem = ItemUsedInOption;
+        Demands.Remove(deliveredItem.Def);
+
+        return $"\"Thank you for delivering the {deliveredItem.Def.Label}.\"";
     }
 
     #endregion

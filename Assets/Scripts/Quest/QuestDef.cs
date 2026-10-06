@@ -6,9 +6,8 @@ public class QuestDef : Def
 
     /// <summary>
     /// Whether this quest can have multiple active instances at the same time.
-    /// When a repeatable quest is completed, its state returns to Inactive instead of Completed.
     /// </summary>
-    public bool IsRepeatable { get; init; } = false;
+    public bool CanHaveMultipleInstances { get; init; } = false;
 
     /// <summary>
     /// The DefName of the EncounterDef that is automatically placed on a nearby tile when this quest is started.
@@ -35,10 +34,14 @@ public class QuestDef : Def
     public string QuestText { get; init; } = "";
 
     /// <summary>
-    /// The quest log text when the quest is only partially known (e.g. learned from a partial rumour).
-    /// <br/>Can contain {0} which will be replaced with the coordinates of the quest location.
+    /// If true, it is validated that the quest has a location when it is started. If false, the quest can be started without a location.
     /// </summary>
-    public string PartialQuestText { get; init; } = "";
+    public bool RequiresLocation { get; init; } = false;
+
+    /// <summary>
+    /// If true, it is validated that a related item is attached to the quest when it is started. If false, the quest can be started without a related item.
+    /// </summary>
+    public bool RequiresItem { get; init; } = false;
 
     public QuestDef(string defName) : base(defName) { }
 

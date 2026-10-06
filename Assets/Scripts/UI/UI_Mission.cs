@@ -16,8 +16,8 @@ public class UI_Mission : MonoBehaviour
     {
         Mission = mission;
         MissionText.text = "- " + Mission.Text;
-        LocationButton.gameObject.SetActive(Mission.IsLocationBased);
-        if (Mission.IsLocationBased) LocationButton.onClick.AddListener(LocationButton_OnClick);
+        LocationButton.gameObject.SetActive(Mission.HasRelatedLocation);
+        if (Mission.HasRelatedLocation) LocationButton.onClick.AddListener(LocationButton_OnClick);
     }
 
     private void LocationButton_OnClick()
