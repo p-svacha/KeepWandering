@@ -23,6 +23,7 @@ public static class ItemSets
     private static List<ItemDef> Items => DefDatabase<ItemDef>.AllDefs;
 
     public static ItemSet MedicalItems => new ItemSet("Medical", Items.Where(item => item.HasMedicalProperties).ToList());
-    public static ItemSet ConsumableItems => new ItemSet("Consumable", Items.Where(item => item.IsConsumable).ToList());
+    public static ItemSet IngestibleItems => new ItemSet("Consumable", Items.Where(item => item.IsConsumable && item.ConsumptionProperties.ConsumptionType != ConsumptionTypeDefOf.Smoke).ToList());
+    public static ItemSet SmokeableItems => new ItemSet("Smokeable", Items.Where(item => item.IsConsumable && item.ConsumptionProperties.ConsumptionType == ConsumptionTypeDefOf.Smoke).ToList());
     public static ItemSet CookableItems => new ItemSet("Cookable", Items.Where(item => item.IsCookable).ToList());
 }

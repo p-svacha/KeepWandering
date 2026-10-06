@@ -210,15 +210,16 @@ public class PlayerCharacter
     /// <summary>
     /// Reduces the severity of a random negative health condition by the specified amount, without fully healing it.
     /// </summary>
-    public void ReduceRandomNegativeHcSeverity(float amount)
+    public HealthCondition ReduceRandomNegativeHcSeverity(float amount)
     {
-        if (amount <= 0) return;
+        if (amount <= 0) return null;
 
         List<HealthCondition> candidates = HealthConditions.Where(hc => hc.IsNegative && !hc.IsSimpleBinaryCondition()).ToList();
-        if (candidates.Count == 0) return;
+        if (candidates.Count == 0) return null;
 
         HealthCondition hc = candidates.RandomElement();
-        Game.ModifyHealthConditionSeverity(hc, amount, avoidFullHeal: true);
+        Game.ModifyHealthConditionSeverity(hc, -amount, avoidFullHeal: true);
+        return hc;
     }
 
     public void AddDog()

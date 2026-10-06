@@ -40,6 +40,10 @@ public class Game : MonoBehaviourSingleton<Game>
     public int NumCompletedQuestsSinceLastStep { get; set; } = 0;
     public int NumFailedQuestsSinceLastStep { get; set; } = 0;
 
+    public int DangerLevelChangesSinceLastStep { get; set; } = 0;
+    public bool DangerLevelHasIncreasedOnOtherTilesSinceLastStep { get; set; } = false;
+    public bool DangerLevelHasDecreasedOnOtherTilesSinceLastStep { get; set; } = false;
+
     // Item drops
     private const float ITEM_DROP_MIN_DISTANCE = 1.5f;
     private const int ITEM_DROP_MAX_ATTEMPTS = 20;
@@ -121,8 +125,7 @@ public class Game : MonoBehaviourSingleton<Game>
         ActiveQuests = new List<Quest>();
 
         // Init world
-        WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 9, numAdditionalTiles: 60, numCities: 3);
-        //WorldMap = WorldMapGenerator.GenerateWorld(zoneRadius: 6, numAdditionalTiles: 50, numCities: 2);
+        WorldMapGenerator.GenerateWorld(zoneRadius: 9, numAdditionalTiles: 60, numCities: 3);
         WorldMapCamera.Init(this);
         WorldMapTile startTile = WorldMap.GetTile(Vector2Int.zero);
         SetPosition(startTile);
@@ -131,6 +134,18 @@ public class Game : MonoBehaviourSingleton<Game>
 
         // Init story
         StoryManager.OnGameStarted();
+
+        // Validate map
+        foreach(EncounterDef def in DefDatabase<EncounterDef>.AllDefs)
+        {
+            if (def.MinOccurences > 0)
+            {
+                if (WorldMap.GetNumTilesWithEncounter(def) < def.MinOccurences)
+                {
+                    throw new System.Exception($"Not enough tiles with encounter {def.DefName} on the world map. Found {WorldMap.GetNumTilesWithEncounter(def)}, but minimum is {def.MinOccurences}. Please check the world map generation settings and/or the encounter's MinOccurences value.");
+                }
+            }
+        }
 
         // Init player
         PlayerCharacterRenderer.Instance.Init();
@@ -430,6 +445,9 @@ public class Game : MonoBehaviourSingleton<Game>
         NumAddedQuestsSinceLastStep = 0;
         NumCompletedQuestsSinceLastStep = 0;
         NumFailedQuestsSinceLastStep = 0;
+        DangerLevelChangesSinceLastStep = 0;
+        DangerLevelHasIncreasedOnOtherTilesSinceLastStep = false;
+        DangerLevelHasDecreasedOnOtherTilesSinceLastStep = false;
     }
 
     /// <summary>
@@ -698,9 +716,12 @@ public class Game : MonoBehaviourSingleton<Game>
     /// </summary>
     public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef, bool showInOutcomeNote = false, bool hidden = false)
     {
+        // Validate
         if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
         if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
+        if (WorldMap.GetNumTilesWithEncounter(encounterDef) >= encounterDef.MaxOccurences && encounterDef.MaxOccurences > 0) throw new System.Exception($"Trying to set encounter {encounterDef.Label} on tile {tile.Coordinates}, but it has already occurred the maximum number of times ({encounterDef.MaxOccurences}).");
 
+        // Generate encounter
         LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef, tile) as LocationEncounter;
         if (!hidden) RevealEncounter(tile, showInOutcomeNote);
 
@@ -1042,33 +1063,58 @@ public class Game : MonoBehaviourSingleton<Game>
         return newItem;
     }
 
-    public void ConsumeItem(Item item)
+    /// <summary>
+    /// Consumes the item and applies all its consumption effects.
+    /// Returns human-readable sentences describing the effects that were actually applied (after chance rolls).
+    /// </summary>
+    public List<string> ConsumeItem(Item item)
     {
-        if(!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
+        List<string> effects = new List<string>();
 
+        if (!item.Def.IsConsumable) Debug.LogWarning($"Consuming item that is not edible! {item.Label}");
         ConsumptionProperties consumptionProps = item.Def.ConsumptionProperties;
 
-        // Consumption effects
+        // Vitals
+        if (consumptionProps.Nutrition > 0 && consumptionProps.Hydration > 0) effects.Add("It eases your hunger and thirst.");
+        else if (consumptionProps.Nutrition > 0) effects.Add("It eases your hunger.");
+        else if (consumptionProps.Hydration > 0) effects.Add("It quenches your thirst.");
         Player.ModifyHunger(-consumptionProps.Nutrition);
         Player.ModifyThirst(-consumptionProps.Hydration);
-        Player.ReduceRandomNegativeHcSeverity(consumptionProps.SeverityReduction);
-        foreach (var statChange in consumptionProps.StatChanges) ModifyStatBaseValue(statChange.Key, statChange.Value);
 
+        // Ailment relief
+        HealthCondition eased = Player.ReduceRandomNegativeHcSeverity(consumptionProps.SeverityReduction);
+        if (eased != null) effects.Add($"It eases your {eased.Def.Label.ToLower()} a little.");
 
-        if (consumptionProps.AppliedHealthCondition != null)
+        // Stat changes
+        foreach (var statChange in consumptionProps.StatChanges)
+        {
+            if (!statChange.Value.Roll()) continue;
+            int amount = statChange.Value.Amount;
+            ModifyStatBaseValue(statChange.Key, amount);
+            effects.Add($"Your {statChange.Key.Label.ToLower()} {(amount > 0 ? "increases" : "decreases")} by {Mathf.Abs(amount)}.");
+        }
+
+        // Health condition
+        HealthConditionDef hcDef = consumptionProps.AppliedHealthCondition;
+        if (hcDef != null && (consumptionProps.AppliedHealthConditionChance >= 1f || Random.value < consumptionProps.AppliedHealthConditionChance))
         {
             string hcSource = $"Consumed {item.Label}";
+            HealthCondition hc = consumptionProps.AppliedHealthConditionSeverity > 0f
+                ? Player.ApplyHealthCondition(hcDef, hcSource, consumptionProps.AppliedHealthConditionSeverity)
+                : Player.ApplyHealthCondition(hcDef, hcSource);
 
-            if (consumptionProps.AppliedHealthConditionSeverity > 0f) Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource, consumptionProps.AppliedHealthConditionSeverity);
-            else Player.ApplyHealthCondition(consumptionProps.AppliedHealthCondition, hcSource); // Apply with default severity if not specified
+            // ApplyHealthCondition returns null when it added severity to an existing instance instead
+            if (hc != null) effects.Add($"{hc.LabelCapWord} sets in.");
+            else effects.Add($"Your {hcDef.Label.ToLower()} intensifies.");
         }
 
         // Audio
         AudioManager.PlayRandomSound(consumptionProps.ConsumptionType.SoundEffectName);
 
         DestroyOwnedItem(item, showOnEventStepDisplay: false);
-
         OnGameStateChanged();
+
+        return effects;
     }
 
     public void SetItemDurability(Item item, int durability)
@@ -1088,12 +1134,26 @@ public class Game : MonoBehaviourSingleton<Game>
     }
 
     public bool PlayerHasItem(ItemDef itemDef) => Inventory.Any(item => item.Def == itemDef);
+    public bool PlayerHasSmokeable() => Inventory.Any(item => item.IsConsumable && item.Def.ConsumptionProperties.ConsumptionType == ConsumptionTypeDefOf.Smoke);
 
     #endregion
 
     public void ModifyDangerLevel(int amount) => ModifyTileDangerLevel(CurrentPosition, amount);
     public void ModifyTileDangerLevel(WorldMapTile tile, int amount)
     {
+        if (amount == 0) return;
+
+        bool isIncrease = amount > 0;
+
+        AudioManager.PlaySound(isIncrease ? "ViolinDanger" : "ViolinChord");
+
+        if (tile == CurrentPosition) DangerLevelChangesSinceLastStep += amount;
+        else
+        {
+            if (isIncrease) DangerLevelHasIncreasedOnOtherTilesSinceLastStep = true;
+            else if (!isIncrease) DangerLevelHasDecreasedOnOtherTilesSinceLastStep = true;
+        }
+
         tile.ModifyDangerLevel(amount);
         OnGameStateChanged();
     }
@@ -1273,6 +1333,9 @@ public class Game : MonoBehaviourSingleton<Game>
             tile.Encounter.Reveal();
             if (showInOutcomeNote) NumRevealedLocationEncountersSinceLastStep++;
         }
+
+        // Audio
+        AudioManager.PlaySound("Chime");
     }
 
     public void RevealLocationEncountersAround(WorldMapTile tile)

@@ -183,9 +183,22 @@
             Label = "Home of R",
             EncounterClass = typeof(Encounter_HomeOfR),
             Type = EncounterType.ForcePlacedOnly,
+            MinOccurences = 1,
+            MaxOccurences = 1,
             CameraZoomLevel = 6f,
             DevNotes = "The player meets an NPC named R whose partner is sick. After an initial conversation, the player can ask about a note found at the radio tower (completing a \"Find R\" quest) and learn about R's partner needing infection medicine. Delivering the right medicine rewards the player with a fence cutter and map coordinates for an unpowered fence segment, advancing the main storyline. It's essentially a quest hub that ties together the radio tower and fence-cutting objectives.",
-        }
+        },
+
+        new EncounterDef("QuarantineFenceGate")
+        {
+            Label = "Quarantine Fence Gate",
+            EncounterClass = typeof(Encounter_QuarantineFenceGate),
+            Type = EncounterType.ForcePlacedOnly,
+            MinOccurences = 1,
+            MaxOccurences = 1,
+            CameraZoomLevel = 12f,
+            DevNotes = "Single instance encounter where the road and quarantine fence meet. The guard can be bribed to open the gate by bringing certain items, making this a multi-visit quest location and end goal location.",
+        },
 
         #endregion
     };
@@ -259,7 +272,13 @@
             Label = "Drug",
             Verb = "consume",
             SoundEffectName = "Eat",
-        }
+        },
+        new ConsumptionTypeDef("Smoke")
+        {
+            Label = "Smoke",
+            Verb = "smoke",
+            SoundEffectName = "CigaretteInhale",
+        },
     };
 
 --- ItemDefs.cs ---
@@ -409,6 +428,23 @@
                 ConsumptionType = ConsumptionTypeDefOf.Food,
                 Nutrition = 1f,
                 AppliedHealthCondition = HealthConditionDefOf.ChocolateHigh,
+            },
+        },
+
+        new ItemDef("Cigarettes")
+        {
+            Label = "cigarettes",
+            Description = "A pack of cigarettes.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
+            Value = 3,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Smoke,
+                AppliedHealthCondition = HealthConditionDefOf.NicotineHigh,
+                StatChanges =
+                {
+                    { StatDefOf.Strength, new ConsumptionStatChange(-1, chance: 0.5f) }
+                }
             },
         },
 
@@ -1510,6 +1546,29 @@
                         { StatDefOf.Strength, +2 },
                         { StatDefOf.Dexterity, +2 },
                         { StatDefOf.Social, +2 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
+        new HealthConditionDef("NicotineHigh")
+        {
+            Label = "Nicotine High",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Nicotine High",
+                    Description = "That cigarette was very relaxing.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Morale, +3 },
+                        { StatDefOf.Social, +3 },
                     },
                     Color = ResourceManager.Color_Text_Positive,
                 }

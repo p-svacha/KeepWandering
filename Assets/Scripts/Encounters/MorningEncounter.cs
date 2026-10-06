@@ -53,9 +53,6 @@ public class MorningEncounter : Encounter
                 Action = Rest
             });
         }
-
-        // Always add general item use options
-        options.AddRange(GetGeneralItemUseOptions());
     }
     private string Stay()
     {

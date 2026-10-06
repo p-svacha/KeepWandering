@@ -1,12 +1,30 @@
 TODOS:
 ==============================================
 
+(T) - smoke consumption type
+(T) - nicotine high health condition
+
+(T) - allow usage of items also during encounters (except if explicitly disabled by encounter state (virtual bool on encounter))
+
+(T) - add consumption effect to encounter text after consumption
+
+(T) - outcome note for increased danger level on nearby tiles (just 1 generic note, not per tile)
+
+(T) - danger level increase sound (tun tun)
+(T) - danger level decrease sound (chord)
+(T) - tile reveal sound (chime)
+
+- fence gate encounter
+
+- proper util for natural-readable listing items (use new singular and plural labels, and grouping same items).
+  - i.e. a list of wood, knife, knife, crowbar would result in "two knives, a piece of wood and a crowbar"
+  - use in crate encounter
+
 - fence gate encounter
 
 - more option icons (same as skill check icon):
-  - UI: mark options that can only be done once per day with a clock icon
-  - UI: mark options that can only be done once ever with a star icon
-  - UI: mark options that can be retried multiple times on failure with a retry icon
+  - UI: mark options that can only be done once per day with a (single yellow exclamation mark) icon
+  - UI: mark options that can only be done once ever with a star icon (double red exclamation mark)
   - add tooltips to these icons explaining what they mean
 
 - change bedroll item sound
@@ -14,6 +32,7 @@ TODOS:
 - outcome notes
   - change icon from well rested away from zzz, is confusing, or add a simley
 
+- fence night encounter: guards
 
 AUDIO TO ALL EXISTING CONTENT
 

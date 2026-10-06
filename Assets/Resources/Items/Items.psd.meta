@@ -1159,6 +1159,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Cigarettes
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 1358
+        width: 64
+        height: 109
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ecb3abf11fe211d4ab6b470f98b48af4
+      internalID: -366031772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -1190,6 +1212,7 @@ TextureImporter:
       Bone: -2078003765
       Charcoal: 1866626329
       Chocolate: 62719917
+      Cigarettes: -366031772
       Coin: -972472734
       Crowbar: 1342787312
       FenceCutter: 1025173216

@@ -285,7 +285,7 @@ public class WorldMapRenderer : MonoBehaviour
                 frameRenderer.sortingOrder = ENCOUNTER_SPRITE_SORTING_ORDER;
 
                 SpriteRenderer innerRenderer = obj.transform.GetChild(0).GetComponent<SpriteRenderer>();
-                innerRenderer.sprite = tile.Encounter.GetWorldMapSprite();
+                innerRenderer.sprite = tile.Encounter.GetWorldMapMarkerSprite();
                 innerRenderer.sortingLayerName = WORLD_MAP_SORTING_LAYER;
                 innerRenderer.sortingOrder = ENCOUNTER_SPRITE_SORTING_ORDER + 1;
             }

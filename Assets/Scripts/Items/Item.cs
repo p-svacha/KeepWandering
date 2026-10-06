@@ -58,6 +58,8 @@ public class Item
     public string Label => Def.Label;
     public string LabelCap => Label.CapitalizeFirst();
     public string LabelCapWord => Label.CapitalizeEachWord();
+    public string LabelSingular => Def.LabelSingular != "" ? Def.LabelSingular : Label;
+    public string LabelPlural => Def.LabelPlural != "" ? Def.LabelPlural : Label;
     public string Description => Def.Description;
     public Sprite Sprite => Def.Sprite;
     public bool HasTag(ItemTagDef tag) => Def.HasTag(tag);

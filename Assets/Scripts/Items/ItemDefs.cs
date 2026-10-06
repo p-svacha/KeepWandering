@@ -9,6 +9,8 @@ public static class ItemDefs
         new ItemDef("Antibiotics")
         {
             Label = "antibiotics",
+            LabelSingular = "bottle of antibiotics",
+            LabelPlural = "bottles of antibiotics",
             Description = "Pills that are very effective at treating infections.",
             Material = ItemMaterialDefOf.PlasticHard,
             Value = 3,
@@ -21,6 +23,8 @@ public static class ItemDefs
         new ItemDef("Antidote")
         {
             Label = "antidote",
+            LabelSingular = "antidote vial",
+            LabelPlural = "antidote vials",
             Description = "An injectable solution that counteracts poisoning.",
             Material = ItemMaterialDefOf.Glass,
             Value = 3,
@@ -33,6 +37,7 @@ public static class ItemDefs
         new ItemDef("Bandage")
         {
             Label = "bandage",
+            LabelPlural = "bandages",
             Description = "An effective way to tend all kinds of wounds.",
             Material = ItemMaterialDefOf.Textile,
             Value = 2,
@@ -45,6 +50,7 @@ public static class ItemDefs
         new ItemDef("Beans")
         {
             Label = "can of beans",
+            LabelPlural = "cans of beans",
             Description = "Provides a good amount of nutrition and a small amount of hydration.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
@@ -60,6 +66,8 @@ public static class ItemDefs
         new ItemDef("BeansCooked")
         {
             Label = "cooked beans",
+            LabelSingular = "can of cooked beans",
+            LabelPlural = "cans of cooked beans",
             Description = "A meal that is not only nutritious but also satisfying.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
@@ -75,6 +83,7 @@ public static class ItemDefs
         new ItemDef("Bedroll")
         {
             Label = "bedroll",
+            LabelPlural = "bedrolls",
             Description = "Can be set up at your camp in the evening to provide a place to sleep, increasing healing during the night.",
             Material = ItemMaterialDefOf.Textile,
             Value = 5,
@@ -86,6 +95,7 @@ public static class ItemDefs
         new ItemDef("Beer")
         {
             Label = "beer",
+            LabelPlural = "beers",
             Description = "A refreshing alcoholic beverage.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 2,
@@ -102,6 +112,7 @@ public static class ItemDefs
         new ItemDef("Berries")
         {
             Label = "berries",
+            LabelSingular = "berry",
             Description = "Provides a small amount of nutrition and hydration.",
             Material = ItemMaterialDefOf.Plant,
             Value = 1,
@@ -115,6 +126,7 @@ public static class ItemDefs
         new ItemDef("Bone")
         {
             Label = "bone",
+            LabelPlural = "bones",
             Description = "A bone that can be used as a weapon or tool.",
             Material = ItemMaterialDefOf.Wood,
             Value = 1,
@@ -128,6 +140,8 @@ public static class ItemDefs
         new ItemDef("Charcoal")
         {
             Label = "charcoal",
+            LabelSingular = "piece of charcoal",
+            LabelPlural = "pieces of charcoal",
             Description = "The remains of burned wood, useful as fuel or for starting fires.",
             Material = ItemMaterialDefOf.Wood,
             Value = 1,
@@ -141,6 +155,8 @@ public static class ItemDefs
         new ItemDef("Chocolate")
         {
             Label = "chocolate",
+            LabelSingular = "chocolate bar",
+            LabelPlural = "chocolate bars",
             Description = "A sweet treat that can boost morale.",
             Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 2,
@@ -152,9 +168,29 @@ public static class ItemDefs
             },
         },
 
+        new ItemDef("Cigarettes")
+        {
+            Label = "cigarettes",
+            LabelSingular = "pack of cigarettes",
+            LabelPlural = "packs of cigarettes",
+            Description = "A pack of cigarettes.",
+            Material = ItemMaterialDefOf.PlasticWrapped,
+            Value = 3,
+            ConsumptionProperties = new ConsumptionProperties()
+            {
+                ConsumptionType = ConsumptionTypeDefOf.Smoke,
+                AppliedHealthCondition = HealthConditionDefOf.NicotineHigh,
+                StatChanges =
+                {
+                    { StatDefOf.Strength, new ConsumptionStatChange(-1, chance: 0.5f) }
+                }
+            },
+        },
+
         new ItemDef("Coin")
         {
             Label = "coin",
+            LabelPlural = "coins",
             Description = "Commonly accepted as currency.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 1,
@@ -163,6 +199,7 @@ public static class ItemDefs
         new ItemDef("Crowbar")
         {
             Label = "crowbar",
+            LabelPlural = "crowbars",
             Description = "Very useful for opening things that were not meant to be opened.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
@@ -177,6 +214,7 @@ public static class ItemDefs
         new ItemDef("FenceCutter")
         {
             Label = "fence cutter",
+            LabelPlural = "fence cutters",
             Description = "There's a specific type of fence this could be very useful for.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 5,
@@ -191,6 +229,7 @@ public static class ItemDefs
         new ItemDef("Knife")
         {
             Label = "knife",
+            LabelPlural = "knives",
             Description = "Very useful multi-purpose tool.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
@@ -206,6 +245,7 @@ public static class ItemDefs
         new ItemDef("Lighter")
         {
             Label = "lighter",
+            LabelPlural = "lighters",
             Description = "A small device that can be used to start fires.",
             Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
@@ -219,6 +259,7 @@ public static class ItemDefs
         new ItemDef("Lockpick")
         {
             Label = "lockpick",
+            LabelPlural = "lockpicks",
             Description = "Useful for opening locked containers.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
@@ -231,6 +272,7 @@ public static class ItemDefs
         new ItemDef("Matchbox")
         {
             Label = "matchbox",
+            LabelPlural = "matchboxes",
             Description = "A small carton box containing a few matches and a surface to strike them on.",
             Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
@@ -245,6 +287,8 @@ public static class ItemDefs
         new ItemDef("MeatCooked")
         {
             Label = "cooked meat",
+            LabelSingular = "piece of cooked meat",
+            LabelPlural = "pieces of cooked meat",
             Description = "A delicious, safe and very nutritious meal.",
             Material = ItemMaterialDefOf.Meat,
             Value = 4,
@@ -258,6 +302,8 @@ public static class ItemDefs
         new ItemDef("MeatRaw")
         {
             Label = "raw meat",
+            LabelSingular = "piece of raw meat",
+            LabelPlural = "pieces of raw meat",
             Description = "Fresh meat. Very nutritious, but eating it raw might not be the best idea.",
             Material = ItemMaterialDefOf.Meat,
             Value = 2,
@@ -274,6 +320,7 @@ public static class ItemDefs
         new ItemDef("MedicalKit")
         {
             Label = "medical kit",
+            LabelPlural = "medical kits",
             Description = "Can be used to tend or heal a variety of medical issues.",
             Material = ItemMaterialDefOf.Textile,
             Value = 5,
@@ -289,6 +336,7 @@ public static class ItemDefs
         new ItemDef("MedicinalHerbs")
         {
             Label = "medicinal herbs",
+            LabelSingular = "medicinal herb",
             Description = "A natural remedy that may help with ailments, but is not very effective.",
             Material = ItemMaterialDefOf.Plant,
             Value = 1,
@@ -309,6 +357,7 @@ public static class ItemDefs
         new ItemDef("NimbleRoot")
         {
             Label = "nimble root",
+            LabelPlural = "nimble roots",
             Description = "Chewing this numbs your fingertips into perfect stillness.",
             Material = ItemMaterialDefOf.Plant,
             Value = 1,
@@ -323,6 +372,7 @@ public static class ItemDefs
         new ItemDef("NutSnack")
         {
             Label = "nut snack",
+            LabelPlural = "nut snacks",
             Description = "Provides a good amount of nutrition.",
             Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 1,
@@ -336,6 +386,7 @@ public static class ItemDefs
         new ItemDef("OilLamp")
         {
             Label = "oil lamp",
+            LabelPlural = "oil lamps",
             Description = "An old fashioned light source consisting out of a small container of flammable oil and a wick, and a mechanism to control the flame.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 3,
@@ -350,6 +401,7 @@ public static class ItemDefs
         new ItemDef("Postcard")
         {
             Label = "postcard",
+            LabelPlural = "postcards",
             Description = "A postcard from the area and a reminder of a better time and place.",
             Material = ItemMaterialDefOf.PaperHard,
             Value = 1,
@@ -366,6 +418,7 @@ public static class ItemDefs
         new ItemDef("ProteinShake")
         {
             Label = "protein shake",
+            LabelPlural = "protein shakes",
             Description = "A drink that provides some nutrition and hydration, as well as increasing strength.",
             Material = ItemMaterialDefOf.PlasticHard,
             Value = 2,
@@ -384,6 +437,7 @@ public static class ItemDefs
         new ItemDef("Rope")
         {
             Label = "rope",
+            LabelPlural = "ropes",
             Description = "Useful to tie things together or climbing.",
             Material = ItemMaterialDefOf.Textile,
             Value = 2,
@@ -396,6 +450,7 @@ public static class ItemDefs
         new ItemDef("Screwdriver")
         {
             Label = "screwdriver",
+            LabelPlural = "screwdrivers",
             Description = "Useful for opening things big and small.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
@@ -410,6 +465,7 @@ public static class ItemDefs
         new ItemDef("Shovel")
         {
             Label = "shovel",
+            LabelPlural = "shovels",
             Description = "Particularly useful for digging.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 2,
@@ -423,6 +479,8 @@ public static class ItemDefs
         new ItemDef("SurvivalBook")
         {
             Label = "bush craft 101",
+            LabelSingular = "copy of bush craft 101",
+            LabelPlural = "copies of bush craft 101",
             Description = "A book that provides useful information about survival.",
             Material = ItemMaterialDefOf.PaperHard,
             Value = 3,
@@ -439,6 +497,7 @@ public static class ItemDefs
         new ItemDef("Tent")
         {
             Label = "packed tent",
+            LabelPlural = "packed tents",
             Description = "Can be set up at your camp in the evening to provide protection during the night.",
             Material = ItemMaterialDefOf.Textile,
             Value = 5,
@@ -450,6 +509,7 @@ public static class ItemDefs
         new ItemDef("Trap")
         {
             Label = "trap",
+            LabelPlural = "traps",
             Description = "Can be placed in the evening to help with attacks during the night. May also catch something to provide resources.",
             Material = ItemMaterialDefOf.MetalSolid,
             Value = 3,
@@ -461,6 +521,7 @@ public static class ItemDefs
         new ItemDef("WaterBottle")
         {
             Label = "bottle of water",
+            LabelPlural = "bottles of water",
             Description = "Provides water for about 3 days.",
             Material = ItemMaterialDefOf.PlasticHard,
             Value = 1,
@@ -474,6 +535,8 @@ public static class ItemDefs
         new ItemDef("Wood")
         {
             Label = "wood",
+            LabelSingular = "piece of wood",
+            LabelPlural = "pieces of wood",
             Description = "Just an ordinary, dry piece of wood.",
             Material = ItemMaterialDefOf.Wood,
             Value = 1,
@@ -500,6 +563,7 @@ public static class ItemDefOf
     public static ItemDef Bone;
     public static ItemDef Charcoal;
     public static ItemDef Chocolate;
+    public static ItemDef Cigarettes;
     public static ItemDef Coin;
     public static ItemDef Crowbar;
     public static ItemDef FenceCutter;

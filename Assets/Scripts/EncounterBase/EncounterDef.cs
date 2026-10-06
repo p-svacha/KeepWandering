@@ -40,7 +40,7 @@ public class EncounterDef : Def
     public int MaxOccurences { get; init; } = -1;
 
     /// <summary>
-    /// How many times a landmark is guaranteed to appear on the world map. This only applies to encounters of type Landmark.
+    /// How many times a landmark & forced-placed encounters is guaranteed to appear on the world map at world generation. This value is validated at game start, so it is strictly enforced.
     /// </summary>
     public int MinOccurences { get; init; } = 0;
 
@@ -79,7 +79,6 @@ public class EncounterDef : Def
         if (Type == EncounterType.Invalid) ThrowValidationError("Encounter type must be set.");
         if (MaxOccurences == 0) ThrowValidationError("MaxOccurences cannot be set to 0. Use -1 for no limit.");
         if (MinDistanceFromStart == 0 || MinDistanceFromStart == 1) ThrowValidationError("MinDistanceFromStart cannot be set to 0 or 1. Use -1 for no minimum distance.");
-        if (Type != EncounterType.Landmark && MinOccurences != 0) ThrowValidationError("Only landmark encounters can have a minimum number of occurences.");
 
         if (EncounterClass == null) ThrowValidationError("EncounterClass cannot be null.");
         if (!EncounterClass.IsSubclassOf(typeof(Encounter))) ThrowValidationError("EncounterClass must be a subclass of Encounter.");
@@ -89,6 +88,7 @@ public class EncounterDef : Def
         {
             if (Rarity.Count != numPassableBiomes) ThrowValidationError("Location encounters must have a rarity defined for all passable biomes.");
             if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) ThrowValidationError("EncounterClass must be a subclass of LocationEncounter.");
+            if (MinOccurences != 0) ThrowValidationError("Location encounters cannot have a minimum number of occurences.");
         }
 
         if (Type == EncounterType.Landmark)
@@ -103,7 +103,6 @@ public class EncounterDef : Def
         {
             if (!EncounterClass.IsSubclassOf(typeof(LocationEncounter))) ThrowValidationError("EncounterClass must be a subclass of LocationEncounter.");
             if (Rarity.Count > 0) ThrowValidationError("Special encounters cannot have a rarity defined, as they are only force placed.");
-            if (MaxOccurences != -1) ThrowValidationError("Special encounters cannot be limited, as they are only force placed.");
             if (MinDistanceFromStart != -1) ThrowValidationError("Special encounters cannot have a minimum distance from the starting tile, as they are only force placed.");
             if (MinDistanceBetween != -1) ThrowValidationError("Special encounters cannot have a minimum distance between occurences, as they are only force placed.");
         }
@@ -114,6 +113,7 @@ public class EncounterDef : Def
             if (MaxOccurences != -1) ThrowValidationError("Evening and morning encounters cannot be limited.");
             if (Rarity.Count > 0) ThrowValidationError("Evening and morning encounters cannot have a rarity defined.");
             if (MinDistanceBetween != -1) ThrowValidationError("Evening and morning encounters cannot have a minimum distance between occurences, as they only appear once per biome and are not randomly placed.");
+            if (MinOccurences != 0) ThrowValidationError("Evening and morning encounters cannot have a minimum number of occurences.");
         }
 
         if (Type == EncounterType.Night)
@@ -124,6 +124,7 @@ public class EncounterDef : Def
             if (MinOccurences != 0) ThrowValidationError("Night encounters cannot have a minimum number of occurences.");
             if (MaxOccurences != -1) ThrowValidationError("Night encounters cannot be limited, as they are selected randomly each night based on their probability.");
             if (AttackType == AttackType.None) ThrowValidationError("Night encounters must have an attack type set.");
+            if (MinOccurences != 0) ThrowValidationError("Night encounters cannot have a minimum number of occurences.");
         }
 
         return base.Validate();

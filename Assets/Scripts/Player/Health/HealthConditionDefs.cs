@@ -609,6 +609,29 @@ public static class HealthConditionDefs
             }
         },
 
+        new HealthConditionDef("NicotineHigh")
+        {
+            Label = "Nicotine High",
+            Category = HealthConditionCategoryDefOf.Positive,
+            NaturalSeverityChange = -1,
+            DefaultInitialSeverity = 1,
+            Stages = new List<HealthConditionStage>()
+            {
+                new HealthConditionStage()
+                {
+                    Label = "Nicotine High",
+                    Description = "That cigarette was very relaxing.",
+                    SeverityThreshold = 0,
+                    StatModifiers = new Dictionary<StatDef, int>()
+                    {
+                        { StatDefOf.Morale, +3 },
+                        { StatDefOf.Social, +3 },
+                    },
+                    Color = ResourceManager.Color_Text_Positive,
+                }
+            }
+        },
+
         #endregion
 
         #region Misc / Neutral
@@ -681,6 +704,7 @@ public static class HealthConditionDefOf
     public static HealthConditionDef FullOfBeans;
     public static HealthConditionDef SteadyHands;
     public static HealthConditionDef WellRested;
+    public static HealthConditionDef NicotineHigh;
 
     // Neutral
     public static HealthConditionDef Intoxication;

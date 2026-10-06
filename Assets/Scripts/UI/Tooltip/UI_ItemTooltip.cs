@@ -96,7 +96,9 @@ public class UI_ItemTooltip : UI_TooltipBase
             {
                 foreach (var statChange in consumptionProps.StatChanges)
                 {
-                    additionalEffectsText += $"\n{statChange.Value.ToSignedString()} {statChange.Key.LabelCap}";
+                    string change = $"{statChange.Value.Amount.ToSignedString()} {statChange.Key.LabelCap}";
+                    if (statChange.Value.Chance >= 1f) additionalEffectsText += $"\n{change}";
+                    else additionalEffectsText += $"\n- {(statChange.Value.Chance * 100f).ToString("0.#")}% chance: {change}";
                 }
             }
 

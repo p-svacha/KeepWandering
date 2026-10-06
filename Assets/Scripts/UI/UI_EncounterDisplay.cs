@@ -283,6 +283,29 @@ public class UI_EncounterDisplay : MonoBehaviourSingleton<UI_EncounterDisplay>
             outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Added, Game.NumRevealedLocationEncountersSinceLastStep, tooltipText: $"Revealed {Game.NumRevealedLocationEncountersSinceLastStep} location{(Game.NumRevealedLocationEncountersSinceLastStep > 1 ? "s" : "")} on the world map.");
         }
 
+        // Danger level changes
+        if (Game.DangerLevelChangesSinceLastStep != 0)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/DangerLevelIcon");
+            string tooltipText = Game.DangerLevelChangesSinceLastStep > 0 ? $"Danger level increased by {Game.DangerLevelChangesSinceLastStep}." : $"Danger level decreased by {Math.Abs(Game.DangerLevelChangesSinceLastStep)}.";
+            outcomeNote.Init(sprite, Game.DangerLevelChangesSinceLastStep > 0 ? UI_EncounterOutcomeNote.ValueChangeType.Increased : UI_EncounterOutcomeNote.ValueChangeType.Decreased, amount: 0, tooltipText: tooltipText);
+        }
+        if (Game.DangerLevelHasDecreasedOnOtherTilesSinceLastStep)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/DangerLevelIcon_OtherTile");
+            string tooltipText = $"Danger level decreased on other tiles.";
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Decreased, amount: 0, tooltipText: tooltipText);
+        }
+        if (Game.DangerLevelHasIncreasedOnOtherTilesSinceLastStep)
+        {
+            UI_EncounterOutcomeNote outcomeNote = Instantiate(OutcomeNotePrefab, OutcomeNotesContainer.transform);
+            Sprite sprite = ResourceManager.LoadSprite("UiSprites/DangerLevelIcon_OtherTile");
+            string tooltipText = $"Danger level increased on other tiles.";
+            outcomeNote.Init(sprite, UI_EncounterOutcomeNote.ValueChangeType.Increased, amount: 0, tooltipText: tooltipText);
+        }
+
         // New quests
         if (Game.NumAddedQuestsSinceLastStep > 0)
         {

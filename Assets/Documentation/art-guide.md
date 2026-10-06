@@ -6,7 +6,7 @@ with very slight color dynamics (6% brightness jitter, 3% hue jitter) and a low 
 # Item Sprites
 
 ## Setup
-Make 256x256 canvas in Photoshop. draw into it according to item size, small items like coin are 40x40, bigger ones like medkit 150x170. does not have to be square.
+Open Resources/Items/Items.psd in Photoshop. Draw into a new atlas cell according to item size, small items like coin are 40x40, bigger ones like medkit 150x170. does not have to be square.
 
 ## Drawing
 Item sprites are generally diagonally angled from bottom left to top right.
@@ -43,6 +43,7 @@ Head and Torso have volumetric shapes with black outline and white fill.
 # Encounter Markers
 64x64 px transparent Canvas
 Use only grayscale colors, except for quest markers, 6px brush, 100% hardness, 100% opacity, and 100% flow. Pen pressure for size.
+Don't draw in corners of canvas (as the marker is within a circle).
 
 
 

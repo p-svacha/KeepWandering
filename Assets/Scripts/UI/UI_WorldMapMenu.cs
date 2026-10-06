@@ -61,7 +61,7 @@ public class UI_WorldMapMenu : MonoBehaviour
         Divider.SetActive(true);
 
         Biome.Init("Biome", tile.GetBiomeAreaLabel());
-        Encounter.Init("Location", tile.HasEncounter ? tile.Encounter.Label : "Undiscovered");
+        Encounter.Init("Location", (tile.HasEncounter && tile.Encounter.IsVisible) ? tile.Encounter.Label : "Undiscovered");
         DangerLevel.Init("Danger Level", tile.BaseDangerLevel.LabelCapWord);
         DangerLevel.ValueText.color = tile.BaseDangerLevel.Color;
 

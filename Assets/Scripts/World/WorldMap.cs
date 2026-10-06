@@ -102,6 +102,14 @@ public class WorldMap
     }
 
     /// <summary>
+    /// Returns the number of tiles that have a specific encounter on the world map.
+    /// </summary>
+    public int GetNumTilesWithEncounter(EncounterDef def)
+    {
+        return Tiles.Values.Count(t => t.Encounter != null && t.Encounter.Def == def);
+    }
+
+    /// <summary>
     /// Returns the number of appearances of a specific encounter on the world map.
     /// </summary>
     public int GetNumAppearances(EncounterDef def)

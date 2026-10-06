@@ -6,6 +6,13 @@ public class Encounter_QuarantineFence : LocationEncounter
     public bool IsElectrified;
     private bool HasHole;
 
+    // Marker
+    public override string GetWorldMapMarkerName()
+    {
+        if (IsElectrified) return "QuarantineFence_Electrified";
+        else return "QuarantineFence";
+    }
+
     // Base
     protected override void OnInitialize()
     {

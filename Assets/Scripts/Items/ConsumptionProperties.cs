@@ -2,6 +2,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
+/// A stat change applied on consumption, optionally only with a chance. Implicitly convertible from int,
+/// so plain entries like { StatDefOf.Strength, +1 } keep working and always apply.
+/// </summary>
+public readonly struct ConsumptionStatChange
+{
+    public int Amount { get; }
+    public float Chance { get; }
+
+    public ConsumptionStatChange(int amount, float chance = 1f)
+    {
+        Amount = amount;
+        Chance = chance;
+    }
+
+    public static implicit operator ConsumptionStatChange(int amount) => new ConsumptionStatChange(amount);
+
+    /// <summary>Rolls whether this change applies. Always true at chance 1 (Random.value can return exactly 1).</summary>
+    public bool Roll() => Chance >= 1f || Random.value < Chance;
+}
+
+/// <summary>
 /// Contains the properties of an ItemDef that can be consumed, such as food or medicine. This class is used to define the effects of consuming the item, such as nutrition, hydration, and any additional effects.
 /// </summary>
 public class ConsumptionProperties
@@ -29,7 +50,7 @@ public class ConsumptionProperties
     /// <summary>
     /// A dictionary of stat changes that occur when the item is consumed.
     /// </summary>
-    public Dictionary<StatDef, int> StatChanges { get; init; } = new Dictionary<StatDef, int>();
+    public Dictionary<StatDef, ConsumptionStatChange> StatChanges { get; init; } = new Dictionary<StatDef, ConsumptionStatChange>();
 
     /// <summary>
     /// Health condition that gets applied when the item is consumed.
@@ -50,7 +71,8 @@ public class ConsumptionProperties
     {
         foreach (var statChange in StatChanges)
         {
-            if (statChange.Value == 0) def.ThrowValidationError($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
+            if (statChange.Value.Amount == 0) def.ThrowValidationError($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a value of 0. Stat changes must be non-zero.");
+            if (statChange.Value.Chance <= 0f || statChange.Value.Chance > 1f) def.ThrowValidationError($"ConsumptionProperties has a stat change for '{statChange.Key.DefName}' with a chance of {statChange.Value.Chance}. Chance must be between 0 (exclusive) and 1 (inclusive).");
         }
 
         if (AppliedHealthCondition == null && AppliedHealthConditionSeverity != -1)
@@ -97,7 +119,13 @@ public static class ConsumptionTypeDefs
             Label = "Drug",
             Verb = "consume",
             SoundEffectName = "Eat",
-        }
+        },
+        new ConsumptionTypeDef("Smoke")
+        {
+            Label = "Smoke",
+            Verb = "smoke",
+            SoundEffectName = "CigaretteInhale",
+        },
     };
 }
 
@@ -107,4 +135,5 @@ public static class ConsumptionTypeDefOf
     public static ConsumptionTypeDef Food;
     public static ConsumptionTypeDef Drink;
     public static ConsumptionTypeDef Drug;
+    public static ConsumptionTypeDef Smoke;
 }

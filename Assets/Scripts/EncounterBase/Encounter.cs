@@ -151,13 +151,18 @@ public abstract class Encounter
     /// </summary>
     private List<EncounterOption> _GetOptions()
     {
-        // If encounter is done, only allow options to use inventory items and to continue the day.
+        // If the player is allowed to use items, show the item use options.
+        if (IsGeneralItemUseAllowed())
+        {
+            List<EncounterOption> options = new List<EncounterOption>();
+            options.AddRange(GetGeneralItemUseOptions());
+            return options;
+        }
+
+        // If encounter is done, show the "continue journey" option based on the time of day.
         if (IsEncounterDone)
         {
             List<EncounterOption> options = new List<EncounterOption>();
-
-            // Item use options
-            options.AddRange(GetGeneralItemUseOptions());
 
             // Continue day option
             string endEncounterOptionText;
@@ -199,6 +204,8 @@ public abstract class Encounter
         {
             List<EncounterOption> options = new List<EncounterOption>();
             GetOptions(options);
+
+            // Handle once per day and once ever options, removing them if they have already been used.
             options.RemoveAll(o => (o.OncePerDay && UsedOncePerDayOptions.Contains(o.Text)) || (o.OnceEver && UsedOnceEverOptions.Contains(o.Text)));
 
             return options;
@@ -331,20 +338,31 @@ public abstract class Encounter
     #region Item Use (Consume, Medical, etc.)
 
     /// <summary>
+    /// Returns true if the player is allowed to use items in their inventory on themselves (like consuming items, applying medical items to wounds/fractures, etc.). If false, no options for using items will be available.
+    /// </summary>
+    protected virtual bool IsGeneralItemUseAllowed() => true;
+
+    /// <summary>
     /// Returns all options, that are about using items in the players inventory on the player character, like consuming items, applying medical items to wounds/fractures, etc..
     /// These options are available in the morning and at the end of other encounters.
     /// </summary>
     protected List<EncounterOption> GetGeneralItemUseOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
-        options.Add(GetConsumeItemOption());
+        options.AddRange(GetConsumeItemOption());
         options.AddRange(GetMedicalItemUseOptions());
         return options;
     }
 
-    private FixedOutcomeOption GetConsumeItemOption()
+    /// <summary>
+    /// Returns all options that have to do with consuming items.
+    /// </summary>
+    private List<FixedOutcomeOption> GetConsumeItemOption()
     {
-        return new FixedOutcomeOption()
+        List<FixedOutcomeOption> options = new List<FixedOutcomeOption>();
+
+        // Consume (food, drink, drug): always available
+        options.Add(new FixedOutcomeOption()
         {
             Text = "Consume Item",
             Description = "Use items from your inventory.",
@@ -355,18 +373,50 @@ public abstract class Encounter
                 new ItemSlot()
                 {
                     IsRequired = true,
-                    CustomItemSet = ItemSets.ConsumableItems,
+                    CustomItemSet = ItemSets.IngestibleItems,
                     IsDestroyingItem = true,
                 }
             },
-        };
+        });
+
+        // Smoke (only available if the player has a smoking item)
+        if (Game.PlayerHasSmokeable())
+        {
+            options.Add(new FixedOutcomeOption()
+            {
+                Text = "Smoke Item",
+                Description = "Use a smoking item from your inventory.",
+                Action = ConsumeItem,
+                Sprite = PlayerCharacterRenderer.Instance.Head,
+                ItemSlots = new List<ItemSlot>()
+                {
+                    new ItemSlot()
+                    {
+                        IsRequired = true,
+                        Tag = ItemTagDefOf.FireStarter,
+                    },
+                    new ItemSlot()
+                    {
+                        IsRequired = true,
+                        CustomItemSet = ItemSets.SmokeableItems,
+                        IsDestroyingItem = true,
+                    }
+                },
+            });
+        }
+
+        return options;
     }
     private string ConsumeItem()
     {
-        Item itemToConsume = Game.ItemUsedInSelectedOption;
-        Game.Instance.ConsumeItem(itemToConsume);
+        Item itemToConsume = ItemsUsedInOption.First(i => i.Def.IsConsumable);
+
+        List<string> effects = Game.ConsumeItem(itemToConsume);
         string verb = itemToConsume.Def.ConsumptionProperties.ConsumptionType.Verb;
-        return $"You {verb} the {itemToConsume.Def.Label}.";
+
+        string text = $"You {verb} the {itemToConsume.Def.Label}.";
+        if (effects.Count > 0) text += " " + string.Join(" ", effects);
+        return text;
     }
 
     private List<EncounterOption> GetMedicalItemUseOptions()
@@ -737,7 +787,8 @@ public abstract class Encounter
     #region Getters
 
     public virtual string Label => Def.Label; // Shown on world map
-    public virtual Sprite GetWorldMapSprite() => ResourceManager.LoadSprite("EncounterMarker/" + Def.DefName);
+    public Sprite GetWorldMapMarkerSprite() => ResourceManager.LoadSprite($"EncounterMarker/{GetWorldMapMarkerName()}");
+    public virtual string GetWorldMapMarkerName() => Def.DefName;
     public virtual float CameraXOffset => Def.CameraXOffset;
 
     #endregion

@@ -30,7 +30,7 @@ public static class WorldMapGenerator
     /// Generates a random world with a specified quarantine zone radius.
     /// <br/> The number of additional tiles will add random tiles to the perimeter to randomize the quarantine zone shape.
     /// </summary>
-    public static WorldMap GenerateWorld(int zoneRadius, int numAdditionalTiles, int numCities)
+    public static void GenerateWorld(int zoneRadius, int numAdditionalTiles, int numCities)
     {
         // Initialize noisemaps
         WaterNoise = new PerlinNoise(scale: 0.15f);
@@ -87,6 +87,7 @@ public static class WorldMapGenerator
 
         // Create world map
         WorldMap worldMap = new WorldMap(Tiles, QuarantineZoneArea, Cities, Forests, Lakes);
+        Game.Instance.WorldMap = worldMap;
 
         // Add fence encounters
         GenerateFenceEncounters();
@@ -112,8 +113,6 @@ public static class WorldMapGenerator
         WaterNoise = null;
         ForestNoise = null;
         CityNoise = null;
-
-        return worldMap;
     }
 
     /// <summary>
@@ -330,7 +329,8 @@ public static class WorldMapGenerator
         {
             if (tile.IsPassable() && tile.Encounter == null)
             {
-                Game.Instance.SetLocationEncounter(tile, EncounterDefOf.QuarantineFence, hidden: true);
+                if (tile.HasRoad) Game.Instance.SetLocationEncounter(tile, EncounterDefOf.QuarantineFenceGate, hidden: false);
+                else Game.Instance.SetLocationEncounter(tile, EncounterDefOf.QuarantineFence, hidden: true);
             }
         }
     }

@@ -670,7 +670,7 @@ TextureImporter:
         width: 92
         height: 88
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -679,6 +679,28 @@ TextureImporter:
       bones: []
       spriteID: 1206ca32459f6e741897c289342a64fc
       internalID: 687171991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NicotineHigh
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 174
+        width: 107
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54ce95820f7024e45beba0178c54c471
+      internalID: -973259104
       vertices: []
       indices: 
       edges: []
@@ -722,6 +744,7 @@ TextureImporter:
       HeartArrhythmia: 874312863
       Hunger: 67243263
       Intoxication: -1602863930
+      NicotineHigh: -973259104
       Poisoning: 682058942
       SteadyHands: 1885579657
       Thirst: -1225528465

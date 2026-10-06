@@ -19,6 +19,13 @@ public class ItemDef : Def
     public bool IsCampComponent { get; init; }
 
     // General
+
+    /// <summary>Singular countable label for the item, e.g. "bottle of water".</summary>
+    public string LabelSingular { get; init; } = "";
+
+    /// <summary>Plural countable label for the item, e.g. "bottles of water".</summary>
+    public string LabelPlural { get; init; } = "";
+
     public Dictionary<ItemTagDef, int> Tags = new Dictionary<ItemTagDef, int>(); // Each tag has a level that defines the difficulty reduction when used in a slot requiring that tag.
     public int Value { get; init; } = 0;
     public int MinInitialDurability { get; init; } = 1;
@@ -89,5 +96,20 @@ public class ItemDef : Def
     {
         if (UsesOwnSoundAsCollisionImpactSound) return AudioClip;
         return Material.GetRandomImpactClip();
+    }
+
+    /// <summary>Label used for exactly one of this item. Falls back to Label if no singular label is set.</summary>
+    public string SingularLabel => string.IsNullOrEmpty(LabelSingular) ? Label : LabelSingular;
+
+    /// <summary>Label used for multiple of this item. Falls back to Label if no plural label is set.</summary>
+    public string PluralLabel => string.IsNullOrEmpty(LabelPlural) ? Label : LabelPlural;
+
+    /// <summary>
+    /// Returns a counted, human-readable label, e.g. "a crowbar", "an oil lamp", "two knives", "12 coins".
+    /// </summary>
+    public string GetCountedLabel(int amount)
+    {
+        if (amount == 1) return $"{TextUtils.IndefiniteArticle(SingularLabel)} {SingularLabel}";
+        return $"{TextUtils.NumberToWord(amount)} {PluralLabel}";
     }
 }

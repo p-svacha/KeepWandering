@@ -18,6 +18,8 @@ public abstract class NightEncounter : Encounter
         base.Init(game, def, tile);
     }
 
+    protected override bool IsGeneralItemUseAllowed() => IsEncounterDone; // Items only allowed after encounter is done, so player can use items to heal up before sleeping.
+
     protected override void RefreshSprites()
     {
         CampRenderer.Refresh();

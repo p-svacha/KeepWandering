@@ -58,7 +58,7 @@ public class HealthConditionDef : Def
     public string LethalityMessage { get; init; }
 
     /// <summary>
-    /// The maximum amount of this health condition that can be active at the same time.
+    /// The maximum amount of this health condition that can be active at the same time. If the max instances is reached, newly applied instances will instead add to the severity of an existing instance.
     /// </summary>
     public int MaxInstances { get; init; } = 1;
 
