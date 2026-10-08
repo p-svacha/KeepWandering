@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Encounter_WoundedStranger : LocationEncounter
@@ -14,16 +15,22 @@ public class Encounter_WoundedStranger : LocationEncounter
     private StrangerState state = StrangerState.Weary;
 
     private List<ItemDef> items = new List<ItemDef>();
+    private List<ItemDef> wantedItems = new List<ItemDef>();
 
     private bool isKnowledgeExtracted;
-    
+    private bool isIntroduced;
 
     protected override void OnInitialize()
     {
         state = StrangerState.Weary;
+        isIntroduced = false;
         
         int numItems = Random.Range(1, 2 + 1);
         for (int i = 0; i < numItems; i++) items.Add(GetBiomeAlteredLootTable(LootTables.Civilian).Resolve());
+
+        wantedItems.Clear();
+        List<ItemDef> candidates = DefDatabase<ItemDef>.AllDefs.Where(i => i.IsTradeable && i != ItemDefOf.Coin).ToList();
+        wantedItems = Game.Inventory.Where(i => i.IsTradeable).Select(i => i.Def).ToList().RandomElements(3);
     }
 
     protected override string OnStart()
@@ -59,15 +66,19 @@ public class Encounter_WoundedStranger : LocationEncounter
     {
         if (state == StrangerState.Weary)
         {
-            options.Add(GetHelpOption());
-            options.Add(GetTalkOption());
+            if (!isIntroduced) options.Add(GetTalkOption());
+            else
+            {
+                options.Add(GetHelpOption());
+                if (!isKnowledgeExtracted) options.Add(GetAskForInformationOption());
+            }
             options.Add(GetRobOption());
         }
         else if (state == StrangerState.Grateful)
         {
             if (!isKnowledgeExtracted) options.Add(GetAskForInformationOption());
             options.Add(GetAskForItemsOption());
-            if (items.Count > 0) options.Add(GetTradeOption());
+            if (items.Count > 0 || wantedItems.Count > 0) options.Add(GetTradeOption());
         }
 
         options.Add(GetMoveOnOption());
@@ -78,15 +89,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         isKnowledgeExtracted = true;
 
         float rng = Random.value;
-        if (rng < 0.5f) // 50%: partial rumour
-        {
-            string rumourText = Game.LearnPartialRumour();
-            if (rumourText != null)
-                return "They share something they heard." + rumourText;
-
-            return "They don't seem to know anything useful.";
-        }
-        else if (rng < 0.8f) // 30%: full rumour
+        if (rng < 0.3f) // 30%: full rumour
         {
             string rumourText = Game.LearnRumour();
             if (rumourText != null)
@@ -94,7 +97,12 @@ public class Encounter_WoundedStranger : LocationEncounter
 
             return "They don't seem to know anything useful.";
         }
-        else // 20%: nothing
+        else if (rng < 0.7f) // 40%: reveal nearby location encounter
+        {
+            Game.RevealRandomNearbyLocationEncounter();
+            return "They tell you about something interesting nearby.";
+        }
+        else // 30%: nothing
         {
             return "They don't seem to know anything useful.";
         }
@@ -108,6 +116,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         {
             Text = "Help",
             Description = "Tend to their wounds. They might be grateful.",
+            Sprite = GetSprite("Stranger"),
             Action = Help,
             ItemSlots = new List<ItemSlot>()
             {
@@ -122,6 +131,7 @@ public class Encounter_WoundedStranger : LocationEncounter
     }
     private string Help()
     {
+        AudioManager.PlaySound("Bandaging");
         state = StrangerState.Grateful;
         Game.ModifyMorale(+2);
         return $"You tend to their wounds as best you can. {GRATITUDE_TEXT}";
@@ -129,44 +139,18 @@ public class Encounter_WoundedStranger : LocationEncounter
 
     private EncounterOption GetTalkOption()
     {
-        return new SkillCheckOption()
+        return new FixedOutcomeOption()
         {
             Text = "Talk",
-            Description = "Try to get them talking. See what they know.",
+            Description = "Ask what happened to them.",
+            Sprite = GetSprite("Stranger"),
             Action = Talk,
-            BaseDifficulty = 45,
-            RelevantStats = new Dictionary<StatDef, int>()
-            {
-                { StatDefOf.Social, 3 },
-            },
-            CanCriticallyFail = false,
-            OnceEver = true,
         };
     }
-    private string Talk(OptionOutcomeDef outcome)
+    private string Talk()
     {
-        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
-        {
-            state = StrangerState.Grateful;
-            Game.ModifyMorale(+1);
-            return $"They open up quickly. They seem relieved to have someone to talk to. {GRATITUDE_TEXT}";
-        }
-        if (outcome.SuccessLevel == SuccessLevel.Success)
-        {
-            string knowledgeText = GainStrangerKnowledge();
-            return $"They talk, but cautiously. {knowledgeText}";
-        }
-        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
-        {
-            Game.RevealRandomNearbyLocationEncounter();
-            isKnowledgeExtracted = true;
-            return "They talk a little, but seem hesitant to share much.";
-        }
-        if (outcome.SuccessLevel == SuccessLevel.Failure)
-        {
-            return "They turn away. They don't want to talk.";
-        }
-        throw new InvalidOutcomeException();
+        isIntroduced = true;
+        return "They tell you they were ambushed on the road and lost most of what they had. They are badly hurt, but they are wary of you and unsure what to make of you.";
     }
 
     private EncounterOption GetRobOption()
@@ -174,7 +158,8 @@ public class Encounter_WoundedStranger : LocationEncounter
         return new SkillCheckOption()
         {
             Text = "Rob",
-            Description = "They're in no position to stop you. Take what they have.",
+            Description = "They look like they are in no position to stop you. Take what they have. This will feel horrible though.",
+            Sprite = GetSprite("Stranger"),
             Action = Rob,
             BaseDifficulty = 25,
             RelevantStats = new Dictionary<StatDef, int>()
@@ -218,17 +203,42 @@ public class Encounter_WoundedStranger : LocationEncounter
 
     private EncounterOption GetAskForInformationOption()
     {
-        return new FixedOutcomeOption()
+        return new SkillCheckOption()
         {
-            Text = "Ask what they know",
+            Text = "Ask about information",
             Description = "Maybe they've heard or seen something useful.",
+            Sprite = GetSprite("Stranger"),
             Action = AskForInformation,
+            BaseDifficulty = 70,
+            RelevantStats = new Dictionary<StatDef, int>()
+            {
+                { StatDefOf.Social, 3 },
+            },
+            FixedDifficultyModifiers =
+            {
+                new DifficultyModifier("Offered Help", state == StrangerState.Grateful ? -40 : 0),
+            },
+            CanCriticallyFail = false,
         };
     }
-    private string AskForInformation()
+    private string AskForInformation(OptionOutcomeDef outcome)
     {
-        string knowledgeText = GainStrangerKnowledge();
-        return $"{knowledgeText}";
+        if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess || outcome.SuccessLevel == SuccessLevel.Success)
+        {
+            string knowledgeText = GainStrangerKnowledge();
+            return $"They talk, but cautiously. {knowledgeText}";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.PartialSuccess)
+        {
+            Game.RevealRandomNearbyLocationEncounter();
+            isKnowledgeExtracted = true;
+            return "They talk a little, but seem hesitant to share much.";
+        }
+        if (outcome.SuccessLevel == SuccessLevel.Failure)
+        {
+            return "They turn away. They don't want to talk.";
+        }
+        throw new InvalidOutcomeException();
     }
 
     private EncounterOption GetAskForItemsOption()
@@ -237,6 +247,7 @@ public class Encounter_WoundedStranger : LocationEncounter
         {
             Text = "Ask for supplies",
             Description = "See if they can spare anything.",
+            Sprite = GetSprite("Stranger"),
             Action = AskForItems,
             BaseDifficulty = 35,
             RelevantStats = new Dictionary<StatDef, int>()
@@ -274,12 +285,17 @@ public class Encounter_WoundedStranger : LocationEncounter
         {
             Text = "Trade",
             Description = "Offer to exchange items.",
+            Sprite = GetSprite("Stranger"),
             Action = Trade,
         };
     }
     private string Trade()
     {
-        return InitiateTrade("They seem interested in trading.", items);
+        return InitiateTrade("They seem interested in trading.", sprite: GetSprite("Stranger"), itemsToBuy: items, itemsToSell: wantedItems);
+    }
+    protected override void OnItemSold(ItemDef itemDef)
+    {
+        wantedItems.Remove(itemDef);
     }
 
     #endregion

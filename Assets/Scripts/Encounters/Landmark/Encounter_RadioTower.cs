@@ -38,7 +38,7 @@ public class Encounter_RadioTower : LocationEncounter
         if (!IsDoorOpen) text += " The door is locked.";
         if (IsDoorOpen) text += " The door is open.";
 
-        if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) text += " There is a static sound in the air.";
+        if (!Game.HasQuest(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) text += " There is a static sound in the air.";
         if (HasNoteOnDoor && !IsNoteTaken) text += " A note is taped to the door.";
 
 
@@ -55,7 +55,7 @@ public class Encounter_RadioTower : LocationEncounter
         switch (CurrentPlayerPosition)
         {
             case PlayerPosition.Outside:
-                if (!Game.HasQuestStarted(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) options.Add(GetListenOption());
+                if (!Game.HasQuest(QuestDefOf.GoToUnpoweredFence) && HasNoteOnDoor) options.Add(GetListenOption());
                 if (!IsDoorOpen) options.Add(GetForceDoorOption());
                 if (!HasBeenOnTop) options.Add(GetClimbTowerOption());
                 if (IsNoteTaken) options.Add(GetMoveOnOption());
@@ -103,14 +103,14 @@ public class Encounter_RadioTower : LocationEncounter
     private string ReadNote()
     {
         string text = $"The note reads:\n\"Still transmitting. If you can hear this, the fence has a weak point. Find me in {StoryManager.CityOfR.Name}. - R'\"";
-        if (Game.QuestStates[QuestDefOf.FindR] == QuestState.Completed)
+        if (Game.IsQuestCompleted(QuestDefOf.FindR))
         {
             text += "\n\nYou have already found R, so you know all about it.";
         }
 
 
         Game.ModifyStatBaseValue(StatDefOf.Morale, +1);
-        if (!Game.HasQuestStarted(QuestDefOf.FindR))
+        if (!Game.HasQuest(QuestDefOf.FindR))
         {
             Game.StartQuest(QuestDefOf.FindR, area: StoryManager.CityOfR);
         }
@@ -131,6 +131,7 @@ public class Encounter_RadioTower : LocationEncounter
             BaseDifficulty = 90,
             CanCriticallySucceed = false,
             CanCriticallyFail = false,
+            CanPartiallySucceed = false,
         };
     }
     private string Listen(OptionOutcomeDef outcome)
@@ -139,14 +140,9 @@ public class Encounter_RadioTower : LocationEncounter
 
         if (outcome == OptionOutcomeDefOf.Success)
         {
-            text = "You understand everything! The voice tells you the exact coordinates of a fence segment that is unpowered and could be cut through with a fence cutter.";
+            text = "You understand the message. The voice tells you the exact coordinates of a fence segment that is unpowered and could be cut through with a fence cutter.";
             Game.ModifyStatBaseValue(StatDefOf.Morale, +2);
             Game.StartQuest(QuestDefOf.GoToUnpoweredFence, location: StoryManager.CuttableFenceTile);
-        }
-        if (outcome == OptionOutcomeDefOf.PartialSuccess)
-        {
-            text = $"You understand parts of the message. The voice mentions a fence cutter and {StoryManager.ClosestAreaOfCuttableFence.Name}.";
-            Game.StartQuest(QuestDefOf.GoToUnpoweredFence, area: StoryManager.ClosestAreaOfCuttableFence, partial: true);
         }
         if (outcome == OptionOutcomeDefOf.Failure)
         {

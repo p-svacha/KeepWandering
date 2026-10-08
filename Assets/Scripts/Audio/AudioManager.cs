@@ -28,6 +28,7 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     // One-shot pool
     private AudioSource[] oneShotPool;
     private int nextOneShotIndex;
+    private HashSet<AudioClip> playedAudioClipsThisFrame;
 
     // Continuous sounds
     private Dictionary<string, ContinuousSound> ContinuousSounds = new Dictionary<string, ContinuousSound>();
@@ -42,6 +43,8 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
         MasterVolume = 1f;
         MusicVolume = MUSIC_VOLUME_MODIFIER;
         SfxVolume = 1f;
+
+        playedAudioClipsThisFrame = new HashSet<AudioClip>();
     }
 
     private void InitMusicSources()
@@ -71,12 +74,18 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     {
         // Auto-advance to next track
         AudioSource activeMusic = musicSourceAActive ? musicSourceA : musicSourceB;
-        if (activeMusic.clip != null && !activeMusic.isPlaying && crossfadeCoroutine == null)
+        if (activeMusic.clip != null && !activeMusic.isPlaying && activeMusic.time >= activeMusic.clip.length - 0.1f && crossfadeCoroutine == null)
         {
             PlayNextTrack();
         }
 
         UpdateContinuousSounds();
+    }
+
+    public void LateUpdate()
+    {
+        // Clear the set of played audio clips at the end of the frame so that the same clip can be played again next frame.
+        playedAudioClipsThisFrame.Clear();
     }
 
     private void UpdateContinuousSounds()
@@ -132,6 +141,13 @@ public class AudioManager : MonoBehaviourSingleton<AudioManager>
     public static void PlaySound(AudioClip clip, float volume = 1f, float pitch = 1f, float pitchVariance = 0f)
     {
         if (Instance == null || clip == null || IsMuted) return;
+
+        if (Instance.playedAudioClipsThisFrame.Contains(clip))
+        {
+            Debug.Log($"[AudioManager] Skipping sound '{clip.name}' because it was already played this frame.");
+            return;
+        }
+        Instance.playedAudioClipsThisFrame.Add(clip);
 
         AudioSource source = Instance.GetNextOneShotSource();
         source.clip = clip;

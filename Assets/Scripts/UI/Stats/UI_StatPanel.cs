@@ -8,40 +8,31 @@ public class UI_StatPanel : MonoBehaviour
 
     [Header("Elements")]
     public UI_Stat Morale;
-    public GameObject StatContainer;
+    public UI_Stat Strength;
+    public UI_Stat Survival;
+    public UI_Stat Dexterity;
+    public UI_Stat Social;
 
     [Header("Prefabs")]
-    public UI_StatRow RowPrefab;
-
     private Dictionary<StatDef, UI_Stat> StatDisplays;
 
     public void Init(Game game)
     {
         StatDisplays = new Dictionary<StatDef, UI_Stat>();
 
-        // Morale
+        // Stats
         Morale.Init(game.Player.Stats[StatDefOf.Morale], fixedColor: true);
+        Strength.Init(game.Player.Stats[StatDefOf.Strength]);
+        Survival.Init(game.Player.Stats[StatDefOf.Survival]);
+        Dexterity.Init(game.Player.Stats[StatDefOf.Dexterity]);
+        Social.Init(game.Player.Stats[StatDefOf.Social]);
+
+        // Cache
         StatDisplays.Add(StatDefOf.Morale, Morale);
-
-        // Skills
-        HelperFunctions.DestroyAllChildredImmediately(StatContainer, skipElements: 1);
-
-        
-        UI_StatRow currentRow = null;
-        List<Stat> playerStats = game.Player.Stats.Values.Where(stat => stat.Def != StatDefOf.Morale).ToList();
-        for (int i = 0; i < playerStats.Count; i += STATS_PER_ROW)
-        {
-            if (i % STATS_PER_ROW == 0)
-            {
-                currentRow = Instantiate(RowPrefab, StatContainer.transform);
-                Stat rowStat1 = playerStats[i];
-                Stat rowStat2 = (i + 1 < playerStats.Count) ? playerStats[i + 1] : null;
-                currentRow.Init(rowStat1, rowStat2);
-
-                StatDisplays.Add(rowStat1.Def, currentRow.LeftStat);
-                if (rowStat2 != null) StatDisplays.Add(rowStat2.Def, currentRow.RightStat);
-            }
-        }
+        StatDisplays.Add(StatDefOf.Strength, Strength);
+        StatDisplays.Add(StatDefOf.Survival, Survival);
+        StatDisplays.Add(StatDefOf.Dexterity, Dexterity);
+        StatDisplays.Add(StatDefOf.Social, Social);
     }
 
     public void Refresh()

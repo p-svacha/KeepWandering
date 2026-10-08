@@ -33,7 +33,7 @@ public class Encounter_HomeOfR : LocationEncounter
         else
         {
             if (Game.IsQuestActive(QuestDefOf.FindR)) options.Add(GetAskAboutFenceOption());
-            if (!Game.HasQuestStarted(QuestDefOf.DeliverMedicineToR)) options.Add(GetAskAboutSickPartnerOption());
+            if (!Game.HasQuest(QuestDefOf.DeliverMedicineToR)) options.Add(GetAskAboutSickPartnerOption());
             if (Game.IsQuestActive(QuestDefOf.DeliverMedicineToR)) options.Add(GetDeliverMedicineOption());
         }
 

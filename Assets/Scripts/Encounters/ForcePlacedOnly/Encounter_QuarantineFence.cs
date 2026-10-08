@@ -106,7 +106,7 @@ public class Encounter_QuarantineFence : LocationEncounter
     }
     private string GoThroughHole()
     {
-        Game.WinGame("You go through the hole in the fence and manage to get to the other side safely. You have successfully escaped the quarantine zone!");
+        Game.WinGame("You go through the hole in the fence and manage to get to the other side.");
         return null;
     }
 }

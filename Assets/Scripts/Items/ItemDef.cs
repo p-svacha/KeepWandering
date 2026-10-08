@@ -112,4 +112,6 @@ public class ItemDef : Def
         if (amount == 1) return $"{TextUtils.IndefiniteArticle(SingularLabel)} {SingularLabel}";
         return $"{TextUtils.NumberToWord(amount)} {PluralLabel}";
     }
+
+    public bool IsTradeable => !IsQuestItem && Value > 0 && this != ItemDefOf.Coin;
 }

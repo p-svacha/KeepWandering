@@ -170,7 +170,7 @@ public class GameUI : MonoBehaviourSingleton<GameUI>
 
     public void UpdateQuestDisplay()
     {
-        MissionsDisplay.UpdateList(Game.ActiveQuests);
+        MissionsDisplay.UpdateList(Game.Quests);
     }
 
     #endregion

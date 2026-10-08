@@ -63,6 +63,7 @@ public class EveningEncounter : Encounter
     }
     private string SetUpTent()
     {
+        AudioManager.PlaySound("Zipper");
         Game.SetUpTent(ItemUsedInOption);
         return "You set up your tent for the night.";
     }
@@ -88,6 +89,7 @@ public class EveningEncounter : Encounter
     }
     private string SetUpBedroll()
     {
+        AudioManager.PlaySound("Cloth");
         Game.SetUpBedroll(ItemUsedInOption);
         return "You lay out your bedroll for the night.";
     }
@@ -131,6 +133,7 @@ public class EveningEncounter : Encounter
     {
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
+            AudioManager.PlaySound("FireLighting");
             Game.MakeFire();
             return "You get a fire going.";
         }
@@ -167,6 +170,7 @@ public class EveningEncounter : Encounter
     }
     private string SetTrap(int slot)
     {
+        AudioManager.PlaySound("TrapSetting");
         Game.PlaceEveningTrap(ItemUsedInOption, slot);
         return "You set up a trap.";
     }
@@ -186,6 +190,7 @@ public class EveningEncounter : Encounter
     }
     private string RestEarly()
     {
+        AudioManager.PlaySound("Cloth");
         Game.IsEarlyResting = true;
         IsEncounterDone = true;
         return "You lie down early. The extra rest will help a little.";
@@ -407,12 +412,12 @@ public class EveningEncounter : Encounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalSuccess)
         {
             List<ItemDef> offeredItems = BiomeLootTable.ResolveMultiple(3);
-            return InitiateTrade("You track down a trader eager to do business, and they seem to have good stock.", offeredItems, canBuyRumour: true);
+            return InitiateTrade("You track down a trader eager to do business, and they seem to have good stock.", itemsToBuy: offeredItems, canBuyRumour: true);
         }
         if (outcome.SuccessLevel == SuccessLevel.Success)
         {
             List<ItemDef> offeredItems = BiomeLootTable.ResolveMultiple(2);
-            return InitiateTrade("You track down a trader willing to do business.", offeredItems, canBuyRumour: true);
+            return InitiateTrade("You track down a trader willing to do business.", itemsToBuy: offeredItems, canBuyRumour: true);
         }
         if (outcome.SuccessLevel == SuccessLevel.Failure)
         {

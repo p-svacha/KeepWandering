@@ -78,8 +78,9 @@ public class Encounter_Crate : LocationEncounter
     protected override void RefreshSprites()
     {
         SetObjectVisibility("Crate_Destroyed", IsSmashed);
-        SetObjectVisibility("Crate_Open", IsOpened);
-        SetObjectVisibility("Crate", !IsSmashed && !IsOpened);
+        SetObjectVisibility("LidOpen", IsOpened);
+        SetObjectVisibility("LidClosed", !IsOpened);
+        SetObjectVisibility("Crate", !IsSmashed);
     }
 
     protected override void OnEnd()
@@ -111,6 +112,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = $"Take {VisibleCrateItem.Label}",
             Description = $"Try to squeeze the {VisibleCrateItem.Label} through the hole.",
+            Sprite = GetSprite("Hole"),
             BaseDifficulty = 50,
             CanCriticallyFail = false,
             OncePerDay = true,
@@ -119,7 +121,6 @@ public class Encounter_Crate : LocationEncounter
                 { StatDefOf.Dexterity, 2 },
             },
             Action = TakeItem,
-            Sprite = VisibleCrateItem.Renderer.SpriteRenderer,
         };
     }
     private string TakeItem(OptionOutcomeDef outcome)
@@ -173,6 +174,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Smash",
             Description = "Try to destroy the crate to get its content. This might destroy some items inside.",
+            Sprite = GetSprite("Crate"),
             BaseDifficulty = 70,
             OncePerDay = true,
             RelevantStats = new Dictionary<StatDef, int>()
@@ -195,6 +197,7 @@ public class Encounter_Crate : LocationEncounter
 
         if (outcome.SuccessLevel >= SuccessLevel.Success)
         {
+            AudioManager.PlaySound("WoodSmash");
             text = "You smash the crate open, without damaging any of its content.";
             TakeVisibleItem();
             TakeAllInvisibleItems();
@@ -243,6 +246,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Pry Open",
             Description = "Try to pry open the top of the crate.",
+            Sprite = GetSprite("PryOpenSpot"),
             BaseDifficulty = 20,
             OncePerDay = true,
             CanCriticallySucceed = false,
@@ -265,6 +269,7 @@ public class Encounter_Crate : LocationEncounter
 
         if (outcome == OptionOutcomeDefOf.Success)
         {
+            AudioManager.PlaySound("DoorOpen_01");
             text = $"You pry open the crate using the {usedItem.Label} and take everything inside.";
             TakeVisibleItem();
             TakeAllInvisibleItems();
@@ -272,6 +277,7 @@ public class Encounter_Crate : LocationEncounter
         }
         if (outcome == OptionOutcomeDefOf.PartialSuccess)
         {
+            AudioManager.PlaySound("DoorOpen_01");
             text = $"You manage to pry open the crate using the {usedItem.Label}. The {usedItem.Label} breaks in the process.";
             TakeVisibleItem();
             TakeAllInvisibleItems();
@@ -293,6 +299,7 @@ public class Encounter_Crate : LocationEncounter
         {
             Text = "Peek inside",
             Description = "Try to peek inside the crate to see if there are more items hidden within.",
+            Sprite = GetSprite("Hole"),
             BaseDifficulty = 40,
             OncePerDay = true,
             CanCriticallySucceed = false,

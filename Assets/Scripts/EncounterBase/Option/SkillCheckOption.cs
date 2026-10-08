@@ -132,7 +132,8 @@ public class SkillCheckOption : EncounterOption
             if (slot.Tag != null && slot.IsFilled)
             {
                 int modifierAmount = slot.GetDifficultyReduction(slot.FilledItem.Def);
-                if (modifierAmount != 0) modifiers.Add(new DifficultyModifier($"Using {slot.FilledItem.Def.LabelCapWord}", -modifierAmount));
+                string modifierLabel = $"Using {slot.FilledItem.Def.LabelCapWord} [{slot.FilledItem.Durability}]";
+                if (modifierAmount != 0) modifiers.Add(new DifficultyModifier(modifierLabel, -modifierAmount));
             }
         }
 

@@ -26,7 +26,7 @@ public class WorldMapTile
     public List<Area> Areas { get; private set; }
     public Area City => Areas.FirstOrDefault(a => a.Type == AreaTypeDefOf.City);
     public Area Forest => Areas.FirstOrDefault(a => a.Type == AreaTypeDefOf.Forest);
-    public Area Lake => Areas.FirstOrDefault(a => a.Type == AreaTypeDefOf.Lake); 
+    public Area Lake => Areas.FirstOrDefault(a => a.Type == AreaTypeDefOf.Lake);
 
 
     public WorldMapTile(Dictionary<Vector2Int, WorldMapTile> allTiles, Vector2Int coordinates)

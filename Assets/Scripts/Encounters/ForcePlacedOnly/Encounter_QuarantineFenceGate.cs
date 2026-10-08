@@ -4,7 +4,7 @@ using System.Linq;
 public class Encounter_QuarantineFenceGate : LocationEncounter
 {
     // Constants
-    private static readonly LootTable DEMAND_TABLE = new LootTable
+    private LootTable DEMAND_TABLE = new LootTable
     {
         { ItemDefOf.Beer, Rarity.Common },
         { ItemDefOf.Chocolate, Rarity.Common },
@@ -33,6 +33,7 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
     {
         // Initial state
         Phase = EncounterPhase.Initial;
+        Demands = new List<ItemDef>();
     }
 
     protected override string OnStart()
@@ -41,7 +42,7 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
 
         if (Phase == EncounterPhase.Initial) return baseText + " There is a guard looking to be responsible for opening the gate.";
         if (Phase == EncounterPhase.AskedToOpen) return baseText + " The guard seems to remember you.";
-        if (Phase == EncounterPhase.BribeDemanded) return baseText + " The bucket is still waiting for your bribe.";
+        if (Phase == EncounterPhase.BribeDemanded) return baseText + " The guard calls down: \"Got my things?\"";
         if (Phase == EncounterPhase.GateOpen) return "You arrive at the open gate that leads out of the quarantine zone.";
 
         throw new System.Exception("Invalid encounter phase: " + Phase);
@@ -53,6 +54,10 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
         if (Phase == EncounterPhase.AskedToOpen) options.Add(GetSweekTalkOption());
         if (Phase == EncounterPhase.AskedToOpen) options.Add(GetBribeOption());
         if (Phase == EncounterPhase.BribeDemanded) options.AddRange(GetDeliverBribeOptions());
+        if (Phase == EncounterPhase.BribeDemanded && Demands.Count == 0) options.Add(GetAskToOpenGateAfterBribeOption());
+        if (Phase == EncounterPhase.GateOpen) options.Add(GetGoThroughGateOption());
+
+        options.Add(GetMoveOnOption());
     }
 
     protected override void RefreshSprites()
@@ -60,6 +65,7 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
         SetObjectVisibility("Bucket", Phase == EncounterPhase.BribeDemanded);
         SetObjectVisibility("BucketRope", Phase == EncounterPhase.BribeDemanded);
         SetObjectVisibility("Gate", Phase != EncounterPhase.GateOpen);
+        SetObjectVisibility("GateOpen", Phase == EncounterPhase.GateOpen);
     }
 
     /// <summary>
@@ -141,8 +147,6 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
                 difficultyModifiers.Add(new DifficultyModifier("Sweet Talk", -30));
             if (SweetTalkOutcome.SuccessLevel == SuccessLevel.Failure)
                 difficultyModifiers.Add(new DifficultyModifier("Failed Sweet Talk", +20));
-            if (SweetTalkOutcome.SuccessLevel == SuccessLevel.CriticalFailure)
-                difficultyModifiers.Add(new DifficultyModifier("Failed Sweet Talk", +40));
         }
 
 
@@ -190,7 +194,7 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
         if (outcome.SuccessLevel == SuccessLevel.CriticalFailure)
         {
             IncreaseDangerLevelInAreaAlongFence();
-            return "\"Don't even try this shit with me or I'm gonna call the guards. Bugger off now!\"";
+            return "\"Don't even try this shit with me or I'm gonna call it in. Bugger off now!\"";
         }
         throw new OutcomeNotHandledException(outcome);
     }
@@ -221,10 +225,45 @@ public class Encounter_QuarantineFenceGate : LocationEncounter
     }
     private string DeliverDemandedItem()
     {
+        AudioManager.PlaySound("MetalClanks");
         Item deliveredItem = ItemUsedInOption;
         Demands.Remove(deliveredItem.Def);
+        Game.CompleteQuest(Game.ActiveQuests.First(q => q.Def == QuestDefOf.DeliverGuardBribe && q.RelatedItem == deliveredItem.Def));
 
-        return $"\"Thank you for delivering the {deliveredItem.Def.Label}.\"";
+        return $"You put the {deliveredItem.Def.LabelSingular} in the bucket. The guard gives you a nod of approval.";
+    }
+
+    private FixedOutcomeOption GetAskToOpenGateAfterBribeOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Ask to Open Gate",
+            Description = "Now that you have delivered all requested items, ask the guard to open the gate again.",
+            Sprite = GetSprite("Guard"),
+            Action = AskToOpenGateAfterBribe,
+        };
+    }
+    private string AskToOpenGateAfterBribe()
+    {
+        AudioManager.PlaySound("DoorOpen_02");
+        Phase = EncounterPhase.GateOpen;
+        return "\"Alright, you have delivered everything I asked for, I will open the gate for you.\"";
+    }
+
+    private FixedOutcomeOption GetGoThroughGateOption()
+    {
+        return new FixedOutcomeOption()
+        {
+            Text = "Go Through Gate",
+            Description = "Go through the gate to leave the quarantine zone.",
+            Sprite = GetSprite("GateOpen"),
+            Action = GoThroughGate,
+        };
+    }
+    private string GoThroughGate()
+    {
+        Game.WinGame("You walk through the official gate after bribing the guard.");
+        return null;
     }
 
     #endregion

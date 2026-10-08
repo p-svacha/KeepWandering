@@ -1,43 +1,10 @@
 TODOS:
 ==============================================
 
-(T) - smoke consumption type
-(T) - nicotine high health condition
-
-(T) - allow usage of items also during encounters (except if explicitly disabled by encounter state (virtual bool on encounter))
-
-(T) - add consumption effect to encounter text after consumption
-
-(T) - outcome note for increased danger level on nearby tiles (just 1 generic note, not per tile)
-
-(T) - danger level increase sound (tun tun)
-(T) - danger level decrease sound (chord)
-(T) - tile reveal sound (chime)
-
-- fence gate encounter
-
-- proper util for natural-readable listing items (use new singular and plural labels, and grouping same items).
-  - i.e. a list of wood, knife, knife, crowbar would result in "two knives, a piece of wood and a crowbar"
-  - use in crate encounter
-
-- fence gate encounter
-
-- more option icons (same as skill check icon):
-  - UI: mark options that can only be done once per day with a (single yellow exclamation mark) icon
-  - UI: mark options that can only be done once ever with a star icon (double red exclamation mark)
-  - add tooltips to these icons explaining what they mean
-
-- change bedroll item sound
-  - use zipper sound when setting it up
-- outcome notes
-  - change icon from well rested away from zzz, is confusing, or add a simley
-
 - fence night encounter: guards
 
 AUDIO TO ALL EXISTING CONTENT
 
-item destroyed sounds (by material maybe, or generic)
-sprite bound option locking and unlocking sound
 keep wandering sounds
 ambient sounds by biome
 health conditions sounds
@@ -48,18 +15,9 @@ quest sounds (incl romours)
  - failed
  - updated
 permanent stat increase/decrease sounds
-location reveal sounds
-danger level increase/decrease sounds
 sound for every outcome in every option in every encounter, go through them by def
 night encounter happening sound
-drum roll during skill check sequence
-  - drumroll final on stop
 
-
-ADD PROPER DAY 0:
-- game starts at home in the morning.
-- At very first morning, show house behind character
-- first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost.
 
 SUBSTANCE END GAME:
 
@@ -68,12 +26,16 @@ add spreading to morning report
 add deployment marker to world map on day 20
 add spreading markers to world map
 add game over when hit
+- random deployment tile
+- spread mechanics
+- show next spread tiles on map
+- impassability
+- map marking of deployment on day 15
+- death on being on tile
 
 WOLF ATTACK NIGHT EVENT
 - animal attack event (wolves, reusing dog toy tag)
 - attacker category human/animal
-
-FENCE GATE ENCOUNTER
 
 IDEAS TO START CREATING NEW (GENERIC) LOCATION ENCOUNTERS:
 - add "no encounter" that can happen in any biome with different chances. (Technically normal encounter, just with no options)
@@ -160,10 +122,11 @@ countdown locations
 
 - add toggle for location icons in world map
 
-- can move outside quarantine zone on a road
+Go through all encounters and do:
+- SFX for all option outcomes
+- Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)
 
 - in difficulty calculation, show minimum and maximum as separate entries
-- in difficulty calculation, show remaining uses of items if using item
 
 - desaturate world map except for player and marked tiles
  - make outline of trees/fields/buildings gray at base maybe (increase lightness on all base images)
@@ -172,6 +135,14 @@ countdown locations
 - Unbandaged cut wound shows "not infected" as tooltip title
 - wounds don't have description in tooltip
 - unbandaged cut doesn't show natural downwards trend in tooltip, only natural healing. also trend shows as improving which is wrong.
+
+item improvements:
+- lighter too small
+- water bottle wrong sound
+- can of beans wrong sound
+
+New biome
+- Hills or Mountains biome?
 
 - When resting in morning, or resting early in evening, clearly describe it option description that "natural healing" is applied
 
@@ -199,16 +170,12 @@ countdown locations
    - natural healing
    - health condition def of health condition def that can be applied by this condition
 
-- change full of beans condition icon to a bean
-
-- cooking system:
-  - raw meat can somehow be cooked into cooked meat, which gives a lot of nutrition
-  - give raw meat chance to apply poisoning
-
-- sound (game currently has no sound at all)
-  - most impactful would probably be sound effects for encounter option outcomes
-
 - render mouth differently based on morale (smile, neutral, frown)
+
+ADD PROPER DAY 0:
+- game starts at home in the morning.
+- At very first morning, show house behind character
+- first day encounter in the morning is the LocationEncounter Home, a unique location encounter on Vector2Int(0,0). You can go back there. In the first morning at game start, only possible option is to "start journey" and moving to another tile. Later there may be other options, but probably not. Maybe a simple temporary morale boost.
 
 - pause menu
  - navigable from gear icon in game

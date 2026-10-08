@@ -76,7 +76,9 @@ public abstract class Encounter
         RefreshSprites();
 
         bool isFinalStep = IsEncounterDone;
-        return new EncounterStep(text, _GetOptions(), isFinalStep);
+        List<EncounterOption> options = _GetOptions();
+        Debug.Log($"[Encounter] Following options are now available in {Def.DefName}: {string.Join(", ", options.Select(o => o.Text))}");
+        return new EncounterStep(text, options, isFinalStep);
     }
 
     /// <summary>
@@ -151,19 +153,17 @@ public abstract class Encounter
     /// </summary>
     private List<EncounterOption> _GetOptions()
     {
+        List<EncounterOption> options = new List<EncounterOption>();
+
         // If the player is allowed to use items, show the item use options.
         if (IsGeneralItemUseAllowed())
         {
-            List<EncounterOption> options = new List<EncounterOption>();
             options.AddRange(GetGeneralItemUseOptions());
-            return options;
         }
 
         // If encounter is done, show the "continue journey" option based on the time of day.
         if (IsEncounterDone)
         {
-            List<EncounterOption> options = new List<EncounterOption>();
-
             // Continue day option
             string endEncounterOptionText;
             string endEncounterOptionDesc;
@@ -202,7 +202,6 @@ public abstract class Encounter
         // Otherwise, show the encounter's options
         else
         {
-            List<EncounterOption> options = new List<EncounterOption>();
             GetOptions(options);
 
             // Handle once per day and once ever options, removing them if they have already been used.
@@ -272,11 +271,6 @@ public abstract class Encounter
     {
         GameObject obj = Game.EncounterContainer.transform.Find($"{Def.DefName}/{spriteName}").gameObject;
         obj.SetActive(show);
-    }
-
-    protected void SetSpriteVisibility(SpriteRenderer renderer, bool show)
-    {
-        renderer.gameObject.SetActive(show);
     }
 
     /// <summary>
@@ -565,12 +559,20 @@ public abstract class Encounter
 
     #region Trading Interface
 
-    protected string InitiateTrade(string text, List<ItemDef> itemsToBuy, List<ItemDef> itemsToSell = null, bool canBuyRumour = false)
+    protected string InitiateTrade(string text, SpriteRenderer sprite = null, List<ItemDef> itemsToBuy = null, List<ItemDef> itemsToSell = null, bool canBuyRumour = false)
     {
         IsTrading = true;
-        ItemsToBuy = itemsToBuy;
-        ItemsToSell = itemsToSell ?? new List<ItemDef>();
+        TradeOptionsSprite = sprite;
+        ItemsToBuy = itemsToBuy?.Where(i => i.IsTradeable).ToList() ?? new List<ItemDef>();
+        ItemsToSell = itemsToSell?.Where(i => i.IsTradeable).ToList() ?? new List<ItemDef>();
         CanBuyRumour = canBuyRumour;
+
+        // If there is nothing to trade, finish the trading immediately.
+        if (ItemsToBuy.Count == 0 && ItemsToSell.Count == 0 && !CanBuyRumour)
+        {
+            return FinishTrading("They have nothing to sell and are not interested in buying anything.");
+        }
+
         return text;
     }
 
@@ -578,24 +580,21 @@ public abstract class Encounter
     private List<ItemDef> ItemsToBuy = new List<ItemDef>();
     private List<ItemDef> ItemsToSell = new List<ItemDef>();
     private bool CanBuyRumour;
+    private SpriteRenderer TradeOptionsSprite;
 
     private List<EncounterOption> GetTradingOptions()
     {
         List<EncounterOption> options = new List<EncounterOption>();
         foreach (ItemDef itemDef in ItemsToBuy)
         {
-            if (itemDef == ItemDefOf.Coin) continue;
-            if (itemDef.Value <= 0) continue;
             options.Add(GetBuyItemOption(itemDef));
         }
         foreach (ItemDef itemDef in ItemsToSell)
         {
-            if (itemDef == ItemDefOf.Coin) continue;
-            if (itemDef.Value <= 0) continue;
             options.Add(GetSellItemOption(itemDef));
         }
         if (CanBuyRumour) options.Add(GetBuyInformationOption());
-        options.Add(GetDoneTradingOption());
+        options.Add(GetFinishTradingOption());
         return options;
     }
     private EncounterOption GetBuyItemOption(ItemDef itemDef)
@@ -614,12 +613,14 @@ public abstract class Encounter
         return new FixedOutcomeOption()
         {
             Text = $"Buy {itemDef.Label}.",
+            Sprite = TradeOptionsSprite,
             Action = () => BuyItem(itemDef),
             ItemSlots = itemSlots,
         };
     }
     private string BuyItem(ItemDef itemDef)
     {
+        AudioManager.PlaySound("KaChing");
         Game.AddNewItemToInventory(itemDef);
         return $"You trade {itemDef.Value} {"coin".Pluralize(itemDef.Value)} for {itemDef.Label}.";
     }
@@ -629,6 +630,7 @@ public abstract class Encounter
         return new FixedOutcomeOption()
         {
             Text = $"Sell {itemDef.Label}.",
+            Sprite = TradeOptionsSprite,
             Action = () => SellItem(itemDef),
             ItemSlots = new List<ItemSlot>()
             {
@@ -643,15 +645,24 @@ public abstract class Encounter
     }
     private string SellItem(ItemDef itemDef)
     {
+        AudioManager.PlaySound("KaChing");
         Game.AddNewItemsToInventory(ItemDefOf.Coin, itemDef.Value);
+        ItemsToSell.Remove(itemDef);
+        OnItemSold(itemDef);
         return $"You trade {itemDef.Label} for {itemDef.Value} {"coin".Pluralize(itemDef.Value)}.";
     }
+
+    /// <summary>
+    /// Called when the player has sold an item to the trader during trading.
+    /// </summary>
+    protected virtual void OnItemSold(ItemDef itemDef) { }
 
     private EncounterOption GetBuyInformationOption()
     {
         return new FixedOutcomeOption()
         {
             Text = "Buy information for 3 coins.",
+            Sprite = TradeOptionsSprite,
             Action = BuyInformation,
             OncePerDay = true,
             ItemSlots = new List<ItemSlot>()
@@ -679,6 +690,8 @@ public abstract class Encounter
     }
     private string BuyInformation()
     {
+        AudioManager.PlaySound("KaChing");
+
         string rumourText = Game.LearnRumour();
         if (rumourText != null)
             return $"You trade coins for a piece of information.{rumourText}";
@@ -686,19 +699,19 @@ public abstract class Encounter
         return "You trade coins, but they don't have anything useful to share.";
     }
 
-    private EncounterOption GetDoneTradingOption()
+    private EncounterOption GetFinishTradingOption()
     {
         return new FixedOutcomeOption()
         {
-            Text = "Done trading",
-            Action = DoneTrading,
+            Text = "Finish trading",
+            Action = () => FinishTrading("You finish trading"),
         };
     }
-    private string DoneTrading()
+    private string FinishTrading(string text)
     {
         IsTrading = false;
         OnTradingDone();
-        return "You finish trading.";
+        return text;
     }
 
     /// <summary>

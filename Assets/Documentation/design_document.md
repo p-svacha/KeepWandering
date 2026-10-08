@@ -452,7 +452,7 @@ A standardized RPG-style check with a calculated difficulty and a rolled outcome
 
 **Roll animation:** When a skill check is chosen, a short flashy animation plays *before* the outcome resolves. A horizontal bar segmented and coloured by the possible outcomes (critical failure → failure → partial → success → critical success), with the rolled number landing on the bar. Then the outcome effect plays.
 
-**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers: morale (factor 1), the relevant player skill(s) times their factor (1-4), biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
+**Difficulty calculation:** Start from a base difficulty (1–100). Apply **additive** modifiers: morale (factor 1), the relevant player skill(s) times their factor (1-5), biome modifiers, and encounter-specific modifiers (e.g. prior choices in this encounter). Then apply the **percentage** reduction from any filled item slot (per tag level). Clamp the result to **[5, 200]**. The floor of 5 means success is never guaranteed by skills alone; at 200 only failure/critical failure remain.
 
 ### Option Outcomes
 

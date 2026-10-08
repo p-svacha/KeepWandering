@@ -68,6 +68,7 @@ public class Item
     public bool IsConsumable => Def.IsConsumable;
     public bool IsCampComponent => Def.IsCampComponent;
     public bool HasMedicalProperties => Def.HasMedicalProperties;
+    public bool IsTradeable => Def.IsTradeable;
 
     /// <summary>
     /// Returns the subtitle text for the tooltip of this item. Can be different things depending on the item type.

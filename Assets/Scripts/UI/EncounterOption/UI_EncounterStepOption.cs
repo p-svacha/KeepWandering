@@ -17,6 +17,10 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
     public UI_TooltipTarget SkillCheckIndicator_TooltipTarget;
     public TextMeshProUGUI SkillCheckIndicator_DifficultyText;
     public GameObject ItemSlotContainer;
+
+    public GameObject RestrictionIndicatorContainer;
+    public UI_TooltipTarget RestrictionIndicatorContainer_TooltipTarget;
+    public GameObject RestrictionIndicator2;
     
 
     [Header("Prefabs")]
@@ -60,6 +64,12 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
             ItemSlotDisplays.Add(itemSlotDisplay);
         }
 
+        // Restrictions
+        RestrictionIndicatorContainer.SetActive(option.OncePerDay || option.OnceEver);
+        RestrictionIndicator2.SetActive(option.OnceEver);
+        if (option.OncePerDay) RestrictionIndicatorContainer_TooltipTarget.Init("", "This option can only be attempted once per day.");
+        else if (option.OnceEver) RestrictionIndicatorContainer_TooltipTarget.Init("", "This option can never be retried.");
+
         Refresh();
     }
 
@@ -74,6 +84,7 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
         OptionButton.interactable = canSelect;
         OptionButton.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Button_Default : ResourceManager.Color_Button_Disabled;
         SkillCheckIndicator.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled;
+        RestrictionIndicatorContainer.GetComponent<Image>().color = canSelect ? ResourceManager.Color_Panel_Highlighted : ResourceManager.Color_Button_Disabled;
 
         // Difficulty
         UpdateDifficulty();
@@ -130,5 +141,6 @@ public class UI_EncounterStepOption : MonoBehaviour, IPointerEnterHandler, IPoin
 
         if (UI_EncounterDisplay.Instance != null) UI_EncounterDisplay.Instance.OnOptionUnhovered();
         SkillCheckIndicator_TooltipTarget.HideTooltip();
+        RestrictionIndicatorContainer_TooltipTarget.HideTooltip();
     }
 }

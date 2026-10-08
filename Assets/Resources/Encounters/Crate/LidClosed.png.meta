@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3ce67542c93d72a49b2412cfda8f78e9
+guid: bb5627076450e5041ac94d5d13c24f06
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1878683508750431152
-    second: Crate_Open_0
+      213: -2581020338694245835
+    second: LidClosed_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Crate_Open_0
+      name: LidClosed_0
       rect:
         serializedVersion: 2
-        x: 1352
-        y: 155
-        width: 466
-        height: 558
+        x: 0
+        y: 0
+        width: 420
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 05ccb8f6d439de5e0800000000000000
-      internalID: -1878683508750431152
+      spriteID: 53232124daf5e2cd0800000000000000
+      internalID: -2581020338694245835
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Crate_Open_0: -1878683508750431152
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

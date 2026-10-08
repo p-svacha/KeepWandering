@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+public enum QuestState
+{
+    Active,
+    Completed,
+    Failed
+}
+
+
 public class Quest
 {
     // Base
@@ -28,11 +36,6 @@ public class Quest
         Area = area;
 
         State = QuestState.Active;
-
-        // Validate
-        if (Area != null && Location != null) throw new System.Exception("Mission cannot have both an area and a location.");
-        if (Def.RequiresLocation && !HasRelatedLocation) throw new System.Exception("Mission requires a location but none was provided.");
-        if (Def.RequiresItem && !HasRelatedItem) throw new System.Exception("Mission requires a related item but none was provided.");
     }
 
     public void SetState(QuestState newState)

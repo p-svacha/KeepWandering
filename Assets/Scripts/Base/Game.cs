@@ -57,7 +57,8 @@ public class Game : MonoBehaviourSingleton<Game>
     public bool PlayerIsOnQuarantinePerimeter => QuarantineZone.IsOnPerimeter(CurrentPosition);
 
     // Quests
-    public List<Quest> Quests;
+    public List<Quest> Quests { get; private set; }
+    public List<Quest> ActiveQuests => Quests.Where(q => q.State == QuestState.Active).ToList();
     public string WinGameReason { get; private set; }
 
     // Elements
@@ -533,7 +534,7 @@ public class Game : MonoBehaviourSingleton<Game>
 
     public void WinGame(string text)
     {
-        WinGameReason = text;
+        WinGameReason = text + "\nYou have successfully escaped the quarantine zone!";
         OnGameStateChanged();
     }
 
@@ -620,6 +621,7 @@ public class Game : MonoBehaviourSingleton<Game>
             {
                 foreach (WorldMapTile end in mid.GetAdjacentTiles())
                 {
+                    if (!WorldMap.Instance.QuarantineZone.ContainsTile(end)) continue;
                     if (end == CurrentPosition) continue;
                     if (!end.HasRoad || !end.IsPassable()) continue;
                     if (!tiles.Contains(end)) tiles.Add(end);
@@ -1322,14 +1324,13 @@ public class Game : MonoBehaviourSingleton<Game>
         }
 
         // Reveal
-        else
-        {
-            tile.Encounter.Reveal();
-            if (showInOutcomeNote) NumRevealedLocationEncountersSinceLastStep++;
-        }
+        else tile.Encounter.Reveal();
 
-        // Audio
-        AudioManager.PlaySound("Chime");
+        if (showInOutcomeNote)
+        {
+            NumRevealedLocationEncountersSinceLastStep++;
+            AudioManager.PlaySound("Chime");
+        }
     }
 
     public void RevealLocationEncountersAround(WorldMapTile tile)
@@ -1390,7 +1391,7 @@ public class Game : MonoBehaviourSingleton<Game>
 
         return Quests.FirstOrDefault(q => q.Def == questDef);
     }
-    private bool HasQuest(QuestDef questDef) => Quests.Any(q => q.Def == questDef);
+    public bool HasQuest(QuestDef questDef) => Quests.Any(q => q.Def == questDef);
 
     public bool IsQuestActive(QuestDef questDef)
     {
@@ -1438,6 +1439,11 @@ public class Game : MonoBehaviourSingleton<Game>
         else if (quest.Area != null)
             quest.FormatText(quest.Area.Name);
 
+        // Validate
+        if (quest.Area != null && quest.Location != null) throw new System.Exception($"Quest {quest.Def.DefName} cannot have both an area and a location.");
+        if (quest.Def.RequiresLocation && !quest.HasRelatedLocation) throw new System.Exception($"Quest {quest.Def.DefName} requires a location but none was provided.");
+        if (quest.Def.RequiresItem && !quest.HasRelatedItem) throw new System.Exception($"Quest {quest.Def.DefName} requires a related item but none was provided.");
+
         Quests.Add(quest);
         NumAddedQuestsSinceLastStep++;
 
@@ -1445,6 +1451,7 @@ public class Game : MonoBehaviourSingleton<Game>
         return quest;
     }
 
+    public void CompleteQuest(QuestDef questDef) => CompleteQuest(GetQuestInstance(questDef));
     public void CompleteQuest(Quest quest)
     {
         quest.SetState(QuestState.Completed);

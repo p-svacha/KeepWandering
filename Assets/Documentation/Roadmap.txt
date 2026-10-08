@@ -1,35 +1,6 @@
 Roadmap with all to-do's for a v1.0 release
 -------------------------------------------
 
-Go through all encounters and do:
-- SFX for all option outcomes
-- Move options onto sprites in the encounter (i.e. "Pry Open Crate" on the crate, "Climb Tower" on the tower, etc.)
-
-item improvements:
-- lighter too small
-- water bottle wrong sound
-- can of beans wrong sound
-- disallow items (in validate) that are both fuel and fire starter), because it's confusing when starting a fire. change oil lamp
-- item names need a "countable label" that can be used in encoutner texts, i.e. in crate encounter: "you find a wood" doesn't make sense, should be "you find a piece of wood", but the main label of the item is still "wood" (for inventory and handbook), but the countable label is "piece of wood". default is just the main label, but can be overridden in the item def.
-
-
-
-
-
-
-
-Substance end Game
-- random deployment tile
-- spread mechanics
-- show next spread tiles on map
-- impassability
-- map marking of deployment on day 15
-- death on being on tile
-
-New biome
-- Hills or Mountains biome?
-
-
 Phase 2 — Content production (the long continuous thread)
 
 >>> Work end-to-start. So take a win condition, and work backwards to create the content that leads to it, and the required content to help getting there. Then repeat for the next win condition, and so on. Everything should be designed to work towards the win conditions (both progression and setbacks), and the content should be designed to be fun and interesting in its own right, not just a means to an end.
@@ -228,19 +199,6 @@ Items:
 - Individual items should all have their own identity and use cases.
 - Allow cooking food (maybe add this option to new generic evening encounter)
 
-Rumour / Quest system:
-- Remove partial rumours/quests
-  - Not really an intuitive system and it's very hard to design around.
-  - Else the current system works pretty well.
-
-Health Conditions:
-- Add electrocution health condition according to design doc
-- Remove heart arrythmia and corresponding items from design doc
-- Add any new health conditions if needed, but current ones already cover a great range.
-- Make health condition effects way clearer in the description. Currently very cryptic.
-- Make health condition colors way clearer.
-- Change patching up wounds into a skill check
-
 End-Game Substance Weapon:
 - As per the new intro, after 30 days a weapon is deployed (disintegrating spreading substance; reason for the quarantine)
 - After 20 days, mark tile on map where it is deployed.
@@ -261,9 +219,6 @@ Audio / FX:
   - Desolate (maybe if necessary)
   - Mystery (maybe if necessary)
 - In between day of time transitions, let the screen stay black for a short time and play a handcart moving + footstep sound (maybe different per biome) 
-
-UI:
-- Make tooltip a bit nicer. Differentiate title clearer from text.
 
 Handbook:
 - Add a diary with different sections that can be cycled through like a book with bookmarks at the top as a table of contents (like "The Forest")

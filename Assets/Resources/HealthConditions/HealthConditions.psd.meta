@@ -486,7 +486,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WellRested
+      name: Sleepy_Unsused
       rect:
         serializedVersion: 2
         x: 14
@@ -692,7 +692,7 @@ TextureImporter:
         width: 107
         height: 76
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -701,6 +701,28 @@ TextureImporter:
       bones: []
       spriteID: 54ce95820f7024e45beba0178c54c471
       internalID: -973259104
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WellRested
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 130
+        width: 90
+        height: 117
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a32978d88edc45469120caaa6175089
+      internalID: -1259323368
       vertices: []
       indices: 
       edges: []
@@ -746,9 +768,10 @@ TextureImporter:
       Intoxication: -1602863930
       NicotineHigh: -973259104
       Poisoning: 682058942
+      Sleepy_Unsused: 1438131718
       SteadyHands: 1885579657
       Thirst: -1225528465
-      WellRested: 1438131718
+      WellRested: -1259323368
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
