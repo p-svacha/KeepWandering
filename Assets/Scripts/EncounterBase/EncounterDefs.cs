@@ -39,8 +39,24 @@ public static class EncounterDefs
                   { BiomeDefOf.Outskirts, Rarity.Occasional },
                   { BiomeDefOf.Woods, Rarity.Rare },
             },
-            CameraZoomLevel = 7f,
+            CameraZoomLevel = 8f,
             DevNotes = "Bandits raid the player's camp during the night. Intensity determines the number of bandits (1 = lone bandit, 2 = pair, 3 = small group), which scales all option difficulties and the severity of negative outcomes. The player can fight (Combat/Strength, hardest at high intensity but keeps all items on success), sneak away (Dexterity/Agility, easier in woods, harder in outskirts, always loses some items), intimidate (Charisma/Combat, weapon slot is very effective, no critical failure), or hide (Perception/Dexterity, only available at intensity 1-2, failure leads to a second step where the player is caught and must fight at +15 difficulty or beg). Beg is a desperation option with three coin slots for scaling bribes. All outcomes scale item loss and injury severity with intensity.",
+        },
+
+        new EncounterDef("Guards")
+        {
+            EncounterClass = typeof(NightEncounter_Guards),
+            Type = EncounterType.Night,
+            AttackType = AttackType.Human,
+            Rarity = new Dictionary<BiomeDef, Rarity>
+            {
+                  { BiomeDefOf.City, Rarity.VeryCommon },
+                  { BiomeDefOf.Outskirts, Rarity.Common },
+                  { BiomeDefOf.Woods, Rarity.Occasional },
+            },
+            MaxDistanceFromQuarantineFence = 1,
+            CameraZoomLevel = 8f,
+            DevNotes = "Quarantine guards patrol the fence and find the player's camp at night. Can only occur on tiles within distance 1 of the quarantine fence. Intensity determines the number of guards (1 = lone guard, 2 = pair, 3 = full patrol), which scales all option difficulties and the severity of negative outcomes. The player can bluff (Social, no partial success), bribe (fixed outcome, costs Intensity + 1 coins, always succeeds), sneak away (Dexterity, easier in woods, harder in outskirts, always loses some items), or fight (Strength, very hard, weapon slot helps, no partial success). Unlike bandits, guards are professionals, so fighting is much riskier and there is a guaranteed (but costly) way out via bribing.",
         },
 
         #endregion

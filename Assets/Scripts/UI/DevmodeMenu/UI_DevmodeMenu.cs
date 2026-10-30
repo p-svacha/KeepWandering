@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_DevmodeMenu : MonoBehaviour
+public class UI_DevmodeMenu : MonoBehaviourSingleton<UI_DevmodeMenu>
 {
     private Game Game;
 
@@ -16,7 +16,8 @@ public class UI_DevmodeMenu : MonoBehaviour
     public TMP_Dropdown AddItemDropdown;
     public Button AddItemButton;
 
-    public TMP_Dropdown ForceEventDropdown;
+    public TMP_Dropdown ForcedAfternoonEncounterDropdown;
+    public TMP_Dropdown ForcedNightEncounterDropdown;
 
     public TMP_Dropdown HealthConditionDropwdown;
     public Button ApplyHealthConditionButton;
@@ -25,6 +26,11 @@ public class UI_DevmodeMenu : MonoBehaviour
     public Button ApplyCutWoundButton;
     public Button ApplyBruiseWoundButton;
     public Button ApplyBurnWoundButton;
+
+    // Forced encounters
+    public EncounterDef ForcedAfternoonEncounter => ForcedAfternoonEncounterDropdown.value == 0 ? null : EncounterManager.GetAllAfternoonEncounters()[ForcedAfternoonEncounterDropdown.value - 1] as EncounterDef;
+    public EncounterDef ForcedNightEncounter => ForcedNightEncounterDropdown.value == 0 ? null : EncounterManager.GetAllNightEncounters()[ForcedNightEncounterDropdown.value - 1] as EncounterDef;
+
     public void Init(Game game)
     {
         Game = game;
@@ -41,15 +47,23 @@ public class UI_DevmodeMenu : MonoBehaviour
         AddItemDropdown.options = itemOptions;
         AddItemButton.onClick.AddListener(AddItem);
 
-        // Force event
-        List<TMP_Dropdown.OptionData> eventOptions = new List<TMP_Dropdown.OptionData>();
-        eventOptions.Add(new TMP_Dropdown.OptionData("No Force"));
-        foreach (EncounterDef encounterDef in DefDatabase<EncounterDef>.AllDefs)
+        // Forced afternoon encounter
+        List<TMP_Dropdown.OptionData> forcedAfternoonEncounterOptions = new List<TMP_Dropdown.OptionData>();
+        forcedAfternoonEncounterOptions.Add(new TMP_Dropdown.OptionData("No Force"));
+        foreach (EncounterDef encounterDef in EncounterManager.GetAllAfternoonEncounters())
         {
-            eventOptions.Add(new TMP_Dropdown.OptionData(encounterDef.DefName));
+            forcedAfternoonEncounterOptions.Add(new TMP_Dropdown.OptionData(encounterDef.DefName));
         }
-        ForceEventDropdown.options = eventOptions;
-        ForceEventDropdown.onValueChanged.AddListener(ForceEncounter);
+        ForcedAfternoonEncounterDropdown.options = forcedAfternoonEncounterOptions;
+
+        // Forced night encounter
+        List<TMP_Dropdown.OptionData> forcedNightEncounterOptions = new List<TMP_Dropdown.OptionData>();
+        forcedNightEncounterOptions.Add(new TMP_Dropdown.OptionData("No Force"));
+        foreach (EncounterDef encounterDef in EncounterManager.GetAllNightEncounters())
+        {
+            forcedNightEncounterOptions.Add(new TMP_Dropdown.OptionData(encounterDef.DefName));
+        }
+        ForcedNightEncounterDropdown.options = forcedNightEncounterOptions;
 
         // Apply health condition
         List<TMP_Dropdown.OptionData> healthConditionOptions = new List<TMP_Dropdown.OptionData>();
@@ -85,11 +99,6 @@ public class UI_DevmodeMenu : MonoBehaviour
         RefreshStep($"Added {DefDatabase<ItemDef>.AllDefs[AddItemDropdown.value].DefName} to inventory");
     }
 
-    private void ForceEncounter(int value)
-    {
-        Game.EncounterManager.ForceEncounter(value == 0 ? null : DefDatabase<EncounterDef>.AllDefs[value - 1]);
-    }
-
     private void ApplyHealthCondition()
     {
         Game.ApplyHealthCondition(ApplicableHealthConditions[HealthConditionDropwdown.value], "Devmode Menu");
@@ -123,5 +132,13 @@ public class UI_DevmodeMenu : MonoBehaviour
     }
 
 
+    public void ResetForcedAfternoonEncounter()
+    {
+        ForcedAfternoonEncounterDropdown.value = 0;
+    }
 
+    public void ResetForcedNightEncounter()
+    {
+        ForcedNightEncounterDropdown.value = 0;
+    }
 }

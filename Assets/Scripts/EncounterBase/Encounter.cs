@@ -223,9 +223,13 @@ public abstract class Encounter
         }
         else // It is afternoon
         {
+            AudioManager.PlaySound("CartRolling");
+            AudioManager.PlaySound("Footsteps");
+
             Game.EndAfternoonEncounter();
         }
-        return "";
+
+        return Game.UI.EventStepDisplay.EncounterText.text;
     }
 
     /// <summary>

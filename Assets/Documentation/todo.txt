@@ -1,12 +1,12 @@
 TODOS:
 ==============================================
 
-- fence night encounter: guards
+- if traps defend an attack at night, leading to a night event that would happen, not happening, stay black for a little longer and play some sound effects to indicate that an attack was defended (traps triggering, footsteps, hurting sounds, etc.), and then show the morning report.
+
+
 
 AUDIO TO ALL EXISTING CONTENT
 
-keep wandering sounds
-ambient sounds by biome
 health conditions sounds
  - when applied / increased (same sound, different per condition)
 quest sounds (incl romours)

@@ -66,7 +66,7 @@ no black outlines, use more desaturated colors. flowy brush strokes, make use of
 
 ## Technical Workflow
 
-Use the Resources/Encounter/ReferenceBasePicture_Zoom12.png as a template for size and draw into that for consistent size of stuff relative to the player.
+Use the Resources/Encounter/BasePsd_CopyTemplate.psd as a template for size and draw into that for consistent size of stuff relative to the player. Copy it in the folder of the new encounter.
 
 Outline full black, 8-16px (usually 12px), 100% hardness,opacity,flow, pressure for size
 

@@ -7,8 +7,6 @@ public class NightEncounter_Bandits : NightEncounter
 
     private bool IsPlayerCaughtHiding;
 
-    protected override void OnInitialize() { }
-
     protected override string OnStart()
     {
         string text = "";

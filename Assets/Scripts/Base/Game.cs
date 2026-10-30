@@ -701,21 +701,39 @@ public class Game : MonoBehaviourSingleton<Game>
         // Else generate a new one
         else
         {
-            EncounterDef newEncounterDef = EncounterManager.SelectLocationEncounterDefFor(CurrentPosition);
-            LocationEncounter newEncounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
-            SetCurrentEncounter(newEncounter);
+            // Check for forced encounter (dev mode)
+            if (UI_DevmodeMenu.Instance.ForcedAfternoonEncounter != null)
+            {
+                EncounterDef forcedDef = UI_DevmodeMenu.Instance.ForcedAfternoonEncounter;
+                UI_DevmodeMenu.Instance.ResetForcedAfternoonEncounter();
+                Debug.Log($"Dev mode: Forcing afternoon encounter {forcedDef.Label} on tile {CurrentPosition.Coordinates}");
+
+                LocationEncounter newEncounter = SetLocationEncounter(CurrentPosition, forcedDef, ignoreValidation: true);
+                SetCurrentEncounter(newEncounter);
+            }
+
+            else
+            {
+                EncounterDef newEncounterDef = EncounterManager.SelectLocationEncounterDefFor(CurrentPosition);
+                LocationEncounter newEncounter = SetLocationEncounter(CurrentPosition, newEncounterDef);
+                SetCurrentEncounter(newEncounter);
+            }
+            
         }
     }
 
     /// <summary>
     /// Sets the encounter on a tile according to the given def. Does not start the encounter.
     /// </summary>
-    public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef, bool showInOutcomeNote = false, bool hidden = false)
+    public LocationEncounter SetLocationEncounter(WorldMapTile tile, EncounterDef encounterDef, bool showInOutcomeNote = false, bool hidden = false, bool ignoreValidation = false)
     {
         // Validate
-        if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
-        if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
-        if (WorldMap.GetNumTilesWithEncounter(encounterDef) >= encounterDef.MaxOccurences && encounterDef.MaxOccurences > 0) throw new System.Exception($"Trying to set encounter {encounterDef.Label} on tile {tile.Coordinates}, but it has already occurred the maximum number of times ({encounterDef.MaxOccurences}).");
+        if (!ignoreValidation)
+        {
+            if (tile.Encounter != null) throw new System.Exception("Trying to set encounter for tile that already has an encounter!");
+            if (encounterDef == null) throw new System.Exception("Trying to set null encounter on tile " + tile.Coordinates);
+            if (WorldMap.GetNumTilesWithEncounter(encounterDef) >= encounterDef.MaxOccurences && encounterDef.MaxOccurences > 0) throw new System.Exception($"Trying to set encounter {encounterDef.Label} on tile {tile.Coordinates}, but it has already occurred the maximum number of times ({encounterDef.MaxOccurences}).");
+        }
 
         // Generate encounter
         LocationEncounter encounter = EncounterManager.GenerateEncounter(encounterDef, tile) as LocationEncounter;
@@ -771,6 +789,15 @@ public class Game : MonoBehaviourSingleton<Game>
         // Check if night encounter is negated by camp
         if (Camp.Instance.HasFire && selectedNightEncounterDef.AttackType == AttackType.Wildlife) nightEncounterIntensity = 0;
 
+        // Override previous roll if dev mode is forcing a night encounter
+        if (UI_DevmodeMenu.Instance.ForcedNightEncounter != null)
+        {
+            selectedNightEncounterDef = UI_DevmodeMenu.Instance.ForcedNightEncounter;
+            nightEncounterIntensity = Random.Range(1, 3 + 1); // Random intensity between 1 and 3
+            Debug.Log($"Dev mode: Forcing night encounter {selectedNightEncounterDef.Label} with intensity {nightEncounterIntensity}");
+            UI_DevmodeMenu.Instance.ResetForcedNightEncounter();
+        }
+
         // If no night encounter is happening, end the day
         if (nightEncounterIntensity == 0) SwitchState(GameState.DayTransitionFadeIn);
 
@@ -783,6 +810,10 @@ public class Game : MonoBehaviourSingleton<Game>
                 nightEncounterIntensity--;
                 Camp.UseTrapToDefendNightAttack();
             }
+
+            // Trigger feedback sounds during the black transition
+            PendingTrapSequenceCount = Camp.NumTrapsUsedToDefendNightAttack;
+            PendingTrapSequenceRepelledAll = nightEncounterIntensity == 0;
 
             // If intensity was reduced to 0, mention in morning report and end day
             if (nightEncounterIntensity == 0)
@@ -852,7 +883,7 @@ public class Game : MonoBehaviourSingleton<Game>
         Player.OnEndDay(this, LatestMorningReport);
 
         // Increase danger level on current tile
-        ModifyDangerLevel(+1);
+        ModifyDangerLevel(+1, playSound: false);
 
         // Clean up camp
         Camp.Instance.CleanUpCamp(LatestMorningReport);
@@ -1134,14 +1165,14 @@ public class Game : MonoBehaviourSingleton<Game>
 
     #endregion
 
-    public void ModifyDangerLevel(int amount) => ModifyTileDangerLevel(CurrentPosition, amount);
-    public void ModifyTileDangerLevel(WorldMapTile tile, int amount)
+    public void ModifyDangerLevel(int amount, bool playSound = true) => ModifyTileDangerLevel(CurrentPosition, amount, playSound);
+    public void ModifyTileDangerLevel(WorldMapTile tile, int amount, bool playSound = true)
     {
         if (amount == 0) return;
 
         bool isIncrease = amount > 0;
 
-        AudioManager.PlaySound(isIncrease ? "ViolinDanger" : "ViolinChord");
+        if (playSound) AudioManager.PlaySound(isIncrease ? "ViolinDanger" : "ViolinChord");
 
         if (tile == CurrentPosition) DangerLevelChangesSinceLastStep += amount;
         else
@@ -1602,7 +1633,50 @@ public class Game : MonoBehaviourSingleton<Game>
 
     #region UI Feedback
 
+    private int PendingTrapSequenceCount;
+    private bool PendingTrapSequenceRepelledAll;
+
+    private System.Collections.IEnumerator TrapDefenseSequence(int numTraps, bool repelledAll)
+    {
+        yield return new WaitForSeconds(0.6f);
+        AudioManager.PlaySound("Footsteps", volume: 0.7f);
+        yield return new WaitForSeconds(1.4f);
+
+        for (int i = 0; i < numTraps; i++)
+        {
+            AudioManager.PlayRandomSound("TrapTriggered", pitchVariance: 0.1f);
+            yield return new WaitForSeconds(0.35f);
+            AudioManager.PlayRandomSound("EnemyHurt", pitchVariance: 0.15f);
+            yield return new WaitForSeconds(Random.Range(0.9f, 1.4f));
+            if (i < numTraps - 1 || !repelledAll)
+            {
+                AudioManager.PlaySound("Footsteps", volume: 0.5f, pitchVariance: 0.1f);
+                yield return new WaitForSeconds(Random.Range(0.6f, 1.0f));
+            }
+        }
+
+        if (repelledAll)
+        {
+            AudioManager.PlaySound("EnemyFleeing");
+            yield return new WaitForSeconds(1.5f);
+        }
+
+        FinishTransitionFadeIn();
+    }
+
     public void OnTransitionFadeInDone()
+    {
+        if (PendingTrapSequenceCount > 0 && (State == GameState.DayTransitionFadeIn || State == GameState.EndEncounterTransitionIn))
+        {
+            int count = PendingTrapSequenceCount;
+            PendingTrapSequenceCount = 0;
+            StartCoroutine(TrapDefenseSequence(count, PendingTrapSequenceRepelledAll));
+            return;
+        }
+        FinishTransitionFadeIn();
+    }
+
+    private void FinishTransitionFadeIn()
     {
         if (State == GameState.DayTransitionFadeIn) SwitchState(GameState.InDayTransition);
         else if (State == GameState.EndEncounterTransitionIn) SwitchState(GameState.EndEncounterTransitionOut);

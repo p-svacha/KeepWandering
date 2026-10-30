@@ -55,6 +55,11 @@ public class EncounterDef : Def
     public int MinDistanceBetween { get; init; } = -1;
 
     /// <summary>
+    /// The maximum hex tile distance from the quarantine fence that this encounter can occur at (0 = only directly on the fence, 1 = on the fence or adjacent to it, ...). Applies to the tile the encounter takes place on. If -1 (the default), there is no restriction.
+    /// </summary>
+    public int MaxDistanceFromQuarantineFence { get; init; } = -1;
+
+    /// <summary>
     /// The orthographic size of the camera when this encounter is active.
     /// </summary>
     public float CameraZoomLevel { get; init; } = EncounterCamera.DEFAULT_CAMERA_SIZE;
@@ -79,6 +84,7 @@ public class EncounterDef : Def
         if (Type == EncounterType.Invalid) ThrowValidationError("Encounter type must be set.");
         if (MaxOccurences == 0) ThrowValidationError("MaxOccurences cannot be set to 0. Use -1 for no limit.");
         if (MinDistanceFromStart == 0 || MinDistanceFromStart == 1) ThrowValidationError("MinDistanceFromStart cannot be set to 0 or 1. Use -1 for no minimum distance.");
+        if (MaxDistanceFromQuarantineFence < -1) ThrowValidationError("MaxDistanceFromQuarantineFence cannot be below -1. Use -1 for no maximum distance.");
 
         if (EncounterClass == null) ThrowValidationError("EncounterClass cannot be null.");
         if (!EncounterClass.IsSubclassOf(typeof(Encounter))) ThrowValidationError("EncounterClass must be a subclass of Encounter.");

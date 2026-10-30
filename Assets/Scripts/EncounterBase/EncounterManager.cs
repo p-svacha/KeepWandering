@@ -5,14 +5,12 @@ using UnityEngine;
 
 /// <summary>
 /// The EncounterManager is responsible for chosing which encounters will appear and instantiating them.
+/// </summary>
 public class EncounterManager
 {
     private Game Game;
     private WorldMap WorldMap => WorldMap.Instance;
     public Dictionary<EncounterDef, int> NightEncounterAppearances;
-
-    // Forced (dev mode)
-    private EncounterDef ForcedLocationEncounter;
 
     public EncounterManager(Game game)
     {
@@ -39,14 +37,6 @@ public class EncounterManager
     /// </summary>
     public EncounterDef SelectLocationEncounterDefFor(WorldMapTile tile)
     {
-        // Forced encounter (dev mode)
-        if (ForcedLocationEncounter != null)
-        {
-            EncounterDef forced = ForcedLocationEncounter;
-            ForcedLocationEncounter = null;
-            return forced;
-        }
-
         // Create a weighted table with the probabilities of each event and chose one
         Dictionary<EncounterDef, float> eventTable = new Dictionary<EncounterDef, float>();
         foreach (EncounterDef def in DefDatabase<EncounterDef>.AllDefs.Where(e => e.Type == EncounterType.Location))
@@ -66,6 +56,7 @@ public class EncounterManager
         // Check if the event can even occur
         if (numAppearances >= def.MaxOccurences && def.MaxOccurences > 0) return 0f; // Cannot occur more than once and it already happened
         if (rarity == Rarity.Never) return 0f; // Cannot occur in this biome
+        if (!IsWithinFenceDistance(def, tile)) return 0f; // Too far from the quarantine fence
 
         if (def.MinDistanceBetween > 0)
         {
@@ -97,11 +88,6 @@ public class EncounterManager
         return probability;
     }
 
-    public void ForceEncounter(EncounterDef encounterDef)
-    {
-        ForcedLocationEncounter = encounterDef;
-    }
-
     public EncounterDef SelectNightEncounterDefFor(WorldMapTile tile)
     {
         // Create a weighted table with the probabilities of each event and chose one
@@ -122,6 +108,7 @@ public class EncounterManager
 
         // Check if the event can even occur
         if (rarity == Rarity.Never) return 0f; // Cannot occur in this biome
+        if (!IsWithinFenceDistance(def, tile)) return 0f; // Too far from the quarantine fence
 
         // Base probability
         float probability = (float)rarity;
@@ -135,7 +122,24 @@ public class EncounterManager
         return probability;
     }
 
+    /// <summary>
+    /// Returns if a tile satisfies the MaxDistanceFromQuarantineFence restriction of an encounter def (always true if the def has no restriction).
+    /// </summary>
+    private bool IsWithinFenceDistance(EncounterDef def, WorldMapTile tile)
+    {
+        if (def.MaxDistanceFromQuarantineFence < 0) return true;
+        return tile.GetDistanceToQuarantineFence() <= def.MaxDistanceFromQuarantineFence;
+    }
+
     #endregion
 
+
+    #region static
+
+    public static List<EncounterDef> GetAllAfternoonEncounters() => DefDatabase<EncounterDef>.AllDefs.Where(e => e.Type == EncounterType.Location || e.Type == EncounterType.ForcePlacedOnly || e.Type == EncounterType.Landmark).ToList();
+
+    public static List<EncounterDef> GetAllNightEncounters() => DefDatabase<EncounterDef>.AllDefs.Where(e => e.Type == EncounterType.Night).ToList();
+
+    #endregion
 
 }

@@ -4,7 +4,6 @@ public abstract class NightEncounter : Encounter
 {
     public const int MAX_INTENSITY = 3;
 
-    private Camp Camp => Camp.Instance;
     private CampRenderer CampRenderer;
 
     public int Intensity { get; protected set; } // [1-3] A measure of how dangerous the encounter is.
@@ -13,16 +12,18 @@ public abstract class NightEncounter : Encounter
     public void Init(Game game, EncounterDef def, WorldMapTile tile, int intensity)
     {
         Intensity = intensity;
-        CampRenderer = Game.EncounterContainer.transform.Find($"NightCamp").GetComponent<CampRenderer>();
+        CampRenderer = game.EncounterContainer.transform.Find($"NightCamp").GetComponent<CampRenderer>();
         CampRenderer.gameObject.SetActive(true);
         base.Init(game, def, tile);
     }
+
+    protected override sealed void OnInitialize() { } // One-time event, so everything can be handled in OnStart
 
     protected override bool IsGeneralItemUseAllowed() => IsEncounterDone; // Items only allowed after encounter is done, so player can use items to heal up before sleeping.
 
     protected override void RefreshSprites()
     {
-        CampRenderer.Refresh();
+        CampRenderer.Refresh(hideTraps: true);
     }
 
     protected override void OnEnd()
@@ -31,4 +32,5 @@ public abstract class NightEncounter : Encounter
     }
 
     public override float CameraXOffset => -2f; // so camp is visible
+    public override AmbientMusicGenre GetAmbientMusicGenre() => AmbientMusicGenre.Tense;
 }

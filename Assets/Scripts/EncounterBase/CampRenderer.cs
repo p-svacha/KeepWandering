@@ -17,7 +17,7 @@ public class CampRenderer : MonoBehaviour
     /// <summary>
     /// Refreshes all sprites according to the current state of the camp.
     /// </summary>
-    public void Refresh()
+    public void Refresh(bool hideTraps = false)
     {
         // Tent
         Tent.SetActive(Camp.HasTent);
@@ -35,13 +35,18 @@ public class CampRenderer : MonoBehaviour
         else FireSpot.sprite = ResourceManager.LoadSprite("Camp/Camp_FireSpot");
 
         // Traps
-        RefreshTrap(Trap1, Camp.Trap1 != null);
-        RefreshTrap(Trap2, Camp.Trap2 != null);
-        RefreshTrap(Trap3, Camp.Trap3 != null);
+        RefreshTrap(Trap1, Camp.Trap1 != null, hideTraps);
+        RefreshTrap(Trap2, Camp.Trap2 != null, hideTraps);
+        RefreshTrap(Trap3, Camp.Trap3 != null, hideTraps);
     }
 
-    private void RefreshTrap(SpriteRenderer sprite, bool hasTrap)
+    private void RefreshTrap(SpriteRenderer sprite, bool hasTrap, bool hideTraps)
     {
+        if (hideTraps)
+        {
+            sprite.gameObject.SetActive(false);
+            return;
+        }
         sprite.gameObject.SetActive(true);
         if (hasTrap) sprite.sprite = ResourceManager.LoadSprite("Camp/Camp_Trap");
         else sprite.sprite = ResourceManager.LoadSprite("Camp/Camp_TrapSpot");

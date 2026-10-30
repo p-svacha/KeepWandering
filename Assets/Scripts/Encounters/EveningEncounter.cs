@@ -13,7 +13,7 @@ public class EveningEncounter : Encounter
 
     protected override string OnStart()
     {
-        return "How would you like to spend your evening?\n\nYou can set up your camp before deciding on an activity below. After choosing an activity, it will be too dark to make further changes.";
+        return "You have reached a spot where you will stay for the night. How would you like to spend your evening?\n\nYou can set up your camp before deciding on an activity below. After choosing an activity, it will be too dark to make further changes.";
     }
 
     protected override void RefreshSprites()

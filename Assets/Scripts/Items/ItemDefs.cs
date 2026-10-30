@@ -99,6 +99,10 @@ public static class ItemDefs
             Description = "A refreshing alcoholic beverage.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.Bribe, 2 }
+            },
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Drink,
@@ -157,9 +161,13 @@ public static class ItemDefs
             Label = "chocolate",
             LabelSingular = "chocolate bar",
             LabelPlural = "chocolate bars",
-            Description = "A sweet treat that can boost morale.",
+            Description = "A sweet treat, that is quite rare in the quarantine zone.",
             Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 2,
+            Tags =
+            {
+                { ItemTagDefOf.Bribe, 4 }
+            },
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Food,
@@ -176,6 +184,10 @@ public static class ItemDefs
             Description = "A pack of cigarettes.",
             Material = ItemMaterialDefOf.PlasticWrapped,
             Value = 3,
+            Tags =
+            {
+                { ItemTagDefOf.Bribe, 5 }
+            },
             ConsumptionProperties = new ConsumptionProperties()
             {
                 ConsumptionType = ConsumptionTypeDefOf.Smoke,
@@ -194,6 +206,10 @@ public static class ItemDefs
             Description = "Commonly accepted as currency.",
             Material = ItemMaterialDefOf.MetalThin,
             Value = 1,
+            Tags =
+            {
+                { ItemTagDefOf.Bribe, 3 }
+            },
         },
 
         new ItemDef("Crowbar")

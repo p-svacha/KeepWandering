@@ -14,6 +14,11 @@ public static class ItemTagDefs
 {
     public static List<ItemTagDef> Defs => new List<ItemTagDef>()
     {
+        new ItemTagDef("Bribe")
+        {
+            Label = "Bribe",
+            Description = "Items with this tag can be used to bribe people."
+        },
         new ItemTagDef("Climbing")
         {
             Label = "Climbing Tool",
@@ -90,6 +95,7 @@ public static class ItemTagDefs
 [DefOf]
 public static class ItemTagDefOf
 {
+    public static ItemTagDef Bribe;
     public static ItemTagDef Climbing;
     public static ItemTagDef Cutting;
     public static ItemTagDef Digging;

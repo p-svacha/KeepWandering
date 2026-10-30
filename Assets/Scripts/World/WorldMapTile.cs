@@ -80,6 +80,16 @@ public class WorldMapTile
     public int GetHexDistance(WorldMapTile other) => HelperFunctions.GetHexDistance(Coordinates, other.Coordinates);
 
     /// <summary>
+    /// Returns the hex distance (in tiles) to the closest tile of the quarantine fence. Returns 0 if this tile is on the fence.
+    /// </summary>
+    public int GetDistanceToQuarantineFence()
+    {
+        List<WorldMapTile> fenceTiles = WorldMap.Instance.QuarantineZone.GetOrderedPerimeterTiles();
+        if (fenceTiles.Count == 0) return int.MaxValue;
+        return fenceTiles.Min(t => GetHexDistance(t));
+    }
+
+    /// <summary>
     /// Returns the minimum number of in-game days required for the player to travel from the given source
     /// tile to this tile, accounting for passability and the road movement bonus (2 tiles per day when start,
     /// mid, and end tiles all have roads - mirrors Game.GetNextPositionTiles()).
